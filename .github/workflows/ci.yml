@@ -80,14 +80,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  coverage-cypress:
-    runs-on: ubuntu-latest
-    services:
-      saddle-contract:
-        image: saddlefinance/contracts:latest
-        ports:
-          - 8545:8545
-
     env:
       REACT_APP_NOTIFY_DAPP_ID: ${{ secrets.REACT_APP_NOTIFY_DAPP_ID }}
     steps:

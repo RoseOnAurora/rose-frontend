@@ -6,7 +6,6 @@ import { Link } from "react-router-dom"
 import ThemeChanger from "./ThemeChanger"
 import Web3Status from "./Web3Status"
 import classNames from "classnames"
-import logo from "../assets/icons/logo.svg"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -19,9 +18,7 @@ function TopMenu({ activeTab }: Props): ReactElement {
   return (
     <header className="top">
       <h1>
-        <Link to="/">
-          <img className="logo" alt="logo" src={logo} />
-        </Link>
+        <Link to="/">rose.fi</Link>
       </h1>
 
       <ul className="nav">
@@ -41,14 +38,6 @@ function TopMenu({ activeTab }: Props): ReactElement {
             })}
           >
             {t("pools")}
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/risk"
-            className={classNames({ active: activeTab === t("risk") })}
-          >
-            {t("risk")}
           </Link>
         </li>
       </ul>

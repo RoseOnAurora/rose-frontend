@@ -37,9 +37,14 @@ export default function usePoolTVLs(): { [poolName in PoolName]?: BigNumber } {
       } else if (chainId == ChainId.ROPSTEN) {
         ethcallProvider.multicallAddress =
           "0x53c43764255c17bd724f74c4ef150724ac50a3ed"
+      } else if (chainId == ChainId.AURORA_TESTNET) {
+        ethcallProvider.multicallAddress =
+          "0x212BBf870776776efEcB6123E771c104d80e7735"
       }
 
       const pools = Object.values(POOLS_MAP)
+      console.log(`Chain ID: ${chainId}`)
+      // console.log(`Pools: ${JSON.stringify(pools)}`)
       const supplyCalls = pools
         .map((p) => {
           return new Contract(

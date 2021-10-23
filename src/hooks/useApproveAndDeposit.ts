@@ -117,7 +117,8 @@ export function useApproveAndDeposit(
           infiniteApproval,
           gasPrice,
           {
-            onTransactionError: () => {
+            onTransactionError: (error) => {
+              console.error(error)
               throw new Error("Your transaction could not be completed")
             },
           },

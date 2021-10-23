@@ -21,7 +21,6 @@ import PoolOverview from "../components/PoolOverview"
 import ReviewMigration from "../components/ReviewMigration"
 import TopMenu from "../components/TopMenu"
 import { Zero } from "@ethersproject/constants"
-import classNames from "classnames"
 import { logEvent } from "../utils/googleAnalytics"
 import styles from "./Pools.module.scss"
 import { useApproveAndMigrateUSD } from "../hooks/useApproveAndMigrateUSD"
@@ -43,7 +42,7 @@ function Pools(): ReactElement | null {
   const [currentModal, setCurrentModal] = useState<string | null>(null)
   const approveAndMigrateUSD = useApproveAndMigrateUSD()
   const [activeMigration, setActiveMigration] = useState<PoolName | null>(null)
-  const [filter, setFilter] = useState<PoolTypes | "all" | "outdated">("all")
+  const [filter] = useState<PoolTypes | "all" | "outdated">("all")
   const handleClickMigrate = (poolName: PoolName) => {
     setActiveMigration(poolName)
     setCurrentModal("migrate")
@@ -125,26 +124,6 @@ function Pools(): ReactElement | null {
   return (
     <div className={styles.poolsPage}>
       <TopMenu activeTab="pools" />
-      <ul className={styles.filters}>
-        {[
-          ["all", "ALL"] as const,
-          [PoolTypes.BTC, "BTC"] as const,
-          [PoolTypes.ETH, "ETH"] as const,
-          [PoolTypes.USD, "USD"] as const,
-          ["outdated", "OUTDATED"] as const,
-        ].map(([filterKey, text]) => (
-          <li
-            key={filterKey}
-            className={classNames(styles.filterTab, {
-              [styles.selected]: filter === filterKey,
-              [styles.outdated]: filterKey === "outdated",
-            })}
-            onClick={(): void => setFilter(filterKey)}
-          >
-            {text}
-          </li>
-        ))}
-      </ul>
       <div className={styles.content}>
         {Object.values(POOLS_MAP)
           .filter(

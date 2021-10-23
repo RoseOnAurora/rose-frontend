@@ -2,9 +2,9 @@ $text-red: #f53535;
 $text-black: #000000;
 $text-white: #ffffff;
 
-$primary: #00f4d7;
+$primary: #cc3a59;
+$primary-muted: #b13550;
 $primary40T: #{$primary}40;
-$primary-blue: #3800d6;
 $primary-blue-light: #f5f2fd;
 $primary-blue-dark: #0d0033;
 $white: #ffffff;
@@ -17,18 +17,22 @@ $yellow2: #ffd848;
 $yellow55: #{$yellow2}8c;
 $light-blue: #e8e5fb;
 $dark-purple: #110040;
+$dark-red: #881f36;
 $blue: #2a4bff;
-$indigo20T: #{$primary-blue}33;
 $blue40T: #{$blue}66;
 $yellow: #f2d35f;
 
+// $primary-blue: #3800d6;
+$primary-blue: $dark-red;
+
+$indigo20T: #{$primary-blue}33;
 $divider-red: #fb5a5a;
 
 $disabled: #aaaeb2;
 
 // Fonts
-$font-family: "Source Code Pro", monospace;
-$font-family-title: "Noe Display";
+$font-family: "Inter", sans-serif;
+$font-family-title: "Inter", sans-serif;
 
 $light: 300;
 $normal: 400;

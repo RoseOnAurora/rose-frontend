@@ -39,16 +39,14 @@ ul {
 :root {
   --primary-foreground: #000;
   --primary-background: #fff;
-  --background: #ffffe9;
+  --background: linear-gradient(to right, #fffbd5, #d88394);
+  // --background: linear-gradient(to right, #d9a7c7, #fffcdc);
   --background-lightgrey: #dfdde3;
   --background-element: rgba(255, 255, 244, 0.7);
   --background-element-hover: rgba(255, 255, 255, 0.88);
-  --background-main: #ffffe9 url("../assets/bg_light.svg") center/auto 60%
-    no-repeat fixed;
+  --background-main: linear-gradient(to right, #fffbd5, #d88394);
   --background-logo: #{$primary};
   --secondary-button: #{$light-blue};
-  --outline: #000;
-  --outline-gray: #{$black30};
   --option-hover: #{$primary-blue-light};
   --tab: #{$black80};
 
@@ -72,27 +70,25 @@ ul {
 body.dark {
   --primary-foreground: #fff;
   --primary-background: #000;
-  --background: #000;
+  // --background: linear-gradient(to right, #3a1c71, #d76d77, #ffaf7b);
+  --background: linear-gradient(to right, #200122, #6f0000);
   --background-lightgrey: #{$black80};
-  --background-element: rgba(0, 0, 0, 0.56);
+  --background-element: rgba(0, 0, 0, 0.7);
   --background-element-hover: rgba(0, 0, 0, 0.8);
-  --background-main: #000 url("../assets/bg.svg") center/auto 60% no-repeat
-    fixed;
-  --background-logo: #ffffe9;
-  --secondary-button: #{$dark-purple};
-  --outline: #fff;
+  --background-main: linear-gradient(to right, #200122, #6f0000);
+  --background-logo: linear-gradient(to right, #fffbd5, #d88394);
+  --secondary-button: #{$dark-red};
   --option-hover: #{$primary-blue-dark};
-  --outline-gray: #{$white30};
   --tab: #{$white};
 
   --text: #fff;
-  --text-darker: #ffffe9;
+  --text-darker: linear-gradient(to right, #fffbd5, #d88394);
   --text-lighter: #bbbbbb;
   --text-lightest: #888888;
-  --text-title: #ffffe9;
+  --text-title: linear-gradient(to right, #fffbd5, #d88394);
   --text-primary: #{$primary};
   --text-selected: #{$primary};
-  --text-secondary-button: #{$blue};
+  --text-secondary-button: #{$primary};
   --text-secondary-button-disabled: #{$blue40T};
   --header-text: #{$primary};
   --sign-graph: #{$primary-blue};

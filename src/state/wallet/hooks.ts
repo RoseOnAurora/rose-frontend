@@ -27,6 +27,9 @@ export function usePoolTokenBalances(): { [token: string]: BigNumber } | null {
       } else if (chainId == ChainId.ROPSTEN) {
         ethcallProvider.multicallAddress =
           "0x53c43764255c17bd724f74c4ef150724ac50a3ed"
+      } else if (chainId == ChainId.AURORA_TESTNET) {
+        ethcallProvider.multicallAddress =
+          "0x212BBf870776776efEcB6123E771c104d80e7735"
       }
 
       const tokens = Object.values(TOKENS_MAP)

@@ -1,6 +1,6 @@
 {
-  "name": "saddle-frontend",
-  "description": "The frontend for saddle.finance 🤠",
+  "name": "rose-frontend",
+  "description": "",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -115,17 +115,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thesis/saddle-frontend.git"
+    "url": "git+https://github.com/RoseOnAurora/rose-frontend.git"
   },
   "keywords": [
     "cryptocurrency",
-    "interoperability",
-    "bitcoin",
     "ethereum",
-    "tbtc",
     "defi"
   ],
-  "author": "Satoshi Nakamoto 🤪",
+  "author": "Grandi",
   "license": "MIT",
   "lint-staged": {
     "*.{ts,tsx}": "eslint --cache --fix"

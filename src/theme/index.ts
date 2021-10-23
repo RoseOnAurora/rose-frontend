@@ -61,9 +61,9 @@ const colors = {
 }
 
 const fonts = {
-  body: "Source Code Pro, monospace, sans-serif",
-  heading: "Noe Display, Times, serif",
-  mono: "Source Code Pro, monospace, sans-serif",
+  body: "Inter, sans-serif",
+  heading: "Inter, sans-serif",
+  mono: "Inter, sans-serif",
 }
 
 const overrides = { config, colors, fonts, components }
