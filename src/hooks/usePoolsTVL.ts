@@ -1,6 +1,6 @@
-import { ChainId, POOLS_MAP, PoolName, PoolTypes } from "../constants"
 import { Contract, Provider } from "ethcall"
 import { MulticallContract, MulticallProvider } from "../types/ethcall"
+import { POOLS_MAP, PoolName, PoolTypes } from "../constants"
 import { useEffect, useState } from "react"
 
 import { AppState } from "../state"
@@ -31,16 +31,16 @@ export default function usePoolTVLs(): { [poolName in PoolName]?: BigNumber } {
 
       await ethcallProvider.init(library)
       // override the contract address when using hardhat
-      if (chainId == ChainId.HARDHAT) {
-        ethcallProvider.multicallAddress =
-          "0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f"
-      } else if (chainId == ChainId.ROPSTEN) {
-        ethcallProvider.multicallAddress =
-          "0x53c43764255c17bd724f74c4ef150724ac50a3ed"
-      } else if (chainId == ChainId.AURORA_TESTNET) {
-        ethcallProvider.multicallAddress =
-          "0x212BBf870776776efEcB6123E771c104d80e7735"
-      }
+      // if (chainId == ChainId.HARDHAT) {
+      //   ethcallProvider.multicallAddress =
+      //     "0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f"
+      // } else if (chainId == ChainId.ROPSTEN) {
+      //   ethcallProvider.multicallAddress =
+      //     "0x53c43764255c17bd724f74c4ef150724ac50a3ed"
+      // } else if (chainId == ChainId.AURORA_TESTNET) {
+      //   ethcallProvider.multicallAddress =
+      //     "0x212BBf870776776efEcB6123E771c104d80e7735"
+      // }
 
       const pools = Object.values(POOLS_MAP)
       console.log(`Chain ID: ${chainId}`)
