@@ -15,7 +15,6 @@ import Swap from "./Swap"
 import Version from "../components/Version"
 import Web3ReactManager from "../components/Web3ReactManager"
 import Withdraw from "./Withdraw"
-import fetchGasPrices from "../utils/updateGasPrices"
 import fetchSwapStats from "../utils/getSwapStats"
 import fetchTokenPricesUSD from "../utils/updateTokenPrices"
 import { useActiveWeb3React } from "../hooks"
@@ -70,16 +69,16 @@ function GasAndTokenPrices({
   const dispatch = useDispatch<AppDispatch>()
   const { chainId, library } = useActiveWeb3React()
 
-  const fetchAndUpdateGasPrice = useCallback(() => {
-    void fetchGasPrices(dispatch)
-  }, [dispatch])
+  // const fetchAndUpdateGasPrice = useCallback(() => {
+  //   void fetchGasPrices(dispatch)
+  // }, [dispatch])
   const fetchAndUpdateTokensPrice = useCallback(() => {
     fetchTokenPricesUSD(dispatch, chainId, library)
   }, [dispatch, chainId, library])
   const fetchAndUpdateSwapStats = useCallback(() => {
     void fetchSwapStats(dispatch)
   }, [dispatch])
-  usePoller(fetchAndUpdateGasPrice, 5 * 1000)
+  // usePoller(fetchAndUpdateGasPrice, 5 * 1000)
   usePoller(fetchAndUpdateTokensPrice, BLOCK_TIME * 3)
   usePoller(fetchAndUpdateSwapStats, BLOCK_TIME * 280) // ~ 1hr
   return <>{children}</>
