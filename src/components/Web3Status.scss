@@ -28,6 +28,14 @@ div.walletStatus {
         display: none;
       }
     }
+    span.network {
+      margin-right: 2px;
+      margin-bottom: 2px;
+      font-weight: bold;
+      @include breakpoint(md) {
+        display: none;
+      }
+    }
   }
   .noAccount {
     height: 40px;
