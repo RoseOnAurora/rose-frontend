@@ -23,13 +23,16 @@ export const network = new NetworkConnector({
 let networkLibrary: BaseProvider | undefined
 export function getNetworkLibrary(): BaseProvider {
   const provider = getDefaultProvider(NETWORK_URL)
+  if (NETWORK_URL) {
+    console.log(`Connecting to network URL: ${NETWORK_URL}`)
+  }
   return (networkLibrary = networkLibrary ?? provider)
 }
 
 export const injected = new InjectedConnector({
   // mainnet, ropsten, rinkeby, goerli, kovan, local buidler
   // see: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
-  supportedChainIds: [1, 3, 4, 5, 42, 31337, 1313161554, 1313161555],
+  supportedChainIds: [1313161554, 1313161555],
 })
 
 export const walletconnect = new WalletConnectConnector({
