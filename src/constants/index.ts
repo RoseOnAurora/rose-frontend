@@ -278,7 +278,7 @@ export const STABLECOIN_SWAP_V2_TOKEN_CONTRACT_ADDRESSES: {
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "0xC863F1F636fddce400E7515eCBDAbbEc4d1E0390",
   [ChainId.AURORA_TESTNET]: "0xf95A907E599d720A22e9688238aFf1C3d2904bFb",
-  [ChainId.AURORA_MAINNET]: "",
+  [ChainId.AURORA_MAINNET]: "0xe3520349F477A5F6EB06107066048508498A291b", // @TODO this is actually dai so the multicall doesnt fail - needs to be changed
 }
 
 export const WCUSD_SWAP_TOKEN_CONTRACT_ADDRESSES: {
