@@ -16,6 +16,7 @@ import {
   RENBTC,
   SBTC,
   SETH,
+  STABLECOIN_POOL_NAME,
   STABLECOIN_SWAP_TOKEN,
   STABLECOIN_SWAP_V2_TOKEN,
   SUSD,
@@ -51,6 +52,8 @@ import { LpTokenUnguarded } from "../../types/ethers-contracts/LpTokenUnguarded"
 import META_SWAP_DEPOSIT_ABI from "../constants/abis/metaSwapDeposit.json"
 import MIGRATOR_USD_CONTRACT_ABI from "../constants/abis/swapMigratorUSD.json"
 import { MetaSwapDeposit } from "../../types/ethers-contracts/MetaSwapDeposit"
+import ROSE_STABLES_POOL_ABI from "../constants/abis/RoseStablesPool.json"
+import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
 import SWAP_FLASH_LOAN_ABI from "../constants/abis/swapFlashLoan.json"
 import SWAP_FLASH_LOAN_NO_WITHDRAW_FEE_ABI from "../constants/abis/swapFlashLoanNoWithdrawFee.json"
 import SWAP_GUARDED_ABI from "../constants/abis/swapGuarded.json"
@@ -138,6 +141,29 @@ export function useTokenContract(
   const { chainId } = useActiveWeb3React()
   const tokenAddress = chainId ? t.addresses[chainId] : undefined
   return useContract(tokenAddress, ERC20_ABI, withSignerIfPossible)
+}
+
+export function usePoolContract(poolName?: PoolName): RoseStablesPool | null {
+  const { chainId, account, library } = useActiveWeb3React()
+  return useMemo(() => {
+    if (!poolName || !library || !chainId) return null
+    try {
+      const pool = POOLS_MAP[poolName]
+      if (poolName === STABLECOIN_POOL_NAME) {
+        return getContract(
+          pool.addresses[chainId],
+          JSON.stringify(ROSE_STABLES_POOL_ABI),
+          library,
+          account ?? undefined,
+        ) as RoseStablesPool
+      } else {
+        return null
+      }
+    } catch (error) {
+      console.error("Failed to get contract", error)
+      return null
+    }
+  }, [chainId, library, account, poolName])
 }
 
 export function useSwapContract<T extends PoolName>(

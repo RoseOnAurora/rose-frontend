@@ -798,7 +798,7 @@ export const POOLS_MAP: PoolsMap = {
     poolTokens: STABLECOIN_POOL_TOKENS,
     isSynthetic: false,
     type: PoolTypes.USD,
-    route: "usdv2",
+    route: "stables",
   },
 }
 export function isLegacySwapABIPool(poolName: string): boolean {

@@ -89,7 +89,7 @@ function Pools(): ReactElement | null {
         name: STABLECOIN_POOL_V2_NAME,
         poolData: usdPoolV2Data,
         userShareData: usdV2UserShareData,
-        poolRoute: "/pools/usdv2",
+        poolRoute: "/pools/stables",
       }
     } else if (poolName === SUSD_METAPOOL_NAME) {
       return {

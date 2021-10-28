@@ -11,6 +11,7 @@ import {
   getTokenSymbolForPoolType,
 } from "../utils"
 import { useEffect, useState } from "react"
+import { usePoolContract, useSwapContract } from "./useContract"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
@@ -25,7 +26,6 @@ import { getThirdPartyDataForPool } from "../utils/thirdPartyIntegrations"
 import { parseUnits } from "@ethersproject/units"
 import { useActiveWeb3React } from "."
 import { useSelector } from "react-redux"
-import { useSwapContract } from "./useContract"
 
 interface TokenShareType {
   percent: string
@@ -95,6 +95,7 @@ export default function usePoolData(
 ): PoolDataHookReturnType {
   const { account, library, chainId } = useActiveWeb3React()
   const swapContract = useSwapContract(poolName)
+  const poolContract = usePoolContract(poolName)
   const { tokenPricesUSD, lastTransactionTimes, swapStats } = useSelector(
     (state: AppState) => state.application,
   )
@@ -116,11 +117,14 @@ export default function usePoolData(
       if (
         poolName == null ||
         swapContract == null ||
+        poolContract == null ||
         tokenPricesUSD == null ||
         library == null ||
         chainId == null
       )
         return
+      console.log("getting A")
+      console.log(`pool.A() is ${(await poolContract.A()).toString()}`)
       const POOL = POOLS_MAP[poolName]
       const effectivePoolTokens = POOL.underlyingPoolTokens || POOL.poolTokens
       const isMetaSwap = POOL.metaSwapAddresses != null
@@ -133,6 +137,7 @@ export default function usePoolData(
           account ?? undefined,
         ) as MetaSwap
       }
+      // const effectivePoolContract = poolContract
       const effectiveSwapContract =
         metaSwapContract || (swapContract as SwapFlashLoanNoWithdrawFee)
 
@@ -321,6 +326,7 @@ export default function usePoolData(
     lastWithdrawTime,
     lastSwapTime,
     lastMigrateTime,
+    poolContract,
     poolName,
     swapContract,
     tokenPricesUSD,
