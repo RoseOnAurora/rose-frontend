@@ -33,7 +33,7 @@ export default function usePoolTVLs(): { [poolName in PoolName]?: BigNumber } {
       // override the contract address when using aurora
       if (chainId == ChainId.AURORA_TESTNET) {
         ethcallProvider.multicallAddress =
-          "0x1807c32Cb6610692DEbC50b9Fd52054722Efc743"
+          "0x508B1508AAd923fB24F6d13cD74Ac640fD8B66E8"
       } else if (chainId == ChainId.AURORA_MAINNET) {
         ethcallProvider.multicallAddress =
           "0x49eb1F160e167aa7bA96BdD88B6C1f2ffda5212A"
@@ -50,7 +50,7 @@ export default function usePoolTVLs(): { [poolName in PoolName]?: BigNumber } {
           ) as MulticallContract<LpTokenUnguarded>
         })
         .map((c) => c.totalSupply())
-      const tvls = await ethcallProvider.all(supplyCalls, {})
+      const tvls = await ethcallProvider.all(supplyCalls, "latest")
       const tvlsUSD = pools.map((pool, i) => {
         const tvlAmount = tvls[i]
         let tokenValue = 0

@@ -23,7 +23,7 @@ export function usePoolTokenBalances(): { [token: string]: BigNumber } | null {
       // override the contract address when using aurora
       if (chainId == ChainId.AURORA_TESTNET) {
         ethcallProvider.multicallAddress =
-          "0x1807c32Cb6610692DEbC50b9Fd52054722Efc743"
+          "0x508B1508AAd923fB24F6d13cD74Ac640fD8B66E8"
       } else if (chainId == ChainId.AURORA_MAINNET) {
         ethcallProvider.multicallAddress =
           "0x49eb1F160e167aa7bA96BdD88B6C1f2ffda5212A"
@@ -38,8 +38,7 @@ export function usePoolTokenBalances(): { [token: string]: BigNumber } | null {
           ) as MulticallContract<Erc20>
         })
         .map((c) => c.balanceOf(account))
-      const balances = await ethcallProvider.all(balanceCalls, {})
-
+      const balances = await ethcallProvider.all(balanceCalls, "latest")
       const ethBalance = await library.getBalance(account)
       setBalances(
         tokens.reduce(
