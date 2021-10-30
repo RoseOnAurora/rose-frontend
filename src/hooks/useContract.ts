@@ -145,13 +145,14 @@ export function useTokenContract(
 }
 
 export function usePoolContract(poolName?: PoolName): RoseStablesPool | null {
-  console.log(`using pool contract`)
   const { chainId, account, library } = useActiveWeb3React()
   return useMemo(() => {
     if (!poolName || !library || !chainId) return null
     try {
       const pool = POOLS_MAP[poolName]
+      // console.log(`pool: ${JSON.stringify(pool)}`)
       if (poolName === STABLECOIN_POOL_NAME) {
+        if (typeof pool.addresses === undefined) return null
         return getContract(
           pool.addresses[chainId],
           JSON.stringify(ROSE_STABLES_POOL_ABI),

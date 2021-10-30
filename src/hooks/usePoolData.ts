@@ -86,7 +86,7 @@ export default function usePoolData(
 ): PoolDataHookReturnType {
   const { account, library, chainId } = useActiveWeb3React()
   const poolContract = usePoolContract(poolName)
-  const { tokenPricesUSD, lastTransactionTimes, swapStats } = useSelector(
+  const { lastTransactionTimes, swapStats } = useSelector(
     (state: AppState) => state.application,
   )
   const lastDepositTime = lastTransactionTimes[TRANSACTION_TYPES.DEPOSIT]
@@ -107,7 +107,6 @@ export default function usePoolData(
       if (
         poolName == null ||
         poolContract == null ||
-        tokenPricesUSD == null ||
         library == null ||
         chainId == null
       )
@@ -125,7 +124,6 @@ export default function usePoolData(
     lastMigrateTime,
     poolContract,
     poolName,
-    tokenPricesUSD,
     account,
     library,
     chainId,
