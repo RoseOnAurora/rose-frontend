@@ -23,6 +23,7 @@ import { BigNumber } from "@ethersproject/bignumber"
 import ROSE_STABLES_POOL from "../constants/abis/RoseStablesPool.json"
 import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
 import { Zero } from "@ethersproject/constants"
+import { parseUnits } from "@ethersproject/units"
 import { useActiveWeb3React } from "."
 import { usePoolContract } from "./useContract"
 import { useSelector } from "react-redux"
@@ -103,7 +104,7 @@ export default function usePoolData(
   const lastSwapTime = lastTransactionTimes[TRANSACTION_TYPES.SWAP]
   const lastMigrateTime = lastTransactionTimes[TRANSACTION_TYPES.MIGRATE]
 
-  const [poolData] = useState<PoolDataHookReturnType>([
+  const [poolData, setPoolData] = useState<PoolDataHookReturnType>([
     {
       ...emptyPoolData,
       name: poolName || "",
@@ -120,8 +121,6 @@ export default function usePoolData(
         chainId == null
       )
         return
-      console.log("getting A")
-      console.log(`pool.A() is ${(await poolContract.A()).toString()}`)
       // const POOL = POOLS_MAP[poolName]
       // const effectivePoolTokens = POOL.underlyingPoolTokens || POOL.poolTokens
 
@@ -137,31 +136,49 @@ export default function usePoolData(
       }
 
       // get virtual price (failing, maybe because no liquidity yet?)
-      console.log(
-        `pool.get_virtual_price() is ${(
-          await poolContract.get_virtual_price()
-        ).toString()}
-      `,
-      )
+      // console.log(
+      //   `pool.get_virtual_price() is ${(
+      //     await poolContract.get_virtual_price()
+      //   ).toString()}
+      // `,
+      // )
 
-      // multicall: fetch A, fee, virtual price,
+      // multicall: fetch A, fee, protocol_fee, virtual price
       const multicallPoolContract = new Contract(
         poolContract.address,
         ROSE_STABLES_POOL,
       ) as MulticallContract<RoseStablesPool>
-      const a: MulticallCall<unknown, unknown> = multicallPoolContract.A()
-      const fee: MulticallCall<unknown, unknown> = multicallPoolContract.fee()
-      const virtualPrice: MulticallCall<
+      const a: MulticallCall<unknown, BigNumber> = multicallPoolContract.A()
+      const fee: MulticallCall<unknown, BigNumber> = multicallPoolContract.fee()
+      const protocol_fee: MulticallCall<
         unknown,
-        unknown
-      > = multicallPoolContract.get_virtual_price()
+        BigNumber
+      > = multicallPoolContract.protocol_fee()
+      // const virtualPrice: MulticallCall<
+      //   unknown,
+      //   BigNumber
+      // > = multicallPoolContract.get_virtual_price()
       const multicallRes = await ethcallProvider.all(
-        [a, fee, virtualPrice],
+        [a, fee, protocol_fee],
         "latest",
       )
       console.log(`multicallRes is ${JSON.stringify(multicallRes)}`)
+      const multicallResFormatted = multicallRes.map((res, i) => {
+        return parseUnits((1).toFixed(2), 2)
+          .mul(multicallRes[i])
+          .div(BigNumber.from(10).pow(2)) //1e18
+      })
 
-      // setPoolData([emptyPoolData, null])
+      const poolData = {
+        ...emptyPoolData,
+        name: poolName,
+        aParameter: multicallResFormatted[0],
+        adminFee: multicallResFormatted[2],
+        swapFee: multicallResFormatted[1],
+        // virtualPrice: multicallResFormatted[3],
+      }
+
+      setPoolData([poolData, null])
     }
     void getPoolData()
   }, [

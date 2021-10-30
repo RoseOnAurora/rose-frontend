@@ -85,10 +85,10 @@ function PoolInfoCard({ data }: Props): ReactElement | null {
           <span className="label bold">{`${t("virtualPrice")}:`}</span>
           <span className="value">{formattedData.virtualPrice}</span>
         </div>
-        <div className="infoItem">
+        {/* <div className="infoItem">
           <span className="label bold">{`${t("utilization")}:`}</span>
           <span className="value">{formattedData.utilization}</span>
-        </div>
+        </div> */}
         <div className="infoItem">
           <span className="label bold">{`${t("totalLocked")}:`}</span>
           <span className="value">{`$${formattedData.reserve}`}</span>
