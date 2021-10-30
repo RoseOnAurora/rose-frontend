@@ -16,7 +16,6 @@ import {
   RENBTC,
   SBTC,
   SETH,
-  STABLECOIN_POOL_NAME,
   STABLECOIN_POOL_V2_NAME,
   STABLECOIN_SWAP_TOKEN,
   STABLECOIN_SWAP_V2_TOKEN,
@@ -151,7 +150,7 @@ export function usePoolContract(poolName?: PoolName): RoseStablesPool | null {
     try {
       const pool = POOLS_MAP[poolName]
       // console.log(`pool: ${JSON.stringify(pool)}`)
-      if (poolName === STABLECOIN_POOL_NAME) {
+      if (poolName === STABLECOIN_POOL_V2_NAME) {
         if (typeof pool.addresses === undefined) return null
         return getContract(
           pool.addresses[chainId],

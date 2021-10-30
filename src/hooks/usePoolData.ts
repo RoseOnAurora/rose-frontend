@@ -115,6 +115,8 @@ export default function usePoolData(
       console.log(`pool.A() is ${(await poolContract.A()).toString()}`)
       // const POOL = POOLS_MAP[poolName]
       // const effectivePoolTokens = POOL.underlyingPoolTokens || POOL.poolTokens
+
+      // setPoolData([emptyPoolData, null])
     }
     void getPoolData()
   }, [
