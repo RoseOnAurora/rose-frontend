@@ -1,4 +1,10 @@
-import { BLOCK_TIME, ChainId, TOKENS_MAP } from "../../constants"
+import {
+  BLOCK_TIME,
+  ChainId,
+  ROSE_TOKENS_MAP,
+  TOKENS_MAP,
+  TokensMap,
+} from "../../constants"
 import { Contract, Provider } from "ethcall"
 import { MulticallContract, MulticallProvider } from "../../types/ethcall"
 
@@ -9,7 +15,9 @@ import { useActiveWeb3React } from "../../hooks"
 import usePoller from "../../hooks/usePoller"
 import { useState } from "react"
 
-export function usePoolTokenBalances(): { [token: string]: BigNumber } | null {
+const useTokenBalancesHelper = (
+  tokenMap: TokensMap,
+): { [token: string]: BigNumber } | null => {
   const { account, chainId, library } = useActiveWeb3React()
   const [balances, setBalances] = useState<{ [token: string]: BigNumber }>({})
 
@@ -29,7 +37,7 @@ export function usePoolTokenBalances(): { [token: string]: BigNumber } | null {
           "0x49eb1F160e167aa7bA96BdD88B6C1f2ffda5212A"
       }
 
-      const tokens = Object.values(TOKENS_MAP)
+      const tokens = Object.values(tokenMap)
       const balanceCalls = tokens
         .map((t) => {
           return new Contract(
@@ -56,4 +64,12 @@ export function usePoolTokenBalances(): { [token: string]: BigNumber } | null {
   }, BLOCK_TIME)
 
   return balances
+}
+
+export function usePoolTokenBalances(): { [token: string]: BigNumber } | null {
+  return useTokenBalancesHelper(TOKENS_MAP)
+}
+
+export function useRoseTokenBalances(): { [token: string]: BigNumber } | null {
+  return useTokenBalancesHelper(ROSE_TOKENS_MAP)
 }

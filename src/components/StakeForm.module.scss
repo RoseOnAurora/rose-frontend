@@ -1,0 +1,119 @@
+@import "../styles/theme";
+@import "../styles/viewports";
+
+div.stakeForm {
+  width: 60%;
+  background: var(--background-element);
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  padding: 24px;
+  margin: 10px;
+  @include breakpoint(md) {
+    width: 100%;
+    order: 1;
+  }
+
+  .pill {
+    font-size: 13px;
+    letter-spacing: 1px;
+    font-weight: 700;
+    border-radius: 2em;
+    @include breakpoint(sm) {
+      font-size: 11px;
+      margin-left: 3px;
+    }
+  }
+
+  .colorPill {
+    outline: 2px;
+    background-color: rgb(216, 131, 148, 0.2);
+    min-height: 40px;
+    padding: 0 1.618em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #d88394;
+  }
+
+  .glowPill {
+    position: relative;
+    background: linear-gradient(
+      -90deg,
+      #e8b5af,
+      #f2d3bf,
+      #e2a1a4,
+      #d88394,
+      #e8b5af
+    );
+    background-size: 400% 100%;
+    border: none;
+    padding: 0;
+    margin: 0;
+    animation: Gradient 8s ease infinite;
+    text-decoration: none;
+  }
+
+  .glowPill div {
+    color: black;
+    min-height: 40px;
+    padding: 0 1.618em;
+    border-radius: inherit;
+    background-size: inherit;
+    background-image: inherit;
+    animation: Gradient 15s ease infinite;
+    position: relative;
+    z-index: 1;
+    mix-blend-mode: overlay;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  @keyframes Gradient {
+    50% {
+      background-position: 140% 50%;
+      transform: skew(-2deg);
+    }
+  }
+
+  .glowPill::after {
+    content: "";
+    position: absolute;
+    background-size: inherit;
+    background-image: inherit;
+    animation: inherit;
+    left: 0px;
+    right: 0px;
+    top: 2px;
+    height: 100%;
+    filter: blur(1rem);
+  }
+
+  h3.stakeTitle {
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 30px;
+    @include breakpoint(sm) {
+      font-size: 19px;
+    }
+  }
+
+  .inputContainer {
+    padding-top: 15px;
+  }
+
+  .submitButton {
+    padding-top: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.stakeForm .row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  width: 100%;
+  align-items: center;
+}
