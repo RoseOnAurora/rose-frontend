@@ -1,9 +1,16 @@
 import {
+  ChainId,
   // STABLECOIN_POOL_V2_NAME,
   // POOLS_MAP,
   PoolName,
   TRANSACTION_TYPES,
 } from "../constants"
+import { Contract, Provider } from "ethcall"
+import {
+  MulticallCall,
+  MulticallContract,
+  MulticallProvider,
+} from "../types/ethcall"
 // import {
 //   formatBNToPercentString,
 //   getContract,
@@ -13,6 +20,8 @@ import { useEffect, useState } from "react"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
+import ROSE_STABLES_POOL from "../constants/abis/RoseStablesPool.json"
+import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
 import { Zero } from "@ethersproject/constants"
 import { useActiveWeb3React } from "."
 import { usePoolContract } from "./useContract"
@@ -115,6 +124,42 @@ export default function usePoolData(
       console.log(`pool.A() is ${(await poolContract.A()).toString()}`)
       // const POOL = POOLS_MAP[poolName]
       // const effectivePoolTokens = POOL.underlyingPoolTokens || POOL.poolTokens
+
+      const ethcallProvider = new Provider() as MulticallProvider
+      await ethcallProvider.init(library)
+      // override the contract address when using aurora
+      if (chainId == ChainId.AURORA_TESTNET) {
+        ethcallProvider.multicallAddress =
+          "0x508B1508AAd923fB24F6d13cD74Ac640fD8B66E8"
+      } else if (chainId == ChainId.AURORA_MAINNET) {
+        ethcallProvider.multicallAddress =
+          "0x49eb1F160e167aa7bA96BdD88B6C1f2ffda5212A"
+      }
+
+      // get virtual price (failing, maybe because no liquidity yet?)
+      console.log(
+        `pool.get_virtual_price() is ${(
+          await poolContract.get_virtual_price()
+        ).toString()}
+      `,
+      )
+
+      // multicall: fetch A, fee, virtual price,
+      const multicallPoolContract = new Contract(
+        poolContract.address,
+        ROSE_STABLES_POOL,
+      ) as MulticallContract<RoseStablesPool>
+      const a: MulticallCall<unknown, unknown> = multicallPoolContract.A()
+      const fee: MulticallCall<unknown, unknown> = multicallPoolContract.fee()
+      const virtualPrice: MulticallCall<
+        unknown,
+        unknown
+      > = multicallPoolContract.get_virtual_price()
+      const multicallRes = await ethcallProvider.all(
+        [a, fee, virtualPrice],
+        "latest",
+      )
+      console.log(`multicallRes is ${JSON.stringify(multicallRes)}`)
 
       // setPoolData([emptyPoolData, null])
     }
