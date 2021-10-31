@@ -16,6 +16,7 @@ import {
   RENBTC,
   SBTC,
   SETH,
+  STABLECOIN_POOL_V2_NAME,
   STABLECOIN_SWAP_TOKEN,
   STABLECOIN_SWAP_V2_TOKEN,
   SUSD,
@@ -44,13 +45,15 @@ import { Bridge } from "../../types/ethers-contracts/Bridge"
 import { Contract } from "@ethersproject/contracts"
 import ERC20_ABI from "../constants/abis/erc20.json"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import LPTOKEN_GUARDED_ABI from "../constants/abis/lpTokenGuarded.json"
-import LPTOKEN_UNGUARDED_ABI from "../constants/abis/lpTokenUnguarded.json"
 import { LpTokenGuarded } from "../../types/ethers-contracts/LpTokenGuarded"
 import { LpTokenUnguarded } from "../../types/ethers-contracts/LpTokenUnguarded"
 import META_SWAP_DEPOSIT_ABI from "../constants/abis/metaSwapDeposit.json"
 import MIGRATOR_USD_CONTRACT_ABI from "../constants/abis/swapMigratorUSD.json"
 import { MetaSwapDeposit } from "../../types/ethers-contracts/MetaSwapDeposit"
+import ROSE_STABLES_LP_ABI from "../constants/abis/RoseStablesLP.json"
+import ROSE_STABLES_POOL_ABI from "../constants/abis/RoseStablesPool.json"
+import { RoseStablesLP } from "../../types/ethers-contracts/RoseStablesLP"
+import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
 import SWAP_FLASH_LOAN_ABI from "../constants/abis/swapFlashLoan.json"
 import SWAP_FLASH_LOAN_NO_WITHDRAW_FEE_ABI from "../constants/abis/swapFlashLoanNoWithdrawFee.json"
 import SWAP_GUARDED_ABI from "../constants/abis/swapGuarded.json"
@@ -140,6 +143,31 @@ export function useTokenContract(
   return useContract(tokenAddress, ERC20_ABI, withSignerIfPossible)
 }
 
+export function usePoolContract(poolName?: PoolName): RoseStablesPool | null {
+  const { chainId, account, library } = useActiveWeb3React()
+  return useMemo(() => {
+    if (!poolName || !library || !chainId) return null
+    try {
+      const pool = POOLS_MAP[poolName]
+      // console.log(`pool: ${JSON.stringify(pool)}`)
+      if (poolName === STABLECOIN_POOL_V2_NAME) {
+        if (typeof pool.addresses === undefined) return null
+        return getContract(
+          pool.addresses[chainId],
+          JSON.stringify(ROSE_STABLES_POOL_ABI),
+          library,
+          account ?? undefined,
+        ) as RoseStablesPool
+      } else {
+        return null
+      }
+    } catch (error) {
+      console.error("Failed to get contract", error)
+      return null
+    }
+  }, [chainId, library, account, poolName])
+}
+
 export function useSwapContract<T extends PoolName>(
   poolName?: T,
 ): T extends typeof BTC_POOL_NAME
@@ -196,33 +224,21 @@ export function useSwapContract(
   }, [chainId, library, account, poolName])
 }
 
-export function useLPTokenContract<T extends PoolName>(
-  poolName: T,
-): T extends typeof BTC_POOL_NAME
-  ? LpTokenGuarded | null
-  : LpTokenUnguarded | null
-export function useLPTokenContract(
-  poolName: PoolName,
-): LpTokenUnguarded | LpTokenGuarded | null {
+export function useLPTokenContract(poolName: PoolName): RoseStablesLP | null {
   const { chainId, account, library } = useActiveWeb3React()
   return useMemo(() => {
     if (!poolName || !library || !chainId) return null
     try {
       const pool = POOLS_MAP[poolName]
-      if (poolName == BTC_POOL_NAME) {
+      if (poolName == STABLECOIN_POOL_V2_NAME) {
         return getContract(
           pool.lpToken.addresses[chainId],
-          LPTOKEN_GUARDED_ABI,
+          JSON.stringify(ROSE_STABLES_LP_ABI),
           library,
           account ?? undefined,
-        ) as LpTokenGuarded
+        ) as RoseStablesLP
       } else {
-        return getContract(
-          pool.lpToken.addresses[chainId],
-          LPTOKEN_UNGUARDED_ABI,
-          library,
-          account ?? undefined,
-        ) as LpTokenUnguarded
+        return null
       }
     } catch (error) {
       console.error("Failed to get contract", error)

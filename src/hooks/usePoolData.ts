@@ -1,31 +1,32 @@
-import { AddressZero, Zero } from "@ethersproject/constants"
 import {
-  BTC_POOL_NAME,
-  POOLS_MAP,
+  ChainId,
+  // STABLECOIN_POOL_V2_NAME,
+  // POOLS_MAP,
   PoolName,
   TRANSACTION_TYPES,
 } from "../constants"
+import { Contract, Provider } from "ethcall"
 import {
-  formatBNToPercentString,
-  getContract,
-  getTokenSymbolForPoolType,
-} from "../utils"
+  MulticallCall,
+  MulticallContract,
+  MulticallProvider,
+} from "../types/ethcall"
+// import {
+//   formatBNToPercentString,
+//   getContract,
+//   getTokenSymbolForPoolType,
+// } from "../utils"
 import { useEffect, useState } from "react"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import LPTOKEN_GUARDED_ABI from "../constants/abis/lpTokenGuarded.json"
-import LPTOKEN_UNGUARDED_ABI from "../constants/abis/lpTokenUnguarded.json"
-import { LpTokenGuarded } from "../../types/ethers-contracts/LpTokenGuarded"
-import { LpTokenUnguarded } from "../../types/ethers-contracts/LpTokenUnguarded"
-import META_SWAP_ABI from "../constants/abis/metaSwap.json"
-import { MetaSwap } from "../../types/ethers-contracts/MetaSwap"
-import { SwapFlashLoanNoWithdrawFee } from "../../types/ethers-contracts/SwapFlashLoanNoWithdrawFee"
-import { getThirdPartyDataForPool } from "../utils/thirdPartyIntegrations"
+import ROSE_STABLES_POOL from "../constants/abis/RoseStablesPool.json"
+import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
+import { Zero } from "@ethersproject/constants"
 import { parseUnits } from "@ethersproject/units"
 import { useActiveWeb3React } from "."
+import { usePoolContract } from "./useContract"
 import { useSelector } from "react-redux"
-import { useSwapContract } from "./useContract"
 
 interface TokenShareType {
   percent: string
@@ -94,8 +95,8 @@ export default function usePoolData(
   poolName?: PoolName,
 ): PoolDataHookReturnType {
   const { account, library, chainId } = useActiveWeb3React()
-  const swapContract = useSwapContract(poolName)
-  const { tokenPricesUSD, lastTransactionTimes, swapStats } = useSelector(
+  const poolContract = usePoolContract(poolName)
+  const { lastTransactionTimes, swapStats } = useSelector(
     (state: AppState) => state.application,
   )
   const lastDepositTime = lastTransactionTimes[TRANSACTION_TYPES.DEPOSIT]
@@ -112,218 +113,86 @@ export default function usePoolData(
   ])
 
   useEffect(() => {
-    async function getSwapData(): Promise<void> {
+    async function getPoolData(): Promise<void> {
       if (
         poolName == null ||
-        swapContract == null ||
-        tokenPricesUSD == null ||
+        poolContract == null ||
         library == null ||
         chainId == null
       )
         return
-      const POOL = POOLS_MAP[poolName]
-      const effectivePoolTokens = POOL.underlyingPoolTokens || POOL.poolTokens
-      const isMetaSwap = POOL.metaSwapAddresses != null
-      let metaSwapContract = null as MetaSwap | null
-      if (isMetaSwap) {
-        metaSwapContract = getContract(
-          POOL.metaSwapAddresses?.[chainId] as string,
-          META_SWAP_ABI,
-          library,
-          account ?? undefined,
-        ) as MetaSwap
+      // const POOL = POOLS_MAP[poolName]
+      // const effectivePoolTokens = POOL.underlyingPoolTokens || POOL.poolTokens
+
+      const ethcallProvider = new Provider() as MulticallProvider
+      await ethcallProvider.init(library)
+      // override the contract address when using aurora
+      if (chainId == ChainId.AURORA_TESTNET) {
+        ethcallProvider.multicallAddress =
+          "0x508B1508AAd923fB24F6d13cD74Ac640fD8B66E8"
+      } else if (chainId == ChainId.AURORA_MAINNET) {
+        ethcallProvider.multicallAddress =
+          "0x49eb1F160e167aa7bA96BdD88B6C1f2ffda5212A"
       }
-      const effectiveSwapContract =
-        metaSwapContract || (swapContract as SwapFlashLoanNoWithdrawFee)
 
-      // Swap fees, price, and LP Token data
-      const [swapStorage, aParameter, isPaused] = await Promise.all([
-        effectiveSwapContract.swapStorage(),
-        effectiveSwapContract.getA(),
-        effectiveSwapContract.paused(),
-      ])
-      const { adminFee, lpToken: lpTokenAddress, swapFee } = swapStorage
-      let lpTokenContract
-      if (poolName === BTC_POOL_NAME) {
-        lpTokenContract = getContract(
-          lpTokenAddress,
-          LPTOKEN_GUARDED_ABI,
-          library,
-          account ?? undefined,
-        ) as LpTokenGuarded
-      } else {
-        lpTokenContract = getContract(
-          lpTokenAddress,
-          LPTOKEN_UNGUARDED_ABI,
-          library,
-          account ?? undefined,
-        ) as LpTokenUnguarded
+      // get virtual price (failing, maybe because no liquidity yet?)
+      let virtualPrice
+      try {
+        virtualPrice = await poolContract.get_virtual_price()
+        console.log(
+          `pool.get_virtual_price() is ${virtualPrice.toString()}
+        `,
+        )
+      } catch (e) {
+        console.log(`couldn't fetch virtual price`)
+        virtualPrice = Zero
       }
-      const [userLpTokenBalance, totalLpTokenBalance] = await Promise.all([
-        lpTokenContract.balanceOf(account || AddressZero),
-        lpTokenContract.totalSupply(),
-      ])
 
-      const virtualPrice = totalLpTokenBalance.isZero()
-        ? BigNumber.from(10).pow(18)
-        : await effectiveSwapContract.getVirtualPrice()
-
-      // Pool token data
-      const tokenBalances: BigNumber[] = await Promise.all(
-        effectivePoolTokens.map(async (token, i) => {
-          const balance = await effectiveSwapContract.getTokenBalance(i)
-          return BigNumber.from(10)
-            .pow(18 - token.decimals) // cast all to 18 decimals
-            .mul(balance)
-        }),
+      // multicall: fetch A, fee, protocol_fee, virtual price
+      const multicallPoolContract = new Contract(
+        poolContract.address,
+        ROSE_STABLES_POOL,
+      ) as MulticallContract<RoseStablesPool>
+      const a: MulticallCall<unknown, BigNumber> = multicallPoolContract.A()
+      const fee: MulticallCall<unknown, BigNumber> = multicallPoolContract.fee()
+      const protocol_fee: MulticallCall<
+        unknown,
+        BigNumber
+      > = multicallPoolContract.protocol_fee()
+      // const virtualPrice: MulticallCall<
+      //   unknown,
+      //   BigNumber
+      // > = multicallPoolContract.get_virtual_price()
+      const multicallRes = await ethcallProvider.all(
+        [a, fee, protocol_fee],
+        "latest",
       )
-      const tokenBalancesSum: BigNumber = tokenBalances.reduce((sum, b) =>
-        sum.add(b),
-      )
-      const tokenBalancesUSD = effectivePoolTokens.map((token, i, arr) => {
-        // use another token to estimate USD price of meta LP tokens
-        const symbol =
-          isMetaSwap && i === arr.length - 1
-            ? getTokenSymbolForPoolType(POOL.type)
-            : token.symbol
-        const balance = tokenBalances[i]
-        return balance
-          .mul(parseUnits(String(tokenPricesUSD[symbol] || 0), 18))
-          .div(BigNumber.from(10).pow(18))
+      console.log(`multicallRes is ${JSON.stringify(multicallRes)}`)
+      const multicallResFormatted = multicallRes.map((res, i) => {
+        return parseUnits((1).toFixed(2), 2)
+          .mul(multicallRes[i])
+          .div(BigNumber.from(10).pow(2)) //1e18
       })
-      const tokenBalancesUSDSum: BigNumber = tokenBalancesUSD.reduce((sum, b) =>
-        sum.add(b),
-      )
-      const lpTokenPriceUSD = tokenBalancesSum.isZero()
-        ? Zero
-        : tokenBalancesUSDSum
-            .mul(BigNumber.from(10).pow(18))
-            .div(tokenBalancesSum)
-      const { aprs, amountsStaked } = await getThirdPartyDataForPool(
-        library,
-        chainId,
-        account,
-        poolName,
-        tokenPricesUSD,
-        lpTokenPriceUSD,
-      )
 
-      function calculatePctOfTotalShare(lpTokenAmount: BigNumber): BigNumber {
-        // returns the % of total lpTokens
-        return lpTokenAmount
-          .mul(BigNumber.from(10).pow(18))
-          .div(
-            totalLpTokenBalance.isZero()
-              ? BigNumber.from("1")
-              : totalLpTokenBalance,
-          )
-      }
-      // User share data
-      const userLpTokenBalanceStakedElsewhere = Object.keys(
-        amountsStaked,
-      ).reduce(
-        (sum, key) => sum.add(amountsStaked[key as Partners] || Zero),
-        Zero,
-      )
-      // lpToken balance in wallet as a % of total lpTokens, plus lpTokens staked elsewhere
-      const userShare = calculatePctOfTotalShare(userLpTokenBalance).add(
-        calculatePctOfTotalShare(userLpTokenBalanceStakedElsewhere),
-      )
-      const userPoolTokenBalances = tokenBalances.map((balance) => {
-        return userShare.mul(balance).div(BigNumber.from(10).pow(18))
-      })
-      const userPoolTokenBalancesSum: BigNumber = userPoolTokenBalances.reduce(
-        (sum, b) => sum.add(b),
-      )
-      const userPoolTokenBalancesUSD = tokenBalancesUSD.map((balance) => {
-        return userShare.mul(balance).div(BigNumber.from(10).pow(18))
-      })
-      const userPoolTokenBalancesUSDSum: BigNumber = userPoolTokenBalancesUSD.reduce(
-        (sum, b) => sum.add(b),
-      )
-
-      const poolTokens = effectivePoolTokens.map((token, i) => ({
-        symbol: token.symbol,
-        percent: formatBNToPercentString(
-          tokenBalances[i]
-            .mul(10 ** 5)
-            .div(
-              totalLpTokenBalance.isZero()
-                ? BigNumber.from("1")
-                : tokenBalancesSum,
-            ),
-          5,
-        ),
-        value: tokenBalances[i],
-      }))
-      const userPoolTokens = effectivePoolTokens.map((token, i) => ({
-        symbol: token.symbol,
-        percent: formatBNToPercentString(
-          tokenBalances[i]
-            .mul(10 ** 5)
-            .div(
-              totalLpTokenBalance.isZero()
-                ? BigNumber.from("1")
-                : tokenBalancesSum,
-            ),
-          5,
-        ),
-        value: userPoolTokenBalances[i],
-      }))
-      const poolAddress = POOL.addresses[chainId].toLowerCase()
-      const { oneDayVolume, apy, utilization } =
-        swapStats && poolAddress in swapStats
-          ? swapStats[poolAddress]
-          : { oneDayVolume: null, apy: null, utilization: null }
       const poolData = {
+        ...emptyPoolData,
         name: poolName,
-        tokens: poolTokens,
-        reserve: tokenBalancesUSDSum,
-        totalLocked: totalLpTokenBalance,
-        virtualPrice: virtualPrice,
-        adminFee: adminFee,
-        swapFee: swapFee,
-        aParameter: aParameter,
-        volume: oneDayVolume ? parseUnits(oneDayVolume, 18) : null,
-        utilization: utilization ? parseUnits(utilization, 18) : null,
-        apy: apy ? parseUnits(apy, 18) : null,
-        aprs,
-        lpTokenPriceUSD,
-        lpToken: POOL.lpToken.symbol,
-        isPaused,
+        aParameter: multicallResFormatted[0],
+        adminFee: multicallResFormatted[2],
+        swapFee: multicallResFormatted[1],
+        virtualPrice,
       }
-      const userShareData = account
-        ? {
-            name: poolName,
-            share: userShare,
-            underlyingTokensAmount: userPoolTokenBalancesSum,
-            usdBalance: userPoolTokenBalancesUSDSum,
-            tokens: userPoolTokens,
-            lpTokenBalance: userLpTokenBalance,
-            amountsStaked: Object.keys(amountsStaked).reduce((acc, key) => {
-              const amount = amountsStaked[key as Partners]
-              return key
-                ? {
-                    ...acc,
-                    [key]: amount
-                      ?.mul(virtualPrice)
-                      .div(BigNumber.from(10).pow(18)),
-                  }
-                : acc
-            }, {}), // this is # of underlying tokens (eg btc), not lpTokens
-          }
-        : null
-      setPoolData([poolData, userShareData])
+
+      setPoolData([poolData, null])
     }
-    void getSwapData()
+    void getPoolData()
   }, [
     lastDepositTime,
     lastWithdrawTime,
     lastSwapTime,
     lastMigrateTime,
+    poolContract,
     poolName,
-    swapContract,
-    tokenPricesUSD,
     account,
     library,
     chainId,

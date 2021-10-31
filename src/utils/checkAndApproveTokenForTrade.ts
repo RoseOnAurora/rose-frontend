@@ -2,9 +2,8 @@ import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "ethers"
 import { ContractTransaction } from "@ethersproject/contracts"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import { LpTokenGuarded } from "../../types/ethers-contracts/LpTokenGuarded"
-import { LpTokenUnguarded } from "../../types/ethers-contracts/LpTokenUnguarded"
 import { MaxUint256 } from "@ethersproject/constants"
+import { RoseStablesLP } from "../../types/ethers-contracts/RoseStablesLP"
 import { Zero } from "@ethersproject/constants"
 import { notifyHandler } from "../utils/notifyHandler"
 
@@ -21,7 +20,7 @@ import { notifyHandler } from "../utils/notifyHandler"
  * @return {Promise<void>}
  */
 export default async function checkAndApproveTokenForTrade(
-  srcTokenContract: Erc20 | LpTokenGuarded | LpTokenUnguarded,
+  srcTokenContract: Erc20 | RoseStablesLP,
   swapAddress: string,
   spenderAddress: string,
   spendingValue: BigNumber, // max is MaxUint256

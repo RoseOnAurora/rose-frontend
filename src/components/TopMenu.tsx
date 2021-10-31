@@ -18,7 +18,7 @@ function TopMenu({ activeTab }: Props): ReactElement {
   return (
     <header className="top">
       <h1>
-        <Link to="/">rose.fi</Link>
+        <Link to="/">Rose</Link>
       </h1>
 
       <ul className="nav">

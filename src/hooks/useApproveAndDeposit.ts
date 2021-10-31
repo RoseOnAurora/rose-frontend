@@ -1,33 +1,23 @@
-import {
-  BTC_POOL_NAME,
-  POOLS_MAP,
-  PoolName,
-  TRANSACTION_TYPES,
-  Token,
-  isLegacySwapABIPool,
-} from "../constants"
-import { formatDeadlineToNumber, getContract } from "../utils"
+import { POOLS_MAP, PoolName, TRANSACTION_TYPES, Token } from "../constants"
 import { notifyCustomError, notifyHandler } from "../utils/notifyHandler"
 import {
   useAllContracts,
   useLPTokenContract,
-  useSwapContract,
+  usePoolContract,
 } from "./useContract"
 import { useDispatch, useSelector } from "react-redux"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import { GasPrices } from "../state/user"
 import { IS_PRODUCTION } from "../utils/environment"
 import META_SWAP_ABI from "../constants/abis/metaSwap.json"
 import { MetaSwap } from "../../types/ethers-contracts/MetaSwap"
 import { NumberInputState } from "../utils/numberInputState"
-import { SwapFlashLoan } from "../../types/ethers-contracts/SwapFlashLoan"
-import { SwapFlashLoanNoWithdrawFee } from "../../types/ethers-contracts/SwapFlashLoanNoWithdrawFee"
-import { SwapGuarded } from "../../types/ethers-contracts/SwapGuarded"
+import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
+import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
-import { parseUnits } from "@ethersproject/units"
+import { getContract } from "../utils"
 import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
@@ -44,22 +34,14 @@ export function useApproveAndDeposit(
   shouldDepositWrapped?: boolean,
 ) => Promise<void> {
   const dispatch = useDispatch()
-  const swapContract = useSwapContract(poolName)
+  // const swapContract = useSwapContract(poolName)
+  const poolContract = usePoolContract(poolName)
   const lpTokenContract = useLPTokenContract(poolName)
   const tokenContracts = useAllContracts()
   const { account, chainId, library } = useActiveWeb3React()
-  const { gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
+  const { slippageCustom, slippageSelected, infiniteApproval } = useSelector(
+    (state: AppState) => state.user,
   )
-  const {
-    slippageCustom,
-    slippageSelected,
-    gasPriceSelected,
-    gasCustom,
-    transactionDeadlineCustom,
-    transactionDeadlineSelected,
-    infiniteApproval,
-  } = useSelector((state: AppState) => state.user)
   const POOL = POOLS_MAP[poolName]
   const metaSwapContract = useMemo(() => {
     if (POOL.metaSwapAddresses && chainId && library) {
@@ -80,7 +62,7 @@ export function useApproveAndDeposit(
     try {
       if (!account) throw new Error("Wallet must be connected")
       if (
-        !swapContract ||
+        !poolContract ||
         !lpTokenContract ||
         (shouldDepositWrapped && !metaSwapContract)
       )
@@ -91,19 +73,10 @@ export function useApproveAndDeposit(
         : POOL.poolTokens
       const effectiveSwapContract = shouldDepositWrapped
         ? (metaSwapContract as MetaSwap)
-        : swapContract
+        : poolContract
 
-      let gasPriceUnsafe: string | number | undefined
-      if (gasPriceSelected === GasPrices.Custom) {
-        gasPriceUnsafe = gasCustom?.valueSafe
-      } else if (gasPriceSelected === GasPrices.Fast) {
-        gasPriceUnsafe = gasFast
-      } else if (gasPriceSelected === GasPrices.Instant) {
-        gasPriceUnsafe = gasInstant
-      } else {
-        gasPriceUnsafe = gasStandard
-      }
-      const gasPrice = parseUnits(String(gasPriceUnsafe) || "45", 9)
+      // const gasPrice = parseUnits(String(gasPriceUnsafe) || "45", 9)
+      const gasPrice = Zero
       const approveSingleToken = async (token: Token): Promise<void> => {
         const spendingValue = BigNumber.from(state[token.symbol].valueSafe)
         if (spendingValue.isZero()) return
@@ -134,58 +107,34 @@ export function useApproveAndDeposit(
         await Promise.all(poolTokens.map((token) => approveSingleToken(token)))
       }
 
+      const effectivePoolContract = effectiveSwapContract as RoseStablesPool
+      const txnAmounts: [BigNumber, BigNumber, BigNumber] = [
+        BigNumber.from(state[poolTokens[0].symbol].valueSafe),
+        BigNumber.from(state[poolTokens[1].symbol].valueSafe),
+        BigNumber.from(state[poolTokens[2].symbol].valueSafe),
+      ]
+
       const isFirstTransaction = (await lpTokenContract.totalSupply()).isZero()
       let minToMint: BigNumber
       if (isFirstTransaction) {
         minToMint = BigNumber.from("0")
       } else {
-        if (isLegacySwapABIPool(poolName)) {
-          minToMint = await (effectiveSwapContract as SwapFlashLoan).calculateTokenAmount(
-            account,
-            poolTokens.map(({ symbol }) => state[symbol].valueSafe),
-            true, // deposit boolean
-          )
-        } else {
-          minToMint = await (effectiveSwapContract as SwapFlashLoanNoWithdrawFee).calculateTokenAmount(
-            poolTokens.map(({ symbol }) => state[symbol].valueSafe),
-            true, // deposit boolean
-          )
-        }
+        minToMint = await effectivePoolContract.calc_token_amount(
+          txnAmounts,
+          true, // deposit boolean
+        )
       }
 
       minToMint = subtractSlippage(minToMint, slippageSelected, slippageCustom)
-      const deadline = formatDeadlineToNumber(
-        transactionDeadlineSelected,
-        transactionDeadlineCustom,
-      )
 
-      let spendTransaction
-      const txnAmounts = poolTokens.map(({ symbol }) => state[symbol].valueSafe)
-      const txnDeadline = Math.round(
-        new Date().getTime() / 1000 + 60 * deadline,
+      // const swapFlashLoanContract = effectiveSwapContract as RoseStablesPool
+      const spendTransaction = await effectivePoolContract?.add_liquidity(
+        txnAmounts,
+        minToMint,
+        {
+          gasPrice,
+        },
       )
-      if (poolName === BTC_POOL_NAME) {
-        const swapGuardedContract = effectiveSwapContract as SwapGuarded
-        spendTransaction = await swapGuardedContract?.addLiquidity(
-          txnAmounts,
-          minToMint,
-          txnDeadline,
-          [],
-          {
-            gasPrice,
-          },
-        )
-      } else {
-        const swapFlashLoanContract = effectiveSwapContract as SwapFlashLoan
-        spendTransaction = await swapFlashLoanContract?.addLiquidity(
-          txnAmounts,
-          minToMint,
-          txnDeadline,
-          {
-            gasPrice,
-          },
-        )
-      }
 
       notifyHandler(spendTransaction.hash, "deposit")
 

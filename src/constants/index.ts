@@ -28,7 +28,7 @@ export const NetworkContextName = "NETWORK"
 export const BTC_POOL_NAME = "BTC Pool"
 export const BTC_POOL_V2_NAME = "BTC Pool V2"
 export const STABLECOIN_POOL_NAME = "Stablecoin Pool"
-export const STABLECOIN_POOL_V2_NAME = "Stablecoin V2 Pool"
+export const STABLECOIN_POOL_V2_NAME = "Rose Stables Pool"
 export const VETH2_POOL_NAME = "vETH2 Pool"
 export const ALETH_POOL_NAME = "alETH Pool"
 export const D4_POOL_NAME = "D4 Pool"
@@ -801,7 +801,7 @@ export const POOLS_MAP: PoolsMap = {
     poolTokens: STABLECOIN_POOL_TOKENS,
     isSynthetic: false,
     type: PoolTypes.USD,
-    route: "usdv2",
+    route: "stables",
   },
 }
 export function isLegacySwapABIPool(poolName: string): boolean {
