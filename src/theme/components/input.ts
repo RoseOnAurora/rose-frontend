@@ -2,12 +2,16 @@ import {
   CSSWithMultiValues,
   RecursiveCSSObject,
 } from "@chakra-ui/styled-system"
+import { Dict } from "@chakra-ui/utils"
 
-const variantPrimary = (): RecursiveCSSObject<CSSWithMultiValues> => {
+const variantPrimary = (
+  props: Dict,
+): RecursiveCSSObject<CSSWithMultiValues> => {
+  const hasErrorColor = props.isInvalid ? "red" : "green"
   return {
     field: {
       borderBottom: "2px solid",
-      borderColor: "red.700",
+      borderColor: "green.700",
       borderRadius: 0,
       px: 0,
       bg: "transparent",
@@ -16,12 +20,12 @@ const variantPrimary = (): RecursiveCSSObject<CSSWithMultiValues> => {
         userSelect: "all",
       },
       _invalid: {
-        borderColor: "red.300",
+        borderColor: "red.300 !important",
         boxShadow: `0px 1px 0px 0px red`,
       },
       _focus: {
-        borderColor: "red",
-        boxShadow: "0px 1px 0px 0px red",
+        borderColor: hasErrorColor,
+        boxShadow: "0px 1px 0px 0px green",
       },
     },
   }
