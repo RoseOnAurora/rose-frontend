@@ -40,8 +40,6 @@ export default function usePoolTVLs(): { [poolName in PoolName]?: BigNumber } {
       }
 
       const pools = Object.values(POOLS_MAP)
-      console.log(`Chain ID: ${chainId}`)
-      // console.log(`Pools: ${JSON.stringify(pools)}`)
       const supplyCalls = pools
         .map((p) => {
           return new Contract(

@@ -1,38 +1,29 @@
-import {
-  POOLS_MAP,
-  SWAP_TYPES,
-  SYNTH_TRACKING_ID,
-  TRANSACTION_TYPES,
-} from "../constants"
+/* eslint @typescript-eslint/no-explicit-any: 0 */
+/* eslint @typescript-eslint/no-unsafe-assignment: 0 */
+/* eslint @typescript-eslint/no-unsafe-call: 0 */
+/* eslint @typescript-eslint/no-unsafe-member-access: 0 */
+import { POOLS_MAP, SWAP_TYPES, TRANSACTION_TYPES } from "../constants"
 import { notifyCustomError, notifyHandler } from "../utils/notifyHandler"
-import { useAllContracts, useSynthetixContract } from "./useContract"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { Bridge } from "../../types/ethers-contracts/Bridge"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { GasPrices } from "../state/user"
-import { MetaSwapDeposit } from "../../types/ethers-contracts/MetaSwapDeposit"
-import { SwapFlashLoan } from "../../types/ethers-contracts/SwapFlashLoan"
-import { SwapFlashLoanNoWithdrawFee } from "../../types/ethers-contracts/SwapFlashLoanNoWithdrawFee"
-import { SwapGuarded } from "../../types/ethers-contracts/SwapGuarded"
+import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { formatDeadlineToNumber } from "../utils"
 import { parseUnits } from "@ethersproject/units"
 import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
+import { useAllContracts } from "./useContract"
 import { useDispatch } from "react-redux"
 import { useSelector } from "react-redux"
 import { utils } from "ethers"
 
 type Contracts = {
-  swapContract:
-    | SwapFlashLoan
-    | SwapFlashLoanNoWithdrawFee
-    | SwapGuarded
-    | MetaSwapDeposit
-    | null
+  poolContract: RoseStablesPool | null
   bridgeContract: Bridge | null
 }
 type SwapSide = {
@@ -54,7 +45,6 @@ export function useApproveAndSwap(): (
   const dispatch = useDispatch()
   const tokenContracts = useAllContracts()
   const { account, chainId } = useActiveWeb3React()
-  const baseSynthetixContract = useSynthetixContract()
   const { gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,
   )
@@ -72,7 +62,7 @@ export function useApproveAndSwap(): (
   ): Promise<void> {
     try {
       if (!account) throw new Error("Wallet must be connected")
-      if (state.swapType === SWAP_TYPES.DIRECT && !state.swapContract)
+      if (state.swapType === SWAP_TYPES.DIRECT && !state.poolContract)
         throw new Error("Swap contract is not loaded")
       if (state.swapType !== SWAP_TYPES.DIRECT && !state.bridgeContract)
         throw new Error("Bridge contract is not loaded")
@@ -93,9 +83,7 @@ export function useApproveAndSwap(): (
       if (tokenContract == null) return
       let addressToApprove = ""
       if (state.swapType === SWAP_TYPES.DIRECT) {
-        addressToApprove = state.swapContract?.address as string
-      } else if (state.swapType === SWAP_TYPES.SYNTH_TO_SYNTH) {
-        addressToApprove = baseSynthetixContract?.address as string
+        addressToApprove = state.poolContract?.address as string
       } else {
         addressToApprove = state.bridgeContract?.address as string
       }
@@ -182,21 +170,9 @@ export function useApproveAndSwap(): (
           txnArgs,
         ] as const
         console.debug("swap - direct", args)
-        swapTransaction = await (state.swapContract as NonNullable<
-          typeof state.swapContract // we already check for nonnull above
+        swapTransaction = await (state.poolContract as NonNullable<
+          typeof state.poolContract // we already check for nonnull above
         >).swap(...args)
-      } else if (state.swapType === SWAP_TYPES.SYNTH_TO_SYNTH) {
-        const args = [
-          utils.formatBytes32String(state.from.symbol),
-          state.from.amount,
-          utils.formatBytes32String(state.to.symbol),
-          account,
-          SYNTH_TRACKING_ID,
-        ] as const
-        console.debug("swap - synthToSynth", args)
-        swapTransaction = await baseSynthetixContract?.exchangeWithTracking(
-          ...args,
-        )
       } else {
         throw new Error("Invalid Swap Type, or contract not loaded")
       }
