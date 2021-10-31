@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux"
 import Deposit from "./Deposit"
 import PendingSwapsProvider from "../providers/PendingSwapsProvider"
 import Pools from "./Pools"
+import Stake from "./Stake"
 import Swap from "./Swap"
 import Version from "../components/Version"
 import Web3ReactManager from "../components/Web3ReactManager"
@@ -38,6 +39,7 @@ export default function App(): ReactElement {
             <Switch>
               <Route exact path="/" component={Swap} />
               <Route exact path="/pools" component={Pools} />
+              <Route exact path="/stake" component={Stake} />
               {Object.values(POOLS_MAP).map(({ name, route }) => (
                 <Route
                   exact

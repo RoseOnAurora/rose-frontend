@@ -1,0 +1,64 @@
+@import "../styles/theme";
+@import "../styles/viewports";
+
+.stakeDetailsContainer {
+  width: 40%;
+  background: var(--background-element);
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  padding: 24px;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  @include breakpoint(md) {
+    width: 100%;
+    flex-direction: row;
+    order: 0;
+  }
+
+  .stakeDetails {
+    padding: 10px;
+  }
+
+  .icon {
+    font-weight: 700;
+    font-size: 50px;
+    line-height: 50px;
+  }
+
+  .row:nth-child(2) {
+    padding-bottom: 2em;
+  }
+
+  .row {
+    display: flex;
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .balanceDetails {
+    display: flex;
+    flex-direction: column;
+    margin-left: 25px;
+    font-size: 18px;
+
+    span {
+      padding: 0.2em;
+    }
+
+    .balance {
+      font-weight: 600;
+    }
+
+    .token {
+      font-weight: 300;
+    }
+  }
+
+  h3.title {
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 30px;
+  }
+}

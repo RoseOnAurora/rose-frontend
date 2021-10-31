@@ -351,6 +351,9 @@ export const D4_SWAP_TOKEN_CONTRACT_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "",
 }
 
+export const ROSE_ICON =
+  "data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22&gt;&lt;text y=%22.9em%22 font-size=%2290%22&gt;🌹&lt;/text&gt;&lt;/svg&gt;"
+
 export const SUSD_SWAP_TOKEN = new Token(
   SUSD_SWAP_TOKEN_CONTRACT_ADDRESSES,
   18,
@@ -412,7 +415,7 @@ export const STABLECOIN_SWAP_V2_TOKEN = new Token(
   "roseUSD",
   "roseusd",
   "Rose DAI/USDC/USDT",
-  saddleLogo,
+  ROSE_ICON,
   false,
   true,
 )
@@ -817,6 +820,10 @@ export function isMetaPool(poolName = ""): boolean {
 // maps a symbol string to a token object
 export type TokensMap = {
   [symbol: string]: Token
+}
+
+export const ROSE_TOKENS_MAP: TokensMap = {
+  roseUSD: STABLECOIN_SWAP_V2_TOKEN,
 }
 
 export const TOKENS_MAP = Object.keys(POOLS_MAP).reduce((acc, poolName) => {

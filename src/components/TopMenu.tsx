@@ -40,6 +40,17 @@ function TopMenu({ activeTab }: Props): ReactElement {
             {t("pools")}
           </Link>
         </li>
+        <li>
+          <Link
+            to="/stake"
+            className={classNames({
+              active: activeTab === "stake",
+              // add additional checks here in case stake will require subpages
+            })}
+          >
+            {t("stake")}
+          </Link>
+        </li>
       </ul>
       <Web3Status />
       <ThemeChanger />
