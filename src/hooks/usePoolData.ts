@@ -136,12 +136,17 @@ export default function usePoolData(
       }
 
       // get virtual price (failing, maybe because no liquidity yet?)
-      // console.log(
-      //   `pool.get_virtual_price() is ${(
-      //     await poolContract.get_virtual_price()
-      //   ).toString()}
-      // `,
-      // )
+      let virtualPrice
+      try {
+        virtualPrice = await poolContract.get_virtual_price()
+        console.log(
+          `pool.get_virtual_price() is ${virtualPrice.toString()}
+        `,
+        )
+      } catch (e) {
+        console.log(`couldn't fetch virtual price`)
+        virtualPrice = Zero
+      }
 
       // multicall: fetch A, fee, protocol_fee, virtual price
       const multicallPoolContract = new Contract(
@@ -175,7 +180,7 @@ export default function usePoolData(
         aParameter: multicallResFormatted[0],
         adminFee: multicallResFormatted[2],
         swapFee: multicallResFormatted[1],
-        // virtualPrice: multicallResFormatted[3],
+        virtualPrice,
       }
 
       setPoolData([poolData, null])
