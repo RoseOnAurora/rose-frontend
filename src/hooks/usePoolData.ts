@@ -201,6 +201,7 @@ export default function usePoolData(
         multicallResFormatted[4],
         multicallResFormatted[5],
       ]
+      console.log(`usdc balance: ${multicallResFormatted[4].toString()}`)
 
       // get lp token balance and total supply
       // TODO: use multicall

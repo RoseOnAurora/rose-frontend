@@ -5,7 +5,6 @@ import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { MaxUint256 } from "@ethersproject/constants"
 import { RoseStablesLP } from "../../types/ethers-contracts/RoseStablesLP"
 import { Zero } from "@ethersproject/constants"
-import { notifyHandler } from "../utils/notifyHandler"
 
 /**
  * Checks if a spender is allowed to spend some amount of a token.
@@ -42,10 +41,13 @@ export default async function checkAndApproveTokenForTrade(
     swapAddress,
   )
 
-  console.debug(
+  console.log(`swap address: ${swapAddress}`)
+  console.log(
     `Existing ${tokenName} Allowance: ${existingAllowance.toString()}`,
   )
+  console.log(`Spending ${spendingValue.toString()} ${tokenName}`)
   if (existingAllowance.gte(spendingValue)) return
+  console.log(`need to approve`)
   async function approve(amount: BigNumber): Promise<void> {
     try {
       const cleanupOnStart = callbacks.onTransactionStart?.()
@@ -56,8 +58,6 @@ export default async function checkAndApproveTokenForTrade(
           gasPrice,
         },
       )
-      // Add notification
-      notifyHandler(approvalTransaction.hash, "tokenApproval")
       const confirmedTransaction = await approvalTransaction.wait()
       cleanupOnStart?.()
       callbacks.onTransactionSuccess?.(confirmedTransaction)

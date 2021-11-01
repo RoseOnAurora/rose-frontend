@@ -3,17 +3,15 @@
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 import { POOLS_MAP, SWAP_TYPES, TRANSACTION_TYPES } from "../constants"
-import { notifyCustomError, notifyHandler } from "../utils/notifyHandler"
+// import { notifyCustomError, notifyHandler } from "../utils/notifyHandler"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { Bridge } from "../../types/ethers-contracts/Bridge"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import { GasPrices } from "../state/user"
 import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
+import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
-import { formatDeadlineToNumber } from "../utils"
-import { parseUnits } from "@ethersproject/units"
 import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
@@ -45,18 +43,9 @@ export function useApproveAndSwap(): (
   const dispatch = useDispatch()
   const tokenContracts = useAllContracts()
   const { account, chainId } = useActiveWeb3React()
-  const { gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
+  const { slippageCustom, slippageSelected, infiniteApproval } = useSelector(
+    (state: AppState) => state.user,
   )
-  const {
-    slippageCustom,
-    slippageSelected,
-    gasPriceSelected,
-    gasCustom,
-    transactionDeadlineCustom,
-    transactionDeadlineSelected,
-    infiniteApproval,
-  } = useSelector((state: AppState) => state.user)
   return async function approveAndSwap(
     state: ApproveAndSwapStateArgument,
   ): Promise<void> {
@@ -69,17 +58,17 @@ export function useApproveAndSwap(): (
       if (chainId === undefined) throw new Error("Unknown chain")
       // For each token being deposited, check the allowance and approve it if necessary
       const tokenContract = tokenContracts?.[state.from.symbol] as Erc20
-      let gasPrice
-      if (gasPriceSelected === GasPrices.Custom) {
-        gasPrice = gasCustom?.valueSafe
-      } else if (gasPriceSelected === GasPrices.Fast) {
-        gasPrice = gasFast
-      } else if (gasPriceSelected === GasPrices.Instant) {
-        gasPrice = gasInstant
-      } else {
-        gasPrice = gasStandard
-      }
-      gasPrice = parseUnits(String(gasPrice) || "45", 9)
+      const gasPrice = Zero
+      // if (gasPriceSelected === GasPrices.Custom) {
+      //   gasPrice = gasCustom?.valueSafe
+      // } else if (gasPriceSelected === GasPrices.Fast) {
+      //   gasPrice = gasFast
+      // } else if (gasPriceSelected === GasPrices.Instant) {
+      //   gasPrice = gasInstant
+      // } else {
+      //   gasPrice = gasStandard
+      // }
+      // gasPrice = parseUnits(String(gasPrice) || "45", 9)
       if (tokenContract == null) return
       let addressToApprove = ""
       if (state.swapType === SWAP_TYPES.DIRECT) {
@@ -157,27 +146,19 @@ export function useApproveAndSwap(): (
           ...args,
         )
       } else if (state.swapType === SWAP_TYPES.DIRECT) {
-        const deadline = formatDeadlineToNumber(
-          transactionDeadlineSelected,
-          transactionDeadlineCustom,
-        )
         const args = [
           state.from.tokenIndex,
           state.to.tokenIndex,
           state.from.amount,
           subtractSlippage(state.to.amount, slippageSelected, slippageCustom),
-          Math.round(new Date().getTime() / 1000 + 60 * deadline),
           txnArgs,
         ] as const
-        console.debug("swap - direct", args)
+        console.debug("exchange - direct", args)
         swapTransaction = await (state.poolContract as NonNullable<
           typeof state.poolContract // we already check for nonnull above
-        >).swap(...args)
+        >).exchange(...args)
       } else {
         throw new Error("Invalid Swap Type, or contract not loaded")
-      }
-      if (swapTransaction?.hash) {
-        notifyHandler(swapTransaction.hash, "swap")
       }
 
       await swapTransaction?.wait()
@@ -189,7 +170,6 @@ export function useApproveAndSwap(): (
       return Promise.resolve()
     } catch (e) {
       console.error(e)
-      notifyCustomError(e as Error)
     }
   }
 }

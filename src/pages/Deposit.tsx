@@ -4,10 +4,6 @@ import React, { ReactElement, useEffect, useMemo, useState } from "react"
 import { TokensStateType, useTokenFormState } from "../hooks/useTokenFormState"
 import { formatBNToString, getContract, shiftBNDecimals } from "../utils"
 import usePoolData, { PoolDataType } from "../hooks/usePoolData"
-import {
-  usePoolTokenApprovals,
-  usePoolTokenBalances,
-} from "../state/wallet/hooks"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
@@ -22,6 +18,7 @@ import { parseUnits } from "@ethersproject/units"
 import { useActiveWeb3React } from "../hooks"
 import { useApproveAndDeposit } from "../hooks/useApproveAndDeposit"
 import { usePoolContract } from "../hooks/useContract"
+import { usePoolTokenBalances } from "../state/wallet/hooks"
 import { useSelector } from "react-redux"
 
 interface Props {
@@ -72,7 +69,6 @@ function Deposit({ poolName }: Props): ReactElement | null {
     POOL.underlyingPoolTokens,
   ])
   const tokenBalances = usePoolTokenBalances()
-  const tokenApprovals = usePoolTokenApprovals()
   const { tokenPricesUSD, gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,
   )
@@ -159,9 +155,6 @@ function Deposit({ poolName }: Props): ReactElement | null {
             txnAmounts,
             true, // deposit boolean
           )
-          console.log(
-            `depositLPTokenAmount: ${JSON.stringify(depositLPTokenAmount)}`,
-          )
         }
       } else {
         // when pool is empty, estimate the lptokens by just summing the input instead of calling contract
@@ -200,7 +193,6 @@ function Deposit({ poolName }: Props): ReactElement | null {
     name,
     icon,
     max: formatBNToString(tokenBalances?.[symbol] || Zero, decimals),
-    approved: formatBNToString(tokenApprovals?.[symbol] || Zero, decimals),
     inputValue: tokenFormState[symbol].valueRaw,
   }))
 

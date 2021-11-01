@@ -33,7 +33,6 @@ interface Props {
     name: string
     icon: string
     max: string
-    approved: string
     inputValue: string
   }>
   exceedsWallet: boolean
@@ -60,8 +59,8 @@ const DepositPage = (props: Props): ReactElement => {
 
   const [currentModal, setCurrentModal] = useState<string | null>(null)
 
-  // const validDepositAmount = transactionData.to.totalAmount.gt(0)
-  const validDepositAmount = true
+  const validDepositAmount = transactionData.to.totalAmount.gt(0)
+  // const validDepositAmount = true
   const shouldDisplayWrappedOption = isMetaPool(poolData?.name)
 
   return (
