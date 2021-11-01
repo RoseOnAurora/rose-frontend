@@ -1,5 +1,4 @@
 import { POOLS_MAP, PoolName, TRANSACTION_TYPES, Token } from "../constants"
-import { notifyCustomError, notifyHandler } from "../utils/notifyHandler"
 import {
   useAllContracts,
   useLPTokenContract,
@@ -10,7 +9,6 @@ import { useDispatch, useSelector } from "react-redux"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import { IS_PRODUCTION } from "../utils/environment"
 import META_SWAP_ABI from "../constants/abis/metaSwap.json"
 import { MetaSwap } from "../../types/ethers-contracts/MetaSwap"
 import { NumberInputState } from "../utils/numberInputState"
@@ -99,12 +97,8 @@ export function useApproveAndDeposit(
         return
       }
       // For each token being deposited, check the allowance and approve it if necessary
-      if (!IS_PRODUCTION) {
-        for (const token of poolTokens) {
-          await approveSingleToken(token)
-        }
-      } else {
-        await Promise.all(poolTokens.map((token) => approveSingleToken(token)))
+      for (const token of poolTokens) {
+        await approveSingleToken(token)
       }
 
       const effectivePoolContract = effectiveSwapContract as RoseStablesPool
@@ -136,7 +130,7 @@ export function useApproveAndDeposit(
         },
       )
 
-      notifyHandler(spendTransaction.hash, "deposit")
+      // notifyHandler(spendTransaction.hash, "deposit")
 
       await spendTransaction.wait()
       dispatch(
@@ -147,7 +141,7 @@ export function useApproveAndDeposit(
       return Promise.resolve()
     } catch (e) {
       console.error(e)
-      notifyCustomError(e as Error)
+      // notifyCustomError(e as Error)
     }
   }
 }

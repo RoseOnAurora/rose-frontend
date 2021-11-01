@@ -2,7 +2,7 @@ import "./ReviewSwap.scss"
 
 import React, { ReactElement, useState } from "react"
 import { SWAP_TYPES, TOKENS_MAP, getIsVirtualSwap } from "../constants"
-import { commify, formatBNToString, formatDeadlineToNumber } from "../utils"
+import { commify, formatBNToString } from "../utils"
 
 import { AppState } from "../state/index"
 import { BigNumber } from "@ethersproject/bignumber"
@@ -44,8 +44,6 @@ function ReviewSwap({ onClose, onConfirm, data }: Props): ReactElement {
     slippageSelected,
     gasPriceSelected,
     gasCustom,
-    transactionDeadlineSelected,
-    transactionDeadlineCustom,
   } = useSelector((state: AppState) => state.user)
   const { gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,
@@ -58,10 +56,6 @@ function ReviewSwap({ onClose, onConfirm, data }: Props): ReactElement {
     data.exchangeRateInfo.priceImpact,
   )
   const isVirtualSwap = getIsVirtualSwap(data.swapType)
-  const deadline = formatDeadlineToNumber(
-    transactionDeadlineSelected,
-    transactionDeadlineCustom,
-  )
 
   return (
     <div className="reviewSwap">
@@ -136,14 +130,6 @@ function ReviewSwap({ onClose, onConfirm, data }: Props): ReactElement {
               {formatSlippageToString(slippageSelected, slippageCustom)}%
             </span>
           </div>
-          {!isVirtualSwap && (
-            <div className="row">
-              <span className="title">{t("deadline")}</span>
-              <span className="value floatRight">
-                {deadline} {t("minutes")}
-              </span>
-            </div>
-          )}
           {isHighPriceImpactTxn && (
             <div className="row">
               <HighPriceImpactConfirmation

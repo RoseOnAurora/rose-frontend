@@ -155,9 +155,6 @@ function Deposit({ poolName }: Props): ReactElement | null {
             txnAmounts,
             true, // deposit boolean
           )
-          console.log(
-            `depositLPTokenAmount: ${JSON.stringify(depositLPTokenAmount)}`,
-          )
         }
       } else {
         // when pool is empty, estimate the lptokens by just summing the input instead of calling contract

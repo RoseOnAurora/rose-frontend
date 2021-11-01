@@ -26,7 +26,7 @@ import {
 import { formatUnits, parseUnits } from "@ethersproject/units"
 import {
   useBridgeContract,
-  useSwapContract,
+  usePoolContract,
   useSynthetixExchangeRatesContract,
 } from "../hooks/useContract"
 
@@ -115,7 +115,7 @@ function Swap(): ReactElement {
     EMPTY_FORM_STATE,
   )
 
-  const swapContract = useSwapContract(
+  const swapContract = usePoolContract(
     formState.to.poolName as PoolName | undefined,
   )
   // build a representation of pool tokens for the UI
@@ -259,7 +259,7 @@ function Swap(): ReactElement {
         formStateArg.swapType === SWAP_TYPES.DIRECT &&
         swapContract != null
       ) {
-        amountToReceive = await swapContract.calculateSwap(
+        amountToReceive = await swapContract.get_dy(
           formStateArg.from.tokenIndex,
           formStateArg.to.tokenIndex,
           amountToGive,
@@ -475,7 +475,7 @@ function Swap(): ReactElement {
     }
     await approveAndSwap({
       bridgeContract: bridgeContract,
-      swapContract: swapContract,
+      poolContract: swapContract,
       from: {
         amount: parseUnits(formState.from.value, fromToken.decimals),
         symbol: formState.from.symbol,
