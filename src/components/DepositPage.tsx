@@ -33,6 +33,7 @@ interface Props {
     name: string
     icon: string
     max: string
+    approved: string
     inputValue: string
   }>
   exceedsWallet: boolean

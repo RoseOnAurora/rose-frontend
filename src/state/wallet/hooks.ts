@@ -17,9 +17,10 @@ import { useState } from "react"
 
 const useTokenBalancesHelper = (
   tokenMap: TokensMap,
-): { [token: string]: BigNumber } | null => {
+): [{ [token: string]: BigNumber }, { [token: string]: BigNumber }] | null => {
   const { account, chainId, library } = useActiveWeb3React()
   const [balances, setBalances] = useState<{ [token: string]: BigNumber }>({})
+  const [approvals, setApprovals] = useState<{ [token: string]: BigNumber }>({})
 
   const ethcallProvider = new Provider() as MulticallProvider
 
@@ -57,19 +58,49 @@ const useTokenBalancesHelper = (
           { ETH: ethBalance },
         ),
       )
+
+      // get approvals (TODO: make one multicall instead of two, use call above)
+      const approvalCalls = tokens
+        .map((t) => {
+          return new Contract(
+            t.addresses[chainId],
+            ERC20_ABI,
+          ) as MulticallContract<Erc20>
+        })
+        .map((c) => c.balanceOf(account))
+      const approvals = await ethcallProvider.all(approvalCalls, "latest")
+      setApprovals(
+        tokens.reduce(
+          (acc, t, i) => ({
+            ...acc,
+            [t.symbol]: approvals[i],
+          }),
+          {},
+        ),
+      )
     }
     if (account) {
       void pollBalances()
     }
   }, BLOCK_TIME)
 
-  return balances
+  return [balances, approvals]
 }
 
 export function usePoolTokenBalances(): { [token: string]: BigNumber } | null {
-  return useTokenBalancesHelper(TOKENS_MAP)
+  const tokenBalances = useTokenBalancesHelper(TOKENS_MAP)
+  if (!tokenBalances) return null
+  return tokenBalances[0]
 }
 
 export function useRoseTokenBalances(): { [token: string]: BigNumber } | null {
-  return useTokenBalancesHelper(ROSE_TOKENS_MAP)
+  const tokenBalances = useTokenBalancesHelper(ROSE_TOKENS_MAP)
+  if (!tokenBalances) return null
+  return tokenBalances[0]
+}
+
+export function usePoolTokenApprovals(): { [token: string]: BigNumber } | null {
+  const tokenApprovals = useTokenBalancesHelper(TOKENS_MAP)
+  if (!tokenApprovals) return null
+  return tokenApprovals[1]
 }

@@ -14,6 +14,7 @@ interface Props {
   symbol: string
   icon: string
   max?: string
+  approved?: string
   inputValue: string
   onChange: (value: string) => void
   disabled?: boolean
@@ -23,6 +24,7 @@ function TokenInput({
   symbol,
   icon,
   max,
+  approved,
   inputValue,
   onChange,
   disabled,
@@ -98,6 +100,14 @@ function TokenInput({
           </p>
         </div>
       </div>
+
+      {approved != null && (
+        <div className={styles.approvedContainer}>
+          <span>{t("approved")}:</span>
+          &nbsp;
+          <span>{approved}</span>
+        </div>
+      )}
     </div>
   )
 }
