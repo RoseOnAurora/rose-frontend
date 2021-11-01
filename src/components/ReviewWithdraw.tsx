@@ -1,7 +1,7 @@
 import "./ReviewWithdraw.scss"
 
 import React, { ReactElement, useState } from "react"
-import { commify, formatBNToString, formatDeadlineToNumber } from "../utils"
+import { commify, formatBNToString } from "../utils"
 
 import { AppState } from "../state/index"
 import Button from "./Button"
@@ -28,8 +28,6 @@ function ReviewWithdraw({ onClose, onConfirm, data }: Props): ReactElement {
     slippageSelected,
     gasPriceSelected,
     gasCustom,
-    transactionDeadlineSelected,
-    transactionDeadlineCustom,
   } = useSelector((state: AppState) => state.user)
   const { gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,
@@ -39,10 +37,6 @@ function ReviewWithdraw({ onClose, onConfirm, data }: Props): ReactElement {
     setHasConfirmedHighPriceImpact,
   ] = useState(false)
   const isHighSlippageTxn = isHighPriceImpact(data.priceImpact)
-  const deadline = formatDeadlineToNumber(
-    transactionDeadlineSelected,
-    transactionDeadlineCustom,
-  )
   return (
     <div className="reviewWithdraw">
       <h3>{t("youWillReceive")}</h3>
@@ -84,12 +78,6 @@ function ReviewWithdraw({ onClose, onConfirm, data }: Props): ReactElement {
           <span className="label">{t("maxSlippage")}</span>
           <span className="value">
             {formatSlippageToString(slippageSelected, slippageCustom)}%
-          </span>
-        </div>
-        <div className="withdrawInfoItem">
-          <span className="label">{t("deadline")}</span>
-          <span className="value">
-            {deadline} {t("minutes")}
           </span>
         </div>
         <div className="withdrawInfoItem">

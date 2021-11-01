@@ -1,12 +1,7 @@
 import "./ReviewDeposit.scss"
 
 import React, { ReactElement, useState } from "react"
-import {
-  commify,
-  formatBNToPercentString,
-  formatBNToString,
-  formatDeadlineToNumber,
-} from "../utils"
+import { commify, formatBNToPercentString, formatBNToString } from "../utils"
 
 import { AppState } from "../state/index"
 import Button from "./Button"
@@ -35,8 +30,6 @@ function ReviewDeposit({
     slippageSelected,
     gasPriceSelected,
     gasCustom,
-    transactionDeadlineSelected,
-    transactionDeadlineCustom,
   } = useSelector((state: AppState) => state.user)
   const { gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,
@@ -46,10 +39,7 @@ function ReviewDeposit({
     setHasConfirmedHighPriceImpact,
   ] = useState(false)
   const isHighPriceImpactTxn = isHighPriceImpact(transactionData.priceImpact)
-  const deadline = formatDeadlineToNumber(
-    transactionDeadlineSelected,
-    transactionDeadlineCustom,
-  )
+
   return (
     <div className="reviewDeposit">
       <h3>{t("reviewDeposit")}</h3>
@@ -134,12 +124,6 @@ function ReviewDeposit({
           <span className="label">{t("maxSlippage")}</span>
           <span className="value">
             {formatSlippageToString(slippageSelected, slippageCustom)}%
-          </span>
-        </div>
-        <div className="depositInfoItem">
-          <span className="label">{t("deadline")}</span>
-          <span className="value">
-            {deadline} {t("minutes")}
           </span>
         </div>
         <div className="depositInfoItem">
