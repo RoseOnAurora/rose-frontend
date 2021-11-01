@@ -1,22 +1,19 @@
-import { POOLS_MAP, PoolName, isLegacySwapABIPool } from "../constants"
+import { POOLS_MAP, PoolName } from "../constants"
 import React, { ReactElement, useEffect, useState } from "react"
 import WithdrawPage, { ReviewWithdrawData } from "../components/WithdrawPage"
 import { commify, formatUnits, parseUnits } from "@ethersproject/units"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { SwapFlashLoan } from "../../types/ethers-contracts/SwapFlashLoan"
-import { SwapFlashLoanNoWithdrawFee } from "../../types/ethers-contracts/SwapFlashLoanNoWithdrawFee"
 import { Zero } from "@ethersproject/constants"
 import { calculateGasEstimate } from "../utils/gasEstimate"
 import { calculatePriceImpact } from "../utils/priceImpact"
-import { formatGasToString } from "../utils/gas"
 import { formatSlippageToString } from "../utils/slippage"
 import { useActiveWeb3React } from "../hooks"
 import { useApproveAndWithdraw } from "../hooks/useApproveAndWithdraw"
+import { usePoolContract } from "../hooks/useContract"
 import usePoolData from "../hooks/usePoolData"
 import { useSelector } from "react-redux"
-import { useSwapContract } from "../hooks/useContract"
 import useWithdrawFormState from "../hooks/useWithdrawFormState"
 
 interface Props {
@@ -27,17 +24,12 @@ function Withdraw({ poolName }: Props): ReactElement {
   const [withdrawFormState, updateWithdrawFormState] = useWithdrawFormState(
     poolName,
   )
-  const {
-    slippageCustom,
-    slippageSelected,
-    gasPriceSelected,
-    gasCustom,
-  } = useSelector((state: AppState) => state.user)
-  const { tokenPricesUSD, gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
+  const { slippageCustom, slippageSelected } = useSelector(
+    (state: AppState) => state.user,
   )
+  const { tokenPricesUSD } = useSelector((state: AppState) => state.application)
   const approveAndWithdraw = useApproveAndWithdraw(poolName)
-  const swapContract = useSwapContract(poolName)
+  const poolContract = usePoolContract(poolName)
   const { account } = useActiveWeb3React()
   const POOL = POOLS_MAP[poolName]
 
@@ -46,7 +38,7 @@ function Withdraw({ poolName }: Props): ReactElement {
     // evaluate if a new withdraw will exceed the pool's per-user limit
     async function calculateWithdrawBonus(): Promise<void> {
       if (
-        swapContract == null ||
+        poolContract == null ||
         userShareData == null ||
         poolData == null ||
         account == null
@@ -65,22 +57,15 @@ function Withdraw({ poolName }: Props): ReactElement {
       )
       let withdrawLPTokenAmount
       if (poolData.totalLocked.gt(0) && tokenInputSum.gt(0)) {
-        if (isLegacySwapABIPool(poolData.name)) {
-          withdrawLPTokenAmount = await (swapContract as SwapFlashLoan).calculateTokenAmount(
-            account,
-            POOL.poolTokens.map(
-              ({ symbol }) => withdrawFormState.tokenInputs[symbol].valueSafe,
-            ),
-            false,
-          )
-        } else {
-          withdrawLPTokenAmount = await (swapContract as SwapFlashLoanNoWithdrawFee).calculateTokenAmount(
-            POOL.poolTokens.map(
-              ({ symbol }) => withdrawFormState.tokenInputs[symbol].valueSafe,
-            ),
-            false,
-          )
-        }
+        const txnAmounts: [string, string, string] = [
+          withdrawFormState.tokenInputs[POOL.poolTokens[0].symbol].valueSafe,
+          withdrawFormState.tokenInputs[POOL.poolTokens[1].symbol].valueSafe,
+          withdrawFormState.tokenInputs[POOL.poolTokens[2].symbol].valueSafe,
+        ]
+        withdrawLPTokenAmount = await poolContract.calc_token_amount(
+          txnAmounts,
+          false,
+        )
       } else {
         // when pool is empty, estimate the lptokens by just summing the input instead of calling contract
         withdrawLPTokenAmount = tokenInputSum
@@ -98,7 +83,7 @@ function Withdraw({ poolName }: Props): ReactElement {
   }, [
     poolData,
     withdrawFormState,
-    swapContract,
+    poolContract,
     userShareData,
     account,
     POOL.poolTokens,
@@ -127,13 +112,14 @@ function Withdraw({ poolName }: Props): ReactElement {
       })),
     [withdrawFormState, POOL.poolTokens],
   )
-  const gasPrice = BigNumber.from(
-    formatGasToString(
-      { gasStandard, gasFast, gasInstant },
-      gasPriceSelected,
-      gasCustom,
-    ),
-  )
+  const gasPrice = Zero
+  // const gasPrice = BigNumber.from(
+  //   formatGasToString(
+  //     { gasStandard, gasFast, gasInstant },
+  //     gasPriceSelected,
+  //     gasCustom,
+  //   ),
+  // )
   const gasAmount = calculateGasEstimate("removeLiquidityImbalance").mul(
     gasPrice,
   ) // units of gas * GWEI/Unit of gas
