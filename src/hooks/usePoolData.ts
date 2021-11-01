@@ -185,14 +185,15 @@ export default function usePoolData(
         unknown,
         BigNumber
       > = multicallPoolContract.balances(2)
-      const multicallRes = await ethcallProvider.all(
-        [a, fee, protocol_fee, dai_balance, usdc_balance, usdt_balance],
-        "latest",
-      )
       // TODO: make a struct instead of an unfriendly array
-      const multicallResFormatted = multicallRes.map((res, i) => {
+      const multicallResFormatted = (
+        await ethcallProvider.all(
+          [a, fee, protocol_fee, dai_balance, usdc_balance, usdt_balance],
+          "latest",
+        )
+      ).map((res) => {
         return parseUnits((1).toFixed(2), 2)
-          .mul(multicallRes[i])
+          .mul(res)
           .div(BigNumber.from(10).pow(2)) //1e18
       })
       const tokenBalances = [
