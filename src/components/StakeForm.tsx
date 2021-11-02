@@ -13,14 +13,12 @@ import {
   InputRightElement,
   Text,
 } from "@chakra-ui/react"
+import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
 import { Field, FieldAttributes, Form, Formik } from "formik"
 import React, { ReactElement, useState } from "react"
 import { AppState } from "../state"
-import ConfirmTransaction from "./ConfirmTransaction"
 import { ContractReceipt } from "@ethersproject/contracts"
-import FailedTransaction from "./FailedTransaction"
 import Modal from "./Modal"
-import SuccessTransaction from "./SuccessTransaction"
 import classNames from "classnames"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import styles from "./StakeForm.module.scss"
@@ -56,12 +54,19 @@ function StakeForm(props: Props): ReactElement {
         isOpen={!!currentModal}
         onClose={(): void => setCurrentModal(null)}
       >
-        {currentModal === "confirm" ? (
+        {currentModal === ModalType.CONFIRM ? (
           <ConfirmTransaction />
-        ) : currentModal === "failed" ? (
-          <FailedTransaction failedDescription={failedDescription} />
-        ) : currentModal === "success" ? (
-          <SuccessTransaction />
+        ) : currentModal === ModalType.FAILED ? (
+          <ConfirmTransaction
+            description={failedDescription}
+            title={t("failedTitle")}
+            type={ModalType.FAILED}
+          />
+        ) : currentModal === ModalType.SUCCESS ? (
+          <ConfirmTransaction
+            title={t("successTitle")}
+            type={ModalType.SUCCESS}
+          />
         ) : null}
       </Modal>
       <div className={styles.row}>
@@ -80,19 +85,19 @@ function StakeForm(props: Props): ReactElement {
         <Formik
           initialValues={{ [fieldName]: "" }}
           onSubmit={async (values, actions) => {
-            setCurrentModal("confirm")
+            setCurrentModal(ModalType.CONFIRM)
             const valueSafe = parseStringToBigNumber(values?.[fieldName], 18)
             actions.resetForm({ values: { [fieldName]: "" } })
             const receipt = (await handleSubmit(
               valueSafe.value.toString(),
             )) as ContractReceipt
             if (receipt?.status) {
-              setCurrentModal("success")
+              setCurrentModal(ModalType.SUCCESS)
               setTimeout(() => {
                 setCurrentModal(null)
               }, 1000)
             } else {
-              setCurrentModal("failed")
+              setCurrentModal(ModalType.FAILED)
             }
           }}
         >
