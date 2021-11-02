@@ -1,14 +1,12 @@
 import { POOLS_MAP, PoolName, TRANSACTION_TYPES } from "../constants"
 import { addSlippage, subtractSlippage } from "../utils/slippage"
-import { formatUnits, parseUnits } from "@ethersproject/units"
-import { notifyCustomError, notifyHandler } from "../utils/notifyHandler"
-import { useLPTokenContract, useSwapContract } from "./useContract"
+import { useLPTokenContract, usePoolContract } from "./useContract"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { GasPrices } from "../state/user"
 import { NumberInputState } from "../utils/numberInputState"
+import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
-import { formatDeadlineToNumber } from "../utils"
+import { formatUnits } from "@ethersproject/units"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
 import { useDispatch } from "react-redux"
@@ -24,20 +22,11 @@ export function useApproveAndWithdraw(
   poolName: PoolName,
 ): (state: ApproveAndWithdrawStateArgument) => Promise<void> {
   const dispatch = useDispatch()
-  const swapContract = useSwapContract(poolName)
+  const poolContract = usePoolContract(poolName)
   const { account } = useActiveWeb3React()
-  const { gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
+  const { slippageCustom, slippageSelected, infiniteApproval } = useSelector(
+    (state: AppState) => state.user,
   )
-  const {
-    slippageCustom,
-    slippageSelected,
-    gasPriceSelected,
-    gasCustom,
-    transactionDeadlineCustom,
-    transactionDeadlineSelected,
-    infiniteApproval,
-  } = useSelector((state: AppState) => state.user)
   const lpTokenContract = useLPTokenContract(poolName)
   const POOL = POOLS_MAP[poolName]
 
@@ -46,20 +35,20 @@ export function useApproveAndWithdraw(
   ): Promise<void> {
     try {
       if (!account) throw new Error("Wallet must be connected")
-      if (!swapContract) throw new Error("Swap contract is not loaded")
+      if (!poolContract) throw new Error("Swap contract is not loaded")
       if (state.lpTokenAmountToSpend.isZero()) return
       if (lpTokenContract == null) return
-      let gasPrice
-      if (gasPriceSelected === GasPrices.Custom && gasCustom?.valueSafe) {
-        gasPrice = gasCustom.valueSafe
-      } else if (gasPriceSelected === GasPrices.Standard) {
-        gasPrice = gasStandard
-      } else if (gasPriceSelected === GasPrices.Instant) {
-        gasPrice = gasInstant
-      } else {
-        gasPrice = gasFast
-      }
-      gasPrice = parseUnits(gasPrice?.toString() || "45", "gwei")
+      const gasPrice = Zero
+      // if (gasPriceSelected === GasPrices.Custom && gasCustom?.valueSafe) {
+      //   gasPrice = gasCustom.valueSafe
+      // } else if (gasPriceSelected === GasPrices.Standard) {
+      //   gasPrice = gasStandard
+      // } else if (gasPriceSelected === GasPrices.Instant) {
+      //   gasPrice = gasInstant
+      // } else {
+      //   gasPrice = gasFast
+      // }
+      // gasPrice = parseUnits(gasPrice?.toString() || "45", "gwei")
       const allowanceAmount =
         state.withdrawType === "IMBALANCE"
           ? addSlippage(
@@ -70,7 +59,7 @@ export function useApproveAndWithdraw(
           : state.lpTokenAmountToSpend
       await checkAndApproveTokenForTrade(
         lpTokenContract,
-        swapContract.address,
+        poolContract.address,
         account,
         allowanceAmount,
         infiniteApproval,
@@ -85,48 +74,58 @@ export function useApproveAndWithdraw(
       console.debug(
         `lpTokenAmountToSpend: ${formatUnits(state.lpTokenAmountToSpend, 18)}`,
       )
-      const deadline = Math.round(
-        new Date().getTime() / 1000 +
-          60 *
-            formatDeadlineToNumber(
-              transactionDeadlineSelected,
-              transactionDeadlineCustom,
-            ),
-      )
       let spendTransaction
       if (state.withdrawType === "ALL") {
-        spendTransaction = await swapContract.removeLiquidity(
-          state.lpTokenAmountToSpend,
-          POOL.poolTokens.map(({ symbol }) =>
-            subtractSlippage(
-              BigNumber.from(state.tokenFormState[symbol].valueSafe),
-              slippageSelected,
-              slippageCustom,
+        const txnAmounts: [BigNumber, BigNumber, BigNumber] = [
+          subtractSlippage(
+            BigNumber.from(
+              state.tokenFormState[POOL.poolTokens[0].symbol].valueSafe,
             ),
+            slippageSelected,
+            slippageCustom,
           ),
-          deadline,
+          subtractSlippage(
+            BigNumber.from(
+              state.tokenFormState[POOL.poolTokens[1].symbol].valueSafe,
+            ),
+            slippageSelected,
+            slippageCustom,
+          ),
+          subtractSlippage(
+            BigNumber.from(
+              state.tokenFormState[POOL.poolTokens[2].symbol].valueSafe,
+            ),
+            slippageSelected,
+            slippageCustom,
+          ),
+        ]
+        spendTransaction = await poolContract.remove_liquidity(
+          state.lpTokenAmountToSpend,
+          txnAmounts,
           {
             gasPrice,
           },
         )
       } else if (state.withdrawType === "IMBALANCE") {
-        spendTransaction = await swapContract.removeLiquidityImbalance(
-          POOL.poolTokens.map(
-            ({ symbol }) => state.tokenFormState[symbol].valueSafe,
-          ),
+        const txnAmounts: [string, string, string] = [
+          state.tokenFormState[POOL.poolTokens[0].symbol].valueSafe,
+          state.tokenFormState[POOL.poolTokens[1].symbol].valueSafe,
+          state.tokenFormState[POOL.poolTokens[2].symbol].valueSafe,
+        ]
+        spendTransaction = await poolContract.remove_liquidity_imbalance(
+          txnAmounts,
           addSlippage(
             state.lpTokenAmountToSpend,
             slippageSelected,
             slippageCustom,
           ),
-          deadline,
           {
             gasPrice,
           },
         )
       } else {
         // state.withdrawType === [TokenSymbol]
-        spendTransaction = await swapContract.removeLiquidityOneToken(
+        spendTransaction = await poolContract.remove_liquidity_one_coin(
           state.lpTokenAmountToSpend,
           POOL.poolTokens.findIndex(
             ({ symbol }) => symbol === state.withdrawType,
@@ -138,14 +137,13 @@ export function useApproveAndWithdraw(
             slippageSelected,
             slippageCustom,
           ),
-          deadline,
           {
             gasPrice,
           },
         )
       }
 
-      notifyHandler(spendTransaction.hash, "withdraw")
+      // notifyHandler(spendTransaction.hash, "withdraw")
 
       await spendTransaction.wait()
       dispatch(
@@ -155,7 +153,7 @@ export function useApproveAndWithdraw(
       )
     } catch (e) {
       console.error(e)
-      notifyCustomError(e as Error)
+      // notifyCustomError(e as Error)
     }
   }
 }

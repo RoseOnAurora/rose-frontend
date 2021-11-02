@@ -186,22 +186,16 @@ export default function usePoolData(
         BigNumber
       > = multicallPoolContract.balances(2)
       // TODO: make a struct instead of an unfriendly array
-      const multicallResFormatted = (
-        await ethcallProvider.all(
-          [a, fee, protocol_fee, dai_balance, usdc_balance, usdt_balance],
-          "latest",
-        )
-      ).map((res) => {
-        return parseUnits((1).toFixed(2), 2)
-          .mul(res)
-          .div(BigNumber.from(10).pow(2)) //1e18
-      })
+      const multicallResFormatted = await ethcallProvider.all(
+        [a, fee, protocol_fee, dai_balance, usdc_balance, usdt_balance],
+        "latest",
+      )
+      // TODO: kinda hacky way of adjusting decimals, need to do this generically
       const tokenBalances = [
         multicallResFormatted[3],
-        multicallResFormatted[4],
-        multicallResFormatted[5],
+        multicallResFormatted[4].mul(BigNumber.from(10).pow(12)),
+        multicallResFormatted[5].mul(BigNumber.from(10).pow(12)),
       ]
-      console.log(`usdc balance: ${multicallResFormatted[4].toString()}`)
 
       // get lp token balance and total supply
       // TODO: use multicall
