@@ -771,6 +771,40 @@ export const LUSD = new Token(
   lusdLogo,
 )
 
+export const ROSE_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xcFaf01F8Fe01Ccb3dBc8580c3d79fc02F5ff5c2d",
+  [ChainId.AURORA_MAINNET]: "",
+}
+
+export const ROSE = new Token(
+  ROSE_CONTRACT_ADDRESSES,
+  18,
+  "ROSE",
+  "rose",
+  "Rose Token",
+  ROSE_ICON,
+)
+
+export const SROSE_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x30ce51e809FEB09c5Bdd79b988279189A24d3547",
+  [ChainId.AURORA_MAINNET]: "",
+}
+
+export const SROSE = new Token(
+  SROSE_CONTRACT_ADDRESSES,
+  18,
+  "stRose",
+  "strose",
+  "Staked Rose Tokens",
+  ROSE_ICON,
+)
+
 export const D4_POOL_TOKENS = [ALUSD, FEI, FRAX, LUSD]
 
 export const WCUSD_POOL_TOKENS = [WCUSD, ...STABLECOIN_POOL_TOKENS]
@@ -823,7 +857,8 @@ export type TokensMap = {
 }
 
 export const ROSE_TOKENS_MAP: TokensMap = {
-  roseUSD: STABLECOIN_SWAP_V2_TOKEN,
+  rose: ROSE,
+  stRose: SROSE,
 }
 
 export const TOKENS_MAP = Object.keys(POOLS_MAP).reduce((acc, poolName) => {

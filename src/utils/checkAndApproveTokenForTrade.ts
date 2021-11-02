@@ -62,7 +62,7 @@ export default async function checkAndApproveTokenForTrade(
       cleanupOnStart?.()
       callbacks.onTransactionSuccess?.(confirmedTransaction)
     } catch (error) {
-      callbacks.onTransactionError?.(error)
+      callbacks.onTransactionError?.(error as string)
       throw error
     }
   }
