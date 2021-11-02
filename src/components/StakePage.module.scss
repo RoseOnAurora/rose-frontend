@@ -1,0 +1,15 @@
+@import "../styles/theme";
+@import "../styles/viewports";
+
+div.stakeForm {
+  width: 60%;
+  background: var(--background-element);
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  padding: 24px;
+  margin: 10px;
+  @include breakpoint(md) {
+    width: 100%;
+    order: 1;
+  }
+}

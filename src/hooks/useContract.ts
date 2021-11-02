@@ -4,6 +4,8 @@ import {
   DAI,
   POOLS_MAP,
   PoolName,
+  ROSE_CONTRACT_ADDRESSES,
+  SROSE_CONTRACT_ADDRESSES,
   STABLECOIN_POOL_V2_NAME,
   STABLECOIN_SWAP_V2_TOKEN,
   SWAP_MIGRATOR_USD_CONTRACT_ADDRESSES,
@@ -28,11 +30,13 @@ import ROSE_STABLES_LP_ABI from "../constants/abis/RoseStablesLP.json"
 import ROSE_STABLES_POOL_ABI from "../constants/abis/RoseStablesPool.json"
 import { RoseStablesLP } from "../../types/ethers-contracts/RoseStablesLP"
 import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
+import SROSE_ABI from "../constants/abis/stRose.json"
 import SWAP_FLASH_LOAN_ABI from "../constants/abis/swapFlashLoan.json"
 import SWAP_FLASH_LOAN_NO_WITHDRAW_FEE_ABI from "../constants/abis/swapFlashLoanNoWithdrawFee.json"
 import SWAP_GUARDED_ABI from "../constants/abis/swapGuarded.json"
 import SYNTHETIX_EXCHANGE_RATE_CONTRACT_ABI from "../constants/abis/synthetixExchangeRate.json"
 import SYNTHETIX_NETWORK_TOKEN_CONTRACT_ABI from "../constants/abis/synthetixNetworkToken.json"
+import { StRose } from "../../types/ethers-contracts/StRose"
 import { SwapFlashLoan } from "../../types/ethers-contracts/SwapFlashLoan"
 import { SwapFlashLoanNoWithdrawFee } from "../../types/ethers-contracts/SwapFlashLoanNoWithdrawFee"
 import { SwapGuarded } from "../../types/ethers-contracts/SwapGuarded"
@@ -65,6 +69,20 @@ function useContract(
       return null
     }
   }, [address, ABI, library, withSignerIfPossible, account])
+}
+
+export function useRoseContract(): Contract | null {
+  const { chainId } = useActiveWeb3React()
+  const contractAddress = chainId ? ROSE_CONTRACT_ADDRESSES[chainId] : undefined
+  return useContract(contractAddress, ERC20_ABI) as Erc20
+}
+
+export function useStRoseContract(): StRose | null {
+  const { chainId } = useActiveWeb3React()
+  const contractAddress = chainId
+    ? SROSE_CONTRACT_ADDRESSES[chainId]
+    : undefined
+  return useContract(contractAddress, SROSE_ABI.abi) as StRose
 }
 
 export function useSwapMigratorUSDContract(): SwapMigratorUSD | null {

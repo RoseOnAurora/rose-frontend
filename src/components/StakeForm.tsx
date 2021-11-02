@@ -11,218 +11,156 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
+  Text,
 } from "@chakra-ui/react"
 import { Field, FieldAttributes, Form, Formik } from "formik"
-import React, { ReactElement } from "react"
+import React, { ReactElement, useState } from "react"
 import { AppState } from "../state"
+import ConfirmTransaction from "./ConfirmTransaction"
+import { ContractReceipt } from "@ethersproject/contracts"
+import FailedTransaction from "./FailedTransaction"
+import Modal from "./Modal"
+import SuccessTransaction from "./SuccessTransaction"
 import classNames from "classnames"
+import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import styles from "./StakeForm.module.scss"
 import { useSelector } from "react-redux"
 import { useTranslation } from "react-i18next"
 
 interface Props {
-  balance: string
-  staked: string
-  onTabSwitch: (index: number) => void
+  title: string
+  fieldName: string
+  token: string
+  max: string
+  failedDescription: string
+  handleSubmit: (amount: string) => Promise<ContractReceipt | void>
+  validator: (amount: string) => string | undefined
 }
-
 function StakeForm(props: Props): ReactElement {
   const { t } = useTranslation()
   const { userDarkMode } = useSelector((state: AppState) => state.user)
-  const { balance, staked, onTabSwitch } = props
+  const [currentModal, setCurrentModal] = useState<string | null>(null)
+  const {
+    title,
+    failedDescription,
+    fieldName,
+    token,
+    max,
+    handleSubmit,
+    validator,
+  } = props
 
-  const validateAmount = (amount: string) => {
-    const decimalRegex = /^[0-9]\d*(\.\d+)?$/
-    if (!amount) {
-      return t("You must enter a value.")
-    }
-    if (!decimalRegex.exec(amount.trim())) {
-      console.log("AMOUNT!!! ", amount)
-      return t("Numbers only!")
-    }
-    if (+amount <= 0) {
-      return t("Amount must be greater than zero!")
-    }
-  }
   return (
-    <div className={styles.stakeForm}>
-      <Tabs isFitted variant="primary" onChange={(index) => onTabSwitch(index)}>
-        <TabList mb="1em">
-          <Tab>{`${t("stake")} Rose`}</Tab>
-          <Tab>{t("unstake")}</Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            <div className={styles.row}>
-              <h3 className={styles.stakeTitle}>{`${t("stake")} ROSE`}</h3>
-              <div
-                className={classNames(
-                  styles.pill,
-                  { [styles.glowPill]: userDarkMode },
-                  { [styles.colorPill]: !userDarkMode },
-                )}
-              >
-                <div>1 stROSE = 1.5 ROSE</div>
-              </div>
-            </div>
-            <div className={styles.inputContainer}>
-              <Formik
-                initialValues={{ amount: "" }}
-                // TO-DO: change to actual submit logic
-                onSubmit={(values, actions) => {
-                  setTimeout(() => {
-                    alert(JSON.stringify(values, null, 2))
-                    actions.setSubmitting(false)
-                  }, 1000)
-                  actions.resetForm({ values: { amount: "" } })
-                }}
-              >
-                {(props) => (
-                  <Form>
-                    <Field name="amount" validate={validateAmount}>
-                      {({ field, form }: FieldAttributes<any>) => (
-                        <FormControl
-                          isInvalid={form.errors.amount && form.touched.amount}
-                        >
-                          <InputGroup>
-                            <InputLeftElement
-                              pointerEvents="none"
-                              color="gray.300"
-                              fontSize="1.2em"
-                            >
-                              🌹
-                            </InputLeftElement>
-                            <Input
-                              {...field}
-                              isInvalid={form.errors.amount}
-                              placeholder="0 ROSE"
-                              variant="primary"
-                            />
-                            <InputRightElement width="4.5rem">
-                              <Button
-                                variant="light"
-                                size="sm"
-                                onClick={() => {
-                                  props.setFieldTouched("amount", true)
-                                  props.setFieldValue("amount", balance)
-                                }}
-                              >
-                                {t("max")}
-                              </Button>
-                            </InputRightElement>
-                          </InputGroup>
-                          <FormErrorMessage>
-                            {form.errors.amount}
-                          </FormErrorMessage>
-                        </FormControl>
-                      )}
-                    </Field>
-                    <div className={styles.submitButton}>
-                      <Button
-                        isLoading={props.isSubmitting}
-                        variant="primary"
-                        size="lg"
-                        width="450px"
-                        type="submit"
-                        disabled={!props.isValid}
+    <div>
+      <Modal
+        isOpen={!!currentModal}
+        onClose={(): void => setCurrentModal(null)}
+      >
+        {currentModal === "confirm" ? (
+          <ConfirmTransaction />
+        ) : currentModal === "failed" ? (
+          <FailedTransaction failedDescription={failedDescription} />
+        ) : currentModal === "success" ? (
+          <SuccessTransaction />
+        ) : null}
+      </Modal>
+      <div className={styles.row}>
+        <h3 className={styles.stakeTitle}>{title}</h3>
+        <div
+          className={classNames(
+            styles.pill,
+            { [styles.glowPill]: userDarkMode },
+            { [styles.colorPill]: !userDarkMode },
+          )}
+        >
+          <div>1 stROSE = 1.5 ROSE</div>
+        </div>
+      </div>
+      <div className={styles.inputContainer}>
+        <Formik
+          initialValues={{ [fieldName]: "" }}
+          onSubmit={async (values, actions) => {
+            setCurrentModal("confirm")
+            const valueSafe = parseStringToBigNumber(values?.[fieldName], 18)
+            actions.resetForm({ values: { [fieldName]: "" } })
+            const receipt = (await handleSubmit(
+              valueSafe.value.toString(),
+            )) as ContractReceipt
+            if (receipt?.status) {
+              setCurrentModal("success")
+              setTimeout(() => {
+                setCurrentModal(null)
+              }, 1000)
+            } else {
+              setCurrentModal("failed")
+            }
+          }}
+        >
+          {(props) => (
+            <Form>
+              <Field name={fieldName} validate={validator}>
+                {({ field, form }: FieldAttributes<any>) => (
+                  <FormControl
+                    isInvalid={
+                      form.errors?.[fieldName] && form.touched?.[fieldName]
+                    }
+                  >
+                    <InputGroup>
+                      <InputLeftElement
+                        pointerEvents="none"
+                        color="gray.300"
+                        fontSize="1.2em"
                       >
-                        {t("approve")}
-                      </Button>
-                    </div>
-                  </Form>
-                )}
-              </Formik>
-            </div>
-          </TabPanel>
-          <TabPanel>
-            <div className={styles.row}>
-              <h3 className={styles.stakeTitle}>{t("unstake")}</h3>
-              <div
-                className={classNames(
-                  styles.pill,
-                  { [styles.glowPill]: userDarkMode },
-                  { [styles.colorPill]: !userDarkMode },
-                )}
-              >
-                <div>1 stROSE = 1.5 ROSE</div>
-              </div>
-            </div>
-            <div className={styles.inputContainer}>
-              <Formik
-                initialValues={{ amount: "" }}
-                onSubmit={(values, actions) => {
-                  // TO-DO: change to actual submit logic
-                  setTimeout(() => {
-                    alert(JSON.stringify(values, null, 2))
-                    actions.setSubmitting(false)
-                  }, 1000)
-                  actions.resetForm({ values: { amount: "" } })
-                }}
-              >
-                {(props) => (
-                  <Form>
-                    <Field name="amount" validate={validateAmount}>
-                      {({ field, form }: FieldAttributes<any>) => (
-                        <FormControl
-                          isInvalid={form.errors.amount && form.touched.amount}
-                        >
-                          <InputGroup>
-                            <InputLeftElement
-                              pointerEvents="none"
-                              color="gray.300"
-                              fontSize="1.2em"
-                            >
-                              🌷
-                            </InputLeftElement>
-                            <Input
-                              {...field}
-                              isInvalid={form.errors.amount}
-                              placeholder="0 stROSE"
-                              variant="primary"
-                            />
-                            <InputRightElement width="4.5rem">
-                              <Button
-                                variant="light"
-                                size="sm"
-                                onClick={() => {
-                                  props.setFieldTouched("amount", true)
-                                  props.setFieldValue("amount", staked)
-                                }}
-                              >
-                                {t("max")}
-                              </Button>
-                            </InputRightElement>
-                          </InputGroup>
-                          <FormErrorMessage>
-                            {form.errors.amount}
-                          </FormErrorMessage>
-                        </FormControl>
-                      )}
-                    </Field>
-                    <div className={styles.submitButton}>
-                      <Button
-                        isLoading={props.isSubmitting}
+                        🌹
+                      </InputLeftElement>
+                      <Input
+                        {...field}
+                        isInvalid={form.errors?.[fieldName]}
+                        placeholder={`${token} Token`}
                         variant="primary"
-                        size="lg"
-                        width="450px"
-                        type="submit"
-                        disabled={!props.isValid}
-                      >
-                        {t("approve")}
-                      </Button>
-                    </div>
-                  </Form>
+                      />
+                      <InputRightElement width="4.5rem">
+                        <Button
+                          variant="light"
+                          size="sm"
+                          onClick={() => {
+                            props.setFieldTouched(fieldName, true)
+                            props.setFieldValue(fieldName, max)
+                          }}
+                        >
+                          {t("max")}
+                        </Button>
+                      </InputRightElement>
+                    </InputGroup>
+                    {props.isValid && props.dirty ? (
+                      <Text mt="5px" fontSize="sm" as="i">
+                        You are about to {fieldName} ≈
+                        {+props.values?.[fieldName]} {token}
+                        Token
+                      </Text>
+                    ) : (
+                      <FormErrorMessage>
+                        {form.errors?.[fieldName]}
+                      </FormErrorMessage>
+                    )}
+                  </FormControl>
                 )}
-              </Formik>
-            </div>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+              </Field>
+              <div className={styles.submitButton}>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  width="450px"
+                  type="submit"
+                  disabled={!props.isValid || !props.dirty}
+                >
+                  {t("approve")}
+                </Button>
+              </div>
+            </Form>
+          )}
+        </Formik>
+      </div>
     </div>
   )
 }
