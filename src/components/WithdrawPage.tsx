@@ -88,25 +88,6 @@ const WithdrawPage = (props: Props): ReactElement => {
         <div className="left">
           <div className="form">
             <h3>{t("withdraw")}</h3>
-            <div className="percentage">
-              <span>{`${t("withdrawPercentage")} (%):`}</span>
-              <input
-                placeholder="100"
-                onChange={(e: React.FormEvent<HTMLInputElement>): void =>
-                  onFormChange({
-                    fieldName: "percentage",
-                    value: e.currentTarget.value,
-                  })
-                }
-                onFocus={(e: React.ChangeEvent<HTMLInputElement>): void =>
-                  e.target.select()
-                }
-                value={formStateData.percentage ? formStateData.percentage : ""}
-              />
-              {formStateData.error && (
-                <div className="error">{formStateData.error.message}</div>
-              )}
-            </div>
             <div className="horizontalDisplay">
               <RadioButton
                 checked={formStateData.withdrawType === "ALL"}

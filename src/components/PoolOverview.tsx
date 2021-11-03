@@ -93,25 +93,23 @@ export default function PoolOverview({
           </div>
         )}
         <div className="tokens">
-          <span style={{ marginRight: "8px" }}>[</span>
           {formattedData.tokens.map(({ symbol, icon }) => (
             <div className="token" key={symbol}>
               <img alt="icon" src={icon} />
               <span>{symbol}</span>
             </div>
           ))}
-          <span style={{ marginLeft: "-8px" }}>]</span>
         </div>
       </div>
 
       <div className="right">
         <div className="poolInfo">
-          {formattedData.apy && (
+          {/* {formattedData.apy && (
             <div className="margin">
               <span className="label">{`${t("apy")}`}</span>
               <span>{formattedData.apy}</span>
             </div>
-          )}
+          )} */}
           {Object.keys(poolData.aprs).map((key) => {
             const symbol = poolData.aprs[key as Partners]?.symbol as string
             return poolData.aprs[key as Partners]?.apr.gt(Zero) ? (
@@ -135,12 +133,12 @@ export default function PoolOverview({
             <span className="label">TVL</span>
             <span>{`$${formattedData.reserve}`}</span>
           </div>
-          {formattedData.volume && (
+          {/* {formattedData.volume && (
             <div>
               <span className="label">{`${t("24HrVolume")}`}</span>
               <span>{formattedData.volume}</span>
             </div>
-          )}
+          )} */}
         </div>
         <div className="buttons">
           <Link to={`${poolRoute}/withdraw`}>
