@@ -23,6 +23,7 @@ import classNames from "classnames"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import styles from "./StakeForm.module.scss"
 import { useSelector } from "react-redux"
+import useStakedRoseConversion from "../hooks/useStakedRoseConversion"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -38,6 +39,7 @@ function StakeForm(props: Props): ReactElement {
   const { t } = useTranslation()
   const { userDarkMode } = useSelector((state: AppState) => state.user)
   const [currentModal, setCurrentModal] = useState<string | null>(null)
+  const [stakedRoseConversion] = useStakedRoseConversion()
   const {
     title,
     failedDescription,
@@ -78,7 +80,7 @@ function StakeForm(props: Props): ReactElement {
             { [styles.colorPill]: !userDarkMode },
           )}
         >
-          <div>1 stROSE = 1.5 ROSE</div>
+          <div>1 stROSE = {stakedRoseConversion} ROSE</div>
         </div>
       </div>
       <div className={styles.inputContainer}>
