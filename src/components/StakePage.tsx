@@ -68,9 +68,7 @@ function StakePage(props: Props): ReactElement {
             <StakeForm
               title={`${t("stake")} Rose`}
               fieldName={"stake"}
-              failedDescription={t(
-                "Your transaction failed. Please try again.",
-              )}
+              failedDescription={t("stakeFailed")}
               token={"ROSE"}
               max={commify(
                 formatBNToString(
@@ -87,9 +85,7 @@ function StakePage(props: Props): ReactElement {
             <StakeForm
               title={t("unstake")}
               fieldName={"unstake"}
-              failedDescription={t(
-                "Your transaction failed. This is likely due to a lock on your stRose. Please wait 24 hours to unstake.",
-              )}
+              failedDescription={t("unstakeFailed")}
               token={"stRose"}
               max={commify(
                 formatBNToString(

@@ -19,3 +19,11 @@ div.confirmTransaction {
     margin-top: 16px;
   }
 }
+
+.failed {
+  color: $error
+}
+
+.success {
+  color: $success
+}
