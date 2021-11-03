@@ -26,9 +26,6 @@ function PoolInfoCard({ data }: Props): ReactElement | null {
   const swapFee = data?.swapFee
     ? formatBNToPercentString(data.swapFee, POOL_FEE_PRECISION)
     : null
-  const adminFee = data?.adminFee
-    ? formatBNToPercentString(data.adminFee, POOL_FEE_PRECISION)
-    : null
   const formattedData = {
     name: data?.name,
     swapFee,
@@ -44,7 +41,7 @@ function PoolInfoCard({ data }: Props): ReactElement | null {
     reserve: data?.reserve
       ? commify(formatBNToString(data.reserve, 18, 2))
       : "-",
-    adminFee: swapFee && adminFee ? `${adminFee} to protocol` : null,
+    adminFee: swapFee,
     volume: data?.volume ? commify(formatBNToString(data.volume, 0, 0)) : "-",
     tokens:
       data?.tokens.map((coin) => {
@@ -71,9 +68,7 @@ function PoolInfoCard({ data }: Props): ReactElement | null {
       <div className="info">
         <div className="infoItem">
           <span className="label bold">{`${t("fee")}:`}</span>
-          <span className="value">
-            {formattedData.swapFee} ({formattedData.adminFee})
-          </span>
+          <span className="value">{formattedData.swapFee}</span>
         </div>
         <div className="infoItem">
           <ToolTip content={t("aParameterTooltip")}>

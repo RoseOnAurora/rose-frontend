@@ -18,11 +18,22 @@ header.top {
     padding-right: 2px;
   }
 
+  .disabled {
+    border-bottom: 1px dotted var(--text);
+    opacity: 50%;
+    &:hover {
+      cursor: help;
+    }
+  }
+
   h1 {
     width: 20%;
     margin: 0;
     margin-right: auto;
     font-size: 30px;
+    @include breakpoint(xs) {
+      display: none;
+    }
 
     .logo {
       background-color: #ffffe9;

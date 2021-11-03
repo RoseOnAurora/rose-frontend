@@ -1,0 +1,24 @@
+@import "../styles/theme";
+
+div.bottommenu {
+  bottom: 24px;
+  position: absolute;
+  width: 100%;
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+div.socials {
+  padding-top: 15px;
+}
+
+div.right {
+  text-align: right;
+}
+
+a {
+  margin-left: 10px;
+  display: inline-block;
+}

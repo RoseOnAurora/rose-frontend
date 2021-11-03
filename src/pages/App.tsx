@@ -8,12 +8,12 @@ import { Route, Switch } from "react-router-dom"
 import { isChainSupportedByNotify, notify } from "../utils/notifyHandler"
 import { useDispatch, useSelector } from "react-redux"
 
+import BottomMenu from "../components/BottomMenu"
 import Deposit from "./Deposit"
 import PendingSwapsProvider from "../providers/PendingSwapsProvider"
 import Pools from "./Pools"
 import Stake from "./Stake"
 import Swap from "./Swap"
-import Version from "../components/Version"
 import Web3ReactManager from "../components/Web3ReactManager"
 import Withdraw from "./Withdraw"
 import fetchSwapStats from "../utils/getSwapStats"
@@ -57,7 +57,7 @@ export default function App(): ReactElement {
                 />
               ))}
             </Switch>
-            <Version />
+            <BottomMenu />
           </PendingSwapsProvider>
         </GasAndTokenPrices>
       </Web3ReactManager>
