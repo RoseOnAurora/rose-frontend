@@ -144,7 +144,7 @@ export default function PoolOverview({
         </div>
         <div className="buttons">
           <Link to={`${poolRoute}/withdraw`}>
-            <Button kind="secondary">{t("withdraw")}</Button>
+            <Button kind="secondary">{t("removeLiquidity")}</Button>
           </Link>
           {shouldMigrate ? (
             <Button
@@ -160,7 +160,7 @@ export default function PoolOverview({
                 kind="primary"
                 disabled={poolData?.isPaused || isOutdated}
               >
-                {t("deposit")}
+                {t("addLiquidity")}
               </Button>
             </Link>
           )}
