@@ -30,8 +30,7 @@ export default function useRoseConversionRateData(): [string] {
         account ?? undefined,
       ) as Erc20
 
-      // get lp token balance and total supply
-      // TODO: use multicall
+      // fetch stROSE contract's balance of ROSE and total supply of stROSE
       const [stRoseBalance, totalStRoseSupply] = await Promise.all([
         roseContract.balanceOf(
           SROSE_CONTRACT_ADDRESSES[chainId] || AddressZero,
