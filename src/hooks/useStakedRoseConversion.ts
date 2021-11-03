@@ -37,9 +37,13 @@ export default function useRoseConversionRateData(): [string] {
         ),
         stRoseContract.totalSupply(),
       ])
+      const [stRoseBalanceFmt, totalStRoseSupplyFmt] = [
+        stRoseBalance.toString().slice(0, -18),
+        totalStRoseSupply.toString().slice(0, -18),
+      ]
 
       const conversionRate = String(
-        Number(stRoseBalance.div(totalStRoseSupply).toString()).toFixed(2),
+        (Number(stRoseBalanceFmt) / Number(totalStRoseSupplyFmt)).toFixed(2),
       )
 
       setRoseConversionData([conversionRate])
