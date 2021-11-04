@@ -809,7 +809,7 @@ export const ROSE_FARM_STABLES_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x2DA7d8a8f56bD05421C33cf2ce59bBB121EF1462",
+  [ChainId.AURORA_TESTNET]: "0x14b07382683256aa1D4c853fAaE659A4135C0fC2",
   [ChainId.AURORA_MAINNET]: "",
 }
 

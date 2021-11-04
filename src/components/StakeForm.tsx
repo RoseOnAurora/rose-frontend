@@ -41,7 +41,6 @@ function StakeForm(props: Props): ReactElement {
     handleSubmit,
     validator,
   } = props
-
   return (
     <>
       <Modal

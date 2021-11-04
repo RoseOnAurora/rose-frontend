@@ -6,6 +6,7 @@ import FarmTabs from "./FarmTabs"
 import HarvestRewards from "./HarvestRewards"
 import { PoolName } from "../constants"
 import styles from "./FarmPage.module.scss"
+import useEarnedRewards from "../hooks/useEarnedRewards"
 
 interface Props {
   lpTokenName: string
@@ -18,6 +19,7 @@ interface Props {
 const FarmPage = (props: Props): ReactElement => {
   const formattedBalance = commify(formatBNToString(props.balance, 18, 6))
   const formattedDeposited = commify(formatBNToString(props.deposited, 18, 6))
+  const rewardsEarned = useEarnedRewards()
   return (
     <div className={styles.farmPage}>
       <FarmTabs {...props} />
@@ -27,8 +29,7 @@ const FarmPage = (props: Props): ReactElement => {
         lpTokenIcon={props.lpTokenIcon}
         lpTokenName={props.lpTokenName}
       />
-      {/* CHANGE THIS TO FETCH BALANCE */}
-      <HarvestRewards rewardBalance={"0.0"} />
+      <HarvestRewards rewardBalance={rewardsEarned} />
     </div>
   )
 }
