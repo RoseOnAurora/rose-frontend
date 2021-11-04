@@ -1,12 +1,16 @@
 import React, { ReactElement } from "react"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
 import { commify, parseUnits } from "@ethersproject/units"
+import { AppState } from "../state"
 import { ContractReceipt } from "@ethersproject/contracts"
 import StakeForm from "./StakeForm"
 import { TokenDetails } from "../pages/Stake"
 import { Zero } from "@ethersproject/constants"
+import classNames from "classnames"
 import { formatBNToString } from "../utils"
 import styles from "./StakePage.module.scss"
+import { useSelector } from "react-redux"
+import useStakedRoseConversion from "../hooks/useStakedRoseConversion"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -19,6 +23,9 @@ interface Props {
 function StakePage(props: Props): ReactElement {
   const { t } = useTranslation()
   const { balance, staked, approveStake, approveUnstake } = props
+
+  const { userDarkMode } = useSelector((state: AppState) => state.user)
+  const [stakedRoseConversion] = useStakedRoseConversion()
 
   const validateBalance = (amount: string) => {
     const generalValidation = validateAmount(amount)
@@ -51,9 +58,6 @@ function StakePage(props: Props): ReactElement {
     if (+amount <= 0) {
       return t("Amount must be greater than zero!")
     }
-    if (parseUnits(amount, 18).gt(balance.amount)) {
-      return t("insufficientBalance.")
-    }
     return null
   }
   return (
@@ -65,8 +69,19 @@ function StakePage(props: Props): ReactElement {
         </TabList>
         <TabPanels>
           <TabPanel>
+            <div className={styles.row}>
+              <h3 className={styles.stakeTitle}>{`${t("stake")} Rose`}</h3>
+              <div
+                className={classNames(
+                  styles.pill,
+                  { [styles.glowPill]: userDarkMode },
+                  { [styles.colorPill]: !userDarkMode },
+                )}
+              >
+                <div>1 stROSE = {stakedRoseConversion} ROSE</div>
+              </div>
+            </div>
             <StakeForm
-              title={`${t("stake")} Rose`}
               fieldName={"stake"}
               failedDescription={t("stakeFailed")}
               token={"ROSE"}
@@ -82,8 +97,19 @@ function StakePage(props: Props): ReactElement {
             />
           </TabPanel>
           <TabPanel>
+            <div className={styles.row}>
+              <h3 className={styles.stakeTitle}>{t("unstake")}</h3>
+              <div
+                className={classNames(
+                  styles.pill,
+                  { [styles.glowPill]: userDarkMode },
+                  { [styles.colorPill]: !userDarkMode },
+                )}
+              >
+                <div>1 stROSE = {stakedRoseConversion} ROSE</div>
+              </div>
+            </div>
             <StakeForm
-              title={t("unstake")}
               fieldName={"unstake"}
               failedDescription={t("unstakeFailed")}
               token={"stRose"}

@@ -8,7 +8,6 @@ import {
   formatBNToShortString,
   formatBNToString,
 } from "../utils"
-
 import Button from "./Button"
 import { Link } from "react-router-dom"
 import ToolTip from "./ToolTip"
@@ -18,6 +17,7 @@ import { useTranslation } from "react-i18next"
 
 interface Props {
   poolRoute: string
+  farmName: string
   poolData: PoolDataType
   userShareData: UserShareType | null
   onClickMigrate?: (e: React.MouseEvent<HTMLButtonElement>) => void
@@ -27,6 +27,7 @@ export default function PoolOverview({
   poolData,
   poolRoute,
   userShareData,
+  farmName,
   onClickMigrate,
 }: Props): ReactElement | null {
   const { t } = useTranslation()
@@ -69,99 +70,121 @@ export default function PoolOverview({
   const isMetapool = isMetaPool(formattedData.name)
 
   return (
-    <div
-      className={classNames("poolOverview", {
-        outdated: isOutdated || shouldMigrate,
-      })}
-    >
-      <div className="left">
-        <div className="titleAndTag">
-          {isMetapool ? (
-            <ToolTip content={t("metapool")}>
-              <h4 className="title underline">{formattedData.name}</h4>
-            </ToolTip>
-          ) : (
-            <h4 className="title">{formattedData.name}</h4>
-          )}
-          {(shouldMigrate || isOutdated) && <Tag kind="warning">OUTDATED</Tag>}
-          {poolData.isPaused && <Tag kind="error">PAUSED</Tag>}
-        </div>
-        {hasShare && (
-          <div className="balance">
-            <span>{t("balance")}: </span>
-            <span>{`$${formattedData.userBalanceUSD}`}</span>
+    <div className="poolWrapper">
+      <div
+        className={classNames("poolOverview", {
+          outdated: isOutdated || shouldMigrate,
+        })}
+      >
+        <div className="left">
+          <div className="titleAndTag">
+            {isMetapool ? (
+              <ToolTip content={t("metapool")}>
+                <h4 className="title underline">{formattedData.name}</h4>
+              </ToolTip>
+            ) : (
+              <h4 className="title">{formattedData.name}</h4>
+            )}
+            {(shouldMigrate || isOutdated) && (
+              <Tag kind="warning">OUTDATED</Tag>
+            )}
+            {poolData.isPaused && <Tag kind="error">PAUSED</Tag>}
           </div>
-        )}
-        <div className="tokens">
-          {formattedData.tokens.map(({ symbol, icon }) => (
-            <div className="token" key={symbol}>
-              <img alt="icon" src={icon} />
-              <span>{symbol}</span>
+          {hasShare && (
+            <div className="balance">
+              <span>{t("balance")}: </span>
+              <span>{`$${formattedData.userBalanceUSD}`}</span>
             </div>
-          ))}
+          )}
+          <div className="tokens">
+            {formattedData.tokens.map(({ symbol, icon }) => (
+              <div className="token" key={symbol}>
+                <img alt="icon" src={icon} />
+                <span>{symbol}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="right">
-        <div className="poolInfo">
-          {/* {formattedData.apy && (
+        <div className="right">
+          <div className="poolInfo">
+            {/* {formattedData.apy && (
             <div className="margin">
               <span className="label">{`${t("apy")}`}</span>
               <span>{formattedData.apy}</span>
             </div>
           )} */}
-          {Object.keys(poolData.aprs).map((key) => {
-            const symbol = poolData.aprs[key as Partners]?.symbol as string
-            return poolData.aprs[key as Partners]?.apr.gt(Zero) ? (
-              <div className="margin Apr" key={symbol}>
-                {symbol.includes("/") ? (
-                  <span className="label underline">
-                    <ToolTip content={symbol.replaceAll("/", "\n")}>
-                      Reward APR
-                    </ToolTip>
+            {Object.keys(poolData.aprs).map((key) => {
+              const symbol = poolData.aprs[key as Partners]?.symbol as string
+              return poolData.aprs[key as Partners]?.apr.gt(Zero) ? (
+                <div className="margin Apr" key={symbol}>
+                  {symbol.includes("/") ? (
+                    <span className="label underline">
+                      <ToolTip content={symbol.replaceAll("/", "\n")}>
+                        Reward APR
+                      </ToolTip>
+                    </span>
+                  ) : (
+                    <span className="label">{symbol} APR</span>
+                  )}
+                  <span className="plus">
+                    {formattedData.aprs[key as Partners] as string}
                   </span>
-                ) : (
-                  <span className="label">{symbol} APR</span>
-                )}
-                <span className="plus">
-                  {formattedData.aprs[key as Partners] as string}
-                </span>
-              </div>
-            ) : null
-          })}
-          <div className="margin">
-            <span className="label">TVL</span>
-            <span>{`$${formattedData.reserve}`}</span>
-          </div>
-          {/* {formattedData.volume && (
+                </div>
+              ) : null
+            })}
+            <div className="margin">
+              <span className="label">TVL</span>
+              <span>{`$${formattedData.reserve}`}</span>
+            </div>
+            {/* {formattedData.volume && (
             <div>
               <span className="label">{`${t("24HrVolume")}`}</span>
               <span>{formattedData.volume}</span>
             </div>
           )} */}
-        </div>
-        <div className="buttons">
-          <Link to={`${poolRoute}/withdraw`}>
-            <Button kind="secondary">{t("removeLiquidity")}</Button>
-          </Link>
-          {shouldMigrate ? (
-            <Button
-              kind="temporary"
-              onClick={onClickMigrate}
-              disabled={!hasShare}
-            >
-              {t("migrate")}
-            </Button>
-          ) : (
-            <Link to={`${poolRoute}/deposit`}>
-              <Button
-                kind="primary"
-                disabled={poolData?.isPaused || isOutdated}
-              >
-                {t("addLiquidity")}
-              </Button>
+          </div>
+          <div className="buttons">
+            <Link to={`${poolRoute}/withdraw`}>
+              <Button kind="secondary">{t("removeLiquidity")}</Button>
             </Link>
-          )}
+            {shouldMigrate ? (
+              <Button
+                kind="temporary"
+                onClick={onClickMigrate}
+                disabled={!hasShare}
+              >
+                {t("migrate")}
+              </Button>
+            ) : (
+              <Link to={`${poolRoute}/deposit`}>
+                <Button
+                  kind="primary"
+                  disabled={poolData?.isPaused || isOutdated}
+                >
+                  {t("addLiquidity")}
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="farmBottom">
+        <div className="divider"></div>
+        <div className="container">
+          <div className="row">
+            <h4 className="title">{farmName}</h4>
+            <div className="farmButton">
+              <Link to={`${poolRoute}/farm`}>
+                <Button kind="primary" disabled={!hasShare}>
+                  {t("Farm")}
+                </Button>
+              </Link>
+            </div>
+          </div>
+          <div className="farmDescription">
+            <p>{t("farmDescription")}</p>
+          </div>
         </div>
       </div>
     </div>

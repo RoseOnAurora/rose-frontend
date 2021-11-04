@@ -1,0 +1,49 @@
+@import "../styles/theme";
+@import "../styles/viewports";
+
+
+div.harvestRewards {
+  grid-area: footer;
+  display: flex;
+  justify-content: space-between;
+  background: var(--background-element);
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  margin: 10px;
+  padding: 24px;
+  @include breakpoint(md) {
+    width: 100%;
+    order: 3;
+  }
+  @include breakpoint(sm) {
+    flex-wrap: wrap;
+  }
+
+  h4.title {
+    font-family: $font-family-title;
+    margin-top: 0 auto;
+    font-size: 30px;
+    font-weight: $bold;
+    color: var(--text-title);
+    margin-right: 16px;
+    @include breakpoint(md) {
+      font-size: 20px;
+    }
+  }
+
+  div.rewardBalance {
+    @include breakpoint(sm) {
+      text-align: end;
+    }
+  }
+
+  div.buttonWrapper {
+    @include breakpoint(sm) {
+      margin-top: 30px;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+  }
+}

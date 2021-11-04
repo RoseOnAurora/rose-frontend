@@ -24,6 +24,7 @@ function Pools(): ReactElement | null {
       poolData: usdPoolV2Data,
       userShareData: usdV2UserShareData,
       poolRoute: "/pools/stables",
+      farmName: "Stables Farm",
     }
     console.info(poolName)
     // multiple pools:

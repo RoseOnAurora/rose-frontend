@@ -11,7 +11,7 @@ const variantPrimary = (
   return {
     field: {
       borderBottom: "2px solid",
-      borderColor: "green.700",
+      borderColor: hasErrorColor,
       borderRadius: 0,
       px: 0,
       bg: "transparent",
@@ -25,7 +25,7 @@ const variantPrimary = (
       },
       _focus: {
         borderColor: hasErrorColor,
-        boxShadow: "0px 1px 0px 0px green",
+        boxShadow: `0px 1px 0px 0px ${hasErrorColor}`,
       },
     },
   }
