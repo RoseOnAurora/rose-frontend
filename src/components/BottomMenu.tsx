@@ -2,7 +2,7 @@ import { FaGithub, FaMedium, FaTelegram, FaTwitter } from "react-icons/fa"
 import React, { ReactElement } from "react"
 import styles from "./BottomMenu.module.scss"
 
-function Version(): ReactElement | null {
+function BottomMenu(): ReactElement | null {
   return (
     <div className={styles.bottommenu}>
       <div className={styles.socials}>
@@ -36,4 +36,4 @@ function Version(): ReactElement | null {
   )
 }
 
-export default Version
+export default BottomMenu
