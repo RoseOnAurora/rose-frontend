@@ -4,6 +4,7 @@ import React, { ReactElement } from "react"
 
 import { Link } from "react-router-dom"
 import ThemeChanger from "./ThemeChanger"
+import ToolTip from "./ToolTip"
 import Web3Status from "./Web3Status"
 import classNames from "classnames"
 import { useTranslation } from "react-i18next"
@@ -50,6 +51,18 @@ function TopMenu({ activeTab }: Props): ReactElement {
           >
             {t("stake")}
           </Link>
+        </li>
+        <li>
+          <ToolTip content={t("underconstruction")}>
+            <Link
+              to="#"
+              className={classNames({
+                active: activeTab === "borrow",
+              })}
+            >
+              <span className="disabled">{t("borrow")}</span>
+            </Link>
+          </ToolTip>
         </li>
       </ul>
       <Web3Status />

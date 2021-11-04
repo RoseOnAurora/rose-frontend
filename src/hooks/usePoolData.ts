@@ -169,10 +169,6 @@ export default function usePoolData(
       ) as MulticallContract<RoseStablesPool>
       const a: MulticallCall<unknown, BigNumber> = multicallPoolContract.A()
       const fee: MulticallCall<unknown, BigNumber> = multicallPoolContract.fee()
-      const protocol_fee: MulticallCall<
-        unknown,
-        BigNumber
-      > = multicallPoolContract.protocol_fee()
       const dai_balance: MulticallCall<
         unknown,
         BigNumber
@@ -187,14 +183,14 @@ export default function usePoolData(
       > = multicallPoolContract.balances(2)
       // TODO: make a struct instead of an unfriendly array
       const multicallResFormatted = await ethcallProvider.all(
-        [a, fee, protocol_fee, dai_balance, usdc_balance, usdt_balance],
+        [a, fee, dai_balance, usdc_balance, usdt_balance],
         "latest",
       )
       // TODO: kinda hacky way of adjusting decimals, need to do this generically
       const tokenBalances = [
-        multicallResFormatted[3],
+        multicallResFormatted[2],
+        multicallResFormatted[3].mul(BigNumber.from(10).pow(12)),
         multicallResFormatted[4].mul(BigNumber.from(10).pow(12)),
-        multicallResFormatted[5].mul(BigNumber.from(10).pow(12)),
       ]
 
       // get lp token balance and total supply
@@ -277,7 +273,6 @@ export default function usePoolData(
         reserve: tokenBalancesUSDSum,
         totalLocked: totalLpTokenBalance,
         aParameter: multicallResFormatted[0],
-        adminFee: multicallResFormatted[2],
         swapFee: multicallResFormatted[1],
         virtualPrice,
         lpTokenPriceUSD,
