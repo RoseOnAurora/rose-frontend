@@ -1,13 +1,13 @@
 import React, { ReactElement } from "react"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
-import { commify, formatBNToString } from "../utils"
 import { BigNumber } from "@ethersproject/bignumber"
 import { PoolName } from "../constants"
 import StakeForm from "./StakeForm"
 import { Zero } from "@ethersproject/constants"
+import { formatBNToString } from "../utils"
 import { parseUnits } from "@ethersproject/units"
 import styles from "./FarmTabs.module.scss"
-import { useApproveAndFarm } from "../hooks/useApproveAndFarm"
+import { useApproveAndDepositFarm } from "../hooks/useApproveAndDepositFarm"
 import { useTranslation } from "react-i18next"
 import { useWithdrawFarm } from "../hooks/useWithdrawFarm"
 
@@ -22,7 +22,7 @@ interface Props {
 const FarmTabs = (props: Props): ReactElement => {
   const { lpTokenName, balance, deposited, poolName } = props
   const { t } = useTranslation()
-  const farm = useApproveAndFarm(poolName)
+  const farm = useApproveAndDepositFarm(poolName)
   const withdraw = useWithdrawFarm()
 
   const validateBalance = (amount: string) => {
@@ -63,7 +63,7 @@ const FarmTabs = (props: Props): ReactElement => {
       <Tabs isFitted variant="primary">
         <TabList mb="1em">
           <Tab>{t("deposit")}</Tab>
-          <Tab>{t("withdraw")}</Tab>
+          <Tab>{t("Withdraw")}</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -74,10 +74,7 @@ const FarmTabs = (props: Props): ReactElement => {
               fieldName={"deposit"}
               failedDescription={t("depositFailed")}
               token={lpTokenName}
-              max={commify(formatBNToString(balance || Zero, 18, 6)).replace(
-                ",",
-                "",
-              )}
+              max={formatBNToString(balance || Zero, 18, 6)}
               handleSubmit={farm}
               validator={validateBalance}
             />
@@ -90,10 +87,7 @@ const FarmTabs = (props: Props): ReactElement => {
               fieldName={"withdraw"}
               failedDescription={t("withdrawFailed")}
               token={lpTokenName}
-              max={commify(formatBNToString(deposited || Zero, 18, 6)).replace(
-                ",",
-                "",
-              )}
+              max={formatBNToString(deposited || Zero, 18, 6)}
               handleSubmit={withdraw}
               validator={validateDeposited}
             />

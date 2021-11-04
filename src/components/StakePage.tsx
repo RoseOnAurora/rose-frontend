@@ -1,6 +1,5 @@
 import React, { ReactElement } from "react"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
-import { commify, parseUnits } from "@ethersproject/units"
 import { AppState } from "../state"
 import { ContractReceipt } from "@ethersproject/contracts"
 import StakeForm from "./StakeForm"
@@ -8,6 +7,7 @@ import { TokenDetails } from "../pages/Stake"
 import { Zero } from "@ethersproject/constants"
 import classNames from "classnames"
 import { formatBNToString } from "../utils"
+import { parseUnits } from "@ethersproject/units"
 import styles from "./StakePage.module.scss"
 import { useSelector } from "react-redux"
 import useStakedRoseConversion from "../hooks/useStakedRoseConversion"
@@ -85,13 +85,11 @@ function StakePage(props: Props): ReactElement {
               fieldName={"stake"}
               failedDescription={t("stakeFailed")}
               token={"ROSE"}
-              max={commify(
-                formatBNToString(
-                  balance.amount || Zero,
-                  balance.decimals || 0,
-                  6,
-                ),
-              ).replace(",", "")}
+              max={formatBNToString(
+                balance.amount || Zero,
+                balance.decimals || 0,
+                6,
+              )}
               handleSubmit={approveStake}
               validator={validateBalance}
             />
@@ -113,13 +111,11 @@ function StakePage(props: Props): ReactElement {
               fieldName={"unstake"}
               failedDescription={t("unstakeFailed")}
               token={"stRose"}
-              max={commify(
-                formatBNToString(
-                  staked.amount || Zero,
-                  staked.decimals || 0,
-                  6,
-                ),
-              ).replace(",", "")}
+              max={formatBNToString(
+                staked.amount || Zero,
+                staked.decimals || 0,
+                6,
+              )}
               handleSubmit={approveUnstake}
               validator={validateStaked}
             />

@@ -85,7 +85,7 @@ export function useRoseStablesFarmContract(): RoseStablesFarm | null {
   ) as RoseStablesFarm
 }
 
-export function useRoseContract(): Contract | null {
+export function useRoseContract(): Erc20 | null {
   const { chainId } = useActiveWeb3React()
   const contractAddress = chainId ? ROSE_CONTRACT_ADDRESSES[chainId] : undefined
   return useContract(contractAddress, ERC20_ABI) as Erc20
