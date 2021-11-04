@@ -1,8 +1,8 @@
 @import "../styles/theme";
 @import "../styles/viewports";
 
-.stakeDetailsContainer {
-  width: 40%;
+div.farmDetailsContainer {
+  grid-area: rightBlock;
   background: var(--background-element);
   border: 1px solid var(--outline);
   border-radius: 10px;

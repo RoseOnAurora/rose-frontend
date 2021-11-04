@@ -16,18 +16,13 @@ import {
 import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
 import { Field, FieldAttributes, Form, Formik } from "formik"
 import React, { ReactElement, useState } from "react"
-import { AppState } from "../state"
 import { ContractReceipt } from "@ethersproject/contracts"
 import Modal from "./Modal"
-import classNames from "classnames"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import styles from "./StakeForm.module.scss"
-import { useSelector } from "react-redux"
-import useStakedRoseConversion from "../hooks/useStakedRoseConversion"
 import { useTranslation } from "react-i18next"
 
 interface Props {
-  title: string
   fieldName: string
   token: string
   max: string
@@ -37,11 +32,8 @@ interface Props {
 }
 function StakeForm(props: Props): ReactElement {
   const { t } = useTranslation()
-  const { userDarkMode } = useSelector((state: AppState) => state.user)
   const [currentModal, setCurrentModal] = useState<string | null>(null)
-  const [stakedRoseConversion] = useStakedRoseConversion()
   const {
-    title,
     failedDescription,
     fieldName,
     token,
@@ -51,7 +43,7 @@ function StakeForm(props: Props): ReactElement {
   } = props
 
   return (
-    <div>
+    <>
       <Modal
         isOpen={!!currentModal}
         onClose={(): void => setCurrentModal(null)}
@@ -71,18 +63,6 @@ function StakeForm(props: Props): ReactElement {
           />
         ) : null}
       </Modal>
-      <div className={styles.row}>
-        <h3 className={styles.stakeTitle}>{title}</h3>
-        <div
-          className={classNames(
-            styles.pill,
-            { [styles.glowPill]: userDarkMode },
-            { [styles.colorPill]: !userDarkMode },
-          )}
-        >
-          <div>1 stROSE = {stakedRoseConversion} ROSE</div>
-        </div>
-      </div>
       <div className={styles.inputContainer}>
         <Formik
           initialValues={{ [fieldName]: "" }}
@@ -168,7 +148,7 @@ function StakeForm(props: Props): ReactElement {
           )}
         </Formik>
       </div>
-    </div>
+    </>
   )
 }
 

@@ -5,6 +5,7 @@ import {
   POOLS_MAP,
   PoolName,
   ROSE_CONTRACT_ADDRESSES,
+  ROSE_FARM_STABLES_ADDRESSES,
   SROSE_CONTRACT_ADDRESSES,
   STABLECOIN_POOL_V2_NAME,
   STABLECOIN_SWAP_V2_TOKEN,
@@ -26,8 +27,10 @@ import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import META_SWAP_DEPOSIT_ABI from "../constants/abis/metaSwapDeposit.json"
 import MIGRATOR_USD_CONTRACT_ABI from "../constants/abis/swapMigratorUSD.json"
 import { MetaSwapDeposit } from "../../types/ethers-contracts/MetaSwapDeposit"
+import ROSE_STABLES_FARM_ABI from "../constants/abis/RoseStablesFarm.json"
 import ROSE_STABLES_LP_ABI from "../constants/abis/RoseStablesLP.json"
 import ROSE_STABLES_POOL_ABI from "../constants/abis/RoseStablesPool.json"
+import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
 import { RoseStablesLP } from "../../types/ethers-contracts/RoseStablesLP"
 import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
 import SROSE_ABI from "../constants/abis/stRose.json"
@@ -69,6 +72,17 @@ function useContract(
       return null
     }
   }, [address, ABI, library, withSignerIfPossible, account])
+}
+
+export function useRoseStablesFarmContract(): RoseStablesFarm | null {
+  const { chainId } = useActiveWeb3React()
+  const contractAddress = chainId
+    ? ROSE_FARM_STABLES_ADDRESSES[chainId]
+    : undefined
+  return useContract(
+    contractAddress,
+    ROSE_STABLES_FARM_ABI.abi,
+  ) as RoseStablesFarm
 }
 
 export function useRoseContract(): Contract | null {

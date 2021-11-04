@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux"
 
 import BottomMenu from "../components/BottomMenu"
 import Deposit from "./Deposit"
+import Farm from "./Farm"
 import PendingSwapsProvider from "../providers/PendingSwapsProvider"
 import Pools from "./Pools"
 import Stake from "./Stake"
@@ -54,6 +55,14 @@ export default function App(): ReactElement {
                   path={`/pools/${route}/withdraw`}
                   render={(props) => <Withdraw {...props} poolName={name} />}
                   key={`${name}-withdraw`}
+                />
+              ))}
+              {Object.values(POOLS_MAP).map(({ name, route }) => (
+                <Route
+                  exact
+                  path={`/pools/${route}/farm`}
+                  render={(props) => <Farm {...props} poolName={name} />}
+                  key={`${name}-farm`}
                 />
               ))}
             </Switch>
