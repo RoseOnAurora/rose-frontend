@@ -31,6 +31,12 @@ header.top {
     margin: 0;
     margin-right: auto;
     font-size: 30px;
+    @include breakpoint(md) {
+      font-size: 25px;
+    }
+    @include breakpoint(sm) {
+      font-size: 20px;
+    }
     @include breakpoint(xs) {
       display: none;
     }
