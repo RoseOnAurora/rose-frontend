@@ -20,7 +20,7 @@ header.top {
 
   .disabled {
     border-bottom: 1px dotted var(--text);
-    opacity: 50%;
+    opacity: 0.6;
     &:hover {
       cursor: help;
     }
