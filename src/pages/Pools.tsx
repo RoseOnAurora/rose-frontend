@@ -19,13 +19,13 @@ function Pools(): ReactElement | null {
   const [filter] = useState<PoolTypes | "all" | "outdated">("all")
 
   function getPropsForPool(poolName: PoolName) {
-    console.log(`getPropsForPool(${poolName})`)
     return {
       name: STABLECOIN_POOL_V2_NAME,
       poolData: usdPoolV2Data,
       userShareData: usdV2UserShareData,
       poolRoute: "/pools/stables",
     }
+    console.info(poolName)
     // multiple pools:
     // if (poolName === STABLECOIN_POOL_V2_NAME) {
     // }

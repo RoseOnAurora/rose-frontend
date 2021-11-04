@@ -22,13 +22,7 @@ function BottomMenu(): ReactElement | null {
       <div className={styles.right}>
         <small>
           <a href="https://rainbowbridge.app/transfer">
-            Bridge from Ethereum<sup>↗</sup>
-          </a>
-        </small>
-        <br />
-        <small>
-          <a href="https://aurora.bridgetonear.org/">
-            Bridge from NEAR<sup>↗</sup>
+            Bridge from Ethereum or NEAR<sup>↗</sup>
           </a>
         </small>
       </div>
