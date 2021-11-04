@@ -76,7 +76,7 @@ function useContract(
 
 export function useRoseStablesFarmContract(): RoseStablesFarm | null {
   const { chainId } = useActiveWeb3React()
-  const contractAddress = chainId
+  const contractAddress: string | undefined = chainId
     ? ROSE_FARM_STABLES_ADDRESSES[chainId]
     : undefined
   return useContract(
