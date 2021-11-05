@@ -411,8 +411,8 @@ export const STABLECOIN_SWAP_TOKEN = new Token(
 export const STABLECOIN_SWAP_V2_TOKEN = new Token(
   STABLECOIN_SWAP_V2_TOKEN_CONTRACT_ADDRESSES,
   18,
-  "roseUSD",
-  "roseusd",
+  "RoseStablesLP",
+  "rosestableslp",
   "Rose DAI/USDC/USDT",
   roseLogo,
   false,
