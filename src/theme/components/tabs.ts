@@ -11,12 +11,12 @@ const variantPrimary = (): RecursiveCSSObject<CSSWithMultiValues> => {
       color: "grey",
       bg: "transparent",
       _selected: {
-        color: "white",
-        bg: "red.700",
+        color: "#000000",
+        bg: "#d88394",
       },
       _active: {
-        color: "white",
-        bg: "red.700",
+        color: "#000000",
+        bg: "#d88394",
       },
     },
   }

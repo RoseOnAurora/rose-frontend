@@ -8,23 +8,30 @@ import { transparentize } from "@chakra-ui/theme-tools"
 const variantPrimary = (
   props: Dict,
 ): RecursiveCSSObject<CSSWithMultiValues> => {
-  const transparentColor = transparentize("gray.500", 0.4)(props.theme)
+  const transparentColor = transparentize("gray.500", 0.5)(props.theme)
   const disabled = {
     opacity: "1",
     color: transparentColor,
+    cursor: "not-allowed",
+    boxShadow: "none",
   }
 
   return {
-    color: "white",
-    bg: "red.700",
+    color: "#000000",
+    borderRadius: "4px",
+    bg: "#cc3a59",
+    letterSpacing: "0.02em",
+    fontWeight: "700",
+    padding: "1px 6px",
     _hover: {
-      color: "white",
-      bg: "red.600",
+      color: "#ffffff",
+      bg: "#881f36",
+      boxShadow: "2px 2px 12px rgba(68, 64, 64, 0.2)",
       _disabled: disabled,
     },
     _active: {
-      color: "white",
-      bg: "red.600",
+      color: "#ffffff",
+      bg: "#881f36",
     },
     _disabled: disabled,
   }

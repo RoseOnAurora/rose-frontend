@@ -7,7 +7,7 @@ div.farmPage {
   padding-top: 40px;
   display: grid;
   grid-template-columns: 30% 30% 20% 20%;
-  grid-template-rows: auto;
+  grid-template-rows: 350px auto;
   grid-template-areas: 
     "leftBlock leftBlock rightBlock rightBlock"
     "footer footer footer footer";

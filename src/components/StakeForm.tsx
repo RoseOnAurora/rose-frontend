@@ -109,7 +109,7 @@ function StakeForm(props: Props): ReactElement {
                       />
                       <InputRightElement width="4.5rem">
                         <Button
-                          variant="light"
+                          variant="primary"
                           size="sm"
                           onClick={() => {
                             props.setFieldTouched(fieldName, true)
