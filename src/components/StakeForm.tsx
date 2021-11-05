@@ -25,6 +25,7 @@ import { useTranslation } from "react-i18next"
 interface Props {
   fieldName: string
   token: string
+  tokenIcon: string
   max: string
   failedDescription: string
   handleSubmit: (amount: string) => Promise<ContractReceipt | void>
@@ -37,6 +38,7 @@ function StakeForm(props: Props): ReactElement {
     failedDescription,
     fieldName,
     token,
+    tokenIcon,
     max,
     handleSubmit,
     validator,
@@ -97,7 +99,7 @@ function StakeForm(props: Props): ReactElement {
                         color="gray.300"
                         fontSize="1.2em"
                       >
-                        🌹
+                        {tokenIcon}
                       </InputLeftElement>
                       <Input
                         {...field}

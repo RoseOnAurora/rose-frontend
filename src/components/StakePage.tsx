@@ -85,6 +85,7 @@ function StakePage(props: Props): ReactElement {
               fieldName={"stake"}
               failedDescription={t("stakeFailed")}
               token={"ROSE"}
+              tokenIcon={"🌹"}
               max={formatBNToString(
                 balance.amount || Zero,
                 balance.decimals || 0,
@@ -111,6 +112,7 @@ function StakePage(props: Props): ReactElement {
               fieldName={"unstake"}
               failedDescription={t("unstakeFailed")}
               token={"stRose"}
+              tokenIcon={"🌷"}
               max={formatBNToString(
                 staked.amount || Zero,
                 staked.decimals || 0,

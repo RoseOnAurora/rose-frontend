@@ -74,6 +74,7 @@ const FarmTabs = (props: Props): ReactElement => {
               fieldName={"deposit"}
               failedDescription={t("depositFailed")}
               token={lpTokenName}
+              tokenIcon={"🌹"}
               max={formatBNToString(balance || Zero, 18, 6)}
               handleSubmit={farm}
               validator={validateBalance}
@@ -87,6 +88,7 @@ const FarmTabs = (props: Props): ReactElement => {
               fieldName={"withdraw"}
               failedDescription={t("withdrawFailed")}
               token={lpTokenName}
+              tokenIcon={"🌹"}
               max={formatBNToString(deposited || Zero, 18, 6)}
               handleSubmit={withdraw}
               validator={validateDeposited}
