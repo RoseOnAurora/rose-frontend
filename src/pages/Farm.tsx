@@ -13,7 +13,9 @@ interface Props {
 
 const Farm = ({ poolName }: Props): ReactElement => {
   const [poolData, userShareData] = usePoolData(poolName)
-  const deposited = useCalculateFarmDeposited()
+  const deposited = useCalculateFarmDeposited(
+    userShareData?.lpTokenBalance || Zero,
+  )
   return (
     <div className={styles.farm}>
       <TopMenu activeTab="farm" />

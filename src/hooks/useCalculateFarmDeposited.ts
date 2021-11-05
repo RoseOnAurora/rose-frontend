@@ -7,7 +7,9 @@ import { useActiveWeb3React } from "."
 import { useRoseStablesFarmContract } from "./useContract"
 import { useSelector } from "react-redux"
 
-export default function useCalculateFarmDeposited(): BigNumber {
+export default function useCalculateFarmDeposited(
+  balance: BigNumber,
+): BigNumber {
   const { account } = useActiveWeb3React()
 
   const [depositedBalance, setDepositedBalance] = useState<BigNumber>(Zero)
@@ -28,7 +30,7 @@ export default function useCalculateFarmDeposited(): BigNumber {
       setDepositedBalance(deposited || Zero)
     }
     void calculateDeposit()
-  }, [account, farmContract, lastDepositTime, lastWithdrawTime])
+  }, [account, farmContract, lastDepositTime, lastWithdrawTime, balance])
 
   return depositedBalance
 }

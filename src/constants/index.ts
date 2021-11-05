@@ -11,6 +11,8 @@ import fraxLogo from "../assets/icons/frax.svg"
 import lusdLogo from "../assets/icons/lusd.svg"
 import metamaskIcon from "../assets/icons/metamask.svg"
 import renbtcLogo from "../assets/icons/renbtc.svg"
+import roseLogo from "../assets/icons/rose.svg"
+import sRoseLogo from "../assets/icons/srose.svg"
 import saddleLogo from "../assets/icons/logo_24.svg"
 import sbtcLogo from "../assets/icons/sbtc.svg"
 import sethLogo from "../assets/icons/seth.svg"
@@ -351,9 +353,6 @@ export const D4_SWAP_TOKEN_CONTRACT_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "",
 }
 
-export const ROSE_ICON =
-  "data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22&gt;&lt;text y=%22.9em%22 font-size=%2290%22&gt;🌹&lt;/text&gt;&lt;/svg&gt;"
-
 export const SUSD_SWAP_TOKEN = new Token(
   SUSD_SWAP_TOKEN_CONTRACT_ADDRESSES,
   18,
@@ -415,7 +414,7 @@ export const STABLECOIN_SWAP_V2_TOKEN = new Token(
   "roseUSD",
   "roseusd",
   "Rose DAI/USDC/USDT",
-  ROSE_ICON,
+  roseLogo,
   false,
   true,
 )
@@ -785,7 +784,7 @@ export const ROSE = new Token(
   "ROSE",
   "rose",
   "Rose Token",
-  ROSE_ICON,
+  roseLogo,
 )
 
 export const SROSE_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -802,7 +801,7 @@ export const SROSE = new Token(
   "stRose",
   "strose",
   "Staked Rose Tokens",
-  ROSE_ICON,
+  sRoseLogo,
 )
 
 export const ROSE_FARM_STABLES_ADDRESSES: { [chainId in ChainId]: string } = {
