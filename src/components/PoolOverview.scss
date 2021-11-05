@@ -130,7 +130,13 @@ div.poolOverview {
       column-gap: 16px;
       @include breakpoint(md) {
         width: 100%;
-        justify-content: space-between;
+        justify-content: space-evenly;
+      }
+      @include breakpoint(sm) {
+        button {
+          width: 150px;
+          font-size: 12px;
+        }
       }
     }
   }
