@@ -107,9 +107,9 @@ function StakeForm(props: Props): ReactElement {
                         placeholder={`${token} Token`}
                         variant="primary"
                       />
-                      <InputRightElement width="4.5rem">
+                      <InputRightElement width="4rem">
                         <Button
-                          variant="primary"
+                          variant="light"
                           size="sm"
                           onClick={() => {
                             props.setFieldTouched(fieldName, true)

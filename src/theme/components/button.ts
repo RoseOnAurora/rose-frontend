@@ -9,11 +9,14 @@ const variantPrimary = (
   props: Dict,
 ): RecursiveCSSObject<CSSWithMultiValues> => {
   const transparentColor = transparentize("gray.500", 0.5)(props.theme)
+  const disableBg =
+    props.colorMode === "light" ? "rgb(235, 223, 213)" : "gray.900"
   const disabled = {
-    opacity: "1",
+    opacity: "0.8",
     color: transparentColor,
     cursor: "not-allowed",
     boxShadow: "none",
+    bg: disableBg,
   }
 
   return {
@@ -44,15 +47,19 @@ const variantLight = (props: Dict): RecursiveCSSObject<CSSWithMultiValues> => {
     color: transparentColor,
   }
   return {
-    color: "red.700",
-    borderRadius: "1em",
+    color: "#000000",
+    borderRadius: "full",
     fontSize: "13px",
-    border: "2px",
-    borderColor: "red.700",
-    bg: "red.50",
+    width: "75px",
+    letterSpacing: "0.02em",
+    fontWeight: "700",
+    padding: "1px 6px",
+    border: "none",
+    bg: "#d88394",
     _hover: {
-      color: "red.700",
-      bg: "red.100",
+      color: "#ffffff",
+      bg: "#d88394",
+      boxShadow: "2px 2px 12px rgba(68, 64, 64, 0.2)",
       _disabled: disabled,
     },
     _disabled: disabled,
