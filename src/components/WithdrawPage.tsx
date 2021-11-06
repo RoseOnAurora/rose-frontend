@@ -6,6 +6,7 @@ import React, { ReactElement, useState } from "react"
 
 import AdvancedOptions from "./AdvancedOptions"
 import { AppState } from "../state"
+import BackButton from "./BackButton"
 import { BigNumber } from "@ethersproject/bignumber"
 import ConfirmTransaction from "./ConfirmTransaction"
 import Modal from "./Modal"
@@ -172,6 +173,11 @@ const WithdrawPage = (props: Props): ReactElement => {
               {t("withdraw")}
             </Button>
           </Center>
+          <BackButton
+            route="/pools"
+            wrapperClass="goBack"
+            buttonText="Go back to pools"
+          />
         </div>
         <div className="infoPanels">
           <MyShareCard data={myShareData} />

@@ -7,6 +7,7 @@ import React, { ReactElement, useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
 import AdvancedOptions from "./AdvancedOptions"
+import BackButton from "./BackButton"
 import CheckboxInput from "./CheckboxInput"
 import ConfirmTransaction from "./ConfirmTransaction"
 import { DepositTransaction } from "../interfaces/transactions"
@@ -201,6 +202,11 @@ const DepositPage = (props: Props): ReactElement => {
               {t("deposit")}
             </Button>
           </Center>
+          <BackButton
+            route="/pools"
+            wrapperClass="goBack"
+            buttonText="Go back to pools"
+          />
         </div>
         <div className="infoPanels">
           <MyShareCard data={myShareData} />

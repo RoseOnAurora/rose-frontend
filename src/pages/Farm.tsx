@@ -1,4 +1,5 @@
 import React, { ReactElement } from "react"
+import BackButton from "../components/BackButton"
 import FarmPage from "../components/FarmPage"
 import { PoolName } from "../constants"
 import TopMenu from "../components/TopMenu"
@@ -26,6 +27,11 @@ const Farm = ({ poolName }: Props): ReactElement => {
           balance={userShareData?.lpTokenBalance || Zero}
           deposited={deposited}
           poolName={poolName}
+        />
+        <BackButton
+          route="/pools"
+          wrapperClass={styles.goBack}
+          buttonText="Go back to pools"
         />
       </div>
     </div>
