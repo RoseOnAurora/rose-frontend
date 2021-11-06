@@ -12,5 +12,17 @@ div.farm {
     max-width: 995px;
     margin: 0 auto;
     width: 100%;
+
+    .goBack {
+      align-self: end;
+      justify-self: end;
+      display: flex;
+      padding-top: 20px;
+      @include breakpoint(md) {
+        padding: unset;
+        justify-content: center;
+        justify-self: center;
+      }
+    }
   }
 }
