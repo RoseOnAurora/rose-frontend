@@ -973,6 +973,26 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
   },
 }
 
+export interface ChainInfo {
+  name: string
+  rpc: string
+}
+
+// kinda hacky, but will change once we update our chain IDs
+export type SupportedChains = ChainId.AURORA_MAINNET | ChainId.AURORA_TESTNET
+export const SUPPORTED_CHAINS: {
+  [chainId in SupportedChains]: ChainInfo
+} = {
+  [ChainId.AURORA_MAINNET]: {
+    name: "Aurora Mainnet",
+    rpc: "https://mainnet.aurora.dev",
+  },
+  [ChainId.AURORA_TESTNET]: {
+    name: "Aurora Testnet",
+    rpc: "https://testnet.aurora.dev",
+  },
+}
+
 // "SADDLE" in bytes32 form
 export const SYNTH_TRACKING_ID =
   "0x534144444c450000000000000000000000000000000000000000000000000000"

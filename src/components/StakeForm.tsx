@@ -103,6 +103,8 @@ function StakeForm(props: Props): ReactElement {
                       </InputLeftElement>
                       <Input
                         {...field}
+                        autoComplete="off"
+                        autoCorrect="off"
                         isInvalid={form.errors?.[fieldName]}
                         placeholder={`${token} Token`}
                         variant="primary"

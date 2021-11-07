@@ -2,9 +2,12 @@ import "./Web3Status.scss"
 
 import React, { ReactElement, useEffect, useState } from "react"
 import AccountDetails from "./AccountDetails"
+import { ChainId } from "../constants"
 import ConnectWallet from "./ConnectWallet"
 import Identicon from "./Identicon"
 import Modal from "./Modal"
+import SupportedChains from "./SupportedChains"
+import { injected } from "../connectors"
 import { useTranslation } from "react-i18next"
 import { useWeb3React } from "@web3-react/core"
 
@@ -18,12 +21,10 @@ function chainIdToName(chainId: number | undefined) {
     return ""
   }
   switch (chainId) {
-    case 1313161555:
+    case ChainId.AURORA_TESTNET:
       return "Aurora Testnet"
-      break
-    case 1313161554:
+    case ChainId.AURORA_MAINNET:
       return "Aurora Mainnet"
-      break
     default:
       return "Unknown Network"
   }
@@ -32,6 +33,10 @@ function chainIdToName(chainId: number | undefined) {
 const Web3Status = (): ReactElement => {
   const { account, chainId } = useWeb3React()
   const [modalOpen, setModalOpen] = useState(false)
+  const [walletConnected, setWalletConnected] = useState(false)
+  void injected.isAuthorized().then((isAuthorized) => {
+    setWalletConnected(isAuthorized)
+  })
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
   const { t } = useTranslation()
 
@@ -55,6 +60,8 @@ const Web3Status = (): ReactElement => {
 
             <Identicon />
           </div>
+        ) : walletConnected ? (
+          <div className="unsupported">{t("unsupported")}</div>
         ) : (
           <div className="noAccount">{t("connectWallet")}</div>
         )}
@@ -64,6 +71,8 @@ const Web3Status = (): ReactElement => {
           <AccountDetails
             openOptions={() => setWalletView(WALLET_VIEWS.OPTIONS)}
           />
+        ) : walletConnected ? (
+          <SupportedChains />
         ) : (
           <ConnectWallet onClose={(): void => setModalOpen(false)} />
         )}

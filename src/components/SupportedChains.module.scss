@@ -1,0 +1,57 @@
+@import "../styles/theme";
+@import "../styles/viewports";
+
+div.supportedChains {
+  padding: 40px;
+  background: var(--background);
+  border-radius: 8px;
+
+  .chainList {
+    display: grid;
+    grid-template-rows: auto;
+    row-gap: 16px;
+  }
+
+  .chain {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid var(--outline);
+    border-radius: 10px;
+    width: 100%;
+    padding: 16px;
+  }
+
+  .chainInfo {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  h3 {
+    font-weight: $bold;
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--text-darker);
+  }
+
+  p {
+    color: var(--text-lighter);
+    @include breakpoint(md) {
+      font-size: 11px;
+    }
+  }
+
+  h4 {
+    font-weight: $bold;
+    font-size: 17px;
+    margin-top: 0;
+    @include breakpoint(md) {
+      font-size: 13px;
+    }
+  }
+
+  span {
+    @include breakpoint(md) {
+      font-size: 13px;
+    }
+  }
+}
