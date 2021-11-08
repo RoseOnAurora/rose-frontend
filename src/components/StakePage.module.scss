@@ -19,8 +19,7 @@ div.stakeForm {
     font-weight: 700;
     border-radius: 2em;
     @include breakpoint(sm) {
-      font-size: 11px;
-      margin-left: 3px;
+      font-size: 9px;
     }
   }
 

@@ -37,6 +37,9 @@ const variantPrimary = (
       bg: "#881f36",
     },
     _disabled: disabled,
+    _focus: {
+      boxShadow: "none",
+    },
   }
 }
 
@@ -63,6 +66,9 @@ const variantLight = (props: Dict): RecursiveCSSObject<CSSWithMultiValues> => {
       _disabled: disabled,
     },
     _disabled: disabled,
+    _focus: {
+      boxShadow: "none",
+    },
   }
 }
 
