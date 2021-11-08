@@ -18,6 +18,9 @@ const variantPrimary = (): RecursiveCSSObject<CSSWithMultiValues> => {
         color: "#000000",
         bg: "#d88394",
       },
+      _focus: {
+        boxShadow: "none",
+      },
     },
   }
 }

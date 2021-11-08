@@ -25,7 +25,7 @@ const StakeDetails = (props: Props): ReactElement => {
                 thickness="4px"
                 speed="0.65s"
                 emptyColor="gray.200"
-                color="red.700"
+                color="#d88394"
                 size="lg"
               />
             ) : (
@@ -47,7 +47,7 @@ const StakeDetails = (props: Props): ReactElement => {
                 thickness="4px"
                 speed="0.65s"
                 emptyColor="gray.200"
-                color="red.700"
+                color="#d88394"
                 size="lg"
               />
             ) : (

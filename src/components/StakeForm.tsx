@@ -103,13 +103,15 @@ function StakeForm(props: Props): ReactElement {
                       </InputLeftElement>
                       <Input
                         {...field}
+                        autoComplete="off"
+                        autoCorrect="off"
                         isInvalid={form.errors?.[fieldName]}
                         placeholder={`${token} Token`}
                         variant="primary"
                       />
-                      <InputRightElement width="4.5rem">
+                      <InputRightElement width="4rem">
                         <Button
-                          variant="primary"
+                          variant="light"
                           size="sm"
                           onClick={() => {
                             props.setFieldTouched(fieldName, true)

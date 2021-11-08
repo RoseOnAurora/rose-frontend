@@ -8,7 +8,7 @@ import { useRoseStablesFarmContract } from "./useContract"
 import { useSelector } from "react-redux"
 
 export default function useCalculateFarmDeposited(
-  balance: BigNumber,
+  balance: BigNumber | undefined,
 ): BigNumber {
   const { account } = useActiveWeb3React()
 
@@ -22,8 +22,10 @@ export default function useCalculateFarmDeposited(
 
   useEffect(() => {
     async function calculateDeposit(): Promise<void> {
-      if (!account) throw new Error("Wallet must be connected")
-      if (!farmContract) throw new Error("Farm contract is not loaded")
+      if (!account || !farmContract) {
+        setDepositedBalance(Zero)
+        return
+      }
 
       const deposited = await farmContract.balanceOf(account)
 

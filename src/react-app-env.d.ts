@@ -24,6 +24,7 @@ interface Window {
     on?: (...args: any[]) => void
     removeListener?: (...args: any[]) => void
     autoRefreshOnNetworkChange?: bool
+    request: (...args: any[]) => any
   }
   gtag?: (...args: any[]) => void
   web3?: unknown

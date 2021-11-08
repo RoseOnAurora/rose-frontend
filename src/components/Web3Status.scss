@@ -68,4 +68,26 @@ div.walletStatus {
       cursor: pointer;
     }
   }
+
+  .unsupported {
+    font-size: 13px;
+    letter-spacing: 1px;
+    font-weight: 700;
+    border-radius: 4px;
+    outline: 2px;
+    background-color: $primary;
+    min-height: 35px;
+    padding: 0 1.618em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid $primary;
+    @include breakpoint(md) {
+      font-size: 10px;
+      min-height: 30px;
+    }
+    @include breakpoint(sm) {
+      font-size: 6px;
+    }
+  }
 }
