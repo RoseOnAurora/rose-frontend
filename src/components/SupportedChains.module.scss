@@ -2,7 +2,7 @@
 @import "../styles/viewports";
 
 div.supportedChains {
-  padding: 40px;
+  padding: 25px;
   background: var(--background);
   border-radius: 8px;
 
@@ -13,6 +13,9 @@ div.supportedChains {
   }
 
   .chain {
+    display: grid;
+    grid-template-rows: auto;
+    row-gap: 16px;
     background: rgba(255,255,255,0.2);
     border: 1px solid var(--outline);
     border-radius: 10px;
@@ -23,6 +26,18 @@ div.supportedChains {
   .chainInfo {
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .addNetwork {
+    @include breakpoint(md) {
+      padding-left: 10px;
+      button {
+        width: 100%;
+        padding: 15px;
+        font-size: 11px;
+      }
+    }
   }
 
   h3 {
