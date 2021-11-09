@@ -9,12 +9,7 @@ const variantPrimary = (
   props: Dict,
 ): RecursiveCSSObject<CSSWithMultiValues> => {
   const transparentColor = transparentize("gray.500", 0.6)(props.theme)
-  const disableBg =
-    props.colorMode === "light" ? "rgb(243, 226, 217)" : "gray.900"
-  const disableShadow =
-    props.colorMode === "light"
-      ? "0px 3px 3px #0000000a"
-      : "0px 7px 10px rgba(39, 14, 1, 0.2)"
+  const disableBg = transparentize("#cc3a59", 0.2)(props.theme)
   const boxShadowHover =
     props.colorMode === "light"
       ? "0px 7px 12px rgba(68, 64, 64, 0.3)"
@@ -24,7 +19,7 @@ const variantPrimary = (
     color: transparentColor,
     border: "none",
     cursor: "not-allowed",
-    boxShadow: disableShadow,
+    boxShadow: "none",
     bg: disableBg,
   }
 
