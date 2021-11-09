@@ -188,6 +188,7 @@
   "whichAssetBucketDoYouWantToSwap": "Which asset bucket do you want to swap?",
   "whichAssetPoolDoYouWantToChoose": "Which asset pool do you want to choose?",
   "withdraw": "Remove Liquidity",
+  "withdrawAndHarvest": "Withdraw & Harvest",
   "withdrawal": "Withdrawal",
   "withdrawFrom": "Withdraw from",
   "withdrawFailed": "Your withdrawal failed. Please try again",

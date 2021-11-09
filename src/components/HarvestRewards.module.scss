@@ -3,7 +3,7 @@
 
 
 div.harvestRewards {
-  grid-area: footer;
+  grid-area: rewards;
   display: flex;
   justify-content: space-between;
   background: var(--background-element);
@@ -13,7 +13,7 @@ div.harvestRewards {
   padding: 24px;
   @include breakpoint(md) {
     width: 100%;
-    order: 3;
+    order: 2;
   }
   @include breakpoint(sm) {
     flex-wrap: wrap;

@@ -2,6 +2,7 @@ import React, { ReactElement } from "react"
 import { commify, formatBNToString } from "../utils"
 import { BigNumber } from "@ethersproject/bignumber"
 import FarmDetails from "./FarmDetails"
+import FarmFooter from "./FarmFooter"
 import FarmTabs from "./FarmTabs"
 import HarvestRewards from "./HarvestRewards"
 import { PoolName } from "../constants"
@@ -30,6 +31,7 @@ const FarmPage = (props: Props): ReactElement => {
         lpTokenName={props.lpTokenName}
       />
       <HarvestRewards rewardBalance={rewardsEarned} />
+      <FarmFooter deposited={props.deposited}></FarmFooter>
     </div>
   )
 }

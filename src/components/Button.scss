@@ -39,6 +39,7 @@ button.button {
 
     &:disabled {
       cursor: not-allowed;
+      background-color: var(--secondary-button-background-color-disabled);
       color: var(--text-secondary-button-disabled);
     }
 
@@ -87,5 +88,10 @@ button.button {
   &.large {
     width: 176px;
     min-height: 40px;
+  }
+
+  &.xlarge {
+    width: 215px;
+    min-height: 45px;
   }
 }

@@ -17,6 +17,9 @@ div.farmTabs {
     font-weight: 700;
     font-size: 30px;
     line-height: 30px;
+    @include breakpoint(lg) {
+      font-size: 27px;
+    }
     @include breakpoint(sm) {
       font-size: 25px;
     }
