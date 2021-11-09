@@ -22,6 +22,7 @@ div.swapPage {
     width: 100%;
     background: var(--background-element);
     border: 1px solid var(--outline);
+    box-shadow: var(--shadow);
     border-radius: 10px;
     padding: 24px;
     .row {
@@ -44,6 +45,14 @@ div.swapPage {
         }
       }
     }
+  }
+
+  .swapButtonContainer {
+    margin-top: 30px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .content {

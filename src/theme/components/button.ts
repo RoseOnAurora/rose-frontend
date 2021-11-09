@@ -8,33 +8,42 @@ import { transparentize } from "@chakra-ui/theme-tools"
 const variantPrimary = (
   props: Dict,
 ): RecursiveCSSObject<CSSWithMultiValues> => {
-  const transparentColor = transparentize("gray.500", 0.5)(props.theme)
+  const transparentColor = transparentize("gray.500", 0.6)(props.theme)
   const disableBg =
-    props.colorMode === "light" ? "rgb(235, 223, 213)" : "gray.900"
+    props.colorMode === "light" ? "rgb(243, 226, 217)" : "gray.900"
+  const disableShadow =
+    props.colorMode === "light"
+      ? "0px 3px 3px #0000000a"
+      : "0px 7px 10px rgba(39, 14, 1, 0.2)"
+  const boxShadowHover =
+    props.colorMode === "light"
+      ? "0px 7px 12px rgba(68, 64, 64, 0.3)"
+      : "2px 2px 12px rgba(68, 64, 64, 0.14)"
   const disabled = {
-    opacity: "0.8",
+    opacity: "1",
     color: transparentColor,
+    border: "none",
     cursor: "not-allowed",
-    boxShadow: "none",
+    boxShadow: disableShadow,
     bg: disableBg,
   }
 
   return {
     color: "#000000",
     borderRadius: "4px",
-    bg: "#cc3a59",
+    bg: "#b13550",
     letterSpacing: "0.02em",
     fontWeight: "700",
     padding: "1px 6px",
     _hover: {
       color: "#ffffff",
-      bg: "#881f36",
-      boxShadow: "2px 2px 12px rgba(68, 64, 64, 0.2)",
+      bg: "#cc3a59",
+      boxShadow: boxShadowHover,
       _disabled: disabled,
     },
     _active: {
       color: "#ffffff",
-      bg: "#881f36",
+      bg: "#cc3a59",
     },
     _disabled: disabled,
     _focus: {

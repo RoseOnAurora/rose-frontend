@@ -1,6 +1,8 @@
 import "./SwapPage.scss"
 
 import { Button, Center } from "@chakra-ui/react"
+import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
+import { FaArrowDown, FaArrowUp } from "react-icons/fa"
 import React, { ReactElement, useMemo, useState } from "react"
 import { SWAP_TYPES, getIsVirtualSwap } from "../constants"
 import { formatBNToPercentString, formatBNToString } from "../utils"
@@ -8,7 +10,7 @@ import { formatBNToPercentString, formatBNToString } from "../utils"
 import AdvancedOptions from "./AdvancedOptions"
 import { AppState } from "../state/index"
 import { BigNumber } from "@ethersproject/bignumber"
-import ConfirmTransaction from "./ConfirmTransaction"
+import { ContractReceipt } from "@ethersproject/contracts"
 import { ReactComponent as InfoIcon } from "../assets/icons/info.svg"
 import Modal from "./Modal"
 import { PendingSwap } from "../hooks/usePendingSwapData"
@@ -51,7 +53,7 @@ interface Props {
   onChangeFromToken: (tokenSymbol: string) => void
   onChangeFromAmount: (amount: string) => void
   onChangeToToken: (tokenSymbol: string) => void
-  onConfirmTransaction: () => Promise<void>
+  onConfirmTransaction: () => Promise<ContractReceipt | void>
   onClickReverseExchangeDirection: () => void
 }
 
@@ -139,7 +141,16 @@ const SwapPage = (props: Props): ReactElement => {
               isSwapFrom={true}
             />
           </div>
-          <div style={{ height: "48px" }}></div>
+          <div className="swapButtonContainer">
+            <Button
+              variant="primary"
+              onClick={onClickReverseExchangeDirection}
+              disabled={!fromState.symbol || !toState.symbol}
+            >
+              <FaArrowUp />
+              <FaArrowDown />
+            </Button>
+          </div>
           <div className="row">
             <h3 className="swapTitle">{t("to")}</h3>
           </div>
@@ -163,10 +174,7 @@ const SwapPage = (props: Props): ReactElement => {
                 &nbsp;
                 <span>{exchangeRateInfo.pair}</span>
                 &nbsp;
-                <button
-                  className="exchange"
-                  onClick={onClickReverseExchangeDirection}
-                >
+                {/* <button className="exchange">
                   <svg
                     width="24"
                     height="20"
@@ -176,14 +184,14 @@ const SwapPage = (props: Props): ReactElement => {
                   >
                     <path
                       d="M17.4011 12.4196C17.4011 13.7551 16.5999 13.8505 16.4472 13.8505H6.62679L9.14986 11.3274L8.47736 10.6501L5.13869 13.9888C5.04986 14.0782 5 14.1991 5 14.3251C5 14.4511 5.04986 14.572 5.13869 14.6613L8.47736 18L9.14986 17.3275L6.62679 14.8044H16.4472C17.1054 14.8044 18.355 14.3274 18.355 12.4196V10.9888H17.4011V12.4196Z"
-                      fill="#3800D6"
+                      fill="#f9ebe0"
                     />
                     <path
                       d="M5.9539 7.58511C5.9539 6.24965 6.75519 6.15426 6.90781 6.15426H16.7283L14.2052 8.67733L14.8777 9.34984L18.2164 6.01117C18.3052 5.92181 18.355 5.80092 18.355 5.67492C18.355 5.54891 18.3052 5.42803 18.2164 5.33867L14.8777 2L14.2004 2.67727L16.7283 5.20035H6.90781C6.24962 5.20035 5 5.6773 5 7.58511V9.01597H5.9539V7.58511Z"
-                      fill="#3800D6"
+                      fill="#f9ebe0"
                     />
                   </svg>
-                </button>
+                </button> */}
               </div>
               <span className="exchRate">{formattedExchangeRate}</span>
             </div>
@@ -319,14 +327,26 @@ const SwapPage = (props: Props): ReactElement => {
           {currentModal === "review" ? (
             <ReviewSwap
               onClose={(): void => setCurrentModal(null)}
-              onConfirm={async (): Promise<void> => {
+              onConfirm={() => {
                 setCurrentModal("confirm")
                 logEvent("swap", {
                   from: fromState.symbol,
                   to: toState.symbol,
                 })
-                await onConfirmTransaction?.()
-                setCurrentModal(null)
+                onConfirmTransaction?.()
+                  .then((res) => {
+                    if (res?.status) {
+                      setCurrentModal(ModalType.SUCCESS)
+                      setTimeout(() => {
+                        setCurrentModal(null)
+                      }, 1000)
+                    } else {
+                      setCurrentModal(ModalType.FAILED)
+                    }
+                  })
+                  .catch(() => {
+                    setCurrentModal(ModalType.FAILED)
+                  })
               }}
               data={{
                 from: fromState,
@@ -337,7 +357,21 @@ const SwapPage = (props: Props): ReactElement => {
               }}
             />
           ) : null}
-          {currentModal === "confirm" ? <ConfirmTransaction /> : null}
+          {currentModal === ModalType.CONFIRM ? (
+            <ConfirmTransaction />
+          ) : currentModal === ModalType.FAILED ? (
+            <ConfirmTransaction
+              description={t("txFailed_swap")}
+              title={t("failedTitle")}
+              type={ModalType.FAILED}
+            />
+          ) : currentModal === ModalType.SUCCESS ? (
+            <ConfirmTransaction
+              title={t("successTitle")}
+              description={t("txConfirmed_swap")}
+              type={ModalType.SUCCESS}
+            />
+          ) : null}
           {currentModal === "pendingSwap" ? (
             <PendingSwapModal
               pendingSwap={

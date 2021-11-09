@@ -65,7 +65,7 @@ function StakePage(props: Props): ReactElement {
       <Tabs isFitted variant="primary">
         <TabList mb="1em">
           <Tab>{`${t("stake")} Rose`}</Tab>
-          <Tab>{t("unstake")}</Tab>
+          <Tab>{`${t("unstake")} stRose`}</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -83,7 +83,7 @@ function StakePage(props: Props): ReactElement {
             </div>
             <StakeForm
               fieldName={"stake"}
-              failedDescription={t("stakeFailed")}
+              failedDescription={t("txFailed_stake")}
               token={"ROSE"}
               tokenIcon={"🌹"}
               max={formatBNToString(
@@ -110,7 +110,7 @@ function StakePage(props: Props): ReactElement {
             </div>
             <StakeForm
               fieldName={"unstake"}
-              failedDescription={t("unstakeFailed")}
+              failedDescription={t("txFailed_unstake")}
               token={"stRose"}
               tokenIcon={"🌷"}
               max={formatBNToString(

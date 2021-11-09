@@ -24,7 +24,7 @@ function MyShareCard({ data }: Props): ReactElement | null {
     share: formatBNToPercentString(data.share, 18),
     usdBalance: commify(formatBNToString(data.usdBalance, 18, 2)),
     amount: commify(
-      formatBNToString(data.underlyingTokensAmount, 18, formattedDecimals),
+      formatBNToString(data.lpTokenBalance, 18, formattedDecimals),
     ),
     amountsStaked: Object.keys(data.amountsStaked).reduce((acc, key) => {
       const value = data.amountsStaked[key as keyof typeof data.amountsStaked]
@@ -64,7 +64,7 @@ function MyShareCard({ data }: Props): ReactElement | null {
           <span className="value">{`$${formattedData.usdBalance}`}</span>
         </div>
         <div className="infoItem">
-          <span className="label bold">{`${t("totalAmount")}: `}</span>
+          <span className="label bold">{`${t("lpTokenBalance")}: `}</span>
           <span className="value">{formattedData.amount}</span>
           {Object.keys(data.amountsStaked).map((key) => {
             return data.amountsStaked[key as Partners]?.gt(Zero) ? (
