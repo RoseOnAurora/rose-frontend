@@ -141,18 +141,17 @@ const SwapPage = (props: Props): ReactElement => {
               isSwapFrom={true}
             />
           </div>
-          <div className="swapButtonContainer">
+          <div className="row swapButtonContainer">
+            <h3 className="swapTitle">{t("to")}</h3>
             <Button
-              variant="primary"
+              variant="light"
+              size="lg"
               onClick={onClickReverseExchangeDirection}
               disabled={!fromState.symbol || !toState.symbol}
             >
-              <FaArrowUp />
-              <FaArrowDown />
+              <FaArrowUp size="2em" />
+              <FaArrowDown size="2em" />
             </Button>
-          </div>
-          <div className="row">
-            <h3 className="swapTitle">{t("to")}</h3>
           </div>
           <div className="row">
             <SwapInput

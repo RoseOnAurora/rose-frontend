@@ -49,6 +49,8 @@ div.poolsPage {
     justify-content: center;
     @include breakpoint(sm) {
       width: 100%;
+      padding-left: 4px;
+      padding-right: 4px;
     }
   }
 }

@@ -25,10 +25,12 @@ div.stakePage {
     }
     @include breakpoint(md) {
       width: 100%;
-      padding-left: 4px;
-      padding-right: 4px;
       padding-top: 40px;
       flex-wrap: wrap;
+    }
+    @include breakpoint(sm) {
+      padding-left: 4px;
+      padding-right: 4px;
     }
   }
 }

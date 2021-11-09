@@ -26,13 +26,13 @@ div.stakeForm {
 
   .colorPill {
     outline: 2px;
-    background-color: rgb(216, 131, 148, 0.5);
+    background: linear-gradient(to left, #fffbd5, #d88394);
     min-height: 40px;
     padding: 0 1.618em;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid #d88394;
+    border: none;
   }
 
   .glowPill {

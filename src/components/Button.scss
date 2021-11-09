@@ -22,11 +22,11 @@ button.button {
   }
 
   &.primary {
-    background: $primary-muted;
+    background: $primary;
 
     &:enabled:hover,
     &:enabled:focus {
-      background-color: $primary;
+      background-color: $primary-lighter;
       color: $text-white;
       box-shadow: var(--shadow-hover);
     }

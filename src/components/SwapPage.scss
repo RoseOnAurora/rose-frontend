@@ -31,6 +31,14 @@ div.swapPage {
       margin-top: 8px;
       width: 100%;
       align-items: baseline;
+
+      &.swapButtonContainer {
+        justify-content: unset;
+
+        .swapTitle, button {
+          margin-right: auto;
+        }
+      }
     }
     .balanceContainer {
       span,
@@ -47,14 +55,6 @@ div.swapPage {
     }
   }
 
-  .swapButtonContainer {
-    margin-top: 30px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   .content {
     width: 550px;
     margin: 0 auto;
@@ -65,6 +65,8 @@ div.swapPage {
     align-items: center;
     @include breakpoint(sm) {
       width: 100%;
+      padding-left: 4px;
+      padding-right: 4px;
     }
   }
 
