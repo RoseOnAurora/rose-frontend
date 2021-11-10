@@ -9,7 +9,6 @@ div.harvestRewards {
   background: var(--background-element);
   border: 1px solid var(--outline);
   border-radius: 10px;
-  margin: 10px;
   padding: 24px;
   @include breakpoint(md) {
     width: 100%;

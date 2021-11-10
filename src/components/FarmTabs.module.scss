@@ -7,7 +7,6 @@ div.farmTabs {
   border: 1px solid var(--outline);
   border-radius: 10px;
   padding: 24px;
-  margin: 10px;
   @include breakpoint(md) {
     width: 100%;
     order: 1;
