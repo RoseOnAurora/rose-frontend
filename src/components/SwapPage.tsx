@@ -336,9 +336,6 @@ const SwapPage = (props: Props): ReactElement => {
                   .then((res) => {
                     if (res?.status) {
                       setCurrentModal(ModalType.SUCCESS)
-                      setTimeout(() => {
-                        setCurrentModal(null)
-                      }, 1000)
                     } else {
                       setCurrentModal(ModalType.FAILED)
                     }

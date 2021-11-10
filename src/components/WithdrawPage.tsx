@@ -1,6 +1,7 @@
 import "./WithdrawPage.scss"
 
 import { Button, Center } from "@chakra-ui/react"
+import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
 import { PoolDataType, UserShareType } from "../hooks/usePoolData"
 import React, { ReactElement, useState } from "react"
 
@@ -8,7 +9,7 @@ import AdvancedOptions from "./AdvancedOptions"
 import { AppState } from "../state"
 import BackButton from "./BackButton"
 import { BigNumber } from "@ethersproject/bignumber"
-import ConfirmTransaction from "./ConfirmTransaction"
+import { ContractReceipt } from "@ethersproject/contracts"
 import Modal from "./Modal"
 import MyShareCard from "./MyShareCard"
 import PoolInfoCard from "./PoolInfoCard"
@@ -58,7 +59,7 @@ interface Props {
   myShareData: UserShareType | null
   formStateData: WithdrawFormState
   onFormChange: (action: any) => void
-  onConfirmTransaction: () => Promise<void>
+  onConfirmTransaction: () => Promise<ContractReceipt | void>
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
@@ -197,19 +198,42 @@ const WithdrawPage = (props: Props): ReactElement => {
             <ReviewWithdraw
               data={reviewData}
               gas={gasPriceSelected}
-              onConfirm={async (): Promise<void> => {
+              onConfirm={(): void => {
                 setCurrentModal("confirm")
                 logEvent(
                   "withdraw",
                   (poolData && { pool: poolData?.name }) || {},
                 )
-                await onConfirmTransaction?.()
-                setCurrentModal(null)
+                onConfirmTransaction?.()
+                  .then((res) => {
+                    if (res?.status) {
+                      setCurrentModal(ModalType.SUCCESS)
+                    } else {
+                      setCurrentModal(ModalType.FAILED)
+                    }
+                  })
+                  .catch(() => {
+                    setCurrentModal(ModalType.FAILED)
+                  })
               }}
               onClose={(): void => setCurrentModal(null)}
             />
           ) : null}
-          {currentModal === "confirm" ? <ConfirmTransaction /> : null}
+          {currentModal === ModalType.CONFIRM ? (
+            <ConfirmTransaction />
+          ) : currentModal === ModalType.FAILED ? (
+            <ConfirmTransaction
+              description={t("txFailed_withdraw")}
+              title={t("failedTitle")}
+              type={ModalType.FAILED}
+            />
+          ) : currentModal === ModalType.SUCCESS ? (
+            <ConfirmTransaction
+              title={t("successTitle")}
+              description={t("txConfirmed_withdraw")}
+              type={ModalType.SUCCESS}
+            />
+          ) : null}
         </Modal>
       </div>
     </div>

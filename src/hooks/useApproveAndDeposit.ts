@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
+import { ContractReceipt } from "@ethersproject/contracts"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import META_SWAP_ABI from "../constants/abis/metaSwap.json"
 import { MetaSwap } from "../../types/ethers-contracts/MetaSwap"
@@ -30,7 +31,7 @@ export function useApproveAndDeposit(
 ): (
   state: ApproveAndDepositStateArgument,
   shouldDepositWrapped?: boolean,
-) => Promise<void> {
+) => Promise<ContractReceipt | void> {
   const dispatch = useDispatch()
   // const swapContract = useSwapContract(poolName)
   const poolContract = usePoolContract(poolName)
@@ -56,7 +57,7 @@ export function useApproveAndDeposit(
   return async function approveAndDeposit(
     state: ApproveAndDepositStateArgument,
     shouldDepositWrapped = false,
-  ): Promise<void> {
+  ): Promise<ContractReceipt | void> {
     try {
       if (!account) throw new Error("Wallet must be connected")
       if (
@@ -132,13 +133,13 @@ export function useApproveAndDeposit(
 
       // notifyHandler(spendTransaction.hash, "deposit")
 
-      await spendTransaction.wait()
+      const receipt = await spendTransaction.wait()
       dispatch(
         updateLastTransactionTimes({
           [TRANSACTION_TYPES.DEPOSIT]: Date.now(),
         }),
       )
-      return Promise.resolve()
+      return receipt
     } catch (e) {
       console.error(e)
       // notifyCustomError(e as Error)

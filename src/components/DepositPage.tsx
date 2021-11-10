@@ -2,6 +2,7 @@ import "./DepositPage.scss"
 
 import { ALETH_POOL_NAME, VETH2_POOL_NAME, isMetaPool } from "../constants"
 import { Button, Center } from "@chakra-ui/react"
+import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
 import { PoolDataType, UserShareType } from "../hooks/usePoolData"
 import React, { ReactElement, useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
@@ -9,7 +10,7 @@ import { Trans, useTranslation } from "react-i18next"
 import AdvancedOptions from "./AdvancedOptions"
 import BackButton from "./BackButton"
 import CheckboxInput from "./CheckboxInput"
-import ConfirmTransaction from "./ConfirmTransaction"
+import { ContractReceipt } from "@ethersproject/contracts"
 import { DepositTransaction } from "../interfaces/transactions"
 import LPStakingBanner from "./LPStakingBanner"
 import Modal from "./Modal"
@@ -25,7 +26,7 @@ import { logEvent } from "../utils/googleAnalytics"
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface Props {
   title: string
-  onConfirmTransaction: () => Promise<void>
+  onConfirmTransaction: () => Promise<ContractReceipt | void>
   onChangeTokenInputValue: (tokenSymbol: string, value: string) => void
   onToggleDepositWrapped: () => void
   shouldDepositWrapped: boolean
@@ -225,19 +226,42 @@ const DepositPage = (props: Props): ReactElement => {
           {currentModal === "review" ? (
             <ReviewDeposit
               transactionData={transactionData}
-              onConfirm={async (): Promise<void> => {
-                setCurrentModal("confirm")
+              onConfirm={(): void => {
+                setCurrentModal(ModalType.CONFIRM)
                 logEvent(
                   "deposit",
                   (poolData && { pool: poolData?.name }) || {},
                 )
-                await onConfirmTransaction?.()
-                setCurrentModal(null)
+                onConfirmTransaction?.()
+                  .then((res) => {
+                    if (res?.status) {
+                      setCurrentModal(ModalType.SUCCESS)
+                    } else {
+                      setCurrentModal(ModalType.FAILED)
+                    }
+                  })
+                  .catch(() => {
+                    setCurrentModal(ModalType.FAILED)
+                  })
               }}
               onClose={(): void => setCurrentModal(null)}
             />
           ) : null}
-          {currentModal === "confirm" ? <ConfirmTransaction /> : null}
+          {currentModal === ModalType.CONFIRM ? (
+            <ConfirmTransaction />
+          ) : currentModal === ModalType.FAILED ? (
+            <ConfirmTransaction
+              description={t("txFailed_deposit")}
+              title={t("failedTitle")}
+              type={ModalType.FAILED}
+            />
+          ) : currentModal === ModalType.SUCCESS ? (
+            <ConfirmTransaction
+              title={t("successTitle")}
+              description={t("txConfirmed_deposit")}
+              type={ModalType.SUCCESS}
+            />
+          ) : null}
         </Modal>
       </div>
     </div>

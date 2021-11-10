@@ -3,6 +3,7 @@ import { addSlippage, subtractSlippage } from "../utils/slippage"
 import { useLPTokenContract, usePoolContract } from "./useContract"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
+import { ContractReceipt } from "@ethersproject/contracts"
 import { NumberInputState } from "../utils/numberInputState"
 import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
@@ -20,7 +21,7 @@ interface ApproveAndWithdrawStateArgument {
 
 export function useApproveAndWithdraw(
   poolName: PoolName,
-): (state: ApproveAndWithdrawStateArgument) => Promise<void> {
+): (state: ApproveAndWithdrawStateArgument) => Promise<ContractReceipt | void> {
   const dispatch = useDispatch()
   const poolContract = usePoolContract(poolName)
   const { account } = useActiveWeb3React()
@@ -32,7 +33,7 @@ export function useApproveAndWithdraw(
 
   return async function approveAndWithdraw(
     state: ApproveAndWithdrawStateArgument,
-  ): Promise<void> {
+  ): Promise<ContractReceipt | void> {
     try {
       if (!account) throw new Error("Wallet must be connected")
       if (!poolContract) throw new Error("Swap contract is not loaded")
@@ -145,12 +146,13 @@ export function useApproveAndWithdraw(
 
       // notifyHandler(spendTransaction.hash, "withdraw")
 
-      await spendTransaction.wait()
+      const receipt = await spendTransaction.wait()
       dispatch(
         updateLastTransactionTimes({
           [TRANSACTION_TYPES.WITHDRAW]: Date.now(),
         }),
       )
+      return receipt
     } catch (e) {
       console.error(e)
       // notifyCustomError(e as Error)

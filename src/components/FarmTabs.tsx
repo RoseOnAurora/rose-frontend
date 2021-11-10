@@ -1,6 +1,8 @@
 import React, { ReactElement } from "react"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
 import { BigNumber } from "@ethersproject/bignumber"
+import { ContractReceipt } from "@ethersproject/contracts"
+import { ModalType } from "./ConfirmTransaction"
 import { PoolName } from "../constants"
 import StakeForm from "./StakeForm"
 import { Zero } from "@ethersproject/constants"
@@ -17,10 +19,11 @@ interface Props {
   balance: BigNumber
   deposited: BigNumber
   poolName: PoolName
+  handleModal: (modalType: ModalType, tx?: string | undefined) => void
 }
 
 const FarmTabs = (props: Props): ReactElement => {
-  const { lpTokenName, balance, deposited, poolName } = props
+  const { lpTokenName, balance, deposited, poolName, handleModal } = props
   const { t } = useTranslation()
   const farm = useApproveAndDepositFarm(poolName)
   const withdraw = useWithdrawFarm()
@@ -31,7 +34,7 @@ const FarmTabs = (props: Props): ReactElement => {
       return generalValidation
     }
     if (parseUnits(amount, 18).gt(balance)) {
-      return t("Insufficient Balance.")
+      return t("insufficientBalance")
     }
   }
 
@@ -41,7 +44,7 @@ const FarmTabs = (props: Props): ReactElement => {
       return generalValidation
     }
     if (parseUnits(amount, 18).gt(deposited)) {
-      return t("Insufficient Balance.")
+      return t("insufficientBalance")
     }
   }
 
@@ -58,6 +61,23 @@ const FarmTabs = (props: Props): ReactElement => {
     }
     return null
   }
+
+  const postDeposit = (receipt: ContractReceipt | null) => {
+    if (receipt?.status) {
+      handleModal(ModalType.SUCCESS, t("deposit"))
+    } else {
+      handleModal(ModalType.FAILED, t("deposit"))
+    }
+  }
+
+  const postWithdraw = (receipt: ContractReceipt | null) => {
+    if (receipt?.status) {
+      handleModal(ModalType.SUCCESS, t("Withdraw"))
+    } else {
+      handleModal(ModalType.FAILED, t("Withdraw"))
+    }
+  }
+
   return (
     <div className={styles.farmTabs}>
       <Tabs isFitted variant="primary">
@@ -72,11 +92,12 @@ const FarmTabs = (props: Props): ReactElement => {
             </h4>
             <StakeForm
               fieldName={"deposit"}
-              failedDescription={t("depositFailed")}
               token={lpTokenName}
               tokenIcon={"🌹"}
               max={formatBNToString(balance || Zero, 18, 6)}
               handleSubmit={farm}
+              handlePostSubmit={postDeposit}
+              handlePreSubmit={() => handleModal(ModalType.CONFIRM)}
               validator={validateBalance}
             />
           </TabPanel>
@@ -86,12 +107,13 @@ const FarmTabs = (props: Props): ReactElement => {
             </h4>
             <StakeForm
               fieldName={"withdraw"}
-              failedDescription={t("withdrawFailed")}
               token={lpTokenName}
               tokenIcon={"🌹"}
               max={formatBNToString(deposited || Zero, 18, 6)}
               handleSubmit={withdraw}
               validator={validateDeposited}
+              handlePostSubmit={postWithdraw}
+              handlePreSubmit={() => handleModal(ModalType.CONFIRM)}
             />
           </TabPanel>
         </TabPanels>
