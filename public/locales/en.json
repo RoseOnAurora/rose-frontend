@@ -92,6 +92,7 @@
   "poolIsNotAcceptingDeposits": "Pool is not accepting additional deposits at this time",
   "poolOverview": "Pool Overview",
   "pools": "Pools",
+  "poolTokenBalance": "PoolTokenBalance",
   "price": "Price",
   "priceImpact": "Price Impact",
   "profit": "Profit",
