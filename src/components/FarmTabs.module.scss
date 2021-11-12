@@ -7,7 +7,6 @@ div.farmTabs {
   border: 1px solid var(--outline);
   border-radius: 10px;
   padding: 24px;
-  margin: 10px;
   @include breakpoint(md) {
     width: 100%;
     order: 1;
@@ -17,6 +16,9 @@ div.farmTabs {
     font-weight: 700;
     font-size: 30px;
     line-height: 30px;
+    @include breakpoint(lg) {
+      font-size: 27px;
+    }
     @include breakpoint(sm) {
       font-size: 25px;
     }

@@ -11,7 +11,7 @@ export enum ModalType {
   FAILED = "failed",
   SUCCESS = "success",
 }
-interface Props {
+export interface ConfirmTransactionProps {
   title?: string
   type?: ModalType
   description?: string
@@ -20,7 +20,7 @@ function ConfirmTransaction({
   title = "confirmTransaction",
   type = ModalType.CONFIRM,
   description = "",
-}: Props): ReactElement {
+}: ConfirmTransactionProps): ReactElement {
   const { t } = useTranslation()
 
   return (

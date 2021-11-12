@@ -1,16 +1,14 @@
 import React, { ReactElement } from "react"
-import { Spinner } from "@chakra-ui/react"
 import styles from "./StakeDetails.module.scss"
 import { useTranslation } from "react-i18next"
 
 interface Props {
   balanceView: string
   stakedView: string
-  loading: boolean
 }
 const StakeDetails = (props: Props): ReactElement => {
   const { t } = useTranslation()
-  const { balanceView, stakedView, loading } = props
+  const { balanceView, stakedView } = props
   return (
     <div className={styles.stakeDetailsContainer}>
       <div className={styles.stakeDetails}>
@@ -20,17 +18,7 @@ const StakeDetails = (props: Props): ReactElement => {
         <div className={styles.row}>
           <div className={styles.icon}>🌹</div>
           <div className={styles.balanceDetails}>
-            {loading ? (
-              <Spinner
-                thickness="4px"
-                speed="0.65s"
-                emptyColor="gray.200"
-                color="#d88394"
-                size="lg"
-              />
-            ) : (
-              <span className={styles.balance}>{balanceView}</span>
-            )}
+            <span className={styles.balance}>{balanceView}</span>
             <span className={styles.token}>ROSE</span>
           </div>
         </div>
@@ -42,17 +30,7 @@ const StakeDetails = (props: Props): ReactElement => {
         <div className={styles.row}>
           <div className={styles.icon}>🌷</div>
           <div className={styles.balanceDetails}>
-            {loading ? (
-              <Spinner
-                thickness="4px"
-                speed="0.65s"
-                emptyColor="gray.200"
-                color="#d88394"
-                size="lg"
-              />
-            ) : (
-              <span className={styles.balance}>{stakedView}</span>
-            )}
+            <span className={styles.balance}>{stakedView}</span>
             <span className={styles.token}>stROSE</span>
           </div>
         </div>

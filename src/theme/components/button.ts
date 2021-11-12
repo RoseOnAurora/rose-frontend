@@ -8,12 +8,16 @@ import { transparentize } from "@chakra-ui/theme-tools"
 const variantPrimary = (
   props: Dict,
 ): RecursiveCSSObject<CSSWithMultiValues> => {
-  const transparentColor = transparentize("gray.500", 0.5)(props.theme)
-  const disableBg =
-    props.colorMode === "light" ? "rgb(235, 223, 213)" : "gray.900"
+  const transparentColor = transparentize("gray.500", 0.6)(props.theme)
+  const disableBg = transparentize("#cc3a59", 0.2)(props.theme)
+  const boxShadowHover =
+    props.colorMode === "light"
+      ? "0px 7px 12px rgba(68, 64, 64, 0.3)"
+      : "2px 2px 12px rgba(68, 64, 64, 0.14)"
   const disabled = {
     opacity: "0.8",
     color: transparentColor,
+    border: "none",
     cursor: "not-allowed",
     boxShadow: "none",
     bg: disableBg,
@@ -28,13 +32,13 @@ const variantPrimary = (
     padding: "1px 6px",
     _hover: {
       color: "#ffffff",
-      bg: "#881f36",
-      boxShadow: "2px 2px 12px rgba(68, 64, 64, 0.2)",
+      bg: "#d63255",
+      boxShadow: boxShadowHover,
       _disabled: disabled,
     },
     _active: {
       color: "#ffffff",
-      bg: "#881f36",
+      bg: "#cc3a59",
     },
     _disabled: disabled,
     _focus: {
@@ -44,10 +48,19 @@ const variantPrimary = (
 }
 
 const variantLight = (props: Dict): RecursiveCSSObject<CSSWithMultiValues> => {
-  const transparentColor = transparentize("gray.500", 0.4)(props.theme)
+  const transparentColor = transparentize("gray.500", 0.6)(props.theme)
+  const disableBg = transparentize("#cc3a59", 0.2)(props.theme)
+  const boxShadowHover =
+    props.colorMode === "light"
+      ? "0px 7px 12px rgba(68, 64, 64, 0.3)"
+      : "2px 2px 12px rgba(68, 64, 64, 0.14)"
   const disabled = {
     opacity: "1",
     color: transparentColor,
+    border: "none",
+    cursor: "not-allowed",
+    boxShadow: "none",
+    bg: disableBg,
   }
   return {
     color: "#000000",
@@ -58,11 +71,11 @@ const variantLight = (props: Dict): RecursiveCSSObject<CSSWithMultiValues> => {
     fontWeight: "700",
     padding: "1px 6px",
     border: "none",
-    bg: "#d88394",
+    bg: "#cc3a59",
     _hover: {
       color: "#ffffff",
-      bg: "#d88394",
-      boxShadow: "2px 2px 12px rgba(68, 64, 64, 0.2)",
+      bg: "#d63255",
+      boxShadow: boxShadowHover,
       _disabled: disabled,
     },
     _disabled: disabled,

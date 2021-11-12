@@ -12,11 +12,11 @@ const variantPrimary = (): RecursiveCSSObject<CSSWithMultiValues> => {
       bg: "transparent",
       _selected: {
         color: "#000000",
-        bg: "#d88394",
+        bg: "#cc3a59",
       },
       _active: {
         color: "#000000",
-        bg: "#d88394",
+        bg: "#cc3a59",
       },
       _focus: {
         boxShadow: "none",

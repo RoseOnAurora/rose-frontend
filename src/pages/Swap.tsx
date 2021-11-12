@@ -32,6 +32,7 @@ import {
 
 import { AppState } from "../state/index"
 import { BigNumber } from "@ethersproject/bignumber"
+import { ContractReceipt } from "@ethersproject/contracts"
 import { PendingSwapsContext } from "../providers/PendingSwapsProvider"
 import SwapPage from "../components/SwapPage"
 import { Zero } from "@ethersproject/constants"
@@ -452,7 +453,7 @@ function Swap(): ReactElement {
     })
   }
 
-  async function handleConfirmTransaction(): Promise<void> {
+  async function handleConfirmTransaction(): Promise<ContractReceipt | void> {
     const fromToken = TOKENS_MAP[formState.from.symbol]
     if (
       formState.swapType === SWAP_TYPES.INVALID ||
@@ -473,7 +474,7 @@ function Swap(): ReactElement {
       }))
       return
     }
-    await approveAndSwap({
+    const receipt = await approveAndSwap({
       bridgeContract: bridgeContract,
       poolContract: swapContract,
       from: {
@@ -510,6 +511,7 @@ function Swap(): ReactElement {
       currentSwapPairs: prevState.currentSwapPairs,
       swapType: prevState.swapType,
     }))
+    return receipt
   }
 
   const gasPrice = BigNumber.from(

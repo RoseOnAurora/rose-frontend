@@ -22,9 +22,12 @@ function MyShareCard({ data }: Props): ReactElement | null {
 
   const formattedData = {
     share: formatBNToPercentString(data.share, 18),
-    usdBalance: commify(formatBNToString(data.usdBalance, 18, 2)),
-    amount: commify(
+    shareAmount: commify(
       formatBNToString(data.underlyingTokensAmount, 18, formattedDecimals),
+    ),
+    usdBalance: commify(formatBNToString(data.usdBalance, 18, 2)),
+    lpTokenBalance: commify(
+      formatBNToString(data.lpTokenBalance, 18, formattedDecimals),
     ),
     amountsStaked: Object.keys(data.amountsStaked).reduce((acc, key) => {
       const value = data.amountsStaked[key as keyof typeof data.amountsStaked]
@@ -64,8 +67,12 @@ function MyShareCard({ data }: Props): ReactElement | null {
           <span className="value">{`$${formattedData.usdBalance}`}</span>
         </div>
         <div className="infoItem">
-          <span className="label bold">{`${t("totalAmount")}: `}</span>
-          <span className="value">{formattedData.amount}</span>
+          <span className="label bold">{`${t("poolTokenBalance")}: `}</span>
+          <span className="value">{`${formattedData.shareAmount}`}</span>
+        </div>
+        <div className="infoItem">
+          <span className="label bold">{`${t("lpTokenBalance")}: `}</span>
+          <span className="value">{formattedData.lpTokenBalance}</span>
           {Object.keys(data.amountsStaked).map((key) => {
             return data.amountsStaked[key as Partners]?.gt(Zero) ? (
               <span className="value">

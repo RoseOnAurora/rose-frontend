@@ -1,0 +1,21 @@
+@import "../styles/theme";
+@import "../styles/viewports";
+
+.farmFooter {
+  grid-area: footer;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  @include breakpoint(md) {
+    width: 100%;
+    order: 4;
+  }
+  .goBack {
+    display: flex;
+    @include breakpoint(md) {
+      padding: unset;
+      justify-content: center;
+      justify-self: center;
+    }
+  }
+}

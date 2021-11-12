@@ -5,6 +5,7 @@ import { commify, formatUnits, parseUnits } from "@ethersproject/units"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
+import { ContractReceipt } from "@ethersproject/contracts"
 import { Zero } from "@ethersproject/constants"
 import { calculateGasEstimate } from "../utils/gasEstimate"
 import { calculatePriceImpact } from "../utils/priceImpact"
@@ -88,18 +89,20 @@ function Withdraw({ poolName }: Props): ReactElement {
     account,
     POOL.poolTokens,
   ])
-  async function onConfirmTransaction(): Promise<void> {
+  async function onConfirmTransaction(): Promise<ContractReceipt | void> {
     const {
       withdrawType,
       tokenInputs,
       lpTokenAmountToSpend,
     } = withdrawFormState
-    await approveAndWithdraw({
+    const receipt = await approveAndWithdraw({
       tokenFormState: tokenInputs,
       withdrawType,
       lpTokenAmountToSpend,
     })
     updateWithdrawFormState({ fieldName: "reset", value: "reset" })
+
+    return receipt
   }
 
   const tokensData = React.useMemo(

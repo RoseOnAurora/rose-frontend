@@ -1,13 +1,9 @@
 import React, { ReactElement, useMemo } from "react"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ROSE_TOKENS_MAP } from "../constants"
-import StakeDetails from "../components/StakeDetails"
 import StakePage from "../components/StakePage"
 import TopMenu from "../components/TopMenu"
 import { Zero } from "@ethersproject/constants"
-import { commify } from "@ethersproject/units"
-import { formatBNToString } from "../utils"
-import { isEmpty } from "lodash"
 import styles from "./Stake.module.scss"
 import { useApproveAndStake } from "../hooks/useApproveAndStake"
 import { useApproveAndUnstake } from "../hooks/useApproveAndUnstake"
@@ -58,21 +54,6 @@ const Stake = (): ReactElement => {
             staked={tokenBalanceDetails.staked}
             approveStake={stake}
             approveUnstake={unstake}
-          />
-          <StakeDetails
-            balanceView={formatBNToString(
-              tokenBalanceDetails.balance.amount || Zero,
-              tokenBalanceDetails.balance.decimals || 0,
-              6,
-            )}
-            stakedView={commify(
-              formatBNToString(
-                tokenBalanceDetails.staked.amount || Zero,
-                tokenBalanceDetails.staked.decimals || 0,
-                6,
-              ),
-            )}
-            loading={isEmpty(tokenBalances) ? true : false}
           />
         </div>
       </div>

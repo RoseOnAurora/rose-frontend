@@ -8,6 +8,7 @@ import { POOLS_MAP, SWAP_TYPES, TRANSACTION_TYPES } from "../constants"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { Bridge } from "../../types/ethers-contracts/Bridge"
+import { ContractReceipt } from "@ethersproject/contracts"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
 import { Zero } from "@ethersproject/constants"
@@ -39,7 +40,7 @@ type ApproveAndSwapStateArgument = FormState & Contracts
 
 export function useApproveAndSwap(): (
   state: ApproveAndSwapStateArgument,
-) => Promise<void> {
+) => Promise<ContractReceipt | void> {
   const dispatch = useDispatch()
   const tokenContracts = useAllContracts()
   const { account, chainId } = useActiveWeb3React()
@@ -48,7 +49,7 @@ export function useApproveAndSwap(): (
   )
   return async function approveAndSwap(
     state: ApproveAndSwapStateArgument,
-  ): Promise<void> {
+  ): Promise<ContractReceipt | void> {
     try {
       if (!account) throw new Error("Wallet must be connected")
       if (state.swapType === SWAP_TYPES.DIRECT && !state.poolContract)
@@ -160,13 +161,12 @@ export function useApproveAndSwap(): (
         throw new Error("Invalid Swap Type, or contract not loaded")
       }
 
-      await swapTransaction?.wait()
       dispatch(
         updateLastTransactionTimes({
           [TRANSACTION_TYPES.SWAP]: Date.now(),
         }),
       )
-      return Promise.resolve()
+      return await swapTransaction?.wait()
     } catch (e) {
       console.error(e)
     }

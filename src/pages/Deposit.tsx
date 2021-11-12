@@ -7,6 +7,7 @@ import usePoolData, { PoolDataType } from "../hooks/usePoolData"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
+import { ContractReceipt } from "@ethersproject/contracts"
 import DepositPage from "../components/DepositPage"
 import META_SWAP_ABI from "../constants/abis/metaSwap.json"
 import { MetaSwap } from "../../types/ethers-contracts/MetaSwap"
@@ -203,8 +204,11 @@ function Deposit({ poolName }: Props): ReactElement | null {
     return exceedsBoolean
   })
 
-  async function onConfirmTransaction(): Promise<void> {
-    await approveAndDeposit(tokenFormState, shouldDepositWrapped)
+  async function onConfirmTransaction(): Promise<ContractReceipt | void> {
+    const receipt = await approveAndDeposit(
+      tokenFormState,
+      shouldDepositWrapped,
+    )
     // Clear input after deposit
     updateTokenFormState(
       allTokens.reduce(
@@ -215,6 +219,8 @@ function Deposit({ poolName }: Props): ReactElement | null {
         {},
       ),
     )
+
+    return receipt
   }
   function updateTokenFormValue(symbol: string, value: string): void {
     updateTokenFormState({ [symbol]: value })
