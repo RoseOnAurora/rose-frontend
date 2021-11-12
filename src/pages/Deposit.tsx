@@ -114,6 +114,13 @@ function Deposit({ poolName }: Props): ReactElement | null {
     return null
   }, [isMetaSwap, chainId, library, POOL.metaSwapAddresses, account])
 
+  const exceedsWallet = allTokens.some(({ symbol }) => {
+    const exceedsBoolean = (tokenBalances?.[symbol] || Zero).lt(
+      BigNumber.from(tokenFormState[symbol].valueSafe),
+    )
+    return exceedsBoolean
+  })
+
   useEffect(() => {
     // evaluate if a new deposit will exceed the pool's per-user limit
     async function calculateMaxDeposits(): Promise<void> {
@@ -121,7 +128,8 @@ function Deposit({ poolName }: Props): ReactElement | null {
         poolContract == null ||
         userShareData == null ||
         poolData == null ||
-        account == null
+        account == null ||
+        exceedsWallet
       ) {
         setEstDepositLPTokenAmount(Zero)
         return
@@ -183,6 +191,7 @@ function Deposit({ poolName }: Props): ReactElement | null {
     metaSwapContract,
     shouldDepositWrapped,
     allTokens,
+    exceedsWallet,
   ])
 
   // A represention of tokens used for UI
@@ -196,13 +205,6 @@ function Deposit({ poolName }: Props): ReactElement | null {
     max: formatBNToString(tokenBalances?.[symbol] || Zero, decimals),
     inputValue: tokenFormState[symbol].valueRaw,
   }))
-
-  const exceedsWallet = allTokens.some(({ symbol }) => {
-    const exceedsBoolean = (tokenBalances?.[symbol] || Zero).lt(
-      BigNumber.from(tokenFormState[symbol].valueSafe),
-    )
-    return exceedsBoolean
-  })
 
   async function onConfirmTransaction(): Promise<ContractReceipt | void> {
     const receipt = await approveAndDeposit(

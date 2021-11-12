@@ -72,7 +72,9 @@ const Web3Status = (): ReactElement => {
             openOptions={() => setWalletView(WALLET_VIEWS.OPTIONS)}
           />
         ) : walletConnected && walletView !== WALLET_VIEWS.OPTIONS ? (
-          <SupportedChains />
+          <SupportedChains
+            openOptions={() => setWalletView(WALLET_VIEWS.OPTIONS)}
+          />
         ) : (
           <ConnectWallet onClose={(): void => setModalOpen(false)} />
         )}

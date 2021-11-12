@@ -38,47 +38,51 @@ function Withdraw({ poolName }: Props): ReactElement {
   useEffect(() => {
     // evaluate if a new withdraw will exceed the pool's per-user limit
     async function calculateWithdrawBonus(): Promise<void> {
-      if (
-        poolContract == null ||
-        userShareData == null ||
-        poolData == null ||
-        account == null
-      ) {
-        return
-      }
-      const tokenInputSum = parseUnits(
-        POOL.poolTokens
-          .reduce(
-            (sum, { symbol }) =>
-              sum + (+withdrawFormState.tokenInputs[symbol].valueRaw || 0),
-            0,
-          )
-          .toString(),
-        18,
-      )
-      let withdrawLPTokenAmount
-      if (poolData.totalLocked.gt(0) && tokenInputSum.gt(0)) {
-        const txnAmounts: [string, string, string] = [
-          withdrawFormState.tokenInputs[POOL.poolTokens[0].symbol].valueSafe,
-          withdrawFormState.tokenInputs[POOL.poolTokens[1].symbol].valueSafe,
-          withdrawFormState.tokenInputs[POOL.poolTokens[2].symbol].valueSafe,
-        ]
-        withdrawLPTokenAmount = await poolContract.calc_token_amount(
-          txnAmounts,
-          false,
+      try {
+        if (
+          poolContract == null ||
+          userShareData == null ||
+          poolData == null ||
+          account == null
+        ) {
+          return
+        }
+        const tokenInputSum = parseUnits(
+          POOL.poolTokens
+            .reduce(
+              (sum, { symbol }) =>
+                sum + (+withdrawFormState.tokenInputs[symbol].valueRaw || 0),
+              0,
+            )
+            .toString(),
+          18,
         )
-      } else {
-        // when pool is empty, estimate the lptokens by just summing the input instead of calling contract
-        withdrawLPTokenAmount = tokenInputSum
+        let withdrawLPTokenAmount
+        if (poolData.totalLocked.gt(0) && tokenInputSum.gt(0)) {
+          const txnAmounts: [string, string, string] = [
+            withdrawFormState.tokenInputs[POOL.poolTokens[0].symbol].valueSafe,
+            withdrawFormState.tokenInputs[POOL.poolTokens[1].symbol].valueSafe,
+            withdrawFormState.tokenInputs[POOL.poolTokens[2].symbol].valueSafe,
+          ]
+          withdrawLPTokenAmount = await poolContract.calc_token_amount(
+            txnAmounts,
+            false,
+          )
+        } else {
+          // when pool is empty, estimate the lptokens by just summing the input instead of calling contract
+          withdrawLPTokenAmount = tokenInputSum
+        }
+        setEstWithdrawBonus(
+          calculatePriceImpact(
+            withdrawLPTokenAmount,
+            tokenInputSum,
+            poolData.virtualPrice,
+            true,
+          ),
+        )
+      } catch {
+        // pass here for now - fix later with hook
       }
-      setEstWithdrawBonus(
-        calculatePriceImpact(
-          withdrawLPTokenAmount,
-          tokenInputSum,
-          poolData.virtualPrice,
-          true,
-        ),
-      )
     }
     void calculateWithdrawBonus()
   }, [
