@@ -145,12 +145,13 @@ const SwapPage = (props: Props): ReactElement => {
             <h3 className="swapTitle">{t("to")}</h3>
             <Button
               variant="light"
-              size="lg"
+              width="50px"
+              size="sm"
               onClick={onClickReverseExchangeDirection}
               disabled={!fromState.symbol || !toState.symbol || !!error}
             >
-              <FaArrowUp size="2em" />
-              <FaArrowDown size="2em" />
+              <FaArrowUp size="1em" />
+              <FaArrowDown size="1em" />
             </Button>
           </div>
           <div className="row">

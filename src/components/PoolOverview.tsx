@@ -175,11 +175,14 @@ export default function PoolOverview({
           <div className="row">
             <h4 className="title">{farmName}</h4>
             <div className="farmButton">
-              <Link to={`${poolRoute}/farm`}>
-                <Button kind="primary" disabled={!hasShare}>
-                  {t("Farm")}
-                </Button>
-              </Link>
+              <ToolTip content={t("underconstruction")}>
+                <Link to="/pools">
+                  {/* disabling farm for now - under construction */}
+                  <Button kind="primary" disabled={true}>
+                    <span className="underline">{t("Farm")}</span>
+                  </Button>
+                </Link>
+              </ToolTip>
             </div>
           </div>
           <div className="farmDescription">

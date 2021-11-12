@@ -113,7 +113,7 @@ function StakePage(props: Props): ReactElement {
   }
 
   return (
-    <>
+    <div className={styles.stakePage}>
       <div className={styles.stakeForm}>
         <Modal
           isOpen={!!currentModal}
@@ -198,7 +198,19 @@ function StakePage(props: Props): ReactElement {
           formatBNToString(staked.amount || Zero, staked.decimals || 0, 6),
         )}
       />
-    </>
+      <div className={styles.stakeInfo}>
+        <div className={styles.stakeInfoContainer}>
+          <h3>{t("stakingInformation")}</h3>
+          <div className={styles.infoMessage}>
+            <span>
+              Stake your ROSE in order to accrue protocol fees in stROSE. After
+              staking, the stROSE is locked for <b>24 hours</b> before transfers
+              or withdraws can be made.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

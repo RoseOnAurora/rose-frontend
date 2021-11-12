@@ -2,6 +2,7 @@
 @import "../styles/viewports";
 
 .stakeDetailsContainer {
+  grid-area: rightBlock;
   background: var(--background-element);
   border: 1px solid var(--outline);
   box-shadow: var(--shadow);
@@ -13,7 +14,7 @@
   @include breakpoint(md) {
     width: 100%;
     flex-direction: row;
-    order: 0;
+    order: 3;
   }
 
   .stakeDetails {

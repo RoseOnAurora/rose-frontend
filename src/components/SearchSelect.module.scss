@@ -3,8 +3,7 @@
 
 .searchSelect {
   padding: 16px 8px 0 8px;
-  background-color: var(--primary-background);
-  border: 1px solid var(--outline-gray);
+  background-color: var(--primary-background-dropdown);
   border-radius: 8px;
   max-height: 350px;
   max-width: 500px;
@@ -23,7 +22,7 @@
   input {
     flex: 1;
     height: 32px;
-    background-color: var(--primary-background);
+    background-color: var(--primary-background-dropdown);
     margin: 0 8px;
     padding: 0 8px;
     color: var(--primary-foreground);

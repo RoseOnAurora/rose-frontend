@@ -4,7 +4,7 @@ import "./NotifyStyle.scss"
 import { AppDispatch, AppState } from "../state"
 import { BLOCK_TIME, POOLS_MAP } from "../constants"
 import React, { ReactElement, Suspense, useCallback, useEffect } from "react"
-import { Route, Switch } from "react-router-dom"
+import { Redirect, Route, Switch } from "react-router-dom"
 import { isChainSupportedByNotify, notify } from "../utils/notifyHandler"
 import { useDispatch, useSelector } from "react-redux"
 
@@ -63,7 +63,10 @@ export default function App(): ReactElement {
                   path={`/pools/${route}/farm`}
                   render={(props) => <Farm {...props} poolName={name} />}
                   key={`${name}-farm`}
-                />
+                >
+                  {/* redirect to main page for now if user lands on page somehow */}
+                  <Redirect to="/" />
+                </Route>
               ))}
             </Switch>
             <BottomMenu />

@@ -82,6 +82,7 @@ const FarmPage = (props: Props): ReactElement => {
       <HarvestRewards rewardBalance={rewardsEarned} handleModal={updateModal} />
       <FarmFooter
         deposited={props.deposited}
+        hasRewards={+rewardsEarned > 0}
         handler={exit}
         handleModal={updateModal}
       ></FarmFooter>
