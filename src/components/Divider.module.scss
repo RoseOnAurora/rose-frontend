@@ -1,6 +1,8 @@
+@import "../styles/theme";
+
 .divider {
   display: flex;
   width: 100%;
-  border-top: 1px solid var(--primary-foreground);
+  border-top: 1px solid $black30;
   height: 1px;
 }

@@ -45,17 +45,15 @@ const Stake = (): ReactElement => {
     }
   }, [tokenBalances])
   return (
-    <div className={styles.stakePage}>
+    <div className={styles.stake}>
       <TopMenu activeTab="stake" />
       <div className={styles.container}>
-        <div className={styles.content}>
-          <StakePage
-            balance={tokenBalanceDetails.balance}
-            staked={tokenBalanceDetails.staked}
-            approveStake={stake}
-            approveUnstake={unstake}
-          />
-        </div>
+        <StakePage
+          balance={tokenBalanceDetails.balance}
+          staked={tokenBalanceDetails.staked}
+          approveStake={stake}
+          approveUnstake={unstake}
+        />
       </div>
     </div>
   )

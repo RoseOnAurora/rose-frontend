@@ -39,6 +39,7 @@ ul {
 :root {
   --primary-foreground: #000;
   --primary-background: #fff;
+  --primary-background-dropdown: #fff;
   --background: linear-gradient(to right, #fffbd5, #d88394);
   // --background: linear-gradient(to right, #d9a7c7, #fffcdc);
   --background-lightgrey: #dfdde3;
@@ -71,6 +72,7 @@ ul {
 body.dark {
   --primary-foreground: #fff;
   --primary-background: #000;
+  --primary-background-dropdown: #0e1818;
   // --background: linear-gradient(to right, #3a1c71, #d76d77, #ffaf7b);
   --background: linear-gradient(to right, #200122, #6f0000);
   --background-lightgrey: #{$black80};

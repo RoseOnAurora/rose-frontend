@@ -10,13 +10,14 @@ import { useTranslation } from "react-i18next"
 
 interface Props {
   deposited: BigNumber
+  hasRewards: boolean
   handler: () => Promise<ContractReceipt | void>
   handleModal: (modalType: ModalType, tx?: string | undefined) => void
 }
 
 const FarmFooter = (props: Props): ReactElement => {
   const { t } = useTranslation()
-  const { deposited, handler, handleModal } = props
+  const { deposited, hasRewards, handler, handleModal } = props
   return (
     <div className={styles.farmFooter}>
       <BackButton
@@ -27,7 +28,7 @@ const FarmFooter = (props: Props): ReactElement => {
       <Button
         kind="secondary"
         size="xlarge"
-        disabled={deposited.lte(Zero)}
+        disabled={deposited.lte(Zero) || !hasRewards}
         onClick={async () => {
           handleModal(ModalType.CONFIRM)
           const receipt = await handler()

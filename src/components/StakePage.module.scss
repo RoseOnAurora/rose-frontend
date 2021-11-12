@@ -1,14 +1,37 @@
 @import "../styles/theme";
 @import "../styles/viewports";
 
+div.stakePage {
+  width: 100%;
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: 58% 38%;
+  grid-template-rows: auto;
+  row-gap: 10px;
+  column-gap: 10px;
+  grid-template-areas: 
+    "header header"
+    "leftBlock rightBlock";
+  justify-content: center;
+
+  @include breakpoint(md) {
+    padding-left: 4px;
+    padding-right: 4px;
+    flex-wrap: wrap;
+    display: flex;
+  }
+}
+
 div.stakeForm {
+  grid-area: leftBlock;
   background: var(--background-element);
   box-shadow: var(--shadow);
   border: 1px solid var(--outline);
   border-radius: 10px;
   padding: 24px;
   @include breakpoint(md) {
-    order: 1;
+    width: 100%;
+    order: 2;
   }
 
   .pill {
@@ -100,6 +123,44 @@ div.stakeForm {
     line-height: 30px;
     @include breakpoint(sm) {
       font-size: 19px;
+    }
+  }
+}
+
+div.stakeInfo {
+  grid-area: header;
+  display: flex;
+  justify-content: space-between;
+  background: var(--background-element);
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  padding: 20px;
+
+  @include breakpoint(md) {
+    width: 100%;
+    order: 1;
+  }
+
+  h3 {
+    font-family: $font-family-title;
+    font-size: 30px;
+    font-weight: $bold;
+    line-height: 1.7em;
+    margin-bottom: 10px;
+    @include breakpoint(sm) {
+      font-size: 25px;
+    }
+  }
+
+  .stakeInfoContainer {
+    background: #cc3a5a0c;
+    border: 1px solid var(--outline);
+    border-radius: 10px;
+    padding: 24px;
+    width: 100%;
+
+    .infoMessage {
+      text-align: justify;
     }
   }
 }
