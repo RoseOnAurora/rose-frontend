@@ -66,7 +66,7 @@ function StakePage(props: Props): ReactElement {
     if (!decimalRegex.exec(amount)) {
       return t("Amount must be a valid number up to 18 decimal points.")
     }
-    if (+amount <= 0) {
+    if (parseUnits(amount, 18).lte(Zero)) {
       return t("Amount must be greater than zero!")
     }
     return null
@@ -151,7 +151,7 @@ function StakePage(props: Props): ReactElement {
                 max={formatBNToString(
                   balance.amount || Zero,
                   balance.decimals || 0,
-                  6,
+                  balance.decimals,
                 )}
                 handlePreSubmit={() => updateModal(ModalType.CONFIRM)}
                 handleSubmit={approveStake}
@@ -179,7 +179,7 @@ function StakePage(props: Props): ReactElement {
                 max={formatBNToString(
                   staked.amount || Zero,
                   staked.decimals || 0,
-                  6,
+                  balance.decimals,
                 )}
                 handlePreSubmit={() => updateModal(ModalType.CONFIRM)}
                 handleSubmit={approveUnstake}

@@ -45,7 +45,26 @@ export default function SwapInput({
     },
     [onSelect],
   )
+
   const selectedToken = TOKENS_MAP[selected]
+
+  const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const decimals = selectedToken ? selectedToken.decimals : 18
+    // remove all chars that aren't a digit or a period
+    const newValue = e.target.value.replace(/[^\d|.]/g, "")
+    // disallow more than one period
+    if (newValue.indexOf(".") !== newValue.lastIndexOf(".")) return
+    const parsedValue = parseFloat("0" + newValue)
+    const periodIndex = newValue.indexOf(".")
+    const isValidInput = newValue === "" || !isNaN(parsedValue)
+    const isValidPrecision =
+      periodIndex === -1 || newValue.length - 1 - periodIndex <= decimals
+    if (isValidInput && isValidPrecision) {
+      // don't allow input longer than the token allows
+      onChangeAmount?.(newValue)
+    }
+  }
+
   return (
     <div className={styles.swapInputContainer}>
       <div
@@ -102,13 +121,7 @@ export default function SwapInput({
           placeholder="0.0"
           spellCheck="false"
           value={isSwapFrom ? inputValue : commify(inputValue)}
-          onChange={(e) => {
-            // remove all chars that aren't a digit or a period
-            const newValue = e.target.value.replace(/[^\d|.]/g, "")
-            // disallow more than one period
-            if (newValue.indexOf(".") !== newValue.lastIndexOf(".")) return
-            onChangeAmount?.(newValue)
-          }}
+          onChange={onChangeInput}
           onFocus={(e: React.ChangeEvent<HTMLInputElement>): void => {
             if (isSwapFrom) {
               e.target.select()

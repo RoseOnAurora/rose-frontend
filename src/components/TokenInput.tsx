@@ -45,14 +45,18 @@ function TokenInput({
 
   function onChangeInput(e: React.ChangeEvent<HTMLInputElement>): void {
     const { decimals } = TOKENS_MAP[symbol]
-    const parsedValue = parseFloat("0" + e.target.value)
-    const periodIndex = e.target.value.indexOf(".")
-    const isValidInput = e.target.value === "" || !isNaN(parsedValue)
+    // remove all chars that aren't a digit or a period
+    const newValue = e.target.value.replace(/[^\d|.]/g, "")
+    // disallow more than one period
+    if (newValue.indexOf(".") !== newValue.lastIndexOf(".")) return
+    const parsedValue = parseFloat("0" + newValue)
+    const periodIndex = newValue.indexOf(".")
+    const isValidInput = newValue === "" || !isNaN(parsedValue)
     const isValidPrecision =
-      periodIndex === -1 || e.target.value.length - 1 - periodIndex <= decimals
+      periodIndex === -1 || newValue.length - 1 - periodIndex <= decimals
     if (isValidInput && isValidPrecision) {
       // don't allow input longer than the token allows
-      onChange(e.target.value)
+      onChange(newValue)
     }
   }
 

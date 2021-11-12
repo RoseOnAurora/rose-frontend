@@ -56,7 +56,7 @@ const FarmTabs = (props: Props): ReactElement => {
     if (!decimalRegex.exec(amount)) {
       return t("Amount must be a valid number up to 18 decimal points.")
     }
-    if (+amount <= 0) {
+    if (parseUnits(amount, 18).lte(Zero)) {
       return t("Amount must be greater than zero!")
     }
     return null
@@ -94,7 +94,7 @@ const FarmTabs = (props: Props): ReactElement => {
               fieldName={"deposit"}
               token={lpTokenName}
               tokenIcon={"🌹"}
-              max={formatBNToString(balance || Zero, 18, 6)}
+              max={formatBNToString(balance || Zero, 18, 18)}
               handleSubmit={farm}
               handlePostSubmit={postDeposit}
               handlePreSubmit={() => handleModal(ModalType.CONFIRM)}
@@ -109,7 +109,7 @@ const FarmTabs = (props: Props): ReactElement => {
               fieldName={"withdraw"}
               token={lpTokenName}
               tokenIcon={"🌹"}
-              max={formatBNToString(deposited || Zero, 18, 6)}
+              max={formatBNToString(deposited || Zero, 18, 18)}
               handleSubmit={withdraw}
               validator={validateDeposited}
               handlePostSubmit={postWithdraw}

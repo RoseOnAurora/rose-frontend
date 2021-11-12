@@ -90,6 +90,9 @@ const WithdrawPage = (props: Props): ReactElement => {
         <div className="left">
           <div className="form">
             <h3>{t("withdraw")}</h3>
+            {formStateData.error ? (
+              <div className="error">{formStateData.error.message}</div>
+            ) : null}
             <div className="horizontalDisplay">
               <RadioButton
                 checked={formStateData.withdrawType === "ALL"}

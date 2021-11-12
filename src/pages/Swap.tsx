@@ -209,6 +209,16 @@ function Swap(): ReactElement {
       let amountMediumSynth = Zero
       if (amountToGive.gt(tokenBalances[formStateArg.from.symbol] || Zero)) {
         error = t("insufficientBalance")
+        setFormState((prevState) => ({
+          ...prevState,
+          error,
+          to: {
+            ...prevState.to,
+            value: Zero,
+          },
+          priceImpact: Zero,
+        }))
+        return
       }
       if (amountToGive.isZero()) {
         amountToReceive = Zero
@@ -353,7 +363,11 @@ function Swap(): ReactElement {
         error: null,
         from: {
           symbol: prevState.to.symbol,
-          value: prevState.from.value,
+          value: parseFloat(
+            (+prevState.from.value).toFixed(
+              TOKENS_MAP[prevState.to.symbol].decimals,
+            ),
+          ).toString(),
           valueUSD: calculatePrice(
             prevState.from.value,
             tokenPricesUSD?.[prevState.to.symbol],

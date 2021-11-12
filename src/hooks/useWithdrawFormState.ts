@@ -165,7 +165,7 @@ export default function useWithdrawFormState(
         //   }
       } else {
         try {
-          if (state.percentage) {
+          if (state.withdrawType !== ALL && state.percentage) {
             const tokenIndex = POOL.poolTokens.findIndex(
               ({ symbol }) => symbol === state.withdrawType,
             )

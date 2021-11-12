@@ -179,7 +179,11 @@ export function calculatePrice(
   // returns amount * price as BN 18 precision
   if (typeof amount === "string") {
     if (isNaN(+amount)) return Zero
-    return parseUnits((+amount * tokenPrice).toFixed(2), 18)
+    // kind of hacky, but need to prevent underflow error on large numbers
+    return parseUnits(
+      (+amount * tokenPrice).toLocaleString("fullwide", { useGrouping: false }),
+      18,
+    )
   } else if (decimals != null) {
     return amount
       .mul(parseUnits(tokenPrice.toFixed(2), 18))

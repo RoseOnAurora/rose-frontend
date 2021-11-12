@@ -6,6 +6,21 @@ div.supportedChains {
   background: var(--background);
   border-radius: 8px;
 
+  .textStyle {
+    padding-top: 20px;
+    color: var(--text-primary);
+    font-weight: $medium;
+    outline: none;
+
+    svg {
+      fill: var(--text-primary);
+    }
+  }
+
+  .buttonGroupIcon {
+    margin-right: 4px;
+  }
+
   .chainList {
     display: grid;
     grid-template-rows: auto;
