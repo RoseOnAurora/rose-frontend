@@ -202,7 +202,7 @@ export const STABLECOIN_SWAP_V2_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "0xbf9fBFf01664500A33080Da5d437028b07DFcC55",
   [ChainId.AURORA_TESTNET]: "0x2Ec594949EC5CaEb1430B61FE20aEEe6655756ed",
-  [ChainId.AURORA_MAINNET]: "",
+  [ChainId.AURORA_MAINNET]: "0x5266085a0A076a76328f4B56F1ad3eCdD1fFD5DB",
 }
 
 export const BTC_SWAP_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -280,7 +280,7 @@ export const STABLECOIN_SWAP_V2_TOKEN_CONTRACT_ADDRESSES: {
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "0xC863F1F636fddce400E7515eCBDAbbEc4d1E0390",
   [ChainId.AURORA_TESTNET]: "0xFDE5214eF60617fb63A688C9C51cF5262254B4b7",
-  [ChainId.AURORA_MAINNET]: "0xe3520349F477A5F6EB06107066048508498A291b", // @TODO this is actually dai so the multicall doesnt fail - needs to be changed
+  [ChainId.AURORA_MAINNET]: "0x0D1360996CecfdA09c42b0fBF64c96EF1cD02171",
 }
 
 export const WCUSD_SWAP_TOKEN_CONTRACT_ADDRESSES: {
@@ -775,7 +775,7 @@ export const ROSE_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xfbBfA407fb908e4D58145762788062521C816332",
-  [ChainId.AURORA_MAINNET]: "",
+  [ChainId.AURORA_MAINNET]: "0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970",
 }
 
 export const ROSE = new Token(
@@ -792,7 +792,7 @@ export const SROSE_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x777764757A453327fBfb8f3a979C7F2E58c0F9aD",
-  [ChainId.AURORA_MAINNET]: "",
+  [ChainId.AURORA_MAINNET]: "0xe23d2289FBca7De725DC21a13fC096787A85e16F",
 }
 
 export const SROSE = new Token(
