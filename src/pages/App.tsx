@@ -8,6 +8,7 @@ import { Redirect, Route, Switch } from "react-router-dom"
 import { isChainSupportedByNotify, notify } from "../utils/notifyHandler"
 import { useDispatch, useSelector } from "react-redux"
 
+import Banner from "../components/Banner"
 import BottomMenu from "../components/BottomMenu"
 import Deposit from "./Deposit"
 import Farm from "./Farm"
@@ -20,11 +21,13 @@ import Withdraw from "./Withdraw"
 import fetchSwapStats from "../utils/getSwapStats"
 import fetchTokenPricesUSD from "../utils/updateTokenPrices"
 import { useActiveWeb3React } from "../hooks"
+import { useColorModeValue } from "@chakra-ui/react"
 import usePoller from "../hooks/usePoller"
 
 export default function App(): ReactElement {
   const { chainId } = useActiveWeb3React()
   const { userDarkMode } = useSelector((state: AppState) => state.user)
+  const bannerBg = useColorModeValue("#a2d2ff", "#d2f1e4")
 
   useEffect(() => {
     notify?.config({
@@ -37,6 +40,19 @@ export default function App(): ReactElement {
       <Web3ReactManager>
         <GasAndTokenPrices>
           <PendingSwapsProvider>
+            <Banner
+              variant="solid"
+              color="black"
+              bg={bannerBg}
+              bannerTitle="New Features Launching Soon!"
+              bannerMessage="ROSE/stROSE tokens are launching soon. Borrow and farm pages will also be live within the coming weeks."
+              status="info"
+              position="sticky"
+              top="0"
+              zIndex="3"
+              border="none"
+              boxShadow="2px 2px 12px rgba(68, 64, 64, 0.14)"
+            />
             <Switch>
               <Route exact path="/" component={Swap} />
               <Route exact path="/pools" component={Pools} />
