@@ -44,8 +44,8 @@ export default function App(): ReactElement {
               variant="solid"
               color="black"
               bg={bannerBg}
-              bannerTitle="New Features Launching Soon!"
-              bannerMessage="ROSE/stROSE tokens are launching soon. Borrow and farm pages will also be live within the coming weeks."
+              bannerTitle="IDO on NearPad’s launchpad soon!"
+              bannerMessage="ROSE/stROSE tokens are launching soon to provide rewards to liquidity providers and distribute protocol fees."
               status="info"
               position="sticky"
               top="0"
