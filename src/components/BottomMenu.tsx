@@ -1,5 +1,6 @@
-import { FaGithub, FaMedium, FaTelegram, FaTwitter } from "react-icons/fa"
+import { FaGithub, FaTelegram, FaTwitter } from "react-icons/fa"
 import React, { ReactElement } from "react"
+import { BsMedium } from "react-icons/bs"
 import styles from "./BottomMenu.module.scss"
 
 function BottomMenu(): ReactElement | null {
@@ -10,7 +11,7 @@ function BottomMenu(): ReactElement | null {
           <FaTwitter />
         </a>
         <a href="https://medium.com/@roseonaurora">
-          <FaMedium />
+          <BsMedium />
         </a>
         <a href="https://t.me/RoseOnAurora">
           <FaTelegram />
