@@ -65,6 +65,11 @@ function TopMenu({ activeTab }: Props): ReactElement {
             </Link>
           </ToolTip>
         </li>
+        <li>
+          <a href="https://rainbowbridge.app/transfer">
+            Bridge<sup>↗</sup>
+          </a>
+        </li>
       </ul>
       <Web3Status />
       <ThemeChanger />

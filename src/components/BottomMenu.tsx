@@ -19,13 +19,6 @@ function BottomMenu(): ReactElement | null {
           <FaGithub />
         </a>
       </div>
-      <div className={styles.right}>
-        <small>
-          <a href="https://rainbowbridge.app/transfer">
-            Bridge from Ethereum or NEAR<sup>↗</sup>
-          </a>
-        </small>
-      </div>
     </div>
   )
 }
