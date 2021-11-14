@@ -40,12 +40,12 @@ ul {
   --primary-foreground: #000;
   --primary-background: #fff;
   --primary-background-dropdown: #fff;
-  --background: linear-gradient(to bottom, #e9789a, #f5ddbe);
+  --background: linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9);
   // --background: linear-gradient(to right, #d9a7c7, #fffcdc);
   --background-lightgrey: #dfdde3;
   --background-element: rgba(255, 255, 244, 0.7);
   --background-element-hover: rgba(255, 255, 255, 0.88);
-  --background-main: linear-gradient(to bottom, #e9789a, #f5ddbe);
+  --background-main: linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9);
   --background-logo: #{$primary};
   --secondary-button: #{$primary-muted};
   --secondary-button-background-color-disabled: #f1cac8;
@@ -79,17 +79,17 @@ body.dark {
   --background-element: rgba(0, 0, 0, 0.7);
   --background-element-hover: rgba(0, 0, 0, 0.8);
   --background-main: linear-gradient(to right, #141414, #200122, #791038);
-  --background-logo: linear-gradient(to bottom, #e9789a, #f5ddbe);
+  --background-logo: linear-gradient(to right, #f7819a, #ebd9c2, #e9d9e4);
   --secondary-button: #{$primary-darker};
   --secondary-button-background-color-disabled: #340810;
   --option-hover: #{$primary-blue-dark};
   --tab: #{$white};
 
   --text: #fff;
-  --text-darker: linear-gradient(to bottom, #e9789a, #f5ddbe);
+  --text-darker: linear-gradient(to right, #f7819a, #ebd9c2);
   --text-lighter: #bbbbbb;
   --text-lightest: #888888;
-  --text-title: linear-gradient(to bottom, #e9789a, #f5ddbe);
+  --text-title: linear-gradient(to right, #f7819a, #ebd9c2);
   --text-primary: #{$primary};
   --text-selected: #{$primary};
   --text-secondary-button: #{$primary};
