@@ -74,11 +74,11 @@ body.dark {
   --primary-background: #000;
   --primary-background-dropdown: #0e1818;
   // --background: linear-gradient(to right, #3a1c71, #d76d77, #ffaf7b);
-  --background: linear-gradient(to right, #200122, #6f0000);
+  --background: linear-gradient(to right, #141414, #200122, #630924);
   --background-lightgrey: #{$black80};
   --background-element: rgba(0, 0, 0, 0.7);
   --background-element-hover: rgba(0, 0, 0, 0.8);
-  --background-main: linear-gradient(to right, #200122, #6f0000);
+  --background-main: linear-gradient(to right, #141414, #200122, #630924);
   --background-logo: linear-gradient(to right, #fffbd5, #d88394);
   --secondary-button: #{$primary-darker};
   --secondary-button-background-color-disabled: #340810;
