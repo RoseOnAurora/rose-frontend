@@ -6,7 +6,7 @@ div.bottommenu {
   width: 100%;
   display: flex;
   flex-flow: row;
-  justify-content: space-between;
+  justify-content: space-evenly;
   padding: 0 20px;
   color: var(--text);
 }
