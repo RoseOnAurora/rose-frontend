@@ -24,7 +24,7 @@ function chainIdToName(chainId: number | undefined) {
     case ChainId.AURORA_TESTNET:
       return "Aurora Testnet"
     case ChainId.AURORA_MAINNET:
-      return "Aurora Mainnet"
+      return "Aurora"
     default:
       return "Unknown Network"
   }
