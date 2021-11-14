@@ -1,12 +1,12 @@
 {
   "files": {
-    "main.css": "./static/css/main.64176ea4.chunk.css",
-    "main.js": "./static/js/main.d34a33b8.chunk.js",
-    "main.js.map": "./static/js/main.d34a33b8.chunk.js.map",
-    "runtime-main.js": "./static/js/runtime-main.04458c2c.js",
-    "runtime-main.js.map": "./static/js/runtime-main.04458c2c.js.map",
-    "static/js/2.6fcb3cba.chunk.js": "./static/js/2.6fcb3cba.chunk.js",
-    "static/js/2.6fcb3cba.chunk.js.map": "./static/js/2.6fcb3cba.chunk.js.map",
+    "main.css": "./static/css/main.9f4ae3f4.chunk.css",
+    "main.js": "./static/js/main.0dea8f43.chunk.js",
+    "main.js.map": "./static/js/main.0dea8f43.chunk.js.map",
+    "runtime-main.js": "./static/js/runtime-main.6d37efb7.js",
+    "runtime-main.js.map": "./static/js/runtime-main.6d37efb7.js.map",
+    "static/js/2.1ceed89c.chunk.js": "./static/js/2.1ceed89c.chunk.js",
+    "static/js/2.1ceed89c.chunk.js.map": "./static/js/2.1ceed89c.chunk.js.map",
     "static/js/3.464f1ff8.chunk.js": "./static/js/3.464f1ff8.chunk.js",
     "static/js/3.464f1ff8.chunk.js.map": "./static/js/3.464f1ff8.chunk.js.map",
     "static/js/4.8cb24669.chunk.js": "./static/js/4.8cb24669.chunk.js",
@@ -14,8 +14,8 @@
     "static/js/5.2d2e97fc.chunk.js": "./static/js/5.2d2e97fc.chunk.js",
     "static/js/5.2d2e97fc.chunk.js.map": "./static/js/5.2d2e97fc.chunk.js.map",
     "index.html": "./index.html",
-    "static/css/main.64176ea4.chunk.css.map": "./static/css/main.64176ea4.chunk.css.map",
-    "static/js/2.6fcb3cba.chunk.js.LICENSE.txt": "./static/js/2.6fcb3cba.chunk.js.LICENSE.txt",
+    "static/css/main.9f4ae3f4.chunk.css.map": "./static/css/main.9f4ae3f4.chunk.css.map",
+    "static/js/2.1ceed89c.chunk.js.LICENSE.txt": "./static/js/2.1ceed89c.chunk.js.LICENSE.txt",
     "static/js/3.464f1ff8.chunk.js.LICENSE.txt": "./static/js/3.464f1ff8.chunk.js.LICENSE.txt",
     "static/media/global.scss": "./static/media/NeueMachina-Regular.d305d299.woff2",
     "static/media/aleth.3dd80ea7.svg": "./static/media/aleth.3dd80ea7.svg",
@@ -48,9 +48,9 @@
     "static/media/weth.32818c6c.svg": "./static/media/weth.32818c6c.svg"
   },
   "entrypoints": [
-    "static/js/runtime-main.04458c2c.js",
+    "static/js/runtime-main.6d37efb7.js",
     "static/js/3.464f1ff8.chunk.js",
-    "static/css/main.64176ea4.chunk.css",
-    "static/js/main.d34a33b8.chunk.js"
+    "static/css/main.9f4ae3f4.chunk.css",
+    "static/js/main.0dea8f43.chunk.js"
   ]
 }
