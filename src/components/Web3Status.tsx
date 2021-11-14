@@ -31,7 +31,7 @@ function chainIdToName(chainId: number | undefined) {
 }
 
 const Web3Status = (): ReactElement => {
-  const { account, chainId } = useWeb3React()
+  const { account, chainId, error } = useWeb3React()
   const [modalOpen, setModalOpen] = useState(false)
   const [walletConnected, setWalletConnected] = useState(false)
   void injected.isAuthorized().then((isAuthorized) => {
@@ -60,7 +60,7 @@ const Web3Status = (): ReactElement => {
 
             <Identicon />
           </div>
-        ) : walletConnected ? (
+        ) : error || walletConnected ? (
           <div className="unsupported">{t("unsupported")}</div>
         ) : (
           <div className="noAccount">{t("connectWallet")}</div>
@@ -71,7 +71,8 @@ const Web3Status = (): ReactElement => {
           <AccountDetails
             openOptions={() => setWalletView(WALLET_VIEWS.OPTIONS)}
           />
-        ) : walletConnected && walletView !== WALLET_VIEWS.OPTIONS ? (
+        ) : (error || walletConnected) &&
+          walletView !== WALLET_VIEWS.OPTIONS ? (
           <SupportedChains
             openOptions={() => setWalletView(WALLET_VIEWS.OPTIONS)}
           />

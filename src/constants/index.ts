@@ -1,10 +1,10 @@
-import { injected, walletconnect, walletlink } from "../connectors"
+import { injected, walletconnect } from "../connectors"
 
 import { AbstractConnector } from "@web3-react/abstract-connector"
 import { BigNumber } from "@ethersproject/bignumber"
 import alethLogo from "../assets/icons/aleth.svg"
 import alusdLogo from "../assets/icons/alusd.svg"
-import coinbasewalletIcon from "../assets/icons/coinbasewallet.svg"
+// import coinbasewalletIcon from "../assets/icons/coinbasewallet.svg"
 import daiLogo from "../assets/icons/dai.svg"
 import feiLogo from "../assets/icons/fei.svg"
 import fraxLogo from "../assets/icons/frax.svg"
@@ -953,6 +953,7 @@ export interface WalletInfo {
   name: string
   icon: string
   connector: AbstractConnector
+  isMobile?: boolean
 }
 
 export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
@@ -965,12 +966,13 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     name: "WalletConnect",
     icon: walletconnectIcon,
     connector: walletconnect,
+    isMobile: true,
   },
-  WALLET_LINK: {
-    name: "Coinbase Wallet",
-    icon: coinbasewalletIcon,
-    connector: walletlink,
-  },
+  // WALLET_LINK: {
+  //   name: "Coinbase Wallet",
+  //   icon: coinbasewalletIcon,
+  //   connector: walletlink,
+  // },
 }
 
 export interface ChainInfo {
@@ -979,17 +981,13 @@ export interface ChainInfo {
 }
 
 // kinda hacky, but will change once we update our chain IDs
-export type SupportedChains = ChainId.AURORA_MAINNET | ChainId.AURORA_TESTNET
+export type SupportedChains = ChainId.AURORA_MAINNET
 export const SUPPORTED_CHAINS: {
   [chainId in SupportedChains]: ChainInfo
 } = {
   [ChainId.AURORA_MAINNET]: {
     name: "Aurora Mainnet",
     rpc: "https://mainnet.aurora.dev",
-  },
-  [ChainId.AURORA_TESTNET]: {
-    name: "Aurora Testnet",
-    rpc: "https://testnet.aurora.dev",
   },
 }
 

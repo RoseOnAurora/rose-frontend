@@ -3,7 +3,7 @@ import { BaseProvider, getDefaultProvider } from "@ethersproject/providers"
 import { InjectedConnector } from "@web3-react/injected-connector"
 import { NetworkConnector } from "@web3-react/network-connector"
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector"
-import { WalletLinkConnector } from "@web3-react/walletlink-connector"
+// import { WalletLinkConnector } from "@web3-react/walletlink-connector"
 
 const NETWORK_URL = process.env.REACT_APP_NETWORK_URL
 export const NETWORK_CHAIN_ID: number = parseInt(
@@ -42,7 +42,7 @@ export const walletconnect = new WalletConnectConnector({
   // pollingInterval: POLLING_INTERVAL / 12000
 })
 
-export const walletlink = new WalletLinkConnector({
-  url: NETWORK_URL,
-  appName: "Rose",
-})
+// export const walletlink = new WalletLinkConnector({
+//   url: NETWORK_URL,
+//   appName: "Rose",
+// })
