@@ -23,7 +23,7 @@ div.connectWallet {
     padding: 32px;
 
     & > button {
-      background: var(--background);
+      background: var(--primary-background);
       color: var(--text);
       outline: none;
       border: 1px solid var(--outline);
@@ -54,7 +54,6 @@ div.connectWallet {
   p {
     padding: 24px 32px 32px 32px;
     margin: -24px;
-    background: var(--background);
     border-radius: 8px;
 
     a {
