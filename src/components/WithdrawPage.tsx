@@ -13,7 +13,6 @@ import { ContractReceipt } from "@ethersproject/contracts"
 import Modal from "./Modal"
 import MyShareCard from "./MyShareCard"
 import PoolInfoCard from "./PoolInfoCard"
-import RadioButton from "./RadioButton"
 import ReviewWithdraw from "./ReviewWithdraw"
 import TokenInput from "./TokenInput"
 import TopMenu from "./TopMenu"
@@ -93,7 +92,7 @@ const WithdrawPage = (props: Props): ReactElement => {
             {formStateData.error ? (
               <div className="error">{formStateData.error.message}</div>
             ) : null}
-            <div className="horizontalDisplay">
+            {/* <div className="horizontalDisplay">
               <RadioButton
                 checked={formStateData.withdrawType === "ALL"}
                 onChange={(): void =>
@@ -119,7 +118,7 @@ const WithdrawPage = (props: Props): ReactElement => {
                   />
                 )
               })}
-            </div>
+            </div> */}
             {tokensData.map((token, index) => (
               <div key={index}>
                 <TokenInput
