@@ -21,13 +21,12 @@ import Withdraw from "./Withdraw"
 import fetchSwapStats from "../utils/getSwapStats"
 import fetchTokenPricesUSD from "../utils/updateTokenPrices"
 import { useActiveWeb3React } from "../hooks"
-import { useColorModeValue } from "@chakra-ui/react"
 import usePoller from "../hooks/usePoller"
 
 export default function App(): ReactElement {
   const { chainId } = useActiveWeb3React()
   const { userDarkMode } = useSelector((state: AppState) => state.user)
-  const bannerBg = useColorModeValue("#a2d2ff", "#d2f1e4")
+  const bannerBg = userDarkMode ? "#d2f1e4" : "#a2d2ff"
 
   useEffect(() => {
     notify?.config({
