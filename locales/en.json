@@ -133,6 +133,7 @@
   "stepAOfB": "Step {{a}} of {{b}}",
   "successTitle": "Success!",
   "supportedChains": "Supported Chains",
+  "supportedChainsDescription": "Switch to one of the following chains in your wallet.",
   "swap": "Swap",
   "swapFrom": "Swap from",
   "swappedForAmount": "Swapped for {{amount}}",
