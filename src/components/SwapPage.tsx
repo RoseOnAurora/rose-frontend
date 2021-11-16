@@ -148,7 +148,7 @@ const SwapPage = (props: Props): ReactElement => {
               width="50px"
               size="sm"
               onClick={onClickReverseExchangeDirection}
-              disabled={!fromState.symbol || !toState.symbol || !!error}
+              disabled={!fromState.symbol || !toState.symbol}
             >
               <FaArrowUp size="1em" />
               <FaArrowDown size="1em" />
