@@ -181,7 +181,7 @@ export function calculatePrice(
     if (isNaN(+amount)) return Zero
     // kind of hacky, but need to prevent underflow error on large numbers
     return parseUnits(
-      (+amount * tokenPrice).toLocaleString("fullwide", { useGrouping: false }),
+      (+amount * tokenPrice).toLocaleString("en-US", { useGrouping: false }),
       18,
     )
   } else if (decimals != null) {
