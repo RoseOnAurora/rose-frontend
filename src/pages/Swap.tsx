@@ -182,7 +182,10 @@ function Swap(): ReactElement {
         formStateArg.to.poolName === undefined
       )
         return
-      const cleanedFormFromValue = formStateArg.from.value.replace(/[$,]/g, "") // remove common copy/pasted financial characters
+      const cleanedFormFromValue = (+formStateArg.from.value.replace(
+        /[$,]/g,
+        "",
+      )).toFixed(TOKENS_MAP[formStateArg.from.symbol].decimals)
       if (
         cleanedFormFromValue === "" ||
         isNaN(+cleanedFormFromValue) ||
@@ -324,11 +327,6 @@ function Swap(): ReactElement {
     setFormState((prevState) => {
       const nextState = {
         ...prevState,
-        to: {
-          ...prevState.to,
-          valueUSD: Zero,
-          valueSynth: Zero,
-        },
         from: {
           ...prevState.from,
           value,
@@ -337,8 +335,6 @@ function Swap(): ReactElement {
             tokenPricesUSD?.[prevState.from.symbol],
           ),
         },
-        priceImpact: Zero,
-        exchangeRate: Zero,
       }
       return nextState
     })
@@ -357,7 +353,7 @@ function Swap(): ReactElement {
             (+prevState.from.value).toFixed(
               TOKENS_MAP[prevState.to.symbol].decimals,
             ),
-          ).toString(),
+          ).toLocaleString("en-US", { useGrouping: false }),
           valueUSD: calculatePrice(
             prevState.from.value,
             tokenPricesUSD?.[prevState.to.symbol],
@@ -482,7 +478,12 @@ function Swap(): ReactElement {
       bridgeContract: bridgeContract,
       poolContract: swapContract,
       from: {
-        amount: parseUnits(formState.from.value, fromToken.decimals),
+        amount: parseUnits(
+          (+formState.from.value).toFixed(
+            TOKENS_MAP[formState.to.symbol].decimals,
+          ),
+          fromToken.decimals,
+        ),
         symbol: formState.from.symbol,
         poolName: formState.from.poolName,
         tokenIndex: formState.from.tokenIndex,
