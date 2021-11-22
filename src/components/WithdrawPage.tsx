@@ -89,6 +89,10 @@ const WithdrawPage = (props: Props): ReactElement => {
         <div className="left">
           <div className="form">
             <h3>{t("withdraw")}</h3>
+            <p className="instructions">
+              Type below the amounts you want to withdraw, then click the&nbsp;
+              <b>Remove Liquidity</b> button.
+            </p>
             {formStateData.error ? (
               <div className="error">{formStateData.error.message}</div>
             ) : null}

@@ -66,7 +66,11 @@ function TopMenu({ activeTab }: Props): ReactElement {
           </ToolTip>
         </li>
         <li>
-          <a href="https://rainbowbridge.app/transfer">
+          <a
+            href="https://rainbowbridge.app/transfer"
+            target="_blank"
+            rel="noreferrer"
+          >
             Bridge<sup>↗</sup>
           </a>
         </li>

@@ -82,10 +82,14 @@ div.withdraw {
       font-family: $font-family-title;
       font-size: 30px;
       margin-top: 0;
-      margin-bottom: 48px;
+      margin-bottom: 5px;
       font-weight: $bold;
       color: var(--text-darker);
       text-align: center;
+    }
+
+    .form .instructions {
+      margin-bottom: 48px;
     }
 
     .infoPanels .divider {
