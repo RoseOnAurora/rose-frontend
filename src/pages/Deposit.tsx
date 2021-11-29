@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { DepositTransaction, TransactionItem } from "../interfaces/transactions"
 import { POOLS_MAP, PoolName, Token, isMetaPool } from "../constants"
 import React, { ReactElement, useEffect, useMemo, useState } from "react"
@@ -155,11 +156,9 @@ function Deposit({ poolName }: Props): ReactElement | null {
               )
             : Zero
         } else {
-          const txnAmounts: [BigNumber, BigNumber, BigNumber] = [
-            BigNumber.from(tokenFormState[POOL.poolTokens[0].symbol].valueSafe),
-            BigNumber.from(tokenFormState[POOL.poolTokens[1].symbol].valueSafe),
-            BigNumber.from(tokenFormState[POOL.poolTokens[2].symbol].valueSafe),
-          ]
+          const txnAmounts: BigNumber[] = POOL.poolTokens.map((poolToken) => {
+            return BigNumber.from(tokenFormState[poolToken.symbol].valueSafe)
+          })
           depositLPTokenAmount = await poolContract.calc_token_amount(
             txnAmounts,
             true, // deposit boolean

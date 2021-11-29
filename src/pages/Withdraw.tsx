@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { POOLS_MAP, PoolName } from "../constants"
 import React, { ReactElement, useEffect, useState } from "react"
 import WithdrawPage, { ReviewWithdrawData } from "../components/WithdrawPage"
@@ -59,11 +60,9 @@ function Withdraw({ poolName }: Props): ReactElement {
         )
         let withdrawLPTokenAmount
         if (poolData.totalLocked.gt(0) && tokenInputSum.gt(0)) {
-          const txnAmounts: [string, string, string] = [
-            withdrawFormState.tokenInputs[POOL.poolTokens[0].symbol].valueSafe,
-            withdrawFormState.tokenInputs[POOL.poolTokens[1].symbol].valueSafe,
-            withdrawFormState.tokenInputs[POOL.poolTokens[2].symbol].valueSafe,
-          ]
+          const txnAmounts: string[] = POOL.poolTokens.map((poolToken) => {
+            return withdrawFormState.tokenInputs[poolToken.symbol].valueSafe
+          })
           withdrawLPTokenAmount = await poolContract.calc_token_amount(
             txnAmounts,
             false,

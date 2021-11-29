@@ -2,15 +2,15 @@
 /* eslint @typescript-eslint/no-unsafe-assignment: 0 */
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
+/* eslint @typescript-eslint/no-unsafe-return: 0 */
+import { Contract, ContractReceipt } from "@ethersproject/contracts"
 import { POOLS_MAP, SWAP_TYPES, TRANSACTION_TYPES } from "../constants"
 // import { notifyCustomError, notifyHandler } from "../utils/notifyHandler"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { Bridge } from "../../types/ethers-contracts/Bridge"
-import { ContractReceipt } from "@ethersproject/contracts"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
 import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { subtractSlippage } from "../utils/slippage"
@@ -22,7 +22,7 @@ import { useSelector } from "react-redux"
 import { utils } from "ethers"
 
 type Contracts = {
-  poolContract: RoseStablesPool | null
+  poolContract: Contract | null
   bridgeContract: Bridge | null
 }
 type SwapSide = {

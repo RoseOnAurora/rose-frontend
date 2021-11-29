@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { AddressZero, Zero } from "@ethersproject/constants"
 import {
   ChainId,
@@ -169,29 +170,23 @@ export default function usePoolData(
       ) as MulticallContract<RoseStablesPool>
       const a: MulticallCall<unknown, BigNumber> = multicallPoolContract.A()
       const fee: MulticallCall<unknown, BigNumber> = multicallPoolContract.fee()
-      const dai_balance: MulticallCall<
-        unknown,
-        BigNumber
-      > = multicallPoolContract.balances(0)
-      const usdc_balance: MulticallCall<
-        unknown,
-        BigNumber
-      > = multicallPoolContract.balances(1)
-      const usdt_balance: MulticallCall<
-        unknown,
-        BigNumber
-      > = multicallPoolContract.balances(2)
+      const poolTokenBalances = effectivePoolTokens.map((_, index) => {
+        return multicallPoolContract.balances(index)
+      })
+
       // TODO: make a struct instead of an unfriendly array
       const multicallResFormatted = await ethcallProvider.all(
-        [a, fee, dai_balance, usdc_balance, usdt_balance],
+        [a, fee, ...poolTokenBalances],
         "latest",
       )
       // TODO: kinda hacky way of adjusting decimals, need to do this generically
-      const tokenBalances = [
-        multicallResFormatted[2],
-        multicallResFormatted[3].mul(BigNumber.from(10).pow(12)),
-        multicallResFormatted[4].mul(BigNumber.from(10).pow(12)),
-      ]
+      const tokenBalances = multicallResFormatted
+        .slice(2)
+        .map((balance, index) => {
+          return balance.mul(
+            BigNumber.from(10).pow(18 - effectivePoolTokens[index].decimals),
+          )
+        })
 
       // get lp token balance and total supply
       // TODO: use multicall
