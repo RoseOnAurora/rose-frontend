@@ -432,7 +432,7 @@ export const STABLECOIN_SWAP_V2_TOKEN = new Token(
   STABLECOIN_SWAP_V2_TOKEN_CONTRACT_ADDRESSES,
   18,
   "RoseStablesLP",
-  "usd-coin",
+  "tether", // tracking USDT for now, as we can't fetch price for RoseStablesLP
   "Rose DAI/USDC/USDT",
   roseLogo,
   false,
@@ -774,7 +774,7 @@ const FRAX_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.ROPSTEN]: "0xb295E36469C8Aef7d76b661aD5af02cdB258D662",
   [ChainId.HARDHAT]: "0x851356ae760d987E095750cCeb3bC6014560891C",
   [ChainId.AURORA_TESTNET]: "0x22EE86789837529E2F58Fd6D1dD6B0B26fc1e092",
-  [ChainId.AURORA_MAINNET]: "",
+  [ChainId.AURORA_MAINNET]: "0xda2585430fef327ad8ee44af8f1f989a2a91a3d2",
 }
 export const FRAX = new Token(
   FRAX_CONTRACT_ADDRESSES,

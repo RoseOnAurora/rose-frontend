@@ -2,6 +2,7 @@ import {
   BRIDGE_CONTRACT_ADDRESSES,
   BTC_POOL_NAME,
   DAI,
+  FRAX,
   FRAX_STABLES_LP_POOL_NAME,
   POOLS_MAP,
   PoolName,
@@ -282,6 +283,7 @@ export function useAllContracts(): AllContractsObject | null {
   const daiContract = useTokenContract(DAI) as Erc20
   const usdcContract = useTokenContract(USDC) as Erc20
   const usdtContract = useTokenContract(USDT) as Erc20
+  const fraxContract = useTokenContract(FRAX) as Erc20
   const roseStablesLPContract = useTokenContract(
     STABLECOIN_SWAP_V2_TOKEN,
   ) as RoseStablesLP
@@ -297,6 +299,7 @@ export function useAllContracts(): AllContractsObject | null {
       [DAI.symbol]: daiContract,
       [USDC.symbol]: usdcContract,
       [USDT.symbol]: usdtContract,
+      [FRAX.symbol]: fraxContract,
       [STABLECOIN_SWAP_V2_TOKEN.symbol]: roseStablesLPContract,
     }
   }, [daiContract, usdcContract, usdtContract, roseStablesLPContract])
