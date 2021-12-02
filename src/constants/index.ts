@@ -860,7 +860,7 @@ export const SROSE_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
 export const SROSE = new Token(
   SROSE_CONTRACT_ADDRESSES,
   18,
-  "stRose",
+  "stROSE",
   "strose",
   "Staked Rose Tokens",
   sRoseLogo,
