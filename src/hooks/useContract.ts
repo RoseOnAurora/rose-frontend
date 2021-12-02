@@ -302,5 +302,11 @@ export function useAllContracts(): AllContractsObject | null {
       [FRAX.symbol]: fraxContract,
       [STABLECOIN_SWAP_V2_TOKEN.symbol]: roseStablesLPContract,
     }
-  }, [daiContract, usdcContract, usdtContract, roseStablesLPContract])
+  }, [
+    daiContract,
+    usdcContract,
+    usdtContract,
+    roseStablesLPContract,
+    fraxContract,
+  ])
 }
