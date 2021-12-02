@@ -4,6 +4,7 @@ import {
   PoolName,
   PoolTypes,
   STABLECOIN_POOL_V2_NAME,
+  STAKED_ROSE_LP_POOL_NAME,
 } from "../constants"
 import React, { ReactElement, useState } from "react"
 
@@ -20,6 +21,9 @@ function Pools(): ReactElement | null {
   const [fraxStablesPoolData, fraxStablesUserShareData] = usePoolData(
     FRAX_STABLES_LP_POOL_NAME,
   )
+  const [stRosePoolData, stRoseUserShareData] = usePoolData(
+    STAKED_ROSE_LP_POOL_NAME,
+  )
   const [filter] = useState<PoolTypes | "all" | "outdated">("all")
 
   function getPropsForPool(poolName: PoolName) {
@@ -31,6 +35,14 @@ function Pools(): ReactElement | null {
           userShareData: fraxStablesUserShareData,
           poolRoute: `pools/${POOLS_MAP[poolName].route}`,
           farmName: "Frax Farm",
+        }
+      case STAKED_ROSE_LP_POOL_NAME:
+        return {
+          name: poolName,
+          poolData: stRosePoolData,
+          userShareData: stRoseUserShareData,
+          poolRoute: `pools/${POOLS_MAP[poolName].route}`,
+          farmName: "stRose Farm",
         }
       default:
         return {
