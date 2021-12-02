@@ -1,3 +1,5 @@
+/* eslint @typescript-eslint/no-unsafe-assignment: 0 */
+/* eslint @typescript-eslint/no-unsafe-call: 0 */
 import {
   IS_VIRTUAL_SWAP_ACTIVE,
   POOLS_MAP,
