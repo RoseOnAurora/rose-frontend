@@ -30,7 +30,7 @@ function Pools(): ReactElement | null {
           poolData: fraxStablesPoolData,
           userShareData: fraxStablesUserShareData,
           poolRoute: `pools/${POOLS_MAP[poolName].route}`,
-          farmName: "Frax/StablesLP Farm",
+          farmName: "Frax Farm",
         }
       default:
         return {
