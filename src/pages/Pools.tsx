@@ -1,4 +1,5 @@
 import {
+  FRAX_STABLES_LP_POOL_NAME,
   POOLS_MAP,
   PoolName,
   PoolTypes,
@@ -16,20 +17,30 @@ function Pools(): ReactElement | null {
   const [usdPoolV2Data, usdV2UserShareData] = usePoolData(
     STABLECOIN_POOL_V2_NAME,
   )
+  const [fraxStablesPoolData, fraxStablesUserShareData] = usePoolData(
+    FRAX_STABLES_LP_POOL_NAME,
+  )
   const [filter] = useState<PoolTypes | "all" | "outdated">("all")
 
   function getPropsForPool(poolName: PoolName) {
-    return {
-      name: STABLECOIN_POOL_V2_NAME,
-      poolData: usdPoolV2Data,
-      userShareData: usdV2UserShareData,
-      poolRoute: "/pools/stables",
-      farmName: "Stables Farm",
+    switch (poolName) {
+      case FRAX_STABLES_LP_POOL_NAME:
+        return {
+          name: poolName,
+          poolData: fraxStablesPoolData,
+          userShareData: fraxStablesUserShareData,
+          poolRoute: `pools/${POOLS_MAP[poolName].route}`,
+          farmName: "Frax Farm",
+        }
+      default:
+        return {
+          name: poolName,
+          poolData: usdPoolV2Data,
+          userShareData: usdV2UserShareData,
+          poolRoute: `pools/${POOLS_MAP[poolName].route}`,
+          farmName: "Stables Farm",
+        }
     }
-    console.info(poolName)
-    // multiple pools:
-    // if (poolName === STABLECOIN_POOL_V2_NAME) {
-    // }
   }
   return (
     <div className={styles.poolsPage}>

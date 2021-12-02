@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { POOLS_MAP, PoolName, TRANSACTION_TYPES, Token } from "../constants"
 import {
   useAllContracts,
@@ -13,7 +14,6 @@ import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import META_SWAP_ABI from "../constants/abis/metaSwap.json"
 import { MetaSwap } from "../../types/ethers-contracts/MetaSwap"
 import { NumberInputState } from "../utils/numberInputState"
-import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
 import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { getContract } from "../utils"
@@ -102,12 +102,10 @@ export function useApproveAndDeposit(
         await approveSingleToken(token)
       }
 
-      const effectivePoolContract = effectiveSwapContract as RoseStablesPool
-      const txnAmounts: [BigNumber, BigNumber, BigNumber] = [
-        BigNumber.from(state[poolTokens[0].symbol].valueSafe),
-        BigNumber.from(state[poolTokens[1].symbol].valueSafe),
-        BigNumber.from(state[poolTokens[2].symbol].valueSafe),
-      ]
+      const effectivePoolContract = effectiveSwapContract
+      const txnAmounts: BigNumber[] = poolTokens.map((poolToken) => {
+        return BigNumber.from(state[poolToken.symbol].valueSafe)
+      })
 
       const isFirstTransaction = (await lpTokenContract.totalSupply()).isZero()
       let minToMint: BigNumber
@@ -123,7 +121,7 @@ export function useApproveAndDeposit(
       minToMint = subtractSlippage(minToMint, slippageSelected, slippageCustom)
 
       // const swapFlashLoanContract = effectiveSwapContract as RoseStablesPool
-      const spendTransaction = await effectivePoolContract?.add_liquidity(
+      const spendTransaction = await effectivePoolContract.add_liquidity(
         txnAmounts,
         minToMint,
         {

@@ -1,3 +1,8 @@
+/* eslint @typescript-eslint/no-explicit-any: 0 */
+/* eslint @typescript-eslint/no-unsafe-assignment: 0 */
+/* eslint @typescript-eslint/no-unsafe-call: 0 */
+/* eslint @typescript-eslint/no-unsafe-member-access: 0 */
+/* eslint @typescript-eslint/no-unsafe-return: 0 */
 import { POOLS_MAP, PoolName, TRANSACTION_TYPES } from "../constants"
 import { addSlippage, subtractSlippage } from "../utils/slippage"
 import { useLPTokenContract, usePoolContract } from "./useContract"
@@ -77,29 +82,13 @@ export function useApproveAndWithdraw(
       )
       let spendTransaction
       if (state.withdrawType === "ALL") {
-        const txnAmounts: [BigNumber, BigNumber, BigNumber] = [
-          subtractSlippage(
-            BigNumber.from(
-              state.tokenFormState[POOL.poolTokens[0].symbol].valueSafe,
-            ),
+        const txnAmounts: BigNumber[] = POOL.poolTokens.map((poolToken) => {
+          return subtractSlippage(
+            BigNumber.from(state.tokenFormState[poolToken.symbol].valueSafe),
             slippageSelected,
             slippageCustom,
-          ),
-          subtractSlippage(
-            BigNumber.from(
-              state.tokenFormState[POOL.poolTokens[1].symbol].valueSafe,
-            ),
-            slippageSelected,
-            slippageCustom,
-          ),
-          subtractSlippage(
-            BigNumber.from(
-              state.tokenFormState[POOL.poolTokens[2].symbol].valueSafe,
-            ),
-            slippageSelected,
-            slippageCustom,
-          ),
-        ]
+          )
+        })
         spendTransaction = await poolContract.remove_liquidity(
           state.lpTokenAmountToSpend,
           txnAmounts,
@@ -108,11 +97,9 @@ export function useApproveAndWithdraw(
           },
         )
       } else if (state.withdrawType === "IMBALANCE") {
-        const txnAmounts: [string, string, string] = [
-          state.tokenFormState[POOL.poolTokens[0].symbol].valueSafe,
-          state.tokenFormState[POOL.poolTokens[1].symbol].valueSafe,
-          state.tokenFormState[POOL.poolTokens[2].symbol].valueSafe,
-        ]
+        const txnAmounts: string[] = POOL.poolTokens.map((poolToken) => {
+          return state.tokenFormState[poolToken.symbol].valueSafe
+        })
         spendTransaction = await poolContract.remove_liquidity_imbalance(
           txnAmounts,
           addSlippage(

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   NumberInputState,
   numberInputStateCreator,
@@ -100,11 +101,9 @@ export default function useWithdrawFormState(
         .mul(parseUnits(percentageRaw, 5)) // difference between numerator and denominator because we're going from 100 to 1.00
         .div(10 ** 7)
 
-      const txnAmounts: [string, string, string] = [
-        state.tokenInputs[POOL.poolTokens[0].symbol].valueSafe,
-        state.tokenInputs[POOL.poolTokens[1].symbol].valueSafe,
-        state.tokenInputs[POOL.poolTokens[2].symbol].valueSafe,
-      ]
+      const txnAmounts: string[] = POOL.poolTokens.map((poolToken) => {
+        return state.tokenInputs[poolToken.symbol].valueSafe
+      })
 
       // Use state.withdrawType to figure out which swap functions to use to calcuate next state
       let nextState: WithdrawFormState | Record<string, unknown>

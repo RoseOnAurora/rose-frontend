@@ -2,6 +2,8 @@ import {
   BRIDGE_CONTRACT_ADDRESSES,
   BTC_POOL_NAME,
   DAI,
+  FRAX,
+  FRAX_STABLES_LP_POOL_NAME,
   POOLS_MAP,
   PoolName,
   ROSE_CONTRACT_ADDRESSES,
@@ -27,9 +29,13 @@ import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import META_SWAP_DEPOSIT_ABI from "../constants/abis/metaSwapDeposit.json"
 import MIGRATOR_USD_CONTRACT_ABI from "../constants/abis/swapMigratorUSD.json"
 import { MetaSwapDeposit } from "../../types/ethers-contracts/MetaSwapDeposit"
+import ROSE_FRAX_LP_ABI from "../constants/abis/RoseFraxLP.json"
+import ROSE_FRAX_POOL_ABI from "../constants/abis/RoseFraxPool.json"
 import ROSE_STABLES_FARM_ABI from "../constants/abis/RoseStablesFarm.json"
 import ROSE_STABLES_LP_ABI from "../constants/abis/RoseStablesLP.json"
 import ROSE_STABLES_POOL_ABI from "../constants/abis/RoseStablesPool.json"
+import { RoseFraxLP } from "../../types/ethers-contracts/RoseFraxLP"
+import { RoseFraxPool } from "../../types/ethers-contracts/RoseFraxPool"
 import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
 import { RoseStablesLP } from "../../types/ethers-contracts/RoseStablesLP"
 import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
@@ -149,23 +155,30 @@ export function useTokenContract(
   return useContract(tokenAddress, ERC20_ABI, withSignerIfPossible)
 }
 
-export function usePoolContract(poolName?: PoolName): RoseStablesPool | null {
+export function usePoolContract(poolName?: PoolName): Contract | null {
   const { chainId, account, library } = useActiveWeb3React()
   return useMemo(() => {
     if (!poolName || !library || !chainId) return null
     try {
       const pool = POOLS_MAP[poolName]
-      // console.log(`pool: ${JSON.stringify(pool)}`)
-      if (poolName === STABLECOIN_POOL_V2_NAME) {
-        if (typeof pool.addresses === undefined) return null
-        return getContract(
-          pool.addresses[chainId],
-          JSON.stringify(ROSE_STABLES_POOL_ABI),
-          library,
-          account ?? undefined,
-        ) as RoseStablesPool
-      } else {
-        return null
+      if (typeof pool.addresses === undefined) return null
+      switch (poolName) {
+        case STABLECOIN_POOL_V2_NAME:
+          return getContract(
+            pool.addresses[chainId],
+            JSON.stringify(ROSE_STABLES_POOL_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseStablesPool
+        case FRAX_STABLES_LP_POOL_NAME:
+          return getContract(
+            pool.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_POOL_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxPool
+        default:
+          return null
       }
     } catch (error) {
       console.error("Failed to get contract", error)
@@ -230,21 +243,31 @@ export function useSwapContract(
   }, [chainId, library, account, poolName])
 }
 
-export function useLPTokenContract(poolName: PoolName): RoseStablesLP | null {
+export function useLPTokenContract(
+  poolName: PoolName,
+): RoseStablesLP | RoseFraxLP | null {
   const { chainId, account, library } = useActiveWeb3React()
   return useMemo(() => {
     if (!poolName || !library || !chainId) return null
     try {
       const pool = POOLS_MAP[poolName]
-      if (poolName == STABLECOIN_POOL_V2_NAME) {
-        return getContract(
-          pool.lpToken.addresses[chainId],
-          JSON.stringify(ROSE_STABLES_LP_ABI),
-          library,
-          account ?? undefined,
-        ) as RoseStablesLP
-      } else {
-        return null
+      switch (poolName) {
+        case STABLECOIN_POOL_V2_NAME:
+          return getContract(
+            pool.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_STABLES_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseStablesLP
+        case FRAX_STABLES_LP_POOL_NAME:
+          return getContract(
+            pool.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
+        default:
+          return null
       }
     } catch (error) {
       console.error("Failed to get contract", error)
@@ -260,6 +283,7 @@ export function useAllContracts(): AllContractsObject | null {
   const daiContract = useTokenContract(DAI) as Erc20
   const usdcContract = useTokenContract(USDC) as Erc20
   const usdtContract = useTokenContract(USDT) as Erc20
+  const fraxContract = useTokenContract(FRAX) as Erc20
   const roseStablesLPContract = useTokenContract(
     STABLECOIN_SWAP_V2_TOKEN,
   ) as RoseStablesLP
@@ -275,6 +299,7 @@ export function useAllContracts(): AllContractsObject | null {
       [DAI.symbol]: daiContract,
       [USDC.symbol]: usdcContract,
       [USDT.symbol]: usdtContract,
+      [FRAX.symbol]: fraxContract,
       [STABLECOIN_SWAP_V2_TOKEN.symbol]: roseStablesLPContract,
     }
   }, [daiContract, usdcContract, usdtContract, roseStablesLPContract])

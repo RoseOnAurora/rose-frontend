@@ -37,6 +37,7 @@ export const D4_POOL_NAME = "D4 Pool"
 export const SUSD_METAPOOL_NAME = "sUSD Metapool"
 export const TBTC_METAPOOL_NAME = "tBTC Metapool"
 export const WCUSD_METAPOOL_NAME = "wCUSD Metapool"
+export const FRAX_STABLES_LP_POOL_NAME = "Frax Pool"
 export type PoolName =
   | typeof BTC_POOL_NAME
   | typeof BTC_POOL_V2_NAME
@@ -48,6 +49,7 @@ export type PoolName =
   | typeof SUSD_METAPOOL_NAME
   | typeof TBTC_METAPOOL_NAME
   | typeof WCUSD_METAPOOL_NAME
+  | typeof FRAX_STABLES_LP_POOL_NAME
 
 export enum ChainId {
   MAINNET = 1,
@@ -205,6 +207,14 @@ export const STABLECOIN_SWAP_V2_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.AURORA_MAINNET]: "0xc90dB0d8713414d78523436dC347419164544A3f",
 }
 
+export const FRAX_STABLES_LP_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x2E7d99fF3a89937339dDC651EdbA6e564B751bE7",
+  [ChainId.AURORA_MAINNET]: "0xd812cc1fc1e0a56560796C746B1247e2bd4F31f2",
+}
+
 export const BTC_SWAP_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "0x4f6A43Ad7cba042606dECaCA730d4CE0A57ac62e",
   [ChainId.ROPSTEN]: "0x02ad8Da8cCa3764DFb62d749E51Cb3d4b35643ad",
@@ -353,6 +363,16 @@ export const D4_SWAP_TOKEN_CONTRACT_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "",
 }
 
+export const FRAX_STABLES_LP_TOKEN_CONTRACT_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xC604298cAf81dEeFd245343e7c891b4C8860CB0E",
+  [ChainId.AURORA_MAINNET]: "0xbB5279353d88A25F099A334Ba49CDCb1CF4b5A7c",
+}
+
 export const SUSD_SWAP_TOKEN = new Token(
   SUSD_SWAP_TOKEN_CONTRACT_ADDRESSES,
   18,
@@ -412,9 +432,20 @@ export const STABLECOIN_SWAP_V2_TOKEN = new Token(
   STABLECOIN_SWAP_V2_TOKEN_CONTRACT_ADDRESSES,
   18,
   "RoseStablesLP",
-  "rosestableslp",
+  "tether", // tracking USDT for now, as we can't fetch price for RoseStablesLP
   "Rose DAI/USDC/USDT",
   roseLogo,
+  false,
+  true,
+)
+
+export const FRAX_STABLES_LP_TOKEN = new Token(
+  FRAX_STABLES_LP_TOKEN_CONTRACT_ADDRESSES,
+  18,
+  "RoseFraxLP",
+  "rosefraxlp",
+  "Rose FRAX/StablesLP",
+  roseLogo, // TO-DO: change to new logo
   false,
   true,
 )
@@ -742,8 +773,8 @@ const FRAX_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "0x853d955aCEf822Db058eb8505911ED77F175b99e",
   [ChainId.ROPSTEN]: "0xb295E36469C8Aef7d76b661aD5af02cdB258D662",
   [ChainId.HARDHAT]: "0x851356ae760d987E095750cCeb3bC6014560891C",
-  [ChainId.AURORA_TESTNET]: "",
-  [ChainId.AURORA_MAINNET]: "",
+  [ChainId.AURORA_TESTNET]: "0x22EE86789837529E2F58Fd6D1dD6B0B26fc1e092",
+  [ChainId.AURORA_MAINNET]: "0xda2585430fef327ad8ee44af8f1f989a2a91a3d2",
 }
 export const FRAX = new Token(
   FRAX_CONTRACT_ADDRESSES,
@@ -813,7 +844,7 @@ export const ROSE_FARM_STABLES_ADDRESSES: { [chainId in ChainId]: string } = {
 }
 
 export const D4_POOL_TOKENS = [ALUSD, FEI, FRAX, LUSD]
-
+export const FRAX_STABLES_LP_POOL_TOKENS = [FRAX, STABLECOIN_SWAP_V2_TOKEN]
 export const WCUSD_POOL_TOKENS = [WCUSD, ...STABLECOIN_POOL_TOKENS]
 export const WCUSD_UNDERLYING_POOL_TOKENS = [WCUSD, STABLECOIN_SWAP_V2_TOKEN]
 
@@ -843,6 +874,15 @@ export const POOLS_MAP: PoolsMap = {
     isSynthetic: false,
     type: PoolTypes.USD,
     route: "stables",
+  },
+  [FRAX_STABLES_LP_POOL_NAME]: {
+    name: FRAX_STABLES_LP_POOL_NAME,
+    addresses: FRAX_STABLES_LP_ADDRESSES,
+    lpToken: FRAX_STABLES_LP_TOKEN,
+    poolTokens: FRAX_STABLES_LP_POOL_TOKENS,
+    isSynthetic: false,
+    type: PoolTypes.USD,
+    route: "frax-stableslp",
   },
 }
 export function isLegacySwapABIPool(poolName: string): boolean {
