@@ -6,8 +6,10 @@ import {
   FRAX_STABLES_LP_POOL_NAME,
   POOLS_MAP,
   PoolName,
+  ROSE,
   ROSE_CONTRACT_ADDRESSES,
   ROSE_FARM_STABLES_ADDRESSES,
+  SROSE,
   SROSE_CONTRACT_ADDRESSES,
   STABLECOIN_POOL_V2_NAME,
   STABLECOIN_SWAP_V2_TOKEN,
@@ -304,12 +306,19 @@ export function useAllContracts(): AllContractsObject | null {
   const roseStablesLPContract = useTokenContract(
     STABLECOIN_SWAP_V2_TOKEN,
   ) as RoseStablesLP
+  const roseContract = useTokenContract(ROSE) as Erc20
+  const stroseContract = useTokenContract(SROSE) as Erc20
 
   return useMemo(() => {
     if (
-      ![daiContract, usdcContract, usdtContract, roseStablesLPContract].some(
-        Boolean,
-      )
+      ![
+        daiContract,
+        usdcContract,
+        usdtContract,
+        roseStablesLPContract,
+        roseContract,
+        stroseContract,
+      ].some(Boolean)
     )
       return null
     return {
@@ -318,6 +327,8 @@ export function useAllContracts(): AllContractsObject | null {
       [USDT.symbol]: usdtContract,
       [FRAX.symbol]: fraxContract,
       [STABLECOIN_SWAP_V2_TOKEN.symbol]: roseStablesLPContract,
+      [ROSE.symbol]: roseContract,
+      [SROSE.symbol]: stroseContract,
     }
   }, [
     daiContract,
@@ -325,5 +336,7 @@ export function useAllContracts(): AllContractsObject | null {
     usdtContract,
     roseStablesLPContract,
     fraxContract,
+    roseContract,
+    stroseContract,
   ])
 }
