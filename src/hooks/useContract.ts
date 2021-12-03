@@ -11,6 +11,7 @@ import {
   SROSE_CONTRACT_ADDRESSES,
   STABLECOIN_POOL_V2_NAME,
   STABLECOIN_SWAP_V2_TOKEN,
+  STAKED_ROSE_LP_POOL_NAME,
   SWAP_MIGRATOR_USD_CONTRACT_ADDRESSES,
   SYNTHETIX_CONTRACT_ADDRESSES,
   SYNTHETIX_EXCHANGE_RATES_CONTRACT_ADDRESSES,
@@ -162,6 +163,7 @@ export function usePoolContract(poolName?: PoolName): Contract | null {
     try {
       const pool = POOLS_MAP[poolName]
       if (typeof pool.addresses === undefined) return null
+      // use RoseFraxPool for a standard pool with 2 assets with 18 decimals each
       switch (poolName) {
         case STABLECOIN_POOL_V2_NAME:
           return getContract(
@@ -171,6 +173,13 @@ export function usePoolContract(poolName?: PoolName): Contract | null {
             account ?? undefined,
           ) as RoseStablesPool
         case FRAX_STABLES_LP_POOL_NAME:
+          return getContract(
+            pool.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_POOL_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxPool
+        case STAKED_ROSE_LP_POOL_NAME:
           return getContract(
             pool.addresses[chainId],
             JSON.stringify(ROSE_FRAX_POOL_ABI),
@@ -251,6 +260,7 @@ export function useLPTokenContract(
     if (!poolName || !library || !chainId) return null
     try {
       const pool = POOLS_MAP[poolName]
+      // use RoseFraxLP for a standard pool with 2 assets with 18 decimals each
       switch (poolName) {
         case STABLECOIN_POOL_V2_NAME:
           return getContract(
@@ -260,6 +270,13 @@ export function useLPTokenContract(
             account ?? undefined,
           ) as RoseStablesLP
         case FRAX_STABLES_LP_POOL_NAME:
+          return getContract(
+            pool.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
+        case STAKED_ROSE_LP_POOL_NAME:
           return getContract(
             pool.lpToken.addresses[chainId],
             JSON.stringify(ROSE_FRAX_LP_ABI),
