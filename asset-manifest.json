@@ -1,20 +1,20 @@
 {
   "files": {
-    "main.css": "./static/css/main.26b50c80.chunk.css",
-    "main.js": "./static/js/main.c80c5619.chunk.js",
-    "main.js.map": "./static/js/main.c80c5619.chunk.js.map",
-    "runtime-main.js": "./static/js/runtime-main.7c2f4002.js",
-    "runtime-main.js.map": "./static/js/runtime-main.7c2f4002.js.map",
-    "static/js/2.83f705ed.chunk.js": "./static/js/2.83f705ed.chunk.js",
-    "static/js/2.83f705ed.chunk.js.map": "./static/js/2.83f705ed.chunk.js.map",
-    "static/js/3.d4cef1d3.chunk.js": "./static/js/3.d4cef1d3.chunk.js",
-    "static/js/3.d4cef1d3.chunk.js.map": "./static/js/3.d4cef1d3.chunk.js.map",
+    "main.css": "./static/css/main.5e5436ea.chunk.css",
+    "main.js": "./static/js/main.25dfc331.chunk.js",
+    "main.js.map": "./static/js/main.25dfc331.chunk.js.map",
+    "runtime-main.js": "./static/js/runtime-main.271389bf.js",
+    "runtime-main.js.map": "./static/js/runtime-main.271389bf.js.map",
+    "static/js/2.b4f32b30.chunk.js": "./static/js/2.b4f32b30.chunk.js",
+    "static/js/2.b4f32b30.chunk.js.map": "./static/js/2.b4f32b30.chunk.js.map",
+    "static/js/3.777d3050.chunk.js": "./static/js/3.777d3050.chunk.js",
+    "static/js/3.777d3050.chunk.js.map": "./static/js/3.777d3050.chunk.js.map",
     "static/js/4.661034ef.chunk.js": "./static/js/4.661034ef.chunk.js",
     "static/js/4.661034ef.chunk.js.map": "./static/js/4.661034ef.chunk.js.map",
     "index.html": "./index.html",
-    "static/css/main.26b50c80.chunk.css.map": "./static/css/main.26b50c80.chunk.css.map",
-    "static/js/2.83f705ed.chunk.js.LICENSE.txt": "./static/js/2.83f705ed.chunk.js.LICENSE.txt",
-    "static/js/3.d4cef1d3.chunk.js.LICENSE.txt": "./static/js/3.d4cef1d3.chunk.js.LICENSE.txt",
+    "static/css/main.5e5436ea.chunk.css.map": "./static/css/main.5e5436ea.chunk.css.map",
+    "static/js/2.b4f32b30.chunk.js.LICENSE.txt": "./static/js/2.b4f32b30.chunk.js.LICENSE.txt",
+    "static/js/3.777d3050.chunk.js.LICENSE.txt": "./static/js/3.777d3050.chunk.js.LICENSE.txt",
     "static/media/global.scss": "./static/media/NeueMachina-Regular.d305d299.woff2",
     "static/media/aleth.3dd80ea7.svg": "./static/media/aleth.3dd80ea7.svg",
     "static/media/alusd.d6b57a25.svg": "./static/media/alusd.d6b57a25.svg",
@@ -47,9 +47,9 @@
     "static/media/weth.32818c6c.svg": "./static/media/weth.32818c6c.svg"
   },
   "entrypoints": [
-    "static/js/runtime-main.7c2f4002.js",
-    "static/js/3.d4cef1d3.chunk.js",
-    "static/css/main.26b50c80.chunk.css",
-    "static/js/main.c80c5619.chunk.js"
+    "static/js/runtime-main.271389bf.js",
+    "static/js/3.777d3050.chunk.js",
+    "static/css/main.5e5436ea.chunk.css",
+    "static/js/main.25dfc331.chunk.js"
   ]
 }
