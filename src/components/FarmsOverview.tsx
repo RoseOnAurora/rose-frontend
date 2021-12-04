@@ -26,15 +26,7 @@ interface Props {
 }
 
 function FarmsOverview(props: Props): ReactElement {
-  const {
-    farmRoute,
-    farmName,
-    poolName,
-    poolUrl,
-    lpTokenName,
-    isRose,
-    farmStats,
-  } = props
+  const { farmRoute, farmName, poolName, poolUrl, lpTokenName, isRose } = props
   const { t } = useTranslation()
   return (
     <div className={styles.farmsOverview}>
@@ -57,7 +49,7 @@ function FarmsOverview(props: Props): ReactElement {
           >
             <Stat>
               <StatLabel>TVL</StatLabel>
-              <StatNumber fontSize="13px">{farmStats?.tvl || "-"}</StatNumber>
+              <StatNumber fontSize="13px">{"-"}</StatNumber>
               {/* <StatHelpText>
                 <StatArrow type="increase" />
                 23.36%
@@ -65,7 +57,7 @@ function FarmsOverview(props: Props): ReactElement {
             </Stat>
             <Stat>
               <StatLabel>APR</StatLabel>
-              <StatNumber fontSize="13px">{farmStats?.apr || "-"}</StatNumber>
+              <StatNumber fontSize="13px">{"-"}</StatNumber>
               {/* <StatHelpText>
                 <StatArrow type="increase" />
                 23.36%
