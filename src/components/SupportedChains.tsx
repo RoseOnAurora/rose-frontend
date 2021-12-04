@@ -1,7 +1,6 @@
 import React, { ReactElement } from "react"
 import { Button } from "@chakra-ui/react"
 import { SUPPORTED_CHAINS } from "../constants"
-import { isMobile } from "react-device-detect"
 import styles from "./SupportedChains.module.scss"
 import useAddNetworkToMetamask from "../hooks/useAddNetworkToMetamask"
 import { useTranslation } from "react-i18next"
@@ -28,18 +27,16 @@ export default function SupportedChains({ openOptions }: Props): ReactElement {
               <p>
                 <i>{val.rpc}</i>
               </p>
-              {isMobile ? null : (
-                <div className={styles.addNetwork}>
-                  <Button
-                    variant="light"
-                    size="md"
-                    width="150px"
-                    onClick={() => addNetwork(+key)}
-                  >
-                    {t("addToWallet")}
-                  </Button>
-                </div>
-              )}
+              <div className={styles.addNetwork}>
+                <Button
+                  variant="light"
+                  size="md"
+                  width="150px"
+                  onClick={() => addNetwork(+key)}
+                >
+                  {t("addToWallet")}
+                </Button>
+              </div>
             </div>
           </div>
         ))}
