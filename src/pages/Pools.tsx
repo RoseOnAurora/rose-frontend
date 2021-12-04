@@ -1,5 +1,5 @@
 import {
-  // FRAX_STABLES_LP_POOL_NAME,
+  FRAX_STABLES_LP_POOL_NAME,
   POOLS_MAP,
   PoolName,
   PoolTypes,
@@ -18,9 +18,9 @@ function Pools(): ReactElement | null {
   const [usdPoolV2Data, usdV2UserShareData] = usePoolData(
     STABLECOIN_POOL_V2_NAME,
   )
-  // const [fraxStablesPoolData, fraxStablesUserShareData] = usePoolData(
-  //   FRAX_STABLES_LP_POOL_NAME,
-  // )
+  const [fraxStablesPoolData, fraxStablesUserShareData] = usePoolData(
+    FRAX_STABLES_LP_POOL_NAME,
+  )
   // const [stRosePoolData, stRoseUserShareData] = usePoolData(
   //   STAKED_ROSE_LP_POOL_NAME,
   // )
@@ -28,13 +28,13 @@ function Pools(): ReactElement | null {
 
   function getPropsForPool(poolName: PoolName) {
     switch (poolName) {
-      // case FRAX_STABLES_LP_POOL_NAME:
-      //   return {
-      //     name: poolName,
-      //     poolData: fraxStablesPoolData,
-      //     userShareData: fraxStablesUserShareData,
-      //     poolRoute: `pools/${POOLS_MAP[poolName].route}`,
-      //   }
+      case FRAX_STABLES_LP_POOL_NAME:
+        return {
+          name: poolName,
+          poolData: fraxStablesPoolData,
+          userShareData: fraxStablesUserShareData,
+          poolRoute: `pools/${POOLS_MAP[poolName].route}`,
+        }
       // case STAKED_ROSE_LP_POOL_NAME:
       //   return {
       //     name: poolName,
@@ -56,6 +56,8 @@ function Pools(): ReactElement | null {
       <TopMenu activeTab="pools" />
       <div className={styles.content}>
         {Object.values(POOLS_MAP)
+          // temporarily hide Frax pool while keeping its page enabled
+          .filter(({ name }) => name !== FRAX_STABLES_LP_POOL_NAME)
           .filter(
             ({ type, migration, isOutdated }) =>
               filter === "all" ||
