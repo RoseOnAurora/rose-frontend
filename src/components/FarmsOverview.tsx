@@ -64,7 +64,7 @@ function FarmsOverview(props: Props): ReactElement {
               </StatHelpText> */}
             </Stat>
             <Stat>
-              <StatLabel>APY</StatLabel>
+              <StatLabel>APR</StatLabel>
               <StatNumber fontSize="13px">{farmStats?.apr || "-"}</StatNumber>
               {/* <StatHelpText>
                 <StatArrow type="increase" />
