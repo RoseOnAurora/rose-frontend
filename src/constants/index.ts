@@ -40,7 +40,7 @@ export const D4_POOL_NAME = "D4 Pool"
 export const SUSD_METAPOOL_NAME = "sUSD Metapool"
 export const TBTC_METAPOOL_NAME = "tBTC Metapool"
 export const WCUSD_METAPOOL_NAME = "wCUSD Metapool"
-export const FRAX_STABLES_LP_POOL_NAME = "Frax/StablesLP Pool"
+export const FRAX_STABLES_LP_POOL_NAME = "Frax Pool"
 export const STAKED_ROSE_LP_POOL_NAME = "stRose Pool"
 
 // FARMS
