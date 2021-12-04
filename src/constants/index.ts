@@ -46,8 +46,8 @@ export const STAKED_ROSE_LP_POOL_NAME = "stRose Pool"
 // FARMS
 export const STABLES_FARM_NAME = "Stables Farm"
 export const FRAX_STABLES_LP_FARM_NAME = "Frax Farm"
-export const ROSE_PAD_NLP_FARM_NAME = "ROSE/PAD NLP Farm"
-export const ROSE_FRAX_NLP_FARM_NAME = "ROSE/FRAX NLP Farm"
+export const ROSE_PAD_NLP_FARM_NAME = "ROSE/PAD PLP Farm"
+export const ROSE_FRAX_NLP_FARM_NAME = "ROSE/FRAX PLP Farm"
 export const SROSE_FARM_NAME = "stRose Farm"
 
 export type PoolName =
@@ -513,7 +513,7 @@ export const ROSE_PAD_NLP_TOKEN = new Token(
   18,
   "RosePadNLP",
   "rosepadnlp",
-  "ROSE/PAD NLP",
+  "ROSE/PAD PLP",
   roseLogo, // TO-DO: change to new logo
   false,
   true,
@@ -524,7 +524,7 @@ export const ROSE_FRAX_NLP_TOKEN = new Token(
   18,
   "RoseFraxNLP",
   "rosefraxnlp",
-  "ROSE/FRAX NLP",
+  "ROSE/FRAX PLP",
   roseLogo, // TO-DO: change to new logo
   false,
   true,
@@ -1065,7 +1065,7 @@ export const FARMS_MAP: FarmsMap = {
       "https://dex.nearpad.io/add/0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970/0x885f8CF6E45bdd3fdcDc644efdcd0AC93880c781",
     route: "rose-padnlp",
     isRose: false,
-    poolName: "ROSE/PAD NLP Pool",
+    poolName: "ROSE/PAD PLP Pool",
   },
   [ROSE_FRAX_NLP_FARM_NAME]: {
     name: ROSE_FRAX_NLP_FARM_NAME,
@@ -1075,7 +1075,7 @@ export const FARMS_MAP: FarmsMap = {
       "https://dex.nearpad.io/add/0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970/0xDA2585430fEf327aD8ee44Af8F1f989a2A91A3d2",
     route: "rose-fraxnlp",
     isRose: false,
-    poolName: "ROSE/FRAX NLP Pool",
+    poolName: "ROSE/FRAX PLP Pool",
   },
   // [SROSE_FARM_NAME]: {
   //   name: SROSE_FARM_NAME,
