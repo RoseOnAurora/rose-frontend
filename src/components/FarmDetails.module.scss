@@ -21,19 +21,30 @@ div.farmDetailsContainer {
   }
 
   .icon {
-    font-weight: 700;
-    font-size: 50px;
-    line-height: 50px;
+    width: 70px;
+    @include breakpoint(md) {
+      width: 100px;
+      margin-top: 10px;
+      order: 1;
+    }
+    & > img {
+      width: 100%;
+    }
+    // line-height: 50px;
   }
 
   .row:nth-child(2) {
-    padding-bottom: 2em;
+    justify-content: center;
+    align-items: center;
   }
 
   .row {
     display: flex;
     margin-top: 8px;
     width: 100%;
+    @include breakpoint(md) {
+      flex-direction: column;
+    }
   }
 
   .balanceDetails {
@@ -41,6 +52,9 @@ div.farmDetailsContainer {
     flex-direction: column;
     margin-left: 25px;
     font-size: 18px;
+    @include breakpoint(md) {
+      margin-left: 0;
+    }
     @include breakpoint(sm) {
       font-size: 14px;
     }

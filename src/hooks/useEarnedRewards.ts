@@ -1,17 +1,17 @@
-import { useRoseContract, useRoseStablesFarmContract } from "./useContract"
-import { BLOCK_TIME } from "../constants"
+import { BLOCK_TIME, FarmName } from "../constants"
+import { useFarmContract, useRoseContract } from "./useContract"
 import { Zero } from "@ethersproject/constants"
 import { formatBNToString } from "../utils"
 import { useActiveWeb3React } from "."
 import usePoller from "./usePoller"
 import { useState } from "react"
 
-export default function useEarnedRewards(): string {
+export default function useEarnedRewards(farmName: FarmName): string {
   const { account } = useActiveWeb3React()
 
   const [rewardsEarned, setRewardsEarned] = useState<string>("0.0")
   const roseContract = useRoseContract()
-  const farmContract = useRoseStablesFarmContract()
+  const farmContract = useFarmContract(farmName)
 
   usePoller(() => {
     async function pollRewards(): Promise<void> {

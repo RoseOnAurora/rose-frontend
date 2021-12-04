@@ -21,4 +21,16 @@ div.farmPage {
     flex-wrap: wrap;
     display: flex;
   }
+
+  .approveButtons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 30px;
+    @include breakpoint(sm) {
+      flex-wrap: wrap;
+      & > button {
+        margin: 10px;
+      }
+    }
+  }
 }

@@ -19,7 +19,9 @@ const FarmDetails = (props: Props): ReactElement => {
           <h3 className={styles.title}>{t("balance")}</h3>
         </div>
         <div className={styles.row}>
-          <div className={styles.icon}>{lpTokenIcon}</div>
+          <div className={styles.icon}>
+            <img alt="icon" src={lpTokenIcon} />
+          </div>
           <div className={styles.balanceDetails}>
             <span className={styles.balance}>{balance}</span>
             <span className={styles.token}>{lpTokenName}</span>
@@ -31,7 +33,9 @@ const FarmDetails = (props: Props): ReactElement => {
           <h3 className={styles.title}>{t("deposited")}</h3>
         </div>
         <div className={styles.row}>
-          <div className={styles.icon}>{lpTokenIcon}</div>
+          <div className={styles.icon}>
+            <img alt="icon" src={lpTokenIcon} />
+          </div>
           <div className={styles.balanceDetails}>
             <span className={styles.balance}>{deposited}</span>
             <span className={styles.token}>{lpTokenName}</span>

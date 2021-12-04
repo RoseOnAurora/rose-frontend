@@ -71,7 +71,7 @@ function StakeForm(props: Props): ReactElement {
                       color="gray.300"
                       fontSize="1.2em"
                     >
-                      {tokenIcon}
+                      <img src={tokenIcon} alt="roseIcon" />
                     </InputLeftElement>
                     <Input
                       {...field}

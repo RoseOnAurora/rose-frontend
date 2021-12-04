@@ -17,7 +17,6 @@ import { useTranslation } from "react-i18next"
 
 interface Props {
   poolRoute: string
-  farmName: string
   poolData: PoolDataType
   userShareData: UserShareType | null
   onClickMigrate?: (e: React.MouseEvent<HTMLButtonElement>) => void
@@ -27,7 +26,6 @@ export default function PoolOverview({
   poolData,
   poolRoute,
   userShareData,
-  farmName,
   onClickMigrate,
 }: Props): ReactElement | null {
   const { t } = useTranslation()
@@ -166,27 +164,6 @@ export default function PoolOverview({
                 </Button>
               </Link>
             )}
-          </div>
-        </div>
-      </div>
-      <div className="farmBottom">
-        <div className="divider"></div>
-        <div className="container">
-          <div className="row">
-            <h4 className="title">{farmName}</h4>
-            <div className="farmButton">
-              <ToolTip content={t("underconstruction")}>
-                <Link to="/pools">
-                  {/* disabling farm for now - under construction */}
-                  <Button kind="primary" disabled={true}>
-                    <span className="underline">{t("Farm")}</span>
-                  </Button>
-                </Link>
-              </ToolTip>
-            </div>
-          </div>
-          <div className="farmDescription">
-            <p>{t("farmDescription")}</p>
           </div>
         </div>
       </div>

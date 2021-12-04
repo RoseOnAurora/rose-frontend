@@ -1,10 +1,12 @@
 import { ContractReceipt } from "@ethersproject/contracts"
-import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
+import { FarmName } from "../constants"
 import { useActiveWeb3React } from "."
-import { useRoseStablesFarmContract } from "./useContract"
+import { useFarmContract } from "./useContract"
 
-export default function useClaimReward(): () => Promise<ContractReceipt | void> {
-  const farmContract = useRoseStablesFarmContract() as RoseStablesFarm
+export default function useClaimReward(
+  farmName: FarmName,
+): () => Promise<ContractReceipt | void> {
+  const farmContract = useFarmContract(farmName)
   const { account } = useActiveWeb3React()
   return async function claimReward(): Promise<ContractReceipt | void> {
     try {

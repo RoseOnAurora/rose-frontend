@@ -11,6 +11,7 @@ import fraxLogo from "../assets/icons/frax.svg"
 import lusdLogo from "../assets/icons/lusd.svg"
 import metamaskIcon from "../assets/icons/metamask.svg"
 import renbtcLogo from "../assets/icons/renbtc.svg"
+import roseFraxLogo from "../assets/icons/rose-frax.svg"
 import roseLogo from "../assets/icons/rose.svg"
 import sRoseLogo from "../assets/icons/srose.svg"
 import saddleLogo from "../assets/icons/logo_24.svg"
@@ -27,6 +28,8 @@ import wcusdLogo from "../assets/icons/wcusd.png"
 import wethLogo from "../assets/icons/weth.svg"
 
 export const NetworkContextName = "NETWORK"
+
+// POOLS
 export const BTC_POOL_NAME = "BTC Pool"
 export const BTC_POOL_V2_NAME = "BTC Pool V2"
 export const STABLECOIN_POOL_NAME = "Stablecoin Pool"
@@ -38,6 +41,15 @@ export const SUSD_METAPOOL_NAME = "sUSD Metapool"
 export const TBTC_METAPOOL_NAME = "tBTC Metapool"
 export const WCUSD_METAPOOL_NAME = "wCUSD Metapool"
 export const FRAX_STABLES_LP_POOL_NAME = "Frax/StablesLP Pool"
+export const STAKED_ROSE_LP_POOL_NAME = "stRose Pool"
+
+// FARMS
+export const STABLES_FARM_NAME = "Stables Farm"
+export const FRAX_STABLES_LP_FARM_NAME = "Frax Farm"
+export const ROSE_PAD_NLP_FARM_NAME = "ROSE/PAD NLP Farm"
+export const ROSE_FRAX_NLP_FARM_NAME = "ROSE/FRAX NLP Farm"
+export const SROSE_FARM_NAME = "stRose Farm"
+
 export type PoolName =
   | typeof BTC_POOL_NAME
   | typeof BTC_POOL_V2_NAME
@@ -50,6 +62,14 @@ export type PoolName =
   | typeof TBTC_METAPOOL_NAME
   | typeof WCUSD_METAPOOL_NAME
   | typeof FRAX_STABLES_LP_POOL_NAME
+  | typeof STAKED_ROSE_LP_POOL_NAME
+
+export type FarmName =
+  | typeof STABLES_FARM_NAME
+  | typeof FRAX_STABLES_LP_FARM_NAME
+  | typeof ROSE_PAD_NLP_FARM_NAME
+  | typeof ROSE_FRAX_NLP_FARM_NAME
+  | typeof SROSE_FARM_NAME
 
 export enum ChainId {
   MAINNET = 1,
@@ -215,6 +235,14 @@ export const FRAX_STABLES_LP_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.AURORA_MAINNET]: "0xd812cc1fc1e0a56560796C746B1247e2bd4F31f2",
 }
 
+export const STAKED_ROSE_POOL_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x7e27881A7eABb81D0e32e03C498f97517Cb75470",
+  [ChainId.AURORA_MAINNET]: "0x36685AfD221622942Df61979d72a0064a17EF291",
+}
+
 export const BTC_SWAP_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "0x4f6A43Ad7cba042606dECaCA730d4CE0A57ac62e",
   [ChainId.ROPSTEN]: "0x02ad8Da8cCa3764DFb62d749E51Cb3d4b35643ad",
@@ -373,6 +401,36 @@ export const FRAX_STABLES_LP_TOKEN_CONTRACT_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "0xbB5279353d88A25F099A334Ba49CDCb1CF4b5A7c",
 }
 
+export const ROSE_PAD_NLP_TOKEN_CONTRACT_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xC6C3cc84EabD4643C382C988fA2830657fc70a6B", // TO-DO: UPDATE
+  [ChainId.AURORA_MAINNET]: "0xC6C3cc84EabD4643C382C988fA2830657fc70a6B",
+}
+
+export const ROSE_FRAX_NLP_TOKEN_CONTRACT_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xeD4C231b98b474f7cAeCAdD2736e5ebC642ad707", // TO-DO: UPDATE
+  [ChainId.AURORA_MAINNET]: "0xeD4C231b98b474f7cAeCAdD2736e5ebC642ad707",
+}
+
+export const SROSE_LP_TOKEN_CONTRACT_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xcb2B566B1e643d068DE7DE76C5420A1c63ceD299",
+  [ChainId.AURORA_MAINNET]: "0x7Ba8C17010a48283D38a4bd5f87EfEB5594c92f8",
+}
+
 export const SUSD_SWAP_TOKEN = new Token(
   SUSD_SWAP_TOKEN_CONTRACT_ADDRESSES,
   18,
@@ -445,7 +503,40 @@ export const FRAX_STABLES_LP_TOKEN = new Token(
   "RoseFraxLP",
   "rosefraxlp",
   "Rose FRAX/StablesLP",
+  roseFraxLogo,
+  false,
+  true,
+)
+
+export const ROSE_PAD_NLP_TOKEN = new Token(
+  ROSE_PAD_NLP_TOKEN_CONTRACT_ADDRESSES,
+  18,
+  "RosePadNLP",
+  "rosepadnlp",
+  "ROSE/PAD NLP",
   roseLogo, // TO-DO: change to new logo
+  false,
+  true,
+)
+
+export const ROSE_FRAX_NLP_TOKEN = new Token(
+  ROSE_FRAX_NLP_TOKEN_CONTRACT_ADDRESSES,
+  18,
+  "RoseFraxNLP",
+  "rosefraxnlp",
+  "ROSE/FRAX NLP",
+  roseLogo, // TO-DO: change to new logo
+  false,
+  true,
+)
+
+export const SROSE_LP_TOKEN = new Token(
+  SROSE_LP_TOKEN_CONTRACT_ADDRESSES,
+  18,
+  "StakedRoseLP",
+  "stakedrosenlp",
+  "Rose ROSE/stROSE",
+  sRoseLogo, // TO-DO: change to new logo
   false,
   true,
 )
@@ -839,12 +930,53 @@ export const ROSE_FARM_STABLES_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x14b07382683256aa1D4c853fAaE659A4135C0fC2",
-  [ChainId.AURORA_MAINNET]: "",
+  [ChainId.AURORA_TESTNET]: "0xd7aA8Cf4811b8faFb423085BD2f77C3883eA9Ea3",
+  [ChainId.AURORA_MAINNET]: "0x52CACa9a2D52b27b28767d3649565774A3B991f3",
+}
+
+export const FRAX_STABLES_LP_FARM_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x1C47b398DbEa120F58C800Ed9C896b90117D1eA2",
+  [ChainId.AURORA_MAINNET]: "0x7b359Af630a195C05Ac625D261aEe09a69aF7744",
+}
+
+export const ROSE_PAD_NLP_FARM_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xfF79D5bff48e1C01b722560D6ffDfCe9FC883587",
+  [ChainId.AURORA_MAINNET]: "0x9b2aE7d53099Ec64e2f6df3B4151FFCf7205f788",
+}
+
+export const ROSE_FRAX_NLP_FARM_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xd7Fd3210a40495ef13adeC5c4c591Fe7794b8b8a",
+  [ChainId.AURORA_MAINNET]: "0x1B10bFCd6192edC573ced7Db7c7e403c7FAb8068",
+}
+
+export const SROSE_FARM_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xA5BA452C32664b86c44556872F1a8011Bf35C6E8",
+  [ChainId.AURORA_MAINNET]: "0x247c9DA96BfC4720580ee84E01566D79a8c901ca",
 }
 
 export const D4_POOL_TOKENS = [ALUSD, FEI, FRAX, LUSD]
 export const FRAX_STABLES_LP_POOL_TOKENS = [FRAX, STABLECOIN_SWAP_V2_TOKEN]
+export const STAKED_ROSE_POOL_TOKENS = [ROSE, SROSE]
 export const WCUSD_POOL_TOKENS = [WCUSD, ...STABLECOIN_POOL_TOKENS]
 export const WCUSD_UNDERLYING_POOL_TOKENS = [WCUSD, STABLECOIN_SWAP_V2_TOKEN]
 
@@ -875,14 +1007,81 @@ export const POOLS_MAP: PoolsMap = {
     type: PoolTypes.USD,
     route: "stables",
   },
-  [FRAX_STABLES_LP_POOL_NAME]: {
-    name: FRAX_STABLES_LP_POOL_NAME,
-    addresses: FRAX_STABLES_LP_ADDRESSES,
+  // [FRAX_STABLES_LP_POOL_NAME]: {
+  //   name: FRAX_STABLES_LP_POOL_NAME,
+  //   addresses: FRAX_STABLES_LP_ADDRESSES,
+  //   lpToken: FRAX_STABLES_LP_TOKEN,
+  //   poolTokens: FRAX_STABLES_LP_POOL_TOKENS,
+  //   isSynthetic: false,
+  //   type: PoolTypes.USD,
+  //   route: "frax-stableslp",
+  // },
+  // [STAKED_ROSE_LP_POOL_NAME]: {
+  //   name: STAKED_ROSE_LP_POOL_NAME,
+  //   addresses: STAKED_ROSE_POOL_ADDRESSES,
+  //   lpToken: SROSE_LP_TOKEN,
+  //   poolTokens: STAKED_ROSE_POOL_TOKENS,
+  //   isSynthetic: false,
+  //   type: PoolTypes.USD,
+  //   route: "stakedrose",
+  // },
+}
+
+export type Farm = {
+  name: FarmName
+  lpToken: Token
+  addresses: { [chainId in ChainId]: string }
+  route: string
+  isRose: boolean
+  poolName: string
+  poolUrl?: string
+}
+export type FarmsMap = {
+  [farmName in FarmName]: Farm
+}
+export const FARMS_MAP: FarmsMap = {
+  [STABLES_FARM_NAME]: {
+    name: STABLES_FARM_NAME,
+    lpToken: STABLECOIN_SWAP_V2_TOKEN,
+    addresses: ROSE_FARM_STABLES_ADDRESSES,
+    route: "stables",
+    isRose: true,
+    poolName: STABLECOIN_POOL_V2_NAME,
+  },
+  [FRAX_STABLES_LP_FARM_NAME]: {
+    name: FRAX_STABLES_LP_FARM_NAME,
     lpToken: FRAX_STABLES_LP_TOKEN,
-    poolTokens: FRAX_STABLES_LP_POOL_TOKENS,
-    isSynthetic: false,
-    type: PoolTypes.USD,
+    addresses: FRAX_STABLES_LP_FARM_ADDRESSES,
     route: "frax-stableslp",
+    isRose: true,
+    poolName: FRAX_STABLES_LP_POOL_NAME,
+  },
+  [ROSE_PAD_NLP_FARM_NAME]: {
+    name: ROSE_PAD_NLP_FARM_NAME,
+    lpToken: ROSE_PAD_NLP_TOKEN,
+    addresses: ROSE_PAD_NLP_FARM_ADDRESSES,
+    poolUrl:
+      "https://app.nearpad.io/pools/0x2235Aae35aa4a75Bc56479b5a081e99d5e861B2C",
+    route: "rose-padnlp",
+    isRose: false,
+    poolName: "ROSE/PAD NLP Pool",
+  },
+  [ROSE_FRAX_NLP_FARM_NAME]: {
+    name: ROSE_FRAX_NLP_FARM_NAME,
+    lpToken: ROSE_FRAX_NLP_TOKEN,
+    addresses: ROSE_FRAX_NLP_FARM_ADDRESSES,
+    poolUrl: "https://app.nearpad.io/pools/%20ROSE%20TDE_2_1638457200 ",
+    route: "rose-fraxnlp",
+    isRose: false,
+    poolName: "ROSE/FRAX NLP Pool",
+  },
+  [SROSE_FARM_NAME]: {
+    name: SROSE_FARM_NAME,
+    lpToken: SROSE_LP_TOKEN,
+    addresses: SROSE_FARM_ADDRESSES,
+    route: "stakedrose",
+    isRose: true,
+    poolName: "stRose Pool",
   },
 }
 export function isLegacySwapABIPool(poolName: string): boolean {

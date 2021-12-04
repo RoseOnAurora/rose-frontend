@@ -5,13 +5,15 @@ import ConfirmTransaction, {
 import React, { ReactElement, useState } from "react"
 import { commify, formatBNToString } from "../utils"
 import { BigNumber } from "@ethersproject/bignumber"
+import { Button } from "@chakra-ui/react"
 import FarmDetails from "./FarmDetails"
 import FarmFooter from "./FarmFooter"
+import { FarmName } from "../constants"
 import FarmTabs from "./FarmTabs"
 import HarvestRewards from "./HarvestRewards"
 import Modal from "./Modal"
-import { PoolName } from "../constants"
 import styles from "./FarmPage.module.scss"
+import useClaimReward from "../hooks/useClaimReward"
 import useEarnedRewards from "../hooks/useEarnedRewards"
 import useFarmExit from "../hooks/useFarmExit"
 import { useTranslation } from "react-i18next"
@@ -21,14 +23,15 @@ interface Props {
   lpTokenIcon: string
   balance: BigNumber
   deposited: BigNumber
-  poolName: PoolName
+  farmName: FarmName
 }
 
 const FarmPage = (props: Props): ReactElement => {
   const formattedBalance = commify(formatBNToString(props.balance, 18, 6))
   const formattedDeposited = commify(formatBNToString(props.deposited, 18, 6))
-  const rewardsEarned = useEarnedRewards()
-  const exit = useFarmExit()
+  const rewardsEarned = useEarnedRewards(props.farmName)
+  const exit = useFarmExit(props.farmName)
+  const getReward = useClaimReward(props.farmName)
   const [
     currentModal,
     setCurrentModal,
@@ -55,6 +58,14 @@ const FarmPage = (props: Props): ReactElement => {
           description: t("txFailed", { tx }),
         })
         break
+      case ModalType.APPROVE:
+        setCurrentModal({
+          type: ModalType.APPROVE,
+          title: t("chooseOption"),
+          description:
+            "Please choose between harvest or withdraw and harvest (claim everything from this farm).",
+        })
+        break
       default:
         break
     }
@@ -70,7 +81,40 @@ const FarmPage = (props: Props): ReactElement => {
           description={currentModal?.description}
           title={currentModal?.title}
           type={currentModal?.type}
-        />
+        >
+          {currentModal?.type === ModalType.APPROVE ? (
+            <div className={styles.approveButtons}>
+              <Button
+                variant="primary"
+                onClick={async () => {
+                  updateModal(ModalType.CONFIRM)
+                  const receipt = await getReward()
+                  if (receipt?.status) {
+                    updateModal(ModalType.SUCCESS, t("harvestRewards"))
+                  } else {
+                    updateModal(ModalType.FAILED, t("harvestRewards"))
+                  }
+                }}
+              >
+                {t("harvestRewards")}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  updateModal(ModalType.CONFIRM)
+                  const receipt = await exit()
+                  if (receipt?.status) {
+                    updateModal(ModalType.SUCCESS, t("withdrawAndHarvest"))
+                  } else {
+                    updateModal(ModalType.FAILED, t("withdrawAndHarvest"))
+                  }
+                }}
+              >
+                {t("withdrawAndHarvest")}
+              </Button>
+            </div>
+          ) : null}
+        </ConfirmTransaction>
       </Modal>
       <FarmTabs {...props} handleModal={updateModal} />
       <FarmDetails
@@ -80,12 +124,7 @@ const FarmPage = (props: Props): ReactElement => {
         lpTokenName={props.lpTokenName}
       />
       <HarvestRewards rewardBalance={rewardsEarned} handleModal={updateModal} />
-      <FarmFooter
-        deposited={props.deposited}
-        hasRewards={+rewardsEarned > 0}
-        handler={exit}
-        handleModal={updateModal}
-      ></FarmFooter>
+      <FarmFooter />
     </div>
   )
 }
