@@ -1061,7 +1061,7 @@ export const FARMS_MAP: FarmsMap = {
     lpToken: ROSE_PAD_NLP_TOKEN,
     addresses: ROSE_PAD_NLP_FARM_ADDRESSES,
     poolUrl:
-      "https://app.nearpad.io/pools/0x2235Aae35aa4a75Bc56479b5a081e99d5e861B2C",
+      "https://dex.nearpad.io/add/0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970/0x885f8CF6E45bdd3fdcDc644efdcd0AC93880c781",
     route: "rose-padnlp",
     isRose: false,
     poolName: "ROSE/PAD NLP Pool",
@@ -1070,7 +1070,8 @@ export const FARMS_MAP: FarmsMap = {
     name: ROSE_FRAX_NLP_FARM_NAME,
     lpToken: ROSE_FRAX_NLP_TOKEN,
     addresses: ROSE_FRAX_NLP_FARM_ADDRESSES,
-    poolUrl: "https://app.nearpad.io/pools/%20ROSE%20TDE_2_1638457200 ",
+    poolUrl:
+      "https://dex.nearpad.io/add/0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970/0xDA2585430fEf327aD8ee44Af8F1f989a2A91A3d2",
     route: "rose-fraxnlp",
     isRose: false,
     poolName: "ROSE/FRAX NLP Pool",
