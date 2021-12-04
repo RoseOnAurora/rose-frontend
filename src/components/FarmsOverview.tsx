@@ -42,7 +42,7 @@ function FarmsOverview(props: Props): ReactElement {
         <div className={styles.row}>
           <div className={styles.titleBox}>
             <h4 className={styles.title}>{farmName}</h4>
-            <a href={poolUrl} target="_blank" rel="noreferrer">
+            <a href={poolUrl} target={isRose ? "" : "_blank"} rel="noreferrer">
               <FarmTag isRose={isRose}>
                 {poolName}
                 {isRose ? null : <sup>↗</sup>}

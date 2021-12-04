@@ -1044,6 +1044,7 @@ export const FARMS_MAP: FarmsMap = {
     name: STABLES_FARM_NAME,
     lpToken: STABLECOIN_SWAP_V2_TOKEN,
     addresses: ROSE_FARM_STABLES_ADDRESSES,
+    poolUrl: "../#/pools/stables/deposit",
     route: "stables",
     isRose: true,
     poolName: STABLECOIN_POOL_V2_NAME,
