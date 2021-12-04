@@ -130,9 +130,9 @@ const SwapPage = (props: Props): ReactElement => {
           </div>
           <div className="row">
             <SwapInput
-              tokens={tokenOptions.from.filter(
-                ({ symbol }) => symbol !== toState.symbol,
-              )}
+              tokens={tokenOptions.from
+                .filter(({ symbol }) => symbol !== "FRAX")
+                .filter(({ symbol }) => symbol !== toState.symbol)}
               onSelect={onChangeFromToken}
               onChangeAmount={onChangeFromAmount}
               selected={fromState.symbol}
@@ -156,9 +156,9 @@ const SwapPage = (props: Props): ReactElement => {
           </div>
           <div className="row">
             <SwapInput
-              tokens={tokenOptions.to.filter(
-                ({ symbol }) => symbol !== fromState.symbol,
-              )}
+              tokens={tokenOptions.to
+                .filter(({ symbol }) => symbol !== "FRAX")
+                .filter(({ symbol }) => symbol !== fromState.symbol)}
               onSelect={onChangeToToken}
               selected={toState.symbol}
               inputValue={toState.value}
