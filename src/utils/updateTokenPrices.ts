@@ -11,11 +11,17 @@ import retry from "async-retry"
 import { updateTokensPricesUSD } from "../state/application"
 
 const coinGeckoAPI = "https://api.coingecko.com/api/v3/simple/price"
+const rosePriceApi =
+  "https://raw.githubusercontent.com/RoseOnAurora/apr/master/rose.json"
 
 interface CoinGeckoReponse {
   [tokenSymbol: string]: {
     usd: number
   }
+}
+
+interface RosePriceResponse {
+  [tokenSymbol: string]: string
 }
 const otherTokens = {
   ETH: "ethereum",
@@ -55,7 +61,7 @@ export default function fetchTokenPricesUSD(
             },
             {} as { [symbol: string]: number },
           )
-          const result = tokens.reduce((acc, token) => {
+          let result = tokens.reduce((acc, token) => {
             return { ...acc, [token.symbol]: body?.[token.geckoId]?.usd }
           }, otherTokensResult)
           result.alETH = result?.ETH || result.alETH || 0 // TODO: remove once CG price is fixed
@@ -67,7 +73,16 @@ export default function fetchTokenPricesUSD(
             )
             result.VETH2 = vEth2Price || result?.ETH | 0
           }
-          dispatch(updateTokensPricesUSD(result))
+          void fetch(rosePriceApi)
+            .then((res) => res.json())
+            .then((body: RosePriceResponse[]) => {
+              result = {
+                ...result,
+                ROSE: +body[0].price_of_rose || 0,
+                stRose: +body[0].price_of_rose || 0,
+              }
+              dispatch(updateTokensPricesUSD(result))
+            })
         }),
     { retries: 3 },
   )

@@ -1,46 +1,15 @@
 import React, { ReactElement } from "react"
 import BackButton from "./BackButton"
-import { BigNumber } from "@ethersproject/bignumber"
-import Button from "./Button"
-import { ContractReceipt } from "@ethersproject/contracts"
-import { ModalType } from "./ConfirmTransaction"
-import { Zero } from "@ethersproject/constants"
 import styles from "./FarmFooter.module.scss"
-import { useTranslation } from "react-i18next"
 
-interface Props {
-  deposited: BigNumber
-  hasRewards: boolean
-  handler: () => Promise<ContractReceipt | void>
-  handleModal: (modalType: ModalType, tx?: string | undefined) => void
-}
-
-const FarmFooter = (props: Props): ReactElement => {
-  const { t } = useTranslation()
-  const { deposited, hasRewards, handler, handleModal } = props
+const FarmFooter = (): ReactElement => {
   return (
     <div className={styles.farmFooter}>
       <BackButton
-        route="/pools"
+        route="/farms"
         wrapperClass={styles.goBack}
-        buttonText="Go back to pools"
+        buttonText="Go back to farms"
       />
-      <Button
-        kind="secondary"
-        size="xlarge"
-        disabled={deposited.lte(Zero) || !hasRewards}
-        onClick={async () => {
-          handleModal(ModalType.CONFIRM)
-          const receipt = await handler()
-          if (receipt?.status) {
-            handleModal(ModalType.SUCCESS, t("withdrawAndHarvest"))
-          } else {
-            handleModal(ModalType.FAILED, t("withdrawAndHarvest"))
-          }
-        }}
-      >
-        {t("withdrawAndHarvest")}
-      </Button>
     </div>
   )
 }

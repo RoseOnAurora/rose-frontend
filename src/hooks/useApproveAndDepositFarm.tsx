@@ -1,5 +1,5 @@
-import { PoolName, TRANSACTION_TYPES } from "../constants"
-import { useLPTokenContract, useRoseStablesFarmContract } from "./useContract"
+import { FarmName, TRANSACTION_TYPES } from "../constants"
+import { useFarmContract, useLPTokenContractForFarm } from "./useContract"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
@@ -10,11 +10,11 @@ import { useActiveWeb3React } from "."
 import { useDispatch } from "react-redux"
 
 export function useApproveAndDepositFarm(
-  poolName: PoolName,
+  farmName: FarmName,
 ): (amount: string) => Promise<ContractReceipt | void> {
   const dispatch = useDispatch()
-  const farmContract = useRoseStablesFarmContract() as RoseStablesFarm
-  const lpTokenContract = useLPTokenContract(poolName)
+  const farmContract = useFarmContract(farmName) as RoseStablesFarm
+  const lpTokenContract = useLPTokenContractForFarm(farmName)
   const { account } = useActiveWeb3React()
   return async function approveAndStake(
     amount: string,

@@ -2,15 +2,24 @@ import {
   BRIDGE_CONTRACT_ADDRESSES,
   BTC_POOL_NAME,
   DAI,
+  FARMS_MAP,
   FRAX,
+  // FRAX_STABLES_LP_FARM_NAME,
   FRAX_STABLES_LP_POOL_NAME,
+  FarmName,
   POOLS_MAP,
   PoolName,
+  ROSE,
   ROSE_CONTRACT_ADDRESSES,
-  ROSE_FARM_STABLES_ADDRESSES,
+  ROSE_FRAX_NLP_FARM_NAME,
+  ROSE_PAD_NLP_FARM_NAME,
+  SROSE,
   SROSE_CONTRACT_ADDRESSES,
+  // SROSE_FARM_NAME,
   STABLECOIN_POOL_V2_NAME,
   STABLECOIN_SWAP_V2_TOKEN,
+  STABLES_FARM_NAME,
+  STAKED_ROSE_LP_POOL_NAME,
   SWAP_MIGRATOR_USD_CONTRACT_ADDRESSES,
   SYNTHETIX_CONTRACT_ADDRESSES,
   SYNTHETIX_EXCHANGE_RATES_CONTRACT_ADDRESSES,
@@ -80,15 +89,58 @@ function useContract(
   }, [address, ABI, library, withSignerIfPossible, account])
 }
 
-export function useRoseStablesFarmContract(): RoseStablesFarm | null {
-  const { chainId } = useActiveWeb3React()
-  const contractAddress: string | undefined = chainId
-    ? ROSE_FARM_STABLES_ADDRESSES[chainId]
-    : undefined
-  return useContract(
-    contractAddress,
-    ROSE_STABLES_FARM_ABI.abi,
-  ) as RoseStablesFarm
+// TO-DO: update ABI
+export function useFarmContract(farmName: FarmName): RoseStablesFarm | null {
+  const { chainId, account, library } = useActiveWeb3React()
+  return useMemo(() => {
+    if (!farmName || !library || !chainId) return null
+    try {
+      const farm = FARMS_MAP[farmName]
+      if (typeof farm.addresses === undefined) return null
+      switch (farmName) {
+        case STABLES_FARM_NAME:
+          return getContract(
+            farm.addresses[chainId],
+            JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
+            library,
+            account ?? undefined,
+          ) as RoseStablesFarm
+        // case FRAX_STABLES_LP_FARM_NAME:
+        //   return getContract(
+        //     farm.addresses[chainId],
+        //     JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
+        //     library,
+        //     account ?? undefined,
+        //   ) as RoseStablesFarm
+        case ROSE_PAD_NLP_FARM_NAME:
+          return getContract(
+            farm.addresses[chainId],
+            JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
+            library,
+            account ?? undefined,
+          ) as RoseStablesFarm
+        case ROSE_FRAX_NLP_FARM_NAME:
+          return getContract(
+            farm.addresses[chainId],
+            JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
+            library,
+            account ?? undefined,
+          ) as RoseStablesFarm
+        // case SROSE_FARM_NAME:
+        //   return getContract(
+        //     farm.addresses[chainId],
+        //     JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
+        //     library,
+        //     account ?? undefined,
+        //   ) as RoseStablesFarm
+        default:
+          return null
+      }
+    } catch (error) {
+      console.error("Failed to get contract", error)
+      return null
+    }
+  }, [chainId, library, account, farmName])
 }
 
 export function useRoseContract(): Erc20 | null {
@@ -162,6 +214,7 @@ export function usePoolContract(poolName?: PoolName): Contract | null {
     try {
       const pool = POOLS_MAP[poolName]
       if (typeof pool.addresses === undefined) return null
+      // use RoseFraxPool for a standard pool with 2 assets with 18 decimals each
       switch (poolName) {
         case STABLECOIN_POOL_V2_NAME:
           return getContract(
@@ -171,6 +224,13 @@ export function usePoolContract(poolName?: PoolName): Contract | null {
             account ?? undefined,
           ) as RoseStablesPool
         case FRAX_STABLES_LP_POOL_NAME:
+          return getContract(
+            pool.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_POOL_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxPool
+        case STAKED_ROSE_LP_POOL_NAME:
           return getContract(
             pool.addresses[chainId],
             JSON.stringify(ROSE_FRAX_POOL_ABI),
@@ -251,6 +311,7 @@ export function useLPTokenContract(
     if (!poolName || !library || !chainId) return null
     try {
       const pool = POOLS_MAP[poolName]
+      // use RoseFraxLP for a standard pool with 2 assets with 18 decimals each
       switch (poolName) {
         case STABLECOIN_POOL_V2_NAME:
           return getContract(
@@ -260,6 +321,13 @@ export function useLPTokenContract(
             account ?? undefined,
           ) as RoseStablesLP
         case FRAX_STABLES_LP_POOL_NAME:
+          return getContract(
+            pool.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
+        case STAKED_ROSE_LP_POOL_NAME:
           return getContract(
             pool.lpToken.addresses[chainId],
             JSON.stringify(ROSE_FRAX_LP_ABI),
@@ -276,6 +344,61 @@ export function useLPTokenContract(
   }, [chainId, library, account, poolName])
 }
 
+export function useLPTokenContractForFarm(
+  farmName: FarmName,
+): RoseStablesLP | RoseFraxLP | null {
+  const { chainId, account, library } = useActiveWeb3React()
+  return useMemo(() => {
+    if (!farmName || !library || !chainId) return null
+    try {
+      const farm = FARMS_MAP[farmName]
+      // use RoseFraxLP for a standard farm with 18 decimals each
+      switch (farmName) {
+        case STABLES_FARM_NAME:
+          return getContract(
+            farm.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_STABLES_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseStablesLP
+        // case FRAX_STABLES_LP_FARM_NAME:
+        //   return getContract(
+        //     farm.lpToken.addresses[chainId],
+        //     JSON.stringify(ROSE_FRAX_LP_ABI),
+        //     library,
+        //     account ?? undefined,
+        //   ) as RoseFraxLP
+        case ROSE_PAD_NLP_FARM_NAME:
+          return getContract(
+            farm.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
+        case ROSE_FRAX_NLP_FARM_NAME:
+          return getContract(
+            farm.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
+        // case SROSE_FARM_NAME:
+        //   return getContract(
+        //     farm.lpToken.addresses[chainId],
+        //     JSON.stringify(ROSE_FRAX_LP_ABI),
+        //     library,
+        //     account ?? undefined,
+        //   ) as RoseFraxLP
+        default:
+          return null
+      }
+    } catch (error) {
+      console.error("Failed to get contract", error)
+      return null
+    }
+  }, [chainId, library, account, farmName])
+}
+
 interface AllContractsObject {
   [x: string]: RoseStablesLP | Erc20 | null
 }
@@ -287,6 +410,8 @@ export function useAllContracts(): AllContractsObject | null {
   const roseStablesLPContract = useTokenContract(
     STABLECOIN_SWAP_V2_TOKEN,
   ) as RoseStablesLP
+  const roseContract = useTokenContract(ROSE) as Erc20
+  const stroseContract = useTokenContract(SROSE) as Erc20
 
   return useMemo(() => {
     if (
@@ -301,6 +426,8 @@ export function useAllContracts(): AllContractsObject | null {
       [USDT.symbol]: usdtContract,
       [FRAX.symbol]: fraxContract,
       [STABLECOIN_SWAP_V2_TOKEN.symbol]: roseStablesLPContract,
+      [ROSE.symbol]: roseContract,
+      [SROSE.symbol]: stroseContract,
     }
   }, [
     daiContract,
@@ -308,5 +435,7 @@ export function useAllContracts(): AllContractsObject | null {
     usdtContract,
     roseStablesLPContract,
     fraxContract,
+    roseContract,
+    stroseContract,
   ])
 }

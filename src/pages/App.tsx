@@ -2,16 +2,17 @@ import "../styles/global.scss"
 import "./NotifyStyle.scss"
 
 import { AppDispatch, AppState } from "../state"
-import { BLOCK_TIME, POOLS_MAP } from "../constants"
+import { BLOCK_TIME, FARMS_MAP, POOLS_MAP } from "../constants"
 import React, { ReactElement, Suspense, useCallback, useEffect } from "react"
-import { Redirect, Route, Switch } from "react-router-dom"
+import { Route, Switch } from "react-router-dom"
 import { isChainSupportedByNotify, notify } from "../utils/notifyHandler"
 import { useDispatch, useSelector } from "react-redux"
 
-import Banner from "../components/Banner"
+// import Banner from "../components/Banner"
 import BottomMenu from "../components/BottomMenu"
 import Deposit from "./Deposit"
 import Farm from "./Farm"
+import Farms from "./Farms"
 import PendingSwapsProvider from "../providers/PendingSwapsProvider"
 import Pools from "./Pools"
 import Stake from "./Stake"
@@ -26,7 +27,7 @@ import usePoller from "../hooks/usePoller"
 export default function App(): ReactElement {
   const { chainId } = useActiveWeb3React()
   const { userDarkMode } = useSelector((state: AppState) => state.user)
-  const bannerBg = userDarkMode ? "#d2f1e4" : "#a2d2ff"
+  // const bannerBg = userDarkMode ? "#d2f1e4" : "#a2d2ff"
 
   useEffect(() => {
     notify?.config({
@@ -39,22 +40,23 @@ export default function App(): ReactElement {
       <Web3ReactManager>
         <GasAndTokenPrices>
           <PendingSwapsProvider>
-            <Banner
+            {/* <Banner
               variant="solid"
               color="black"
               bg={bannerBg}
-              bannerTitle="Initial token distribution event on NearPad’s right now!"
-              bannerMessage="Go to nearpad.io to participate in the launch of the ROSE token."
+              bannerTitle=""
+              bannerMessage=""
               status="info"
               position="sticky"
               top="0"
               zIndex="3"
               border="none"
               boxShadow="2px 2px 12px rgba(68, 64, 64, 0.14)"
-            />
+            /> */}
             <Switch>
               <Route exact path="/" component={Swap} />
               <Route exact path="/pools" component={Pools} />
+              <Route exact path="/farms" component={Farms} />
               <Route exact path="/stake" component={Stake} />
               {Object.values(POOLS_MAP).map(({ name, route }) => (
                 <Route
@@ -72,16 +74,13 @@ export default function App(): ReactElement {
                   key={`${name}-withdraw`}
                 />
               ))}
-              {Object.values(POOLS_MAP).map(({ name, route }) => (
+              {Object.values(FARMS_MAP).map(({ name, route }) => (
                 <Route
                   exact
-                  path={`/pools/${route}/farm`}
-                  render={(props) => <Farm {...props} poolName={name} />}
+                  path={`/farms/${route}`}
+                  render={(props) => <Farm {...props} farmName={name} />}
                   key={`${name}-farm`}
-                >
-                  {/* redirect to main page for now if user lands on page somehow */}
-                  <Redirect to="/" />
-                </Route>
+                ></Route>
               ))}
             </Switch>
             <BottomMenu />

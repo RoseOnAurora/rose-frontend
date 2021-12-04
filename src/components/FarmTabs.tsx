@@ -2,8 +2,8 @@ import React, { ReactElement } from "react"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
+import { FarmName } from "../constants"
 import { ModalType } from "./ConfirmTransaction"
-import { PoolName } from "../constants"
 import StakeForm from "./StakeForm"
 import { Zero } from "@ethersproject/constants"
 import { formatBNToString } from "../utils"
@@ -18,15 +18,22 @@ interface Props {
   lpTokenIcon: string
   balance: BigNumber
   deposited: BigNumber
-  poolName: PoolName
+  farmName: FarmName
   handleModal: (modalType: ModalType, tx?: string | undefined) => void
 }
 
 const FarmTabs = (props: Props): ReactElement => {
-  const { lpTokenName, balance, deposited, poolName, handleModal } = props
+  const {
+    lpTokenName,
+    balance,
+    deposited,
+    farmName,
+    lpTokenIcon,
+    handleModal,
+  } = props
   const { t } = useTranslation()
-  const farm = useApproveAndDepositFarm(poolName)
-  const withdraw = useWithdrawFarm()
+  const farm = useApproveAndDepositFarm(farmName)
+  const withdraw = useWithdrawFarm(farmName)
 
   const validateBalance = (amount: string) => {
     const generalValidation = validateAmount(amount)
@@ -93,7 +100,7 @@ const FarmTabs = (props: Props): ReactElement => {
             <StakeForm
               fieldName={"deposit"}
               token={lpTokenName}
-              tokenIcon={"🌹"}
+              tokenIcon={lpTokenIcon}
               max={formatBNToString(balance || Zero, 18, 18)}
               handleSubmit={farm}
               handlePostSubmit={postDeposit}
@@ -108,7 +115,7 @@ const FarmTabs = (props: Props): ReactElement => {
             <StakeForm
               fieldName={"withdraw"}
               token={lpTokenName}
-              tokenIcon={"🌹"}
+              tokenIcon={lpTokenIcon}
               max={formatBNToString(deposited || Zero, 18, 18)}
               handleSubmit={withdraw}
               validator={validateDeposited}

@@ -1,13 +1,14 @@
+import { FarmName, TRANSACTION_TYPES } from "../constants"
 import { ContractReceipt } from "@ethersproject/contracts"
-import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
-import { TRANSACTION_TYPES } from "../constants"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
 import { useDispatch } from "react-redux"
-import { useRoseStablesFarmContract } from "./useContract"
+import { useFarmContract } from "./useContract"
 
-export default function useFarmExit(): () => Promise<ContractReceipt | void> {
-  const farmContract = useRoseStablesFarmContract() as RoseStablesFarm
+export default function useFarmExit(
+  farmName: FarmName,
+): () => Promise<ContractReceipt | void> {
+  const farmContract = useFarmContract(farmName)
   const { account } = useActiveWeb3React()
   const dispatch = useDispatch()
   return async function exitFarm(): Promise<ContractReceipt | void> {

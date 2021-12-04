@@ -51,6 +51,8 @@ const Stake = (): ReactElement => {
         <StakePage
           balance={tokenBalanceDetails.balance}
           staked={tokenBalanceDetails.staked}
+          roseTokenIcon={ROSE_TOKENS_MAP.rose.icon}
+          stRoseTokenIcon={ROSE_TOKENS_MAP.stRose.icon}
           approveStake={stake}
           approveUnstake={unstake}
         />

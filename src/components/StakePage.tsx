@@ -22,13 +22,22 @@ import { useTranslation } from "react-i18next"
 interface Props {
   balance: TokenDetails
   staked: TokenDetails
+  roseTokenIcon: string
+  stRoseTokenIcon: string
   approveStake: (amount: string) => Promise<ContractReceipt | void>
   approveUnstake: (amount: string) => Promise<ContractReceipt | void>
 }
 
 function StakePage(props: Props): ReactElement {
   const { t } = useTranslation()
-  const { balance, staked, approveStake, approveUnstake } = props
+  const {
+    balance,
+    staked,
+    roseTokenIcon,
+    stRoseTokenIcon,
+    approveStake,
+    approveUnstake,
+  } = props
 
   const { userDarkMode } = useSelector((state: AppState) => state.user)
   const [stakedRoseConversion] = useStakedRoseConversion()
@@ -147,7 +156,7 @@ function StakePage(props: Props): ReactElement {
               <StakeForm
                 fieldName={"stake"}
                 token={"ROSE"}
-                tokenIcon={"🌹"}
+                tokenIcon={roseTokenIcon}
                 max={formatBNToString(
                   balance.amount || Zero,
                   balance.decimals || 0,
@@ -175,7 +184,7 @@ function StakePage(props: Props): ReactElement {
               <StakeForm
                 fieldName={"unstake"}
                 token={"stRose"}
-                tokenIcon={"🌷"}
+                tokenIcon={stRoseTokenIcon}
                 max={formatBNToString(
                   staked.amount || Zero,
                   staked.decimals || 0,

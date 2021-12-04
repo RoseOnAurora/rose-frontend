@@ -1,0 +1,101 @@
+@import "../styles/theme";
+@import "../styles/viewports";
+
+div.farmsOverview {
+  margin-top: 40px;
+  width: 100%;
+  background: var(--background-element);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  padding: 24px 32px;
+  @include breakpoint(md) {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    @include breakpoint(md) {
+      align-items: baseline;
+    }
+  }
+
+  h4.title {
+    font-family: $font-family-title;
+    font-size: 30px;
+    font-weight: $bold;
+    color: var(--text-title);
+    margin-right: 16px;
+    @include breakpoint(md) {
+      font-size: 21px;
+      margin-bottom: 7px;
+    }
+  }
+  .titleBox {
+    display: flex;
+    align-items: center;
+    @include breakpoint(md) {
+      flex-wrap: wrap;
+      align-items: baseline;
+      a {
+        margin: 0;
+      }
+    }
+  }
+  .farmDescription {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    @include breakpoint(md) {
+      flex-wrap: wrap;
+    }
+    p {
+      margin-top: 15px;
+      color: var(--text);
+      text-align: justify;
+      a {
+        margin: 0;
+        color: $primary;
+        &:hover {
+          color: $primary-lighter;
+          text-decoration: underline;
+        }
+      }
+    }
+    .farmButton {
+      button {
+        width: 175px;
+        @include breakpoint(md) {
+          width: 300px;
+        }
+      }
+      @include breakpoint(md) {
+        margin-top: 20px;
+      }
+    }
+  }
+
+  .tag {
+    border-radius: 4px;
+    font-size: 20px;
+    font-weight: $bold;
+    align-self: center;
+    padding: 2px 4px;
+    border: 1px solid #4f46e5;
+    color: #4f46e5;
+    @include breakpoint(md) {
+      font-size: 15px;
+    }
+  }
+  .tag.rose {
+    border: 1px solid var(--text);
+    color: var(--text);
+  }
+}

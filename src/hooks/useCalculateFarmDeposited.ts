@@ -1,19 +1,20 @@
+import { FarmName, TRANSACTION_TYPES } from "../constants"
 import { useEffect, useState } from "react"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { TRANSACTION_TYPES } from "../constants"
 import { Zero } from "@ethersproject/constants"
 import { useActiveWeb3React } from "."
-import { useRoseStablesFarmContract } from "./useContract"
+import { useFarmContract } from "./useContract"
 import { useSelector } from "react-redux"
 
 export default function useCalculateFarmDeposited(
   balance: BigNumber | undefined,
+  farmName: FarmName,
 ): BigNumber {
   const { account } = useActiveWeb3React()
 
   const [depositedBalance, setDepositedBalance] = useState<BigNumber>(Zero)
-  const farmContract = useRoseStablesFarmContract()
+  const farmContract = useFarmContract(farmName)
   const { lastTransactionTimes } = useSelector(
     (state: AppState) => state.application,
   )

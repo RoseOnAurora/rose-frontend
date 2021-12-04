@@ -1,17 +1,16 @@
+import { FarmName, TRANSACTION_TYPES } from "../constants"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
-import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
-import { TRANSACTION_TYPES } from "../constants"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
 import { useDispatch } from "react-redux"
-import { useRoseStablesFarmContract } from "./useContract"
+import { useFarmContract } from "./useContract"
 
-export function useWithdrawFarm(): (
-  amount: string,
-) => Promise<ContractReceipt | void> {
+export function useWithdrawFarm(
+  farmName: FarmName,
+): (amount: string) => Promise<ContractReceipt | void> {
   const dispatch = useDispatch()
-  const farmContract = useRoseStablesFarmContract() as RoseStablesFarm
+  const farmContract = useFarmContract(farmName)
   const { account } = useActiveWeb3React()
   return async function approveAndStake(
     amount: string,

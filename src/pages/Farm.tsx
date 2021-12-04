@@ -1,29 +1,33 @@
+import { FARMS_MAP, FarmName } from "../constants"
 import React, { ReactElement } from "react"
 import FarmPage from "../components/FarmPage"
-import { PoolName } from "../constants"
 import TopMenu from "../components/TopMenu"
 import { Zero } from "@ethersproject/constants"
 import styles from "./Farm.module.scss"
 import useCalculateFarmDeposited from "../hooks/useCalculateFarmDeposited"
-import usePoolData from "../hooks/usePoolData"
+import useFarmData from "../hooks/useFarmData"
 
 interface Props {
-  poolName: PoolName
+  farmName: FarmName
 }
 
-const Farm = ({ poolName }: Props): ReactElement => {
-  const [poolData, userShareData] = usePoolData(poolName)
-  const deposited = useCalculateFarmDeposited(userShareData?.lpTokenBalance)
+const Farm = ({ farmName }: Props): ReactElement => {
+  const farmData = useFarmData(farmName)
+  const { lpToken } = FARMS_MAP[farmName]
+  const deposited = useCalculateFarmDeposited(
+    farmData?.lpTokenBalance,
+    farmName,
+  )
   return (
     <div className={styles.farm}>
       <TopMenu activeTab="farm" />
       <div className={styles.container}>
         <FarmPage
-          lpTokenName={poolData.lpToken}
-          lpTokenIcon={"🌹"}
-          balance={userShareData?.lpTokenBalance || Zero}
+          farmName={farmName}
+          lpTokenName={lpToken.name}
+          lpTokenIcon={lpToken.icon}
+          balance={farmData?.lpTokenBalance || Zero}
           deposited={deposited}
-          poolName={poolName}
         />
       </div>
     </div>
