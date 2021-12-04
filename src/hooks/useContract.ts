@@ -4,7 +4,7 @@ import {
   DAI,
   FARMS_MAP,
   FRAX,
-  FRAX_STABLES_LP_FARM_NAME,
+  // FRAX_STABLES_LP_FARM_NAME,
   FRAX_STABLES_LP_POOL_NAME,
   FarmName,
   POOLS_MAP,
@@ -15,7 +15,7 @@ import {
   ROSE_PAD_NLP_FARM_NAME,
   SROSE,
   SROSE_CONTRACT_ADDRESSES,
-  SROSE_FARM_NAME,
+  // SROSE_FARM_NAME,
   STABLECOIN_POOL_V2_NAME,
   STABLECOIN_SWAP_V2_TOKEN,
   STABLES_FARM_NAME,
@@ -105,13 +105,13 @@ export function useFarmContract(farmName: FarmName): RoseStablesFarm | null {
             library,
             account ?? undefined,
           ) as RoseStablesFarm
-        case FRAX_STABLES_LP_FARM_NAME:
-          return getContract(
-            farm.addresses[chainId],
-            JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
-            library,
-            account ?? undefined,
-          ) as RoseStablesFarm
+        // case FRAX_STABLES_LP_FARM_NAME:
+        //   return getContract(
+        //     farm.addresses[chainId],
+        //     JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
+        //     library,
+        //     account ?? undefined,
+        //   ) as RoseStablesFarm
         case ROSE_PAD_NLP_FARM_NAME:
           return getContract(
             farm.addresses[chainId],
@@ -126,13 +126,13 @@ export function useFarmContract(farmName: FarmName): RoseStablesFarm | null {
             library,
             account ?? undefined,
           ) as RoseStablesFarm
-        case SROSE_FARM_NAME:
-          return getContract(
-            farm.addresses[chainId],
-            JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
-            library,
-            account ?? undefined,
-          ) as RoseStablesFarm
+        // case SROSE_FARM_NAME:
+        //   return getContract(
+        //     farm.addresses[chainId],
+        //     JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
+        //     library,
+        //     account ?? undefined,
+        //   ) as RoseStablesFarm
         default:
           return null
       }
@@ -361,13 +361,13 @@ export function useLPTokenContractForFarm(
             library,
             account ?? undefined,
           ) as RoseStablesLP
-        case FRAX_STABLES_LP_FARM_NAME:
-          return getContract(
-            farm.lpToken.addresses[chainId],
-            JSON.stringify(ROSE_FRAX_LP_ABI),
-            library,
-            account ?? undefined,
-          ) as RoseFraxLP
+        // case FRAX_STABLES_LP_FARM_NAME:
+        //   return getContract(
+        //     farm.lpToken.addresses[chainId],
+        //     JSON.stringify(ROSE_FRAX_LP_ABI),
+        //     library,
+        //     account ?? undefined,
+        //   ) as RoseFraxLP
         case ROSE_PAD_NLP_FARM_NAME:
           return getContract(
             farm.lpToken.addresses[chainId],
@@ -382,13 +382,13 @@ export function useLPTokenContractForFarm(
             library,
             account ?? undefined,
           ) as RoseFraxLP
-        case SROSE_FARM_NAME:
-          return getContract(
-            farm.lpToken.addresses[chainId],
-            JSON.stringify(ROSE_FRAX_LP_ABI),
-            library,
-            account ?? undefined,
-          ) as RoseFraxLP
+        // case SROSE_FARM_NAME:
+        //   return getContract(
+        //     farm.lpToken.addresses[chainId],
+        //     JSON.stringify(ROSE_FRAX_LP_ABI),
+        //     library,
+        //     account ?? undefined,
+        //   ) as RoseFraxLP
         default:
           return null
       }

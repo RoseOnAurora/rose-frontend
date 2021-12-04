@@ -66,10 +66,10 @@ export type PoolName =
 
 export type FarmName =
   | typeof STABLES_FARM_NAME
-  | typeof FRAX_STABLES_LP_FARM_NAME
+  // | typeof FRAX_STABLES_LP_FARM_NAME
   | typeof ROSE_PAD_NLP_FARM_NAME
   | typeof ROSE_FRAX_NLP_FARM_NAME
-  | typeof SROSE_FARM_NAME
+// | typeof SROSE_FARM_NAME
 
 export enum ChainId {
   MAINNET = 1,
@@ -1048,14 +1048,14 @@ export const FARMS_MAP: FarmsMap = {
     isRose: true,
     poolName: STABLECOIN_POOL_V2_NAME,
   },
-  [FRAX_STABLES_LP_FARM_NAME]: {
-    name: FRAX_STABLES_LP_FARM_NAME,
-    lpToken: FRAX_STABLES_LP_TOKEN,
-    addresses: FRAX_STABLES_LP_FARM_ADDRESSES,
-    route: "frax-stableslp",
-    isRose: true,
-    poolName: FRAX_STABLES_LP_POOL_NAME,
-  },
+  // [FRAX_STABLES_LP_FARM_NAME]: {
+  //   name: FRAX_STABLES_LP_FARM_NAME,
+  //   lpToken: FRAX_STABLES_LP_TOKEN,
+  //   addresses: FRAX_STABLES_LP_FARM_ADDRESSES,
+  //   route: "frax-stableslp",
+  //   isRose: true,
+  //   poolName: FRAX_STABLES_LP_POOL_NAME,
+  // },
   [ROSE_PAD_NLP_FARM_NAME]: {
     name: ROSE_PAD_NLP_FARM_NAME,
     lpToken: ROSE_PAD_NLP_TOKEN,
@@ -1075,14 +1075,14 @@ export const FARMS_MAP: FarmsMap = {
     isRose: false,
     poolName: "ROSE/FRAX NLP Pool",
   },
-  [SROSE_FARM_NAME]: {
-    name: SROSE_FARM_NAME,
-    lpToken: SROSE_LP_TOKEN,
-    addresses: SROSE_FARM_ADDRESSES,
-    route: "stakedrose",
-    isRose: true,
-    poolName: "stRose Pool",
-  },
+  // [SROSE_FARM_NAME]: {
+  //   name: SROSE_FARM_NAME,
+  //   lpToken: SROSE_LP_TOKEN,
+  //   addresses: SROSE_FARM_ADDRESSES,
+  //   route: "stakedrose",
+  //   isRose: true,
+  //   poolName: "stRose Pool",
+  // },
 }
 export function isLegacySwapABIPool(poolName: string): boolean {
   return new Set([BTC_POOL_NAME, STABLECOIN_POOL_NAME, VETH2_POOL_NAME]).has(
