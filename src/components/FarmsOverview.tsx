@@ -57,16 +57,12 @@ function FarmsOverview(props: Props): ReactElement {
             justifyContent="space-between"
             minWidth="100px"
           >
-            <Stat>
+            <Stat mr={2}>
               <StatLabel>TVL</StatLabel>
               <StatNumber fontSize="13px">
                 {farmStats?.tvl && farmStats.tvl
                   ? `$${formatBNToShortString(
-                      BigNumber.from(
-                        (+farmStats.tvl).toLocaleString("fullwide", {
-                          useGrouping: false,
-                        }),
-                      ),
+                      BigNumber.from(farmStats.tvl),
                       18,
                     )}`
                   : "-"}
