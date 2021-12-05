@@ -480,12 +480,7 @@ function Swap(): ReactElement {
       bridgeContract: bridgeContract,
       poolContract: swapContract,
       from: {
-        amount: parseUnits(
-          (+formState.from.value).toFixed(
-            TOKENS_MAP[formState.to.symbol].decimals,
-          ),
-          fromToken.decimals,
-        ),
+        amount: parseUnits(formState.from.value, fromToken.decimals),
         symbol: formState.from.symbol,
         poolName: formState.from.poolName,
         tokenIndex: formState.from.tokenIndex,
