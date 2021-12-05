@@ -10,9 +10,11 @@ import {
 } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import { Trans, useTranslation } from "react-i18next"
+import { BigNumber } from "@ethersproject/bignumber"
 import { FarmStats } from "../hooks/useFarmStats"
 import { Link } from "react-router-dom"
 import classNames from "classnames"
+import { formatBNToShortString } from "../utils"
 import styles from "./FarmsOverview.module.scss"
 
 interface Props {
@@ -26,7 +28,15 @@ interface Props {
 }
 
 function FarmsOverview(props: Props): ReactElement {
-  const { farmRoute, farmName, poolName, poolUrl, lpTokenName, isRose } = props
+  const {
+    farmRoute,
+    farmName,
+    poolName,
+    poolUrl,
+    lpTokenName,
+    isRose,
+    farmStats,
+  } = props
   const { t } = useTranslation()
   return (
     <div className={styles.farmsOverview}>
@@ -47,9 +57,16 @@ function FarmsOverview(props: Props): ReactElement {
             justifyContent="space-between"
             minWidth="100px"
           >
-            <Stat>
+            <Stat mr={2}>
               <StatLabel>TVL</StatLabel>
-              <StatNumber fontSize="13px">{"-"}</StatNumber>
+              <StatNumber fontSize="13px">
+                {farmStats?.tvl && farmStats.tvl
+                  ? `$${formatBNToShortString(
+                      BigNumber.from(farmStats.tvl),
+                      18,
+                    )}`
+                  : "-"}
+              </StatNumber>
               {/* <StatHelpText>
                 <StatArrow type="increase" />
                 23.36%
@@ -57,7 +74,7 @@ function FarmsOverview(props: Props): ReactElement {
             </Stat>
             <Stat>
               <StatLabel>APR</StatLabel>
-              <StatNumber fontSize="13px">{"-"}</StatNumber>
+              <StatNumber fontSize="13px">{farmStats?.apr || "-"}</StatNumber>
               {/* <StatHelpText>
                 <StatArrow type="increase" />
                 23.36%
