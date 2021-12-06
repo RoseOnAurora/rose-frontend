@@ -43,7 +43,7 @@ export default function useRoseConversionRateData(): [string] {
       ]
 
       const conversionRate = String(
-        (Number(stRoseBalanceFmt) / Number(totalStRoseSupplyFmt)).toFixed(2),
+        (Number(stRoseBalanceFmt) / Number(totalStRoseSupplyFmt)).toFixed(5),
       )
 
       setRoseConversionData([conversionRate])
