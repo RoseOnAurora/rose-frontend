@@ -150,7 +150,7 @@ function StakePage(props: Props): ReactElement {
                     { [styles.colorPill]: !userDarkMode },
                   )}
                 >
-                  <div>1 stROSE = {stakedRoseConversion} ROSE</div>
+                  <div>1 stROSE ≈ {stakedRoseConversion} ROSE</div>
                 </div>
               </div>
               <StakeForm
@@ -178,7 +178,7 @@ function StakePage(props: Props): ReactElement {
                     { [styles.colorPill]: !userDarkMode },
                   )}
                 >
-                  <div>1 stROSE = {stakedRoseConversion} ROSE</div>
+                  <div>1 stROSE ≈ {stakedRoseConversion} ROSE</div>
                 </div>
               </div>
               <StakeForm
