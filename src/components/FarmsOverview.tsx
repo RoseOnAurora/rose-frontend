@@ -55,7 +55,7 @@ function FarmsOverview(props: Props): ReactElement {
             display="flex"
             flexWrap="nowrap"
             justifyContent="space-between"
-            minWidth="100px"
+            minWidth="115px"
           >
             <Stat mr={2}>
               <StatLabel>TVL</StatLabel>
