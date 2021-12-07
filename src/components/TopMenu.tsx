@@ -1,12 +1,22 @@
 import "./TopMenu.scss"
 
+import {
+  Menu,
+  MenuButton,
+  MenuGroup,
+  MenuItem,
+  MenuList,
+} from "@chakra-ui/react"
+import { ROSE, SROSE } from "../constants"
 import React, { ReactElement } from "react"
 
+import { FaCog } from "react-icons/fa"
 import { Link } from "react-router-dom"
 import ThemeChanger from "./ThemeChanger"
 import ToolTip from "./ToolTip"
 import Web3Status from "./Web3Status"
 import classNames from "classnames"
+import useAddTokenToMetamask from "../hooks/useAddTokenToMetamask"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -15,6 +25,8 @@ interface Props {
 
 function TopMenu({ activeTab }: Props): ReactElement {
   const { t } = useTranslation()
+  const addRoseToken = useAddTokenToMetamask(ROSE)
+  const addStRoseToken = useAddTokenToMetamask(SROSE)
 
   return (
     <header className="top">
@@ -85,6 +97,25 @@ function TopMenu({ activeTab }: Props): ReactElement {
         </li>
       </ul>
       <Web3Status />
+      <Menu>
+        <MenuButton className="addToken">
+          <FaCog />
+        </MenuButton>
+        <MenuList>
+          <MenuGroup title="ADD TOKEN TO WALLET">
+            <MenuItem
+              onClick={async () => {
+                await addRoseToken()
+              }}
+            >
+              ROSE🌹
+            </MenuItem>
+            <MenuItem onClick={async () => await addStRoseToken()}>
+              stROSE🌷
+            </MenuItem>
+          </MenuGroup>
+        </MenuList>
+      </Menu>
       <ThemeChanger />
     </header>
   )

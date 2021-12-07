@@ -106,6 +106,23 @@ header.top {
       }
     }
   }
+  .chakra-menu__menu-list {
+    background: var(--primary-background);
+  }
+  .addToken {
+    font-size: 20px;
+    margin-left: 25px;
+    margin-bottom: 2px;
+    @include breakpoint(lg) {
+      font-size: 18px;
+    }
+    @include breakpoint(md) {
+      font-size: 16px;
+    }
+    @include breakpoint(sm) {
+      font-size: 14px;
+    }
+  }
   .walletStatus {
     margin-left: auto;
     width: 20%;

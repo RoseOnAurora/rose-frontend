@@ -207,3 +207,8 @@ export function getTokenSymbolForPoolType(poolType: PoolTypes): string {
 export const toHex = (num: number): string => {
   return "0x" + num.toString(16)
 }
+
+export const imageIconToUrl = (tokenIconPath: string): string => {
+  const host = window.location.origin
+  return `${host}/${tokenIconPath}`
+}
