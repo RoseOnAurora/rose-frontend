@@ -1,24 +1,17 @@
-import { SUPPORTED_WALLETS, Token } from "../constants"
-import { useCallback, useState } from "react"
-import { find } from "lodash"
+import { Token } from "../constants"
+import { imageIconToUrl } from "../utils"
 import { useActiveWeb3React } from "./index"
+import { useCallback } from "react"
 
 export default function useAddTokenToMetamask(
   token: Token | undefined,
-): {
-  addToken: () => void
-  success: boolean | undefined
-} {
-  const { library, chainId, connector } = useActiveWeb3React()
-  const [success, setSuccess] = useState<boolean | undefined>()
+): () => Promise<void> {
+  const { library, chainId } = useActiveWeb3React()
 
-  const isMetaMask: boolean =
-    find(SUPPORTED_WALLETS, ["connector", connector])?.name == "MetaMask"
-
-  const addToken = useCallback(() => {
-    if (library && library.provider.request && isMetaMask && token && chainId) {
-      library.provider
-        .request({
+  const addToken = useCallback(async (): Promise<void> => {
+    if (library && window.ethereum && token && chainId) {
+      try {
+        await window.ethereum.request({
           method: "wallet_watchAsset",
           params: {
             //@ts-ignore // need this for incorrect ethers provider type
@@ -27,13 +20,15 @@ export default function useAddTokenToMetamask(
               address: token.addresses[chainId],
               symbol: token.symbol,
               decimals: token.decimals,
+              image: imageIconToUrl(token.icon),
             },
           },
         })
-        .then((success) => setSuccess(success))
-        .catch(() => setSuccess(false))
+      } catch (e) {
+        console.log(e)
+      }
     }
-  }, [library, token, chainId, isMetaMask])
+  }, [library, token, chainId])
 
-  return { addToken, success }
+  return addToken
 }
