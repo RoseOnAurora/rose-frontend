@@ -74,7 +74,7 @@ header.top {
         margin-right: 10px;
       }
       @include breakpoint(xs) {
-        margin-right: 4px;
+        margin-right: 10px;
       }
       &:last-child {
         margin-right: 0;
@@ -111,7 +111,7 @@ header.top {
   }
   .addToken {
     font-size: 20px;
-    margin-left: 25px;
+    margin-left: 15px;
     margin-bottom: 2px;
     @include breakpoint(lg) {
       font-size: 18px;
