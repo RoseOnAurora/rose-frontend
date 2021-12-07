@@ -23,7 +23,7 @@ export default function AccountDetail({ openOptions }: Props): ReactElement {
   const { account, connector } = useActiveWeb3React()
   const tokenBalances = useRoseTokenBalances()
   const roseBalanceFormatted = commify(
-    formatBNToString(tokenBalances?.ROSE || Zero, 18, 2),
+    formatBNToString(tokenBalances?.ROSE || Zero, 18, 5),
   )
 
   const connectorName = find(SUPPORTED_WALLETS, ["connector", connector])?.name
