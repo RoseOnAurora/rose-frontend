@@ -39,6 +39,7 @@ div.stakeForm {
     letter-spacing: 1px;
     font-weight: 700;
     border-radius: 2em;
+    white-space: nowrap;
     @include breakpoint(sm) {
       font-size: 9px;
     }
