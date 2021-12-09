@@ -1,5 +1,9 @@
 import React, { ReactElement } from "react"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
+import {
+  useFarmContract,
+  useLPTokenContractForFarm,
+} from "../hooks/useContract"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { FarmName } from "../constants"
@@ -10,6 +14,7 @@ import { formatBNToString } from "../utils"
 import { parseUnits } from "@ethersproject/units"
 import styles from "./FarmTabs.module.scss"
 import { useApproveAndDepositFarm } from "../hooks/useApproveAndDepositFarm"
+import { useCheckTokenRequiresApproval } from "../hooks/useCheckTokenRequiresApproval"
 import { useTranslation } from "react-i18next"
 import { useWithdrawFarm } from "../hooks/useWithdrawFarm"
 
@@ -34,6 +39,15 @@ const FarmTabs = (props: Props): ReactElement => {
   const { t } = useTranslation()
   const farm = useApproveAndDepositFarm(farmName)
   const withdraw = useWithdrawFarm(farmName)
+
+  const farmContract = useFarmContract(farmName)
+  const lpTokenContract = useLPTokenContractForFarm(farmName)
+
+  const [
+    approved,
+    loading,
+    checkLpTokenApproved,
+  ] = useCheckTokenRequiresApproval(lpTokenContract, farmContract)
 
   const validateBalance = (amount: string) => {
     const generalValidation = validateAmount(amount)
@@ -61,10 +75,10 @@ const FarmTabs = (props: Props): ReactElement => {
       return t("You must enter a value.")
     }
     if (!decimalRegex.exec(amount)) {
-      return t("Amount must be a valid number up to 18 decimal points.")
+      return t("Invalid number.")
     }
     if (parseUnits(amount, 18).lte(Zero)) {
-      return t("Amount must be greater than zero!")
+      return t("Enter a positive amount.")
     }
     return null
   }
@@ -101,10 +115,17 @@ const FarmTabs = (props: Props): ReactElement => {
               fieldName={"deposit"}
               token={lpTokenName}
               tokenIcon={lpTokenIcon}
+              submitButtonLabel={
+                approved
+                  ? t("deposit")
+                  : t("approveAnd", { action: t("deposit") })
+              }
+              isLoading={loading}
               max={formatBNToString(balance || Zero, 18, 18)}
               handleSubmit={farm}
               handlePostSubmit={postDeposit}
               handlePreSubmit={() => handleModal(ModalType.CONFIRM)}
+              handleInputChanged={checkLpTokenApproved}
               validator={validateBalance}
             />
           </TabPanel>
@@ -116,6 +137,8 @@ const FarmTabs = (props: Props): ReactElement => {
               fieldName={"withdraw"}
               token={lpTokenName}
               tokenIcon={lpTokenIcon}
+              isLoading={false}
+              submitButtonLabel={t("Withdraw")}
               max={formatBNToString(deposited || Zero, 18, 18)}
               handleSubmit={withdraw}
               validator={validateDeposited}

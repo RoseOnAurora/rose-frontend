@@ -25,10 +25,13 @@ interface Props {
   token: string
   tokenIcon: string
   max: string
+  isLoading: boolean
+  submitButtonLabel: string
   handleSubmit: (amount: string) => Promise<ContractReceipt | void>
   validator: (amount: string) => string | undefined
   handlePreSubmit?: () => void
   handlePostSubmit?: (receipt: ContractReceipt | null) => void
+  handleInputChanged?: (value: string) => void
 }
 function StakeForm(props: Props): ReactElement {
   const { t } = useTranslation()
@@ -37,7 +40,10 @@ function StakeForm(props: Props): ReactElement {
     token,
     tokenIcon,
     max,
+    isLoading,
+    submitButtonLabel,
     handleSubmit,
+    handleInputChanged,
     handlePreSubmit,
     handlePostSubmit,
     validator,
@@ -80,12 +86,17 @@ function StakeForm(props: Props): ReactElement {
                       isInvalid={form.errors?.[fieldName]}
                       placeholder={`${token} Token`}
                       variant="primary"
+                      onChange={(e) => {
+                        props.handleChange(e)
+                        handleInputChanged?.(e.target.value)
+                      }}
                     />
                     <InputRightElement width="4rem">
                       <Button
                         variant="light"
                         size="sm"
                         onClick={() => {
+                          handleInputChanged?.(max)
                           props.setFieldTouched(fieldName, true)
                           props.setFieldValue(fieldName, max)
                         }}
@@ -110,12 +121,13 @@ function StakeForm(props: Props): ReactElement {
             <div className={styles.submitButton}>
               <Button
                 variant="primary"
+                isLoading={isLoading}
                 size="lg"
                 width="450px"
                 type="submit"
                 disabled={!props.isValid || !props.dirty}
               >
-                {t("approve")}
+                {props.isValid ? submitButtonLabel : props.errors?.[fieldName]}
               </Button>
             </div>
           </Form>
