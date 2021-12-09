@@ -34,7 +34,6 @@ export function useCheckTokenRequiresApproval(
           valueSafe.value,
         )
           .then((isApproved) => {
-            console.log("here")
             setApproved(isApproved)
             setLoading(false)
           })
