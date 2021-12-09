@@ -6,14 +6,13 @@ div.farmDetailsContainer {
   background: var(--background-element);
   border: 1px solid var(--outline);
   border-radius: 10px;
-  padding: 24px;
+  padding: 10px 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   @include breakpoint(md) {
     width: 100%;
-    flex-direction: row;
-    order: 0;
+    order: 3;
   }
 
   .stakeDetails {
@@ -22,29 +21,16 @@ div.farmDetailsContainer {
 
   .icon {
     width: 70px;
-    @include breakpoint(md) {
-      width: 100px;
-      margin-top: 10px;
-      order: 1;
-    }
     & > img {
       width: 100%;
     }
-    // line-height: 50px;
-  }
-
-  .row:nth-child(2) {
-    justify-content: center;
-    align-items: center;
   }
 
   .row {
     display: flex;
-    margin-top: 8px;
+    align-items: center;
+    margin: 8px 0;
     width: 100%;
-    @include breakpoint(md) {
-      flex-direction: column;
-    }
   }
 
   .balanceDetails {
@@ -79,7 +65,7 @@ div.farmDetailsContainer {
   h3.title {
     font-weight: 700;
     font-size: 24px;
-    line-height: 30px;
+    line-height: 40px;
 
     @include breakpoint(sm) {
       font-size: 20px;

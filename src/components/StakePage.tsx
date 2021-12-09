@@ -5,9 +5,10 @@ import ConfirmTransaction, {
 } from "./ConfirmTransaction"
 import React, { ReactElement, useState } from "react"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
-import { commify, formatBNToString } from "../utils"
+import { commify, formatBNToShortString, formatBNToString } from "../utils"
 import { useRoseContract, useStRoseContract } from "../hooks/useContract"
 import { AppState } from "../state"
+import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import Modal from "./Modal"
@@ -21,7 +22,7 @@ import { parseUnits } from "@ethersproject/units"
 import styles from "./StakePage.module.scss"
 import { useCheckTokenRequiresApproval } from "../hooks/useCheckTokenRequiresApproval"
 import { useSelector } from "react-redux"
-import useStakedRoseConversion from "../hooks/useStakedRoseConversion"
+import useStakeStats from "../hooks/useStakeStats"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -45,7 +46,7 @@ function StakePage(props: Props): ReactElement {
   } = props
 
   const { userDarkMode } = useSelector((state: AppState) => state.user)
-  const [stakedRoseConversion] = useStakedRoseConversion()
+  const { priceRatio, tvl, totalRoseStaked } = useStakeStats()
 
   const [
     currentModal,
@@ -163,7 +164,10 @@ function StakePage(props: Props): ReactElement {
                     { [styles.colorPill]: !userDarkMode },
                   )}
                 >
-                  <div>1 stROSE ≈ {stakedRoseConversion} ROSE</div>
+                  <div>
+                    1 stROSE ≈ {priceRatio ? (+priceRatio).toFixed(5) : "1.00"}{" "}
+                    ROSE
+                  </div>
                 </div>
               </div>
               <StakeForm
@@ -176,6 +180,7 @@ function StakePage(props: Props): ReactElement {
                     : t("approveAnd", { action: t("stake") })
                 }
                 isLoading={loading}
+                formDescription={t("stakingInfo")}
                 max={formatBNToString(
                   balance.amount || Zero,
                   balance.decimals || 0,
@@ -198,7 +203,10 @@ function StakePage(props: Props): ReactElement {
                     { [styles.colorPill]: !userDarkMode },
                   )}
                 >
-                  <div>1 stROSE ≈ {stakedRoseConversion} ROSE</div>
+                  <div>
+                    1 stROSE ≈ {priceRatio ? (+priceRatio).toFixed(5) : "1.00"}{" "}
+                    ROSE
+                  </div>
                 </div>
               </div>
               <StakeForm
@@ -207,10 +215,11 @@ function StakePage(props: Props): ReactElement {
                 tokenIcon={stRoseTokenIcon}
                 isLoading={false}
                 submitButtonLabel={t("unstake")}
+                formDescription={t("stakingInfo")}
                 max={formatBNToString(
                   staked.amount || Zero,
                   staked.decimals || 0,
-                  balance.decimals,
+                  staked.decimals,
                 )}
                 handlePreSubmit={() => updateModal(ModalType.CONFIRM)}
                 handleSubmit={approveUnstake}
@@ -223,24 +232,18 @@ function StakePage(props: Props): ReactElement {
       </div>
       <StakeDetails
         balanceView={commify(
-          formatBNToString(balance.amount || Zero, balance.decimals || 0, 6),
+          formatBNToString(balance.amount || Zero, balance.decimals || 0, 5),
         )}
         stakedView={commify(
-          formatBNToString(staked.amount || Zero, staked.decimals || 0, 6),
+          formatBNToString(staked.amount || Zero, staked.decimals || 0, 5),
         )}
+        tvl={tvl ? `$${formatBNToShortString(BigNumber.from(tvl), 18)}` : "-"}
+        totalStaked={
+          totalRoseStaked
+            ? `$${formatBNToShortString(BigNumber.from(totalRoseStaked), 18)}`
+            : "-"
+        }
       />
-      <div className={styles.stakeInfo}>
-        <div className={styles.stakeInfoContainer}>
-          <h3>{t("stakingInformation")}</h3>
-          <div className={styles.infoMessage}>
-            <span>
-              Stake your ROSE in order to accrue protocol fees in stROSE. After
-              staking, the stROSE is locked for <b>24 hours</b> before transfers
-              or withdraws can be made.
-            </span>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
