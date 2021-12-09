@@ -491,7 +491,7 @@ export const STABLECOIN_SWAP_V2_TOKEN = new Token(
   18,
   "RoseStablesLP",
   "tether", // tracking USDT for now, as we can't fetch price for RoseStablesLP
-  "Rose DAI/USDC/USDT",
+  "RoseStablesLP",
   roseLogo,
   false,
   true,
