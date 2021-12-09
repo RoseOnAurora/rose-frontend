@@ -10,6 +10,7 @@
   "aParameterTooltip": "Amplification coefficient. Higher values widen the range of low-slippages swaps, while lower values help keep the pool's composition balanced.",
   "approved": "Approved",
   "approve": "Approve",
+  "approveAnd": "Approve & {{action}}",
   "apy": "APY",
   "audits": "Audits",
   "averagedBalance": "Averaged balance",
