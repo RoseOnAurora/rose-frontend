@@ -1,3 +1,4 @@
+/* eslint @typescript-eslint/no-unsafe-assignment: 0 */
 import ConfirmTransaction, {
   ConfirmTransactionProps,
   ModalType,
@@ -5,9 +6,12 @@ import ConfirmTransaction, {
 import React, { ReactElement, useState } from "react"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
 import { commify, formatBNToString } from "../utils"
+import { useRoseContract, useStRoseContract } from "../hooks/useContract"
 import { AppState } from "../state"
 import { ContractReceipt } from "@ethersproject/contracts"
+import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import Modal from "./Modal"
+import { StRose } from "../../types/ethers-contracts/StRose"
 import StakeDetails from "./StakeDetails"
 import StakeForm from "./StakeForm"
 import { TokenDetails } from "../pages/Stake"
@@ -15,6 +19,7 @@ import { Zero } from "@ethersproject/constants"
 import classNames from "classnames"
 import { parseUnits } from "@ethersproject/units"
 import styles from "./StakePage.module.scss"
+import { useCheckTokenRequiresApproval } from "../hooks/useCheckTokenRequiresApproval"
 import { useSelector } from "react-redux"
 import useStakedRoseConversion from "../hooks/useStakedRoseConversion"
 import { useTranslation } from "react-i18next"
@@ -47,6 +52,14 @@ function StakePage(props: Props): ReactElement {
     setCurrentModal,
   ] = useState<ConfirmTransactionProps | null>(null)
 
+  const roseContract = useRoseContract() as Erc20
+  const stRoseContract = useStRoseContract() as StRose
+
+  const [approved, loading, checkRoseApproved] = useCheckTokenRequiresApproval(
+    roseContract,
+    stRoseContract,
+  )
+
   const validateBalance = (amount: string) => {
     const generalValidation = validateAmount(amount)
     if (generalValidation) {
@@ -73,10 +86,10 @@ function StakePage(props: Props): ReactElement {
       return t("You must enter a value.")
     }
     if (!decimalRegex.exec(amount)) {
-      return t("Amount must be a valid number up to 18 decimal points.")
+      return t("Invalid number.")
     }
     if (parseUnits(amount, 18).lte(Zero)) {
-      return t("Amount must be greater than zero!")
+      return t("Enter a positive amount.")
     }
     return null
   }
@@ -157,12 +170,19 @@ function StakePage(props: Props): ReactElement {
                 fieldName={"stake"}
                 token={"ROSE"}
                 tokenIcon={roseTokenIcon}
+                submitButtonLabel={
+                  approved
+                    ? t("stake")
+                    : t("approveAnd", { action: t("stake") })
+                }
+                isLoading={loading}
                 max={formatBNToString(
                   balance.amount || Zero,
                   balance.decimals || 0,
                   balance.decimals,
                 )}
                 handlePreSubmit={() => updateModal(ModalType.CONFIRM)}
+                handleInputChanged={checkRoseApproved}
                 handleSubmit={approveStake}
                 handlePostSubmit={postStake}
                 validator={validateBalance}
@@ -185,6 +205,8 @@ function StakePage(props: Props): ReactElement {
                 fieldName={"unstake"}
                 token={"stRose"}
                 tokenIcon={stRoseTokenIcon}
+                isLoading={false}
+                submitButtonLabel={t("unstake")}
                 max={formatBNToString(
                   staked.amount || Zero,
                   staked.decimals || 0,
