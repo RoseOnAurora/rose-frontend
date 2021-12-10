@@ -243,7 +243,7 @@ function StakePage(props: Props): ReactElement {
             ? `${formatBNToShortString(BigNumber.from(totalRoseStaked), 18)}`
             : "-"
         }
-        priceOfRose={`$${Number(priceOfRose).toFixed(2)}`}
+        priceOfRose={`$${Number(priceOfRose).toFixed(3)}`}
       />
     </div>
   )
