@@ -14,10 +14,11 @@ interface Props {
   stakedView: string
   tvl: string
   totalStaked: string
+  priceOfRose: string
 }
 const StakeDetails = (props: Props): ReactElement => {
   const { t } = useTranslation()
-  const { balanceView, stakedView, tvl, totalStaked } = props
+  const { balanceView, stakedView, tvl, totalStaked, priceOfRose } = props
   return (
     <div className={styles.stakeDetailsContainer}>
       <div className={styles.stakeDetails}>
@@ -56,12 +57,16 @@ const StakeDetails = (props: Props): ReactElement => {
       <Divider />
       <div className={styles.statsDetails}>
         <div className={styles.statRow}>
-          <div className={styles.statLabel}>TVL</div>
-          <div className={styles.statValue}>{tvl}</div>
+          <div className={styles.statLabel}>Total ROSE Staked</div>
+          <div className={styles.statValue}>{totalStaked}</div>
         </div>
         <div className={styles.statRow}>
-          <div className={styles.statLabel}>Total Rose Staked</div>
-          <div className={styles.statValue}>{totalStaked}</div>
+          <div className={styles.statLabel}>Price of ROSE</div>
+          <div className={styles.statValue}>{priceOfRose}</div>
+        </div>
+        <div className={styles.statRow}>
+          <div className={styles.statLabel}>TVL</div>
+          <div className={styles.statValue}>{tvl}</div>
         </div>
       </div>
     </div>

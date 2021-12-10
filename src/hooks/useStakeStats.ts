@@ -18,12 +18,14 @@ export interface StakeStats {
   priceRatio: string
   tvl: string
   totalRoseStaked: string
+  priceOfRose: string
 }
 
 const emptyState = {
   priceRatio: "",
   tvl: "",
   totalRoseStaked: "",
+  priceOfRose: "",
 }
 
 export default function useStakeStats(): StakeStats {
@@ -39,6 +41,7 @@ export default function useStakeStats(): StakeStats {
                 priceRatio: b?.strose_rose_ratio,
                 tvl: b?.strose_tvl,
                 totalRoseStaked: b?.total_rose_staked,
+                priceOfRose: b?.price_of_rose,
               }
             })
             setStakeStats(res[0])

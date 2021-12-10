@@ -46,7 +46,7 @@ function StakePage(props: Props): ReactElement {
   } = props
 
   const { userDarkMode } = useSelector((state: AppState) => state.user)
-  const { priceRatio, tvl, totalRoseStaked } = useStakeStats()
+  const { priceRatio, tvl, totalRoseStaked, priceOfRose } = useStakeStats()
 
   const [
     currentModal,
@@ -240,9 +240,10 @@ function StakePage(props: Props): ReactElement {
         tvl={tvl ? `$${formatBNToShortString(BigNumber.from(tvl), 18)}` : "-"}
         totalStaked={
           totalRoseStaked
-            ? `$${formatBNToShortString(BigNumber.from(totalRoseStaked), 18)}`
+            ? `${formatBNToShortString(BigNumber.from(totalRoseStaked), 18)}`
             : "-"
         }
+        priceOfRose={`$${Number(priceOfRose).toFixed(2)}`}
       />
     </div>
   )
