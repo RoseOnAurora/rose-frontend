@@ -51,7 +51,7 @@
   "failedTitle": "Transaction Failed.",
   "farm": "Farm",
   "farms": "Farms",
-  "farmDescription": "Farm your {{tokenName}} tokens to earn rewards in ROSE. Must have deposited liquidity in the <1>{{poolName}}</1> in order to farm rewards.",
+  "farmDescription": "Deposit {{tokenName}} to farm ROSE after adding liquidity to the <1>{{poolName}}</1>.",
   "fast": "Fast",
   "fee": "Protocol fee",
   "from": "From",
