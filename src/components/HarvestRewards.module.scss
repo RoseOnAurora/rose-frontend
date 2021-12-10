@@ -6,6 +6,7 @@ div.harvestRewards {
   grid-area: rewards;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background: var(--background-element);
   border: 1px solid var(--outline);
   border-radius: 10px;
@@ -21,12 +22,15 @@ div.harvestRewards {
   h4.title {
     font-family: $font-family-title;
     margin-top: 0 auto;
-    font-size: 30px;
+    font-size: 25px;
     font-weight: $bold;
     color: var(--text-title);
     margin-right: 16px;
     @include breakpoint(md) {
       font-size: 20px;
+    }
+    @include breakpoint(sm) {
+      font-size: 18px;
     }
   }
 

@@ -27,6 +27,7 @@ interface Props {
   max: string
   isLoading: boolean
   submitButtonLabel: string
+  formDescription?: string
   handleSubmit: (amount: string) => Promise<ContractReceipt | void>
   validator: (amount: string) => string | undefined
   handlePreSubmit?: () => void
@@ -42,6 +43,7 @@ function StakeForm(props: Props): ReactElement {
     max,
     isLoading,
     submitButtonLabel,
+    formDescription,
     handleSubmit,
     handleInputChanged,
     handlePreSubmit,
@@ -118,6 +120,14 @@ function StakeForm(props: Props): ReactElement {
                 </FormControl>
               )}
             </Field>
+            {formDescription ? (
+              <div className={styles.stakeInfoContainer}>
+                <div className={styles.infoMessage}>
+                  <span>{formDescription}</span>
+                </div>
+              </div>
+            ) : null}
+
             <div className={styles.submitButton}>
               <Button
                 variant="primary"

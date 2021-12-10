@@ -129,6 +129,7 @@
   "staked": "staked",
   "Staked": "Staked",
   "stakeHere": "Stake here",
+  "stakingInfo": "Stake your ROSE in order to accrue protocol fees in stROSE. After staking, the stROSE is locked for 24 hours before transfers or withdraws can be made.",
   "stakingInformation": "Staking Information",
   "standard": "Standard",
   "step2Settlement": "Step 2: Settlement",

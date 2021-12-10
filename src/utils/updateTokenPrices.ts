@@ -79,7 +79,7 @@ export default function fetchTokenPricesUSD(
               result = {
                 ...result,
                 ROSE: +body[0].price_of_rose || 0,
-                stRose: +body[0].price_of_rose || 0,
+                stRose: +body[0].price_of_strose || 0,
               }
               dispatch(updateTokensPricesUSD(result))
             })

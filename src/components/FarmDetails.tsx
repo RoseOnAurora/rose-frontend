@@ -1,3 +1,10 @@
+import {
+  Divider,
+  Stat,
+  StatGroup,
+  StatLabel,
+  StatNumber,
+} from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import styles from "./FarmDetails.module.scss"
 import { useTranslation } from "react-i18next"
@@ -23,11 +30,16 @@ const FarmDetails = (props: Props): ReactElement => {
             <img alt="icon" src={lpTokenIcon} />
           </div>
           <div className={styles.balanceDetails}>
-            <span className={styles.balance}>{balance}</span>
-            <span className={styles.token}>{lpTokenName}</span>
+            <StatGroup>
+              <Stat>
+                <StatLabel>{lpTokenName}</StatLabel>
+                <StatNumber fontSize="18px">{balance}</StatNumber>
+              </Stat>
+            </StatGroup>
           </div>
         </div>
       </div>
+      <Divider />
       <div className={styles.stakeDetails}>
         <div className={styles.row}>
           <h3 className={styles.title}>{t("deposited")}</h3>
@@ -37,8 +49,12 @@ const FarmDetails = (props: Props): ReactElement => {
             <img alt="icon" src={lpTokenIcon} />
           </div>
           <div className={styles.balanceDetails}>
-            <span className={styles.balance}>{deposited}</span>
-            <span className={styles.token}>{lpTokenName}</span>
+            <StatGroup>
+              <Stat>
+                <StatLabel>{lpTokenName}</StatLabel>
+                <StatNumber fontSize="18px">{deposited}</StatNumber>
+              </Stat>
+            </StatGroup>
           </div>
         </div>
       </div>

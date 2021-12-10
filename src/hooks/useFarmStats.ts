@@ -23,8 +23,8 @@ export interface FarmStats {
 const emptyState = [
   {
     name: "",
-    apr: "-",
-    tvl: "-",
+    apr: "",
+    tvl: "",
   },
 ]
 

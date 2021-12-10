@@ -14,13 +14,13 @@ div.farmTabs {
 
   h4.farmTitle {
     font-weight: 700;
-    font-size: 30px;
+    font-size: 28px;
     line-height: 30px;
     @include breakpoint(lg) {
-      font-size: 27px;
+      font-size: 25px;
     }
     @include breakpoint(sm) {
-      font-size: 25px;
+      font-size: 21px;
     }
   }
 }

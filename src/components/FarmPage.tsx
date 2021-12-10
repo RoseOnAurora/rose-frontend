@@ -27,8 +27,8 @@ interface Props {
 }
 
 const FarmPage = (props: Props): ReactElement => {
-  const formattedBalance = commify(formatBNToString(props.balance, 18, 6))
-  const formattedDeposited = commify(formatBNToString(props.deposited, 18, 6))
+  const formattedBalance = commify(formatBNToString(props.balance, 18, 5))
+  const formattedDeposited = commify(formatBNToString(props.deposited, 18, 5))
   const rewardsEarned = useEarnedRewards(props.farmName)
   const exit = useFarmExit(props.farmName)
   const getReward = useClaimReward(props.farmName)

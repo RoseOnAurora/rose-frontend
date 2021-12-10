@@ -21,7 +21,7 @@ export default function useEarnedRewards(farmName: FarmName): string {
 
       const earned = await farmContract.earned(account, roseContract.address)
 
-      setRewardsEarned(formatBNToString(earned || Zero, 18, 6))
+      setRewardsEarned(formatBNToString(earned || Zero, 18, 5))
     }
     if (account) {
       void pollRewards()
