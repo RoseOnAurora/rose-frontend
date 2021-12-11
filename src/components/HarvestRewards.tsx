@@ -1,4 +1,5 @@
 import React, { ReactElement } from "react"
+import AnimatingNumber from "./AnimateNumber"
 import { Button } from "@chakra-ui/react"
 import { ModalType } from "./ConfirmTransaction"
 import styles from "./HarvestRewards.module.scss"
@@ -20,7 +21,11 @@ const HarvestRewards = ({
         <h4 className={styles.title}>{t("rewards")}</h4>
       </div>
       <div className={styles.rewardBalance}>
-        <h4 className={styles.title}>{rewardBalance} ROSE</h4>
+        <AnimatingNumber
+          value={+rewardBalance}
+          precision={+rewardBalance ? 5 : 1}
+        ></AnimatingNumber>
+        <h4 className={styles.title}>&nbsp;ROSE</h4>
       </div>
       <div className={styles.buttonWrapper}>
         <Button
