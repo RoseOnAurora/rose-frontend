@@ -14,18 +14,14 @@ div.harvestRewards {
   @include breakpoint(md) {
     width: 100%;
     order: 2;
-  }
-  @include breakpoint(sm) {
     flex-wrap: wrap;
   }
 
   h4.title {
     font-family: $font-family-title;
-    margin-top: 0 auto;
-    font-size: 25px;
+    font-size: 30px;
     font-weight: $bold;
     color: var(--text-title);
-    margin-right: 16px;
     @include breakpoint(md) {
       font-size: 20px;
     }
@@ -35,13 +31,16 @@ div.harvestRewards {
   }
 
   div.rewardBalance {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     @include breakpoint(sm) {
       text-align: end;
     }
   }
 
   div.buttonWrapper {
-    @include breakpoint(sm) {
+    @include breakpoint(md) {
       margin-top: 30px;
       width: 100%;
       align-items: center;
