@@ -2,7 +2,7 @@ import { BLOCK_TIME } from "../constants"
 import retry from "async-retry"
 import usePoller from "./usePoller"
 import { useState } from "react"
-// To-DO:  clean this file up
+
 const stakeStatsApi =
   "https://raw.githubusercontent.com/RoseOnAurora/apr/master/rose.json"
 
@@ -31,7 +31,7 @@ const emptyState = {
 export default function useStakeStats(): StakeStats {
   const [stakeStats, setStakeStats] = useState(emptyState)
   usePoller(() => {
-    function pollFarmStats(): void {
+    function pollStakeStats(): void {
       void retry(() =>
         fetch(stakeStatsApi)
           .then((res) => res.json())
@@ -48,7 +48,7 @@ export default function useStakeStats(): StakeStats {
           }),
       )
     }
-    void pollFarmStats()
+    void pollStakeStats()
   }, BLOCK_TIME)
   return stakeStats
 }

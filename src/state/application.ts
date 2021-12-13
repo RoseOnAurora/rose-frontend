@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
+import { FarmStats } from "../utils/fetchFarmStats"
 
 import { SwapStatsReponse } from "../utils/getSwapStats"
 
@@ -22,9 +23,13 @@ interface LastTransactionTimes {
   [transactionType: string]: number
 }
 
+interface UpdatedFarmStats {
+  [farmName: string]: FarmStats
+}
+
 type ApplicationState = GasPrices & { tokenPricesUSD?: TokenPricesUSD } & {
   lastTransactionTimes: LastTransactionTimes
-} & { swapStats?: SwapStats }
+} & { swapStats?: SwapStats } & { farmStats?: UpdatedFarmStats }
 
 const initialState: ApplicationState = {
   lastTransactionTimes: {},
@@ -39,6 +44,12 @@ const applicationSlice = createSlice({
       state.gasStandard = gasStandard
       state.gasFast = gasFast
       state.gasInstant = gasInstant
+    },
+    updateFarmStats(state, action: PayloadAction<UpdatedFarmStats>): void {
+      state.farmStats = {
+        ...state.farmStats,
+        ...action.payload,
+      }
     },
     updateTokensPricesUSD(state, action: PayloadAction<TokenPricesUSD>): void {
       state.tokenPricesUSD = action.payload
@@ -85,6 +96,7 @@ export const {
   updateTokensPricesUSD,
   updateLastTransactionTimes,
   updateSwapStats,
+  updateFarmStats,
 } = applicationSlice.actions
 
 export default applicationSlice.reducer

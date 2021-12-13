@@ -7,31 +7,39 @@ import {
 } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import styles from "./StakeDetails.module.scss"
-import { useTranslation } from "react-i18next"
 
+interface StakeStats {
+  statLabel: string
+  statValue: string
+}
+interface StakedDetailsView {
+  tokenName: string
+  amount: string
+  icon: string
+  title?: string
+}
 interface Props {
-  balanceView: string
-  stakedView: string
-  tvl: string
-  totalStaked: string
-  priceOfRose: string
+  balanceView: StakedDetailsView
+  stakedView: StakedDetailsView
+  stats?: StakeStats[]
 }
 const StakeDetails = (props: Props): ReactElement => {
-  const { t } = useTranslation()
-  const { balanceView, stakedView, tvl, totalStaked, priceOfRose } = props
+  const { balanceView, stakedView, stats } = props
   return (
     <div className={styles.stakeDetailsContainer}>
       <div className={styles.stakeDetails}>
         <div className={styles.row}>
-          <h3 className={styles.title}>{t("balance")}</h3>
+          <h3 className={styles.title}>{balanceView.title}</h3>
         </div>
         <div className={styles.row}>
-          <div className={styles.icon}>🌹</div>
+          <div className={styles.icon}>
+            <img src={balanceView.icon} alt="tokenIcon" />
+          </div>
           <div className={styles.balanceDetails}>
             <StatGroup>
               <Stat>
-                <StatLabel>ROSE</StatLabel>
-                <StatNumber fontSize="18px">{balanceView}</StatNumber>
+                <StatLabel>{balanceView.tokenName}</StatLabel>
+                <StatNumber fontSize="18px">{balanceView.amount}</StatNumber>
               </Stat>
             </StatGroup>
           </div>
@@ -40,35 +48,37 @@ const StakeDetails = (props: Props): ReactElement => {
       <Divider />
       <div className={styles.stakeDetails}>
         <div className={styles.row}>
-          <h3 className={styles.title}>{t("Staked")}</h3>
+          <h3 className={styles.title}>{stakedView.title}</h3>
         </div>
         <div className={styles.row}>
-          <div className={styles.icon}>🌷</div>
+          <div className={styles.icon}>
+            <img src={stakedView.icon} alt="tokenIcon" />
+          </div>
           <div className={styles.balanceDetails}>
             <StatGroup>
               <Stat>
-                <StatLabel>stROSE</StatLabel>
-                <StatNumber fontSize="18px">{stakedView}</StatNumber>
+                <StatLabel>{stakedView.tokenName}</StatLabel>
+                <StatNumber fontSize="18px">{stakedView.amount}</StatNumber>
               </Stat>
             </StatGroup>
           </div>
         </div>
       </div>
-      <Divider />
-      <div className={styles.statsDetails}>
-        <div className={styles.statRow}>
-          <div className={styles.statLabel}>Total ROSE Staked</div>
-          <div className={styles.statValue}>{totalStaked}</div>
-        </div>
-        <div className={styles.statRow}>
-          <div className={styles.statLabel}>Price of ROSE</div>
-          <div className={styles.statValue}>{priceOfRose}</div>
-        </div>
-        <div className={styles.statRow}>
-          <div className={styles.statLabel}>TVL</div>
-          <div className={styles.statValue}>{tvl}</div>
-        </div>
-      </div>
+      {stats && (
+        <>
+          <Divider />
+          <div className={styles.statsDetails}>
+            {stats.map(({ statLabel, statValue }, index) => {
+              return (
+                <div className={styles.statRow} key={index}>
+                  <div className={styles.statLabel}>{statLabel}</div>
+                  <div className={styles.statValue}>{statValue}</div>
+                </div>
+              )
+            })}
+          </div>
+        </>
+      )}
     </div>
   )
 }

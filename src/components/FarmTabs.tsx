@@ -1,5 +1,6 @@
 import React, { ReactElement } from "react"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
+import { Trans, useTranslation } from "react-i18next"
 import {
   useFarmContract,
   useLPTokenContractForFarm,
@@ -15,7 +16,6 @@ import { parseUnits } from "@ethersproject/units"
 import styles from "./FarmTabs.module.scss"
 import { useApproveAndDepositFarm } from "../hooks/useApproveAndDepositFarm"
 import { useCheckTokenRequiresApproval } from "../hooks/useCheckTokenRequiresApproval"
-import { useTranslation } from "react-i18next"
 import { useWithdrawFarm } from "../hooks/useWithdrawFarm"
 
 interface Props {
@@ -24,6 +24,7 @@ interface Props {
   balance: BigNumber
   deposited: BigNumber
   farmName: FarmName
+  poolName: string
   handleModal: (modalType: ModalType, tx?: string | undefined) => void
 }
 
@@ -34,6 +35,7 @@ const FarmTabs = (props: Props): ReactElement => {
     deposited,
     farmName,
     lpTokenIcon,
+    poolName,
     handleModal,
   } = props
   const { t } = useTranslation()
@@ -121,6 +123,12 @@ const FarmTabs = (props: Props): ReactElement => {
                   : t("approveAnd", { action: t("deposit") })
               }
               isLoading={loading}
+              formDescription={
+                <Trans t={t} i18nKey="farmDescription">
+                  {{ tokenName: lpTokenName }}
+                  <b>{{ poolName: poolName }}</b>
+                </Trans>
+              }
               max={formatBNToString(balance || Zero, 18, 18)}
               handleSubmit={farm}
               handlePostSubmit={postDeposit}
@@ -139,6 +147,12 @@ const FarmTabs = (props: Props): ReactElement => {
               tokenIcon={lpTokenIcon}
               isLoading={false}
               submitButtonLabel={t("Withdraw")}
+              formDescription={
+                <Trans t={t} i18nKey="farmDescription">
+                  {{ tokenName: lpTokenName }}
+                  <b>{{ poolName: poolName }}</b>
+                </Trans>
+              }
               max={formatBNToString(deposited || Zero, 18, 18)}
               handleSubmit={withdraw}
               validator={validateDeposited}
