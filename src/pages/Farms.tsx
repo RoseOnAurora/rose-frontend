@@ -1,12 +1,13 @@
 import React, { ReactElement } from "react"
+import { AppState } from "../state"
 import { FARMS_MAP } from "../constants"
 import FarmsOverview from "../components/FarmsOverview"
 import TopMenu from "../components/TopMenu"
 import styles from "./Farms.module.scss"
-import useFarmStats from "../hooks/useFarmStats"
+import { useSelector } from "react-redux"
 
 function Farms(): ReactElement {
-  const farmStats = useFarmStats()
+  const { farmStats } = useSelector((state: AppState) => state.application)
   return (
     <div className={styles.farms}>
       <TopMenu activeTab="farms" />
@@ -18,7 +19,7 @@ function Farms(): ReactElement {
           .map((farm) => (
             <FarmsOverview
               key={farm.name}
-              farmStats={farmStats.find((x) => x.name === farm.name)}
+              farmStats={farmStats?.[farm.name]}
               farmName={farm.name}
               farmRoute={farm.route}
               poolName={farm.poolName}

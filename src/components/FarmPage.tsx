@@ -3,19 +3,21 @@ import ConfirmTransaction, {
   ModalType,
 } from "./ConfirmTransaction"
 import React, { ReactElement, useState } from "react"
-import { commify, formatBNToString } from "../utils"
+import { commify, formatBNToShortString, formatBNToString } from "../utils"
+import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { Button } from "@chakra-ui/react"
-import FarmDetails from "./FarmDetails"
 import FarmFooter from "./FarmFooter"
 import { FarmName } from "../constants"
 import FarmTabs from "./FarmTabs"
 import HarvestRewards from "./HarvestRewards"
 import Modal from "./Modal"
+import StakeDetails from "./StakeDetails"
 import styles from "./FarmPage.module.scss"
 import useClaimReward from "../hooks/useClaimReward"
 import useEarnedRewards from "../hooks/useEarnedRewards"
 import useFarmExit from "../hooks/useFarmExit"
+import { useSelector } from "react-redux"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -24,19 +26,26 @@ interface Props {
   balance: BigNumber
   deposited: BigNumber
   farmName: FarmName
+  poolName: string
 }
 
 const FarmPage = (props: Props): ReactElement => {
-  const formattedBalance = commify(formatBNToString(props.balance, 18, 5))
-  const formattedDeposited = commify(formatBNToString(props.deposited, 18, 5))
-  const rewardsEarned = useEarnedRewards(props.farmName)
-  const exit = useFarmExit(props.farmName)
-  const getReward = useClaimReward(props.farmName)
+  const { lpTokenName, lpTokenIcon, balance, deposited, farmName } = props
+  const formattedBalance = commify(formatBNToString(balance, 18, 5))
+  const formattedDeposited = commify(formatBNToString(deposited, 18, 5))
+  const rewardsEarned = useEarnedRewards(farmName)
+  const exit = useFarmExit(farmName)
+  const getReward = useClaimReward(farmName)
   const [
     currentModal,
     setCurrentModal,
   ] = useState<ConfirmTransactionProps | null>(null)
-
+  const { farmStats } = useSelector((state: AppState) => state.application)
+  const tvl = farmStats?.[farmName]?.tvl
+  const formattedTvl = tvl
+    ? `$${formatBNToShortString(BigNumber.from(tvl), 18)}`
+    : "-"
+  const apr = farmStats?.[farmName]?.apr || "-"
   const { t } = useTranslation()
 
   const updateModal = (modalType: ModalType, tx?: string): void => {
@@ -117,11 +126,29 @@ const FarmPage = (props: Props): ReactElement => {
         </ConfirmTransaction>
       </Modal>
       <FarmTabs {...props} handleModal={updateModal} />
-      <FarmDetails
-        balance={formattedBalance}
-        deposited={formattedDeposited}
-        lpTokenIcon={props.lpTokenIcon}
-        lpTokenName={props.lpTokenName}
+      <StakeDetails
+        balanceView={{
+          title: t("balance"),
+          tokenName: lpTokenName,
+          icon: lpTokenIcon,
+          amount: formattedBalance,
+        }}
+        stakedView={{
+          title: t("deposited"),
+          tokenName: lpTokenName,
+          icon: lpTokenIcon,
+          amount: formattedDeposited,
+        }}
+        stats={[
+          {
+            statLabel: "TVL",
+            statValue: formattedTvl,
+          },
+          {
+            statLabel: "APR",
+            statValue: apr,
+          },
+        ]}
       />
       <HarvestRewards rewardBalance={rewardsEarned} handleModal={updateModal} />
       <FarmFooter />

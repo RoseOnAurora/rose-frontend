@@ -13,7 +13,7 @@ interface Props {
 
 const Farm = ({ farmName }: Props): ReactElement => {
   const farmData = useFarmData(farmName)
-  const { lpToken } = FARMS_MAP[farmName]
+  const { lpToken, poolName } = FARMS_MAP[farmName]
   const deposited = useCalculateFarmDeposited(
     farmData?.lpTokenBalance,
     farmName,
@@ -24,6 +24,7 @@ const Farm = ({ farmName }: Props): ReactElement => {
       <div className={styles.container}>
         <FarmPage
           farmName={farmName}
+          poolName={poolName}
           lpTokenName={lpToken.name}
           lpTokenIcon={lpToken.icon}
           balance={farmData?.lpTokenBalance || Zero}

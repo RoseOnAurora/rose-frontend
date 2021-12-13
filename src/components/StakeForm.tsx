@@ -14,7 +14,7 @@ import {
   Text,
 } from "@chakra-ui/react"
 import { Field, FieldAttributes, Form, Formik } from "formik"
-import React, { ReactElement } from "react"
+import React, { ReactElement, ReactNode } from "react"
 import { ContractReceipt } from "@ethersproject/contracts"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import styles from "./StakeForm.module.scss"
@@ -27,7 +27,7 @@ interface Props {
   max: string
   isLoading: boolean
   submitButtonLabel: string
-  formDescription?: string
+  formDescription?: ReactNode
   handleSubmit: (amount: string) => Promise<ContractReceipt | void>
   validator: (amount: string) => string | undefined
   handlePreSubmit?: () => void

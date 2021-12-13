@@ -231,19 +231,40 @@ function StakePage(props: Props): ReactElement {
         </Tabs>
       </div>
       <StakeDetails
-        balanceView={commify(
-          formatBNToString(balance.amount || Zero, balance.decimals || 0, 5),
-        )}
-        stakedView={commify(
-          formatBNToString(staked.amount || Zero, staked.decimals || 0, 5),
-        )}
-        tvl={tvl ? `$${formatBNToShortString(BigNumber.from(tvl), 18)}` : "-"}
-        totalStaked={
-          totalRoseStaked
-            ? `${formatBNToShortString(BigNumber.from(totalRoseStaked), 18)}`
-            : "-"
-        }
-        priceOfRose={`$${Number(priceOfRose).toFixed(3)}`}
+        balanceView={{
+          title: t("balance"),
+          tokenName: "ROSE",
+          icon: roseTokenIcon,
+          amount: commify(
+            formatBNToString(balance.amount || Zero, balance.decimals || 0, 5),
+          ),
+        }}
+        stakedView={{
+          title: t("Staked"),
+          tokenName: "stROSE",
+          icon: stRoseTokenIcon,
+          amount: commify(
+            formatBNToString(staked.amount || Zero, staked.decimals || 0, 5),
+          ),
+        }}
+        stats={[
+          {
+            statLabel: "Total ROSE Staked",
+            statValue: totalRoseStaked
+              ? `${formatBNToShortString(BigNumber.from(totalRoseStaked), 18)}`
+              : "-",
+          },
+          {
+            statLabel: "Price of ROSE",
+            statValue: `$${Number(priceOfRose).toFixed(3)}`,
+          },
+          {
+            statLabel: "TVL",
+            statValue: tvl
+              ? `$${formatBNToShortString(BigNumber.from(tvl), 18)}`
+              : "-",
+          },
+        ]}
       />
     </div>
   )

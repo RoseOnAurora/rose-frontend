@@ -525,7 +525,7 @@ export const ROSE_FRAX_NLP_TOKEN = new Token(
   "RoseFraxNLP",
   "rosefraxnlp",
   "ROSE/FRAX PLP",
-  roseLogo, // TO-DO: change to new logo
+  roseFraxLogo, // TO-DO: change to new logo
   false,
   true,
 )

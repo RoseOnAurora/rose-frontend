@@ -9,7 +9,7 @@ import {
 import React, { ReactElement } from "react"
 import { Trans, useTranslation } from "react-i18next"
 import { BigNumber } from "@ethersproject/bignumber"
-import { FarmStats } from "../hooks/useFarmStats"
+import { FarmStats } from "../utils/fetchFarmStats"
 import { Link } from "react-router-dom"
 import classNames from "classnames"
 import { formatBNToShortString } from "../utils"
@@ -36,6 +36,10 @@ function FarmsOverview(props: Props): ReactElement {
     farmStats,
   } = props
   const { t } = useTranslation()
+  const formattedTvl = farmStats?.tvl
+    ? `$${formatBNToShortString(BigNumber.from(farmStats.tvl), 18)}`
+    : "-"
+  const formattedApr = farmStats?.apr || "-"
   return (
     <div className={styles.farmsOverview}>
       <div className={styles.container}>
@@ -57,18 +61,11 @@ function FarmsOverview(props: Props): ReactElement {
           >
             <Stat mr={2}>
               <StatLabel>TVL</StatLabel>
-              <StatNumber fontSize="13px">
-                {farmStats?.tvl && farmStats.tvl
-                  ? `$${formatBNToShortString(
-                      BigNumber.from(farmStats.tvl),
-                      18,
-                    )}`
-                  : "-"}
-              </StatNumber>
+              <StatNumber fontSize="13px">{formattedTvl}</StatNumber>
             </Stat>
             <Stat>
               <StatLabel>APR</StatLabel>
-              <StatNumber fontSize="13px">{farmStats?.apr || "-"}</StatNumber>
+              <StatNumber fontSize="13px">{formattedApr}</StatNumber>
             </Stat>
           </StatGroup>
         </div>
