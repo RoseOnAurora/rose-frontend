@@ -40,7 +40,8 @@ export const D4_POOL_NAME = "D4 Pool"
 export const SUSD_METAPOOL_NAME = "sUSD Metapool"
 export const TBTC_METAPOOL_NAME = "tBTC Metapool"
 export const WCUSD_METAPOOL_NAME = "wCUSD Metapool"
-export const FRAX_STABLES_LP_POOL_NAME = "Frax Pool"
+export const FRAX_STABLES_LP_POOL_NAME = "Frax Pool (outdated)"
+export const FRAX_METAPOOL_NAME = "Frax Pool"
 export const STAKED_ROSE_LP_POOL_NAME = "stRose Pool"
 
 // FARMS
@@ -62,6 +63,7 @@ export type PoolName =
   | typeof TBTC_METAPOOL_NAME
   | typeof WCUSD_METAPOOL_NAME
   | typeof FRAX_STABLES_LP_POOL_NAME
+  | typeof FRAX_METAPOOL_NAME
   | typeof STAKED_ROSE_LP_POOL_NAME
 
 export type FarmName =
@@ -235,6 +237,14 @@ export const FRAX_STABLES_LP_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.AURORA_MAINNET]: "0xd812cc1fc1e0a56560796C746B1247e2bd4F31f2",
 }
 
+export const FRAX_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xfbC22278A96299D91d41C453234d97b4F5Eb9B2d",
+  [ChainId.AURORA_MAINNET]: "",
+}
+
 export const STAKED_ROSE_POOL_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
@@ -401,6 +411,16 @@ export const FRAX_STABLES_LP_TOKEN_CONTRACT_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "0xbB5279353d88A25F099A334Ba49CDCb1CF4b5A7c",
 }
 
+export const FRAX_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x4EE6eCAD1c2Dae9f525404De8555724e3c35d07B",
+  [ChainId.AURORA_MAINNET]: "",
+}
+
 export const ROSE_PAD_NLP_TOKEN_CONTRACT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
@@ -499,6 +519,17 @@ export const STABLECOIN_SWAP_V2_TOKEN = new Token(
 
 export const FRAX_STABLES_LP_TOKEN = new Token(
   FRAX_STABLES_LP_TOKEN_CONTRACT_ADDRESSES,
+  18,
+  "RoseFraxLP",
+  "rosefraxlp",
+  "Rose FRAX/StablesLP",
+  roseFraxLogo,
+  false,
+  true,
+)
+
+export const FRAX_METAPOOL_LP_TOKEN = new Token(
+  FRAX_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES,
   18,
   "RoseFraxLP",
   "rosefraxlp",
@@ -974,8 +1005,19 @@ export const SROSE_FARM_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "0x247c9DA96BfC4720580ee84E01566D79a8c901ca",
 }
 
+export const FRAX_METAPOOL_DEPOSIT_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xC9a43158891282A2B1475592D5719c001986Aaec",
+  [ChainId.AURORA_MAINNET]: "",
+}
+
 export const D4_POOL_TOKENS = [ALUSD, FEI, FRAX, LUSD]
 export const FRAX_STABLES_LP_POOL_TOKENS = [FRAX, STABLECOIN_SWAP_V2_TOKEN]
+export const FRAX_METAPOOL_TOKENS = [FRAX, STABLECOIN_SWAP_V2_TOKEN]
 export const STAKED_ROSE_POOL_TOKENS = [ROSE, SROSE]
 export const WCUSD_POOL_TOKENS = [WCUSD, ...STABLECOIN_POOL_TOKENS]
 export const WCUSD_UNDERLYING_POOL_TOKENS = [WCUSD, STABLECOIN_SWAP_V2_TOKEN]
@@ -1012,10 +1054,21 @@ export const POOLS_MAP: PoolsMap = {
     addresses: FRAX_STABLES_LP_ADDRESSES,
     lpToken: FRAX_STABLES_LP_TOKEN,
     poolTokens: FRAX_STABLES_LP_POOL_TOKENS,
-    underlyingPoolTokens: [...STABLECOIN_POOL_TOKENS, FRAX],
+    // underlyingPoolTokens: [...STABLECOIN_POOL_TOKENS, FRAX],
     isSynthetic: false,
     type: PoolTypes.USD,
     route: "frax-stableslp",
+  },
+  [FRAX_METAPOOL_NAME]: {
+    name: FRAX_METAPOOL_NAME,
+    addresses: FRAX_METAPOOL_ADDRESSES,
+    lpToken: FRAX_METAPOOL_LP_TOKEN,
+    poolTokens: FRAX_METAPOOL_TOKENS,
+    underlyingPoolTokens: [...STABLECOIN_POOL_TOKENS, FRAX],
+    metaSwapAddresses: FRAX_METAPOOL_DEPOSIT_ADDRESSES,
+    isSynthetic: false,
+    type: PoolTypes.USD,
+    route: "frax",
   },
   // [STAKED_ROSE_LP_POOL_NAME]: {
   //   name: STAKED_ROSE_LP_POOL_NAME,
@@ -1097,7 +1150,7 @@ export function isMetaPool(poolName = ""): boolean {
     SUSD_METAPOOL_NAME,
     TBTC_METAPOOL_NAME,
     WCUSD_METAPOOL_NAME,
-    FRAX_STABLES_LP_POOL_NAME,
+    FRAX_METAPOOL_NAME,
   ]).has(poolName)
 }
 
