@@ -1012,6 +1012,7 @@ export const POOLS_MAP: PoolsMap = {
     addresses: FRAX_STABLES_LP_ADDRESSES,
     lpToken: FRAX_STABLES_LP_TOKEN,
     poolTokens: FRAX_STABLES_LP_POOL_TOKENS,
+    underlyingPoolTokens: [...STABLECOIN_POOL_TOKENS, FRAX],
     isSynthetic: false,
     type: PoolTypes.USD,
     route: "frax-stableslp",
@@ -1096,6 +1097,7 @@ export function isMetaPool(poolName = ""): boolean {
     SUSD_METAPOOL_NAME,
     TBTC_METAPOOL_NAME,
     WCUSD_METAPOOL_NAME,
+    FRAX_STABLES_LP_POOL_NAME,
   ]).has(poolName)
 }
 

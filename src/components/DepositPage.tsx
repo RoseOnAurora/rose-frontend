@@ -9,7 +9,6 @@ import { Trans, useTranslation } from "react-i18next"
 
 import AdvancedOptions from "./AdvancedOptions"
 import BackButton from "./BackButton"
-import CheckboxInput from "./CheckboxInput"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { DepositTransaction } from "../interfaces/transactions"
 import LPStakingBanner from "./LPStakingBanner"
@@ -17,6 +16,7 @@ import Modal from "./Modal"
 import MyShareCard from "./MyShareCard"
 import PoolInfoCard from "./PoolInfoCard"
 import ReviewDeposit from "./ReviewDeposit"
+import { Switch } from "@chakra-ui/react"
 import TokenInput from "./TokenInput"
 import TopMenu from "./TopMenu"
 import { Zero } from "@ethersproject/constants"
@@ -106,6 +106,18 @@ const DepositPage = (props: Props): ReactElement => {
                 </Trans>
               </div>
             ) : null}
+            {shouldDisplayWrappedOption && (
+              <div className="wrappedDeposit">
+                <Switch
+                  colorScheme="red"
+                  onChange={onToggleDepositWrapped}
+                  isChecked={shouldDepositWrapped}
+                />
+                <span>
+                  <small>{t("depositWrapped")}</small>
+                </span>
+              </div>
+            )}
             {tokens.map((token, index) => (
               <div key={index}>
                 <TokenInput
@@ -122,15 +134,6 @@ const DepositPage = (props: Props): ReactElement => {
                 )}
               </div>
             ))}
-            {shouldDisplayWrappedOption && (
-              <div className="wrappedDeposit">
-                <CheckboxInput
-                  onChange={onToggleDepositWrapped}
-                  checked={shouldDepositWrapped}
-                />
-                <span>{t("depositWrapped")}</span>
-              </div>
-            )}
             <div className={"transactionInfoContainer"}>
               <div className="transactionInfo">
                 {poolData?.aprs?.keep?.apr.gt(Zero) && (

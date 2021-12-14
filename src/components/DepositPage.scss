@@ -82,7 +82,7 @@ div.deposit {
       font-family: $font-family-title;
       font-size: 30px;
       margin-top: 0;
-      margin-bottom: 48px;
+      margin-bottom: 15px;
       font-weight: $bold;
       color: var(--text);
       text-align: center;
@@ -99,7 +99,8 @@ div.deposit {
   div.wrappedDeposit {
     display: flex;
     align-items: center;
-    margin-top: 32px;
+    justify-content: center;
+    margin-bottom: 10px;
     > span {
       margin-left: 8px;
     }

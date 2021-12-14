@@ -57,7 +57,7 @@ function Pools(): ReactElement | null {
       <div className={styles.content}>
         {Object.values(POOLS_MAP)
           // temporarily hide Frax pool while keeping its page enabled
-          .filter(({ name }) => name !== FRAX_STABLES_LP_POOL_NAME)
+          // .filter(({ name }) => name !== FRAX_STABLES_LP_POOL_NAME)
           .filter(
             ({ type, migration, isOutdated }) =>
               filter === "all" ||
