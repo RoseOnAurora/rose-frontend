@@ -1,4 +1,5 @@
 import {
+  FRAX_METAPOOL_NAME,
   FRAX_STABLES_LP_POOL_NAME,
   POOLS_MAP,
   PoolName,
@@ -21,6 +22,9 @@ function Pools(): ReactElement | null {
   const [fraxStablesPoolData, fraxStablesUserShareData] = usePoolData(
     FRAX_STABLES_LP_POOL_NAME,
   )
+  const [fraxMetaPoolData, fraxMetaPoolUserShareData] = usePoolData(
+    FRAX_METAPOOL_NAME,
+  )
   // const [stRosePoolData, stRoseUserShareData] = usePoolData(
   //   STAKED_ROSE_LP_POOL_NAME,
   // )
@@ -42,6 +46,13 @@ function Pools(): ReactElement | null {
       //     userShareData: stRoseUserShareData,
       //     poolRoute: `pools/${POOLS_MAP[poolName].route}`,
       //   }
+      case FRAX_METAPOOL_NAME:
+        return {
+          name: poolName,
+          poolData: fraxMetaPoolData,
+          userShareData: fraxMetaPoolUserShareData,
+          poolRoute: `pools/${POOLS_MAP[poolName].route}`,
+        }
       default:
         return {
           name: poolName,

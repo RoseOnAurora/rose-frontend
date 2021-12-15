@@ -5,6 +5,7 @@ import {
   FARMS_MAP,
   FRAX,
   // FRAX_STABLES_LP_FARM_NAME,
+  FRAX_METAPOOL_NAME,
   FRAX_STABLES_LP_POOL_NAME,
   FarmName,
   POOLS_MAP,
@@ -35,6 +36,8 @@ import { Bridge } from "../../types/ethers-contracts/Bridge"
 import { Contract } from "@ethersproject/contracts"
 import ERC20_ABI from "../constants/abis/erc20.json"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
+import FRAX_META_POOL_ABI from "../constants/abis/FraxMetaPool.json"
+import { FraxMetaPool } from "../../types/ethers-contracts/FraxMetaPool"
 import META_SWAP_DEPOSIT_ABI from "../constants/abis/metaSwapDeposit.json"
 import MIGRATOR_USD_CONTRACT_ABI from "../constants/abis/swapMigratorUSD.json"
 import { MetaSwapDeposit } from "../../types/ethers-contracts/MetaSwapDeposit"
@@ -237,6 +240,13 @@ export function usePoolContract(poolName?: PoolName): Contract | null {
             library,
             account ?? undefined,
           ) as RoseFraxPool
+        case FRAX_METAPOOL_NAME:
+          return getContract(
+            pool.addresses[chainId],
+            JSON.stringify(FRAX_META_POOL_ABI),
+            library,
+            account ?? undefined,
+          ) as FraxMetaPool
         default:
           return null
       }
@@ -328,6 +338,13 @@ export function useLPTokenContract(
             account ?? undefined,
           ) as RoseFraxLP
         case STAKED_ROSE_LP_POOL_NAME:
+          return getContract(
+            pool.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
+        case FRAX_METAPOOL_NAME:
           return getContract(
             pool.lpToken.addresses[chainId],
             JSON.stringify(ROSE_FRAX_LP_ABI),

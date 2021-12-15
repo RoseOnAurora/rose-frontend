@@ -40,8 +40,8 @@ export const D4_POOL_NAME = "D4 Pool"
 export const SUSD_METAPOOL_NAME = "sUSD Metapool"
 export const TBTC_METAPOOL_NAME = "tBTC Metapool"
 export const WCUSD_METAPOOL_NAME = "wCUSD Metapool"
-export const FRAX_STABLES_LP_POOL_NAME = "Frax Pool (outdated)"
-export const FRAX_METAPOOL_NAME = "Frax Pool"
+export const FRAX_STABLES_LP_POOL_NAME = "Frax Pool"
+export const FRAX_METAPOOL_NAME = "Frax MetaPool"
 export const STAKED_ROSE_LP_POOL_NAME = "stRose Pool"
 
 // FARMS
@@ -895,7 +895,7 @@ const FRAX_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "0x853d955aCEf822Db058eb8505911ED77F175b99e",
   [ChainId.ROPSTEN]: "0xb295E36469C8Aef7d76b661aD5af02cdB258D662",
   [ChainId.HARDHAT]: "0x851356ae760d987E095750cCeb3bC6014560891C",
-  [ChainId.AURORA_TESTNET]: "0x22EE86789837529E2F58Fd6D1dD6B0B26fc1e092",
+  [ChainId.AURORA_TESTNET]: "0xBEc49fA140aCaA83533fB00A2BB19bDdd0290f25",
   [ChainId.AURORA_MAINNET]: "0xda2585430fef327ad8ee44af8f1f989a2a91a3d2",
 }
 export const FRAX = new Token(
@@ -1058,13 +1058,14 @@ export const POOLS_MAP: PoolsMap = {
     isSynthetic: false,
     type: PoolTypes.USD,
     route: "frax-stableslp",
+    isOutdated: true,
   },
   [FRAX_METAPOOL_NAME]: {
     name: FRAX_METAPOOL_NAME,
     addresses: FRAX_METAPOOL_ADDRESSES,
     lpToken: FRAX_METAPOOL_LP_TOKEN,
     poolTokens: FRAX_METAPOOL_TOKENS,
-    underlyingPoolTokens: [...STABLECOIN_POOL_TOKENS, FRAX],
+    underlyingPoolTokens: [FRAX, ...STABLECOIN_POOL_TOKENS], // frax first due to contract definition
     metaSwapAddresses: FRAX_METAPOOL_DEPOSIT_ADDRESSES,
     isSynthetic: false,
     type: PoolTypes.USD,

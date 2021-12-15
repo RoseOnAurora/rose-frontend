@@ -8,10 +8,9 @@ import usePoolData, { PoolDataType } from "../hooks/usePoolData"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { ContractReceipt } from "@ethersproject/contracts"
+import { Contract, ContractReceipt } from "@ethersproject/contracts"
 import DepositPage from "../components/DepositPage"
-import META_SWAP_ABI from "../constants/abis/metaSwap.json"
-import { MetaSwap } from "../../types/ethers-contracts/MetaSwap"
+import FRAX_POOL_DEPOSIT from "../constants/abis/FraxPoolDeposit.json"
 import { TokenPricesUSD } from "../state/application"
 import { Zero } from "@ethersproject/constants"
 import { calculatePriceImpact } from "../utils/priceImpact"
@@ -107,10 +106,10 @@ function Deposit({ poolName }: Props): ReactElement | null {
     if (isMetaSwap && chainId && library) {
       return getContract(
         POOL.metaSwapAddresses?.[chainId] as string,
-        META_SWAP_ABI,
+        JSON.stringify(FRAX_POOL_DEPOSIT),
         library,
         account ?? undefined,
-      ) as MetaSwap
+      ) as Contract
     }
     return null
   }, [isMetaSwap, chainId, library, POOL.metaSwapAddresses, account])
@@ -148,9 +147,9 @@ function Deposit({ poolName }: Props): ReactElement | null {
       if (poolData.totalLocked.gt(0) && tokenInputSum.gt(0)) {
         if (shouldDepositWrapped) {
           depositLPTokenAmount = metaSwapContract
-            ? await metaSwapContract.calculateTokenAmount(
-                (POOL.underlyingPoolTokens || []).map(
-                  ({ symbol }) => tokenFormState[symbol].valueSafe,
+            ? await metaSwapContract.calc_token_amount(
+                (POOL.underlyingPoolTokens || []).map(({ symbol }) =>
+                  BigNumber.from(tokenFormState[symbol].valueSafe),
                 ),
                 true, // deposit boolean
               )

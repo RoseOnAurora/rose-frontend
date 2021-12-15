@@ -237,6 +237,18 @@ function getTradingPairsForToken(
       }
     }
 
+    // Case 7: poolA(TokenA) <> poolB(TokenB) (temp workaround for tokens from diff pools)
+    else if (sharedPoolsSet.size === 0) {
+      const originPool = [...originTokenPoolsSet][0]
+      const destinationPool = [...tokenPoolsSet][1] || [...tokenPoolsSet][0]
+      swapData = {
+        type: SWAP_TYPES.DIRECT,
+        from: buildSwapSideData(originToken, originPool),
+        to: buildSwapSideData(token, destinationPool),
+        route: [originToken.symbol, token.symbol],
+      }
+    }
+
     // use this swap only if we haven't already calculated a better swap for the pair
     const existingTokenSwapData: SwapData | undefined =
       tokenToSwapDataMap[token.symbol]
