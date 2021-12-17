@@ -133,8 +133,15 @@ const DepositPage = (props: Props): ReactElement => {
             )}
             {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
               <p className="wrappedInfo">
-                This pool is outdated. Please withdraw your liquidity and{" "}
-                <a href="#">migrate to the new Frax pool</a>.
+                This pool is outdated. Please{" "}
+                <a href="/#/pools/frax-stableslp/withdraw">
+                  go here to withdraw any liquidity
+                </a>{" "}
+                from this pool and{" "}
+                <a href="/#/pools/frax/deposit">
+                  use the new Frax pool instead
+                </a>
+                .
               </p>
             )}
             {tokens.map((token, index) => (
