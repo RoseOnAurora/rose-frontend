@@ -96,6 +96,14 @@ div.deposit {
     }
   }
 
+  .wrappedInfo {
+    margin-bottom: 12px;
+    a {
+      margin-left: 0;
+      text-decoration: underline;
+    }
+  }
+
   div.wrappedDeposit {
     display: flex;
     align-items: center;

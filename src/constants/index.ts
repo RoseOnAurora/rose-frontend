@@ -40,8 +40,8 @@ export const D4_POOL_NAME = "D4 Pool"
 export const SUSD_METAPOOL_NAME = "sUSD Metapool"
 export const TBTC_METAPOOL_NAME = "tBTC Metapool"
 export const WCUSD_METAPOOL_NAME = "wCUSD Metapool"
-export const FRAX_STABLES_LP_POOL_NAME = "Frax Pool"
-export const FRAX_METAPOOL_NAME = "Frax MetaPool"
+export const FRAX_STABLES_LP_POOL_NAME = "Frax Pool (outdated)"
+export const FRAX_METAPOOL_NAME = "Frax Pool"
 export const STAKED_ROSE_LP_POOL_NAME = "stRose Pool"
 
 // FARMS
@@ -1066,6 +1066,7 @@ export const POOLS_MAP: PoolsMap = {
     lpToken: FRAX_METAPOOL_LP_TOKEN,
     poolTokens: FRAX_METAPOOL_TOKENS,
     underlyingPoolTokens: [FRAX, ...STABLECOIN_POOL_TOKENS], // frax first due to contract definition
+    underlyingPool: STABLECOIN_POOL_V2_NAME,
     metaSwapAddresses: FRAX_METAPOOL_DEPOSIT_ADDRESSES,
     isSynthetic: false,
     type: PoolTypes.USD,

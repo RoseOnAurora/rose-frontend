@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   BRIDGE_CONTRACT_ADDRESSES,
   BTC_POOL_NAME,
