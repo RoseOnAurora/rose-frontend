@@ -218,6 +218,11 @@ const DepositPage = (props: Props): ReactElement => {
               </div>
             </div>
           </div>
+          <BackButton
+            route="/pools"
+            wrapperClass="goBack"
+            buttonText="Go back to pools"
+          />
           <AdvancedOptions />
           <Center width="100%" py={6}>
             <Button
@@ -232,11 +237,6 @@ const DepositPage = (props: Props): ReactElement => {
               {t("deposit")}
             </Button>
           </Center>
-          <BackButton
-            route="/pools"
-            wrapperClass="goBack"
-            buttonText="Go back to pools"
-          />
         </div>
         <div className="infoPanels">
           <MyShareCard data={myShareData} />
