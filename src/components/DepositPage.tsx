@@ -1,6 +1,11 @@
 import "./DepositPage.scss"
 
-import { ALETH_POOL_NAME, VETH2_POOL_NAME, isMetaPool } from "../constants"
+import {
+  ALETH_POOL_NAME,
+  FRAX_STABLES_LP_POOL_NAME,
+  VETH2_POOL_NAME,
+  isMetaPool,
+} from "../constants"
 import { Button, Center } from "@chakra-ui/react"
 import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
 import { PoolDataType, UserShareType } from "../hooks/usePoolData"
@@ -9,7 +14,6 @@ import { Trans, useTranslation } from "react-i18next"
 
 import AdvancedOptions from "./AdvancedOptions"
 import BackButton from "./BackButton"
-import CheckboxInput from "./CheckboxInput"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { DepositTransaction } from "../interfaces/transactions"
 import LPStakingBanner from "./LPStakingBanner"
@@ -17,6 +21,7 @@ import Modal from "./Modal"
 import MyShareCard from "./MyShareCard"
 import PoolInfoCard from "./PoolInfoCard"
 import ReviewDeposit from "./ReviewDeposit"
+// import { Switch } from "@chakra-ui/react"
 import TokenInput from "./TokenInput"
 import TopMenu from "./TopMenu"
 import { Zero } from "@ethersproject/constants"
@@ -53,10 +58,10 @@ const DepositPage = (props: Props): ReactElement => {
     poolData,
     myShareData,
     transactionData,
-    shouldDepositWrapped,
+    // shouldDepositWrapped,
     onChangeTokenInputValue,
     onConfirmTransaction,
-    onToggleDepositWrapped,
+    // onToggleDepositWrapped,
   } = props
 
   const [currentModal, setCurrentModal] = useState<string | null>(null)
@@ -106,6 +111,39 @@ const DepositPage = (props: Props): ReactElement => {
                 </Trans>
               </div>
             ) : null}
+            {/* disable deposit wrapped button until gas limit is raised on aurora */}
+            {/* {shouldDisplayWrappedOption && (
+              <div className="wrappedDeposit">
+                <Switch
+                  colorScheme="red"
+                  onChange={onToggleDepositWrapped}
+                  isChecked={shouldDepositWrapped}
+                />
+                <span>
+                  <small>{t("depositWrapped")}</small>
+                </span>
+              </div>
+            )} */}
+            {shouldDisplayWrappedOption && (
+              <p className="wrappedInfo">
+                Deposit to the{" "}
+                <a href="/#/pools/stables/deposit">Stables Pool</a> to get
+                RoseStablesLP.
+              </p>
+            )}
+            {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
+              <p className="wrappedInfo">
+                This pool is outdated. Please{" "}
+                <a href="/#/pools/frax-stableslp/withdraw">
+                  go here to withdraw any liquidity
+                </a>{" "}
+                from this pool and{" "}
+                <a href="/#/pools/frax/deposit">
+                  use the new Frax pool instead
+                </a>
+                .
+              </p>
+            )}
             {tokens.map((token, index) => (
               <div key={index}>
                 <TokenInput
@@ -122,15 +160,6 @@ const DepositPage = (props: Props): ReactElement => {
                 )}
               </div>
             ))}
-            {shouldDisplayWrappedOption && (
-              <div className="wrappedDeposit">
-                <CheckboxInput
-                  onChange={onToggleDepositWrapped}
-                  checked={shouldDepositWrapped}
-                />
-                <span>{t("depositWrapped")}</span>
-              </div>
-            )}
             <div className={"transactionInfoContainer"}>
               <div className="transactionInfo">
                 {poolData?.aprs?.keep?.apr.gt(Zero) && (

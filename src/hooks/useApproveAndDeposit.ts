@@ -11,8 +11,8 @@ import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import META_SWAP_ABI from "../constants/abis/metaSwap.json"
-import { MetaSwap } from "../../types/ethers-contracts/MetaSwap"
+import { FraxPoolDeposit } from "../../types/ethers-contracts/FraxPoolDeposit"
+import FRAX_POOL_DEPOSIT from "../constants/abis/FraxPoolDeposit.json"
 import { NumberInputState } from "../utils/numberInputState"
 import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
@@ -46,10 +46,10 @@ export function useApproveAndDeposit(
     if (POOL.metaSwapAddresses && chainId && library) {
       return getContract(
         POOL.metaSwapAddresses?.[chainId],
-        META_SWAP_ABI,
+        JSON.stringify(FRAX_POOL_DEPOSIT),
         library,
         account ?? undefined,
-      ) as MetaSwap
+      ) as FraxPoolDeposit
     }
     return null
   }, [chainId, library, POOL.metaSwapAddresses, account])
@@ -71,7 +71,7 @@ export function useApproveAndDeposit(
         ? (POOL.underlyingPoolTokens as Token[])
         : POOL.poolTokens
       const effectiveSwapContract = shouldDepositWrapped
-        ? (metaSwapContract as MetaSwap)
+        ? (metaSwapContract as FraxPoolDeposit)
         : poolContract
 
       // const gasPrice = parseUnits(String(gasPriceUnsafe) || "45", 9)
@@ -119,7 +119,7 @@ export function useApproveAndDeposit(
       }
 
       minToMint = subtractSlippage(minToMint, slippageSelected, slippageCustom)
-
+      
       // const swapFlashLoanContract = effectiveSwapContract as RoseStablesPool
       const spendTransaction = await effectivePoolContract.add_liquidity(
         txnAmounts,

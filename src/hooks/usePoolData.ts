@@ -135,7 +135,7 @@ export default function usePoolData(
       }
 
       const POOL = POOLS_MAP[poolName]
-      const effectivePoolTokens = POOL.underlyingPoolTokens || POOL.poolTokens
+      const effectivePoolTokens = POOL.poolTokens
       const lpTokenContract = getContract(
         POOL.lpToken.addresses[chainId],
         LPTOKEN_UNGUARDED_ABI,

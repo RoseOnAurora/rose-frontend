@@ -10,6 +10,7 @@ import { AppState } from "../state"
 import BackButton from "./BackButton"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
+import { FRAX_STABLES_LP_POOL_NAME } from "../constants"
 import Modal from "./Modal"
 import MyShareCard from "./MyShareCard"
 import PoolInfoCard from "./PoolInfoCard"
@@ -89,6 +90,13 @@ const WithdrawPage = (props: Props): ReactElement => {
         <div className="left">
           <div className="form">
             <h3>{t("withdraw")}</h3>
+            {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
+              <p className="outdatedInfo">
+                This pool is outdated. Please withdraw your liquidity and{" "}
+                <a href="/#/pools/frax/deposit">migrate to the new Frax pool</a>
+                .
+              </p>
+            )}
             <p className="instructions">
               Type below the amounts you want to withdraw, then click the&nbsp;
               <b>Remove Liquidity</b> button.
