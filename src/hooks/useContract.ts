@@ -30,6 +30,8 @@ import {
   USDT,
   isLegacySwapABIPool,
   isMetaPool,
+  UST_METAPOOL_NAME,
+  UST,
 } from "../constants"
 
 import BRIDGE_CONTRACT_ABI from "../constants/abis/bridge.json"
@@ -248,6 +250,13 @@ export function usePoolContract(poolName?: PoolName): Contract | null {
             library,
             account ?? undefined,
           ) as FraxMetaPool
+        case UST_METAPOOL_NAME:
+          return getContract(
+            pool.addresses[chainId],
+            JSON.stringify(FRAX_META_POOL_ABI),
+            library,
+            account ?? undefined,
+          ) as FraxMetaPool
         default:
           return null
       }
@@ -352,6 +361,13 @@ export function useLPTokenContract(
             library,
             account ?? undefined,
           ) as RoseFraxLP
+        case UST_METAPOOL_NAME:
+          return getContract(
+            pool.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
         default:
           return null
       }
@@ -430,6 +446,7 @@ export function useAllContracts(): AllContractsObject | null {
   ) as RoseStablesLP
   const roseContract = useTokenContract(ROSE) as Erc20
   const stroseContract = useTokenContract(SROSE) as Erc20
+  const ustContract = useTokenContract(UST) as Erc20
 
   return useMemo(() => {
     if (
@@ -446,6 +463,7 @@ export function useAllContracts(): AllContractsObject | null {
       [STABLECOIN_SWAP_V2_TOKEN.symbol]: roseStablesLPContract,
       [ROSE.symbol]: roseContract,
       [SROSE.symbol]: stroseContract,
+      [UST.symbol]: ustContract,
     }
   }, [
     daiContract,
@@ -455,5 +473,6 @@ export function useAllContracts(): AllContractsObject | null {
     fraxContract,
     roseContract,
     stroseContract,
+    ustContract,
   ])
 }

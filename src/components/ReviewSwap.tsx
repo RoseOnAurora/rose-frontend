@@ -167,7 +167,7 @@ function DirectSwapTokens({ data }: { data: Props["data"] }) {
   return (
     <>
       <div className="row">
-        <div>
+        <div style={{ display: "flex" }}>
           <img className="tokenIcon" src={fromToken.icon} alt="icon" />
           <span className="tokenName">{data.from.symbol}</span>
         </div>
@@ -177,7 +177,7 @@ function DirectSwapTokens({ data }: { data: Props["data"] }) {
       </div>
       <img src={iconDown} alt="to" className="arrowDown" />
       <div className="row">
-        <div>
+        <div style={{ display: "flex" }}>
           <img className="tokenIcon" src={toToken.icon} alt="icon" />
           <span className="tokenName">{data.to.symbol}</span>
         </div>
