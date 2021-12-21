@@ -43,7 +43,6 @@ export const TBTC_METAPOOL_NAME = "tBTC Metapool"
 export const WCUSD_METAPOOL_NAME = "wCUSD Metapool"
 export const FRAX_STABLES_LP_POOL_NAME = "Frax Pool (outdated)"
 export const FRAX_METAPOOL_NAME = "Frax Pool"
-export const UST_METAPOOL_NAME = "atUST Pool"
 export const STAKED_ROSE_LP_POOL_NAME = "stRose Pool"
 export const UST_METAPOOL_NAME = "UST Pool"
 
@@ -266,14 +265,6 @@ export const STAKED_ROSE_POOL_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x7e27881A7eABb81D0e32e03C498f97517Cb75470",
   [ChainId.AURORA_MAINNET]: "0x36685AfD221622942Df61979d72a0064a17EF291",
-}
-
-export const UST_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]: "",
-  [ChainId.ROPSTEN]: "",
-  [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x1B8f7ac4acCa4ede18848203a54E57DF104C6f30",
-  [ChainId.AURORA_MAINNET]: "0x8fe44f5cce02D5BE44e3446bBc2e8132958d22B8",
 }
 
 export const BTC_SWAP_ADDRESSES: { [chainId in ChainId]: string } = {

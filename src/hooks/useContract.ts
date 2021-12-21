@@ -7,6 +7,8 @@ import {
   FRAX,
   // FRAX_STABLES_LP_FARM_NAME,
   FRAX_METAPOOL_NAME,
+  FRAX_METAPOOL_FARM_NAME,
+  UST_METAPOOL_FARM_NAME,
   FRAX_STABLES_LP_POOL_NAME,
   FarmName,
   POOLS_MAP,
@@ -111,13 +113,20 @@ export function useFarmContract(farmName: FarmName): RoseStablesFarm | null {
             library,
             account ?? undefined,
           ) as RoseStablesFarm
-        // case FRAX_STABLES_LP_FARM_NAME:
-        //   return getContract(
-        //     farm.addresses[chainId],
-        //     JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
-        //     library,
-        //     account ?? undefined,
-        //   ) as RoseStablesFarm
+        case FRAX_METAPOOL_FARM_NAME:
+          return getContract(
+            farm.addresses[chainId],
+            JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
+            library,
+            account ?? undefined,
+          ) as RoseStablesFarm
+        case UST_METAPOOL_FARM_NAME:
+            return getContract(
+              farm.addresses[chainId],
+              JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
+              library,
+              account ?? undefined,
+            ) as RoseStablesFarm
         case ROSE_PAD_NLP_FARM_NAME:
           return getContract(
             farm.addresses[chainId],
@@ -395,13 +404,20 @@ export function useLPTokenContractForFarm(
             library,
             account ?? undefined,
           ) as RoseStablesLP
-        // case FRAX_STABLES_LP_FARM_NAME:
-        //   return getContract(
-        //     farm.lpToken.addresses[chainId],
-        //     JSON.stringify(ROSE_FRAX_LP_ABI),
-        //     library,
-        //     account ?? undefined,
-        //   ) as RoseFraxLP
+        case FRAX_METAPOOL_FARM_NAME:
+          return getContract(
+            farm.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
+        case UST_METAPOOL_FARM_NAME:
+            return getContract(
+              farm.lpToken.addresses[chainId],
+              JSON.stringify(ROSE_FRAX_LP_ABI),
+              library,
+              account ?? undefined,
+            ) as RoseFraxLP
         case ROSE_PAD_NLP_FARM_NAME:
           return getContract(
             farm.lpToken.addresses[chainId],
