@@ -49,7 +49,7 @@ export const UST_METAPOOL_NAME = "UST Pool"
 // FARMS
 export const STABLES_FARM_NAME = "Stables Farm"
 export const FRAX_METAPOOL_FARM_NAME = "Frax Farm"
-export const UST_METAPOOL_FARM_NAME = "atUST Farm"
+export const UST_METAPOOL_FARM_NAME = "UST Farm"
 export const ROSE_PAD_NLP_FARM_NAME = "ROSE/PAD PLP Farm"
 export const ROSE_FRAX_NLP_FARM_NAME = "ROSE/FRAX PLP Farm"
 export const SROSE_FARM_NAME = "stRose Farm"
