@@ -21,8 +21,8 @@ export function useApproveAndDepositFarm(
   ): Promise<ContractReceipt | void> {
     try {
       if (!account) throw new Error("Wallet must be connected")
-      if (!farmContract || !lpTokenContract)
-        throw new Error("Rose contract is not loaded")
+      if (!farmContract) throw new Error("Farm contract is not loaded")
+      if (!lpTokenContract) throw new Error("LP Token contract is not loaded")
       const gasPrice = Zero
       const amountToStake = BigNumber.from(amount)
       await checkAndApproveTokenForTrade(
