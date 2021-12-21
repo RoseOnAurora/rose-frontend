@@ -12,6 +12,7 @@ import fraxLogo from "../assets/icons/frax.svg"
 import lusdLogo from "../assets/icons/lusd.svg"
 import metamaskIcon from "../assets/icons/metamask.svg"
 import renbtcLogo from "../assets/icons/renbtc.svg"
+import roseAtust from "../assets/icons/rose-atust.svg"
 import roseFraxLogo from "../assets/icons/rose-frax.svg"
 import roseLogo from "../assets/icons/rose.svg"
 import sRoseLogo from "../assets/icons/srose.svg"
@@ -475,16 +476,6 @@ export const SROSE_LP_TOKEN_CONTRACT_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "0x7Ba8C17010a48283D38a4bd5f87EfEB5594c92f8",
 }
 
-export const UST_LP_TOKEN_CONTRACT_ADDRESSES: {
-  [chainId in ChainId]: string
-} = {
-  [ChainId.MAINNET]: "",
-  [ChainId.ROPSTEN]: "",
-  [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x1BCD872ECEf68C77465a8dADa1d915D7Af206bF5",
-  [ChainId.AURORA_MAINNET]: "0x94A7644E4D9CA0e685226254f88eAdc957D3c263",
-}
-
 export const SUSD_SWAP_TOKEN = new Token(
   SUSD_SWAP_TOKEN_CONTRACT_ADDRESSES,
   18,
@@ -579,7 +570,7 @@ export const UST_METAPOOL_LP_TOKEN = new Token(
   "RoseUSTLP",
   "roseustlp",
   "Rose atUST/StablesLP",
-  roseFraxLogo,
+  roseAtust,
   false,
   true,
 )
@@ -612,17 +603,6 @@ export const SROSE_LP_TOKEN = new Token(
   "StakedRoseLP",
   "stakedrosenlp",
   "Rose ROSE/stROSE",
-  sRoseLogo, // TO-DO: change to new logo
-  false,
-  true,
-)
-
-export const UST_LP_TOKEN = new Token(
-  UST_LP_TOKEN_CONTRACT_ADDRESSES,
-  18,
-  "RoseUSTLP",
-  "roseustlp",
-  "Rose UST/Stables",
   sRoseLogo, // TO-DO: change to new logo
   false,
   true,
@@ -1169,7 +1149,7 @@ export const POOLS_MAP: PoolsMap = {
   [UST_METAPOOL_NAME]: {
     name: UST_METAPOOL_NAME,
     addresses: UST_METAPOOL_ADDRESSES,
-    lpToken: UST_LP_TOKEN,
+    lpToken: UST_METAPOOL_LP_TOKEN,
     poolTokens: UST_METAPOOL_TOKENS,
     underlyingPoolTokens: [UST, ...STABLECOIN_POOL_TOKENS],
     underlyingPool: STABLECOIN_POOL_V2_NAME,
