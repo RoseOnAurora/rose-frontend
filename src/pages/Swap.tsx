@@ -1,7 +1,6 @@
 /* eslint @typescript-eslint/no-unsafe-assignment: 0 */
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
 import {
-  FRAX_METAPOOL_NAME,
   IS_VIRTUAL_SWAP_ACTIVE,
   POOLS_MAP,
   PoolName,
@@ -121,9 +120,6 @@ function Swap(): ReactElement {
 
   const swapContract = usePoolContract(
     formState.to.poolName as PoolName | undefined,
-  )
-  const metaPoolContract = usePoolContract(
-    FRAX_METAPOOL_NAME as PoolName | undefined,
   )
   // build a representation of pool tokens for the UI
   const tokenOptions = useMemo(() => {
@@ -265,20 +261,19 @@ function Swap(): ReactElement {
           utils.formatBytes32String(formStateArg.to.symbol),
           amountToGive,
         )
+        // TO-DO: we need to clean this
       } else if (
         formStateArg.swapType === SWAP_TYPES.DIRECT &&
-        swapContract != null &&
-        metaPoolContract != null
+        swapContract != null
       ) {
-        if (formStateArg.from.symbol === "FRAX") {
-          amountToReceive = await metaPoolContract.get_dy_underlying(
+        if (
+          formStateArg.from.symbol === "FRAX" ||
+          formStateArg.from.symbol === "atUST" ||
+          formStateArg.to.symbol === "FRAX" ||
+          formStateArg.to.symbol === "atUST"
+        ) {
+          amountToReceive = await swapContract.get_dy_underlying(
             formStateArg.from.tokenIndex,
-            formStateArg.to.tokenIndex + 1,
-            amountToGive,
-          )
-        } else if (formStateArg.to.symbol === "FRAX") {
-          amountToReceive = await metaPoolContract.get_dy_underlying(
-            formStateArg.from.tokenIndex + 1,
             formStateArg.to.tokenIndex,
             amountToGive,
           )
@@ -497,10 +492,7 @@ function Swap(): ReactElement {
     }
     const receipt = await approveAndSwap({
       bridgeContract: bridgeContract,
-      poolContract:
-        formState.from.symbol === "FRAX" || formState.to.symbol === "FRAX"
-          ? metaPoolContract
-          : swapContract,
+      poolContract: swapContract,
       from: {
         amount: parseUnits(formState.from.value, fromToken.decimals),
         symbol: formState.from.symbol,

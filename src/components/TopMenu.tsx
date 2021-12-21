@@ -87,13 +87,33 @@ function TopMenu({ activeTab }: Props): ReactElement {
           </ToolTip>
         </li>
         <li>
-          <a
-            href="https://rainbowbridge.app/transfer"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Bridge<sup>↗</sup>
-          </a>
+          <Menu>
+            <MenuButton>
+              <Link to="#">Bridge↗</Link>
+            </MenuButton>
+            <MenuList>
+              <MenuGroup>
+                <MenuItem>
+                  <a
+                    href="https://rainbowbridge.app/transfer"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Rainbow Bridge↗
+                  </a>
+                </MenuItem>
+                <MenuItem>
+                  <a
+                    href="https://app.allbridge.io/bridge"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Allbridge↗
+                  </a>
+                </MenuItem>
+              </MenuGroup>
+            </MenuList>
+          </Menu>
         </li>
       </ul>
       <Web3Status />

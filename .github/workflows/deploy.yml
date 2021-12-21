@@ -1,4 +1,4 @@
-name: Deploy to Skynet
+name: Deploy
 on:
   push:
     branches: [master]
@@ -12,12 +12,6 @@ jobs:
           node-version: 16.x
       - run: npm ci
       - run: npm run build
-      - name: "Deploy to Skynet"
-        uses: SkynetLabs/deploy-to-skynet-action@v2
-        with:
-          upload-dir: build
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          registry-seed: ${{ secrets.REGISTRY_SEED || '' }}
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
