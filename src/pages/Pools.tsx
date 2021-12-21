@@ -5,6 +5,7 @@ import {
   PoolName,
   PoolTypes,
   STABLECOIN_POOL_V2_NAME,
+  UST_METAPOOL_NAME,
   // STAKED_ROSE_LP_POOL_NAME,
 } from "../constants"
 import React, { ReactElement, useState } from "react"
@@ -24,6 +25,9 @@ function Pools(): ReactElement | null {
   )
   const [fraxMetaPoolData, fraxMetaPoolUserShareData] = usePoolData(
     FRAX_METAPOOL_NAME,
+  )
+  const [ustMetaPoolData, ustMetaPoolUserShareData] = usePoolData(
+    UST_METAPOOL_NAME,
   )
   // const [stRosePoolData, stRoseUserShareData] = usePoolData(
   //   STAKED_ROSE_LP_POOL_NAME,
@@ -51,6 +55,13 @@ function Pools(): ReactElement | null {
           name: poolName,
           poolData: fraxMetaPoolData,
           userShareData: fraxMetaPoolUserShareData,
+          poolRoute: `pools/${POOLS_MAP[poolName].route}`,
+        }
+      case UST_METAPOOL_NAME:
+        return {
+          name: poolName,
+          poolData: ustMetaPoolData,
+          userShareData: ustMetaPoolUserShareData,
           poolRoute: `pools/${POOLS_MAP[poolName].route}`,
         }
       default:

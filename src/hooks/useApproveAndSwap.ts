@@ -146,22 +146,15 @@ export function useApproveAndSwap(): (
           ...args,
         )
       } else if (state.swapType === SWAP_TYPES.DIRECT) {
-        if (state.from.symbol === "FRAX") {
+        if (
+          state.from.symbol === "FRAX" ||
+          state.from.symbol === "atUST" ||
+          state.to.symbol === "FRAX" ||
+          state.to.symbol === "atUST"
+        ) {
           const args = [
-            0,
-            state.to.tokenIndex + 1,
-            state.from.amount,
-            subtractSlippage(state.to.amount, slippageSelected, slippageCustom),
-            { gasPrice },
-          ] as const
-          console.debug("exchange_underlying - direct", args)
-          swapTransaction = await (state.poolContract as NonNullable<
-            typeof state.poolContract // we already check for nonnull above
-          >).exchange_underlying(...args)
-        } else if (state.to.symbol === "FRAX") {
-          const args = [
-            state.from.tokenIndex + 1,
-            0,
+            state.from.tokenIndex,
+            state.to.tokenIndex,
             state.from.amount,
             subtractSlippage(state.to.amount, slippageSelected, slippageCustom),
             { gasPrice },

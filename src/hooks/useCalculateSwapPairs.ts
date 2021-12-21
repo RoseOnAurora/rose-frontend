@@ -75,7 +75,9 @@ function buildSwapSideData(
   return {
     symbol: token.symbol,
     poolName: pool?.name,
-    tokenIndex: pool?.poolTokens.findIndex((t) => t === token),
+    tokenIndex:
+      pool?.underlyingPoolTokens?.findIndex((t) => t === token) ||
+      pool?.poolTokens.findIndex((t) => t === token),
   }
 }
 
@@ -237,15 +239,28 @@ function getTradingPairsForToken(
       }
     }
 
+    // TO-DO: clean this logic up
     // Case 7: poolA(TokenA) <> poolB(TokenB) (temp workaround for tokens from diff pools)
     else if (sharedPoolsSet.size === 0) {
-      const originPool = [...originTokenPoolsSet][0]
-      const destinationPool = [...tokenPoolsSet][1] || [...tokenPoolsSet][0]
-      swapData = {
-        type: SWAP_TYPES.DIRECT,
-        from: buildSwapSideData(originToken, originPool),
-        to: buildSwapSideData(token, destinationPool),
-        route: [originToken.symbol, token.symbol],
+      const originPool = [...originTokenPoolsSet].find(
+        ({ isOutdated }) => !isOutdated,
+      )
+      const destinationPool = [...tokenPoolsSet].find(
+        ({ isOutdated }) => !isOutdated,
+      )
+      const metaSwapPool = originPool?.metaSwapAddresses
+        ? originPool
+        : destinationPool
+      if (
+        !(originToken.symbol === "FRAX" && token.symbol === "atUST") &&
+        !(originToken.symbol === "atUST" && token.symbol === "FRAX")
+      ) {
+        swapData = {
+          type: SWAP_TYPES.DIRECT,
+          from: buildSwapSideData(originToken, metaSwapPool!),
+          to: buildSwapSideData(token, metaSwapPool!),
+          route: [originToken.symbol, token.symbol],
+        }
       }
     }
 
