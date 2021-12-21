@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import styles from "./BackButton.module.scss"
 
 interface Props {
-  wrapperClass: string
+  wrapperClass?: string
   route: string
   buttonText: string
 }

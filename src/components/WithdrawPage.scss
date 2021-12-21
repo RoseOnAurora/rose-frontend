@@ -59,12 +59,9 @@ div.withdraw {
       }
 
       .goBack {
-        position: absolute;
-        bottom: 0;
+        padding: 10px;
         display: flex;
         @include breakpoint(lg) {
-          position: relative;
-          bottom: unset;
           justify-content: center;
         }
       }
