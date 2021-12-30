@@ -5,8 +5,8 @@ import {
   PoolName,
   PoolTypes,
   STABLECOIN_POOL_V2_NAME,
+  STAKED_ROSE_LP_POOL_NAME,
   UST_METAPOOL_NAME,
-  // STAKED_ROSE_LP_POOL_NAME,
 } from "../constants"
 import React, { ReactElement, useState } from "react"
 
@@ -29,9 +29,9 @@ function Pools(): ReactElement | null {
   const [ustMetaPoolData, ustMetaPoolUserShareData] = usePoolData(
     UST_METAPOOL_NAME,
   )
-  // const [stRosePoolData, stRoseUserShareData] = usePoolData(
-  //   STAKED_ROSE_LP_POOL_NAME,
-  // )
+  const [stRosePoolData, stRoseUserShareData] = usePoolData(
+    STAKED_ROSE_LP_POOL_NAME,
+  )
   const [filter] = useState<PoolTypes | "all" | "outdated">("all")
 
   function getPropsForPool(poolName: PoolName) {
@@ -43,13 +43,13 @@ function Pools(): ReactElement | null {
           userShareData: fraxStablesUserShareData,
           poolRoute: `pools/${POOLS_MAP[poolName].route}`,
         }
-      // case STAKED_ROSE_LP_POOL_NAME:
-      //   return {
-      //     name: poolName,
-      //     poolData: stRosePoolData,
-      //     userShareData: stRoseUserShareData,
-      //     poolRoute: `pools/${POOLS_MAP[poolName].route}`,
-      //   }
+      case STAKED_ROSE_LP_POOL_NAME:
+        return {
+          name: poolName,
+          poolData: stRosePoolData,
+          userShareData: stRoseUserShareData,
+          poolRoute: `pools/${POOLS_MAP[poolName].route}`,
+        }
       case FRAX_METAPOOL_NAME:
         return {
           name: poolName,
@@ -78,7 +78,7 @@ function Pools(): ReactElement | null {
       <TopMenu activeTab="pools" />
       <div className={styles.content}>
         {Object.values(POOLS_MAP)
-          // temporarily hide Frax pool while keeping its page enabled
+          // hide old Frax pool while keeping its page enabled
           .filter(({ name }) => name !== FRAX_STABLES_LP_POOL_NAME)
           .filter(
             ({ type, migration, isOutdated }) =>

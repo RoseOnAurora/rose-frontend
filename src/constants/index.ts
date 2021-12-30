@@ -264,8 +264,8 @@ export const STAKED_ROSE_POOL_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x7e27881A7eABb81D0e32e03C498f97517Cb75470",
-  [ChainId.AURORA_MAINNET]: "0x36685AfD221622942Df61979d72a0064a17EF291",
+  [ChainId.AURORA_TESTNET]: "0x2753988eadf920c220B3993fE631c1534401f85D",
+  [ChainId.AURORA_MAINNET]: "0x2753988eadf920c220B3993fE631c1534401f85D", // TODO
 }
 
 export const BTC_SWAP_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -472,8 +472,8 @@ export const SROSE_LP_TOKEN_CONTRACT_ADDRESSES: {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0xcb2B566B1e643d068DE7DE76C5420A1c63ceD299",
-  [ChainId.AURORA_MAINNET]: "0x7Ba8C17010a48283D38a4bd5f87EfEB5594c92f8",
+  [ChainId.AURORA_TESTNET]: "0x46F2e32aC918fCAbada5417EFaE2DF58Ef972B03",
+  [ChainId.AURORA_MAINNET]: "0x46F2e32aC918fCAbada5417EFaE2DF58Ef972B03", // TODO
 }
 
 export const SUSD_SWAP_TOKEN = new Token(
@@ -1158,15 +1158,15 @@ export const POOLS_MAP: PoolsMap = {
     type: PoolTypes.USD,
     route: "ust",
   },
-  // [STAKED_ROSE_LP_POOL_NAME]: {
-  //   name: STAKED_ROSE_LP_POOL_NAME,
-  //   addresses: STAKED_ROSE_POOL_ADDRESSES,
-  //   lpToken: SROSE_LP_TOKEN,
-  //   poolTokens: STAKED_ROSE_POOL_TOKENS,
-  //   isSynthetic: false,
-  //   type: PoolTypes.USD,
-  //   route: "stakedrose",
-  // },
+  [STAKED_ROSE_LP_POOL_NAME]: {
+    name: STAKED_ROSE_LP_POOL_NAME,
+    addresses: STAKED_ROSE_POOL_ADDRESSES,
+    lpToken: SROSE_LP_TOKEN,
+    poolTokens: STAKED_ROSE_POOL_TOKENS,
+    isSynthetic: false,
+    type: PoolTypes.USD,
+    route: "stakedrose",
+  },
 }
 
 export type Farm = {
