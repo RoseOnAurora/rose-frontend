@@ -2,6 +2,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 import { FarmStats } from "../utils/fetchFarmStats"
 
 import { SwapStatsReponse } from "../utils/getSwapStats"
+import { TRANSACTION_TYPES } from "../constants"
 
 interface GasPrices {
   gasStandard?: number
@@ -32,7 +33,9 @@ type ApplicationState = GasPrices & { tokenPricesUSD?: TokenPricesUSD } & {
 } & { swapStats?: SwapStats } & { farmStats?: UpdatedFarmStats }
 
 const initialState: ApplicationState = {
-  lastTransactionTimes: {},
+  lastTransactionTimes: {
+    [TRANSACTION_TYPES.STAKE]: 0,
+  },
 }
 
 const applicationSlice = createSlice({

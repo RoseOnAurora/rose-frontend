@@ -1,0 +1,46 @@
+import React, { ReactElement } from "react"
+import ToolTip from "./ToolTip"
+import classNames from "classnames"
+import styles from "./StakeLockedTimer.module.scss"
+
+interface Props {
+  timeLeft: number
+}
+
+const StakeLockedTimer = ({ timeLeft }: Props): ReactElement => {
+  const locked = timeLeft ? true : false
+  return (
+    <div className={styles.stakeLockWrapper}>
+      <div className={styles.messageWrapper}>
+        <h4 className={styles.title}>Your stROSE is </h4>
+        <ToolTip content="This feature is still in beta. If you believe your stROSE is unlocked, try performing the unstake operation.">
+          <h4
+            className={classNames(
+              styles.title,
+              styles.status,
+              { [styles.locked]: locked },
+              { [styles.unlocked]: !locked },
+            )}
+          >
+            {locked ? "Locked" : "Unlocked"}
+          </h4>
+        </ToolTip>
+      </div>
+      <div className={styles.stakeLockTimer}>
+        <div className={styles.lockMessage}>
+          Time left until unstake allowed
+        </div>
+        <div className={styles.timeLeft}>
+          <ToolTip content="This is an estimate of time remaining until you can unstake. Refresh the page for better accuracy.">
+            <h4 className={styles.title}>
+              {new Date((timeLeft / 1000) * 1000).toISOString().substr(11, 8)}
+            </h4>
+          </ToolTip>
+          <span className={styles.timeUnits}>(HH:MM:SS)</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default StakeLockedTimer

@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from "react"
+import React, { ReactElement, useEffect, useMemo, useState } from "react"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ROSE_TOKENS_MAP } from "../constants"
 import StakePage from "../components/StakePage"
@@ -7,6 +7,8 @@ import { Zero } from "@ethersproject/constants"
 import styles from "./Stake.module.scss"
 import { useApproveAndStake } from "../hooks/useApproveAndStake"
 import { useApproveAndUnstake } from "../hooks/useApproveAndUnstake"
+import useCountDown from "react-countdown-hook"
+import useLastStakedTime from "../hooks/useLastStakedTime"
 import { useRoseTokenBalances } from "../state/wallet/hooks"
 
 export type BalanceDetails = {
@@ -23,6 +25,17 @@ const Stake = (): ReactElement => {
   const tokenBalances = useRoseTokenBalances()
   const stake = useApproveAndStake()
   const unstake = useApproveAndUnstake()
+
+  const [diff, setDiff] = useState(0)
+  const lastStaked = useLastStakedTime()
+  useEffect(() => {
+    const d = new Date(lastStaked ? +lastStaked * 1000 : 0)
+    d.setDate(d.getDate() + 1)
+    setDiff((Date.now() - d.getTime()) * -1)
+  }, [lastStaked])
+
+  const [timeLeft, actions] = useCountDown(diff, 1000)
+
   const tokenBalanceDetails = useMemo((): BalanceDetails => {
     const [roseToken, stRoseToken] = Object.values(ROSE_TOKENS_MAP).map(
       ({ symbol, decimals }) => {
@@ -44,6 +57,11 @@ const Stake = (): ReactElement => {
       },
     }
   }, [tokenBalances])
+
+  useEffect(() => {
+    actions.start(diff)
+  }, [actions, diff, lastStaked])
+
   return (
     <div className={styles.stake}>
       <TopMenu activeTab="stake" />
@@ -53,6 +71,7 @@ const Stake = (): ReactElement => {
           staked={tokenBalanceDetails.staked}
           roseTokenIcon={ROSE_TOKENS_MAP.rose.icon}
           stRoseTokenIcon={ROSE_TOKENS_MAP.stRose.icon}
+          timeLeft={timeLeft}
           approveStake={stake}
           approveUnstake={unstake}
         />

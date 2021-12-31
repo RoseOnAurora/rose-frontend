@@ -15,6 +15,7 @@ import Modal from "./Modal"
 import { StRose } from "../../types/ethers-contracts/StRose"
 import StakeDetails from "./StakeDetails"
 import StakeForm from "./StakeForm"
+import StakeLockedTimer from "./StakeLockedTimer"
 import { TokenDetails } from "../pages/Stake"
 import { Zero } from "@ethersproject/constants"
 import classNames from "classnames"
@@ -30,6 +31,7 @@ interface Props {
   staked: TokenDetails
   roseTokenIcon: string
   stRoseTokenIcon: string
+  timeLeft: number
   approveStake: (amount: string) => Promise<ContractReceipt | void>
   approveUnstake: (amount: string) => Promise<ContractReceipt | void>
 }
@@ -41,6 +43,7 @@ function StakePage(props: Props): ReactElement {
     staked,
     roseTokenIcon,
     stRoseTokenIcon,
+    timeLeft,
     approveStake,
     approveUnstake,
   } = props
@@ -266,6 +269,7 @@ function StakePage(props: Props): ReactElement {
           },
         ]}
       />
+      {staked.amount.gt(Zero) ? <StakeLockedTimer timeLeft={timeLeft} /> : null}
     </div>
   )
 }

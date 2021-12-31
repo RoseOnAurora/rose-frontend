@@ -10,7 +10,8 @@ div.stakePage {
   row-gap: 10px;
   column-gap: 10px;
   grid-template-areas: 
-    "leftBlock rightBlock";
+    "leftBlock rightBlock"
+    "timer timer";
   justify-content: center;
 
   @include breakpoint(md) {
