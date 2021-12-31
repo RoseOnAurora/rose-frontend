@@ -40,7 +40,7 @@
     "react-countdown-hook": "^1.1.1",
     "react-device-detect": "^2.1.2",
     "react-dom": "^16.14.0",
-    "react-i18next": "^11.11.0",
+    "react-i18next": "^11.15.2",
     "react-icons": "^4.3.1",
     "react-redux": "^7.2.4",
     "react-router-dom": "^5.2.0",
