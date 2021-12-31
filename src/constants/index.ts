@@ -1308,6 +1308,7 @@ export const TRANSACTION_TYPES = {
   WITHDRAW: "WITHDRAW",
   SWAP: "SWAP",
   MIGRATE: "MIGRATE",
+  STAKE: "STAKE",
 }
 
 export const POOL_FEE_PRECISION = 10

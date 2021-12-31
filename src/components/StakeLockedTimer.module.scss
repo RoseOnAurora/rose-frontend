@@ -1,0 +1,97 @@
+@import "../styles/theme";
+@import "../styles/viewports";
+
+div.stakeLockWrapper {
+  grid-area: timer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--background-element);
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  padding: 24px;
+  @include breakpoint(lg) {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+  @include breakpoint(md) {
+    order: 2;
+    flex-wrap: wrap;
+  }
+
+  .messageWrapper {
+    display: flex;
+    justify-content: space-between;
+    @include breakpoint(lg) {
+      width: 100%;
+    }
+
+    .status {
+      margin-left: 10px;
+      border-bottom: 1px dotted var(--text);
+    }
+  }
+
+  h4.title {
+    font-family: $font-family-title;
+    font-size: 25px;
+    font-weight: $bold;
+    color: var(--text-title);
+    white-space: nowrap;
+    @include breakpoint(md) {
+      font-size: 20px;
+    }
+    @include breakpoint(sm) {
+      font-size: 18px;
+    }
+
+    &.locked {
+      color: $primary;
+    }
+  
+    &.unlocked {
+      color: $success;
+    }
+  }
+
+  div.stakeLockTimer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    @include breakpoint(lg) {
+      align-items: baseline;
+      width: 100%;
+    }
+
+    .lockMessage {
+      margin-right: 20px;
+      color: var(--text-darker);
+      @include breakpoint(md) {
+        font-size: 13px;
+      }
+      @include breakpoint(sm) {
+        font-size: 11px;
+      }
+    }
+    .timeUnits {
+      color: var(--text-lightest);
+      margin-left: 5px;
+      @include breakpoint(md) {
+        font-size: 13px;
+      }
+      @include breakpoint(sm) {
+        font-size: 11px;
+      }
+    }
+
+    .timeLeft {
+      display: flex;
+      align-items: center;
+
+      .title {
+        border-bottom: 1px dotted var(--text);
+      }
+    }
+  }
+}
