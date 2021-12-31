@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react"
-import ToolTip from "./ToolTip"
+import { Tooltip } from "@chakra-ui/react"
 import classNames from "classnames"
 import styles from "./StakeLockedTimer.module.scss"
 
@@ -13,7 +13,11 @@ const StakeLockedTimer = ({ timeLeft }: Props): ReactElement => {
     <div className={styles.stakeLockWrapper}>
       <div className={styles.messageWrapper}>
         <h4 className={styles.title}>Your stROSE is </h4>
-        <ToolTip content="This feature is still in beta. If you believe your stROSE is unlocked, try performing the unstake operation.">
+        <Tooltip
+          bgColor="#cc3a59"
+          closeOnClick={false}
+          label="This feature is still in beta. If you believe your stROSE is unlocked, try performing the unstake operation."
+        >
           <h4
             className={classNames(
               styles.title,
@@ -24,18 +28,22 @@ const StakeLockedTimer = ({ timeLeft }: Props): ReactElement => {
           >
             {locked ? "Locked" : "Unlocked"}
           </h4>
-        </ToolTip>
+        </Tooltip>
       </div>
       <div className={styles.stakeLockTimer}>
         <div className={styles.lockMessage}>
           Time left until unstake allowed
         </div>
         <div className={styles.timeLeft}>
-          <ToolTip content="This is an estimate of time remaining until you can unstake. Refresh the page for better accuracy.">
+          <Tooltip
+            bgColor="#cc3a59"
+            closeOnClick={false}
+            label="This is an estimate of time remaining until you can unstake. Refresh the page for better accuracy."
+          >
             <h4 className={styles.title}>
               {new Date((timeLeft / 1000) * 1000).toISOString().substr(11, 8)}
             </h4>
-          </ToolTip>
+          </Tooltip>
           <span className={styles.timeUnits}>(HH:MM:SS)</span>
         </div>
       </div>
