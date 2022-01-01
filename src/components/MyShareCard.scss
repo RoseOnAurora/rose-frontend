@@ -39,10 +39,10 @@ div.myShareCard {
     display: flex;
     justify-content: space-between;
     flex-flow: row wrap;
-    @include breakpoint(md) {
-      width: 200px;
-      flex-flow: row wrap;
-    }
+    // @include breakpoint(md) {
+    //   width: 200px;
+    //   flex-flow: row wrap;
+    // }
     .tokenName {
       font-weight: $bold;
       display: block;

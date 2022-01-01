@@ -85,16 +85,12 @@ div.withdraw {
 
     .form h3 {
       font-family: $font-family-title;
-      font-size: 30px;
+      font-size: 25px;
       margin-top: 0;
-      margin-bottom: 5px;
+      margin-bottom: 15px;
       font-weight: $bold;
       color: var(--text-darker);
       text-align: center;
-    }
-
-    .form .instructions {
-      margin-bottom: 48px;
     }
 
     .infoPanels .divider {
@@ -106,7 +102,7 @@ div.withdraw {
 
     .percentage {
       display: flex;
-      flex-wrap: wrap;
+      // flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 16px;
@@ -117,22 +113,10 @@ div.withdraw {
       }
 
       input {
-        height: 32px;
-        width: 112px;
-        display: block;
-        background: $white;
-        border: none;
-        border-radius: 0;
-
-        padding-left: 16px;
-        color: $text-black;
-        font-size: 16px;
-        font-family: $font-family;
-        font-style: normal;
-        font-weight: $normal;
-
+        background-color: var(--primary-background);
+        border-color: $primary-blue-dark;
         &:focus {
-          outline: var(--outline) solid 1px;
+          border-color: $primary-darker
         }
       }
 
@@ -150,7 +134,13 @@ div.withdraw {
       gap: 8px;
       margin-bottom: 24px;
       @include breakpoint(md) {
-        flex-flow: row wrap;
+        flex-direction: column;
+      }
+
+      & > div {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
       }
     }
   }

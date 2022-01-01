@@ -10,6 +10,7 @@ import { ContractReceipt } from "@ethersproject/contracts"
 import { Zero } from "@ethersproject/constants"
 import { calculateGasEstimate } from "../utils/gasEstimate"
 import { calculatePriceImpact } from "../utils/priceImpact"
+import { formatBNToString } from "../utils"
 import { formatSlippageToString } from "../utils/slippage"
 import { useActiveWeb3React } from "../hooks"
 import { useApproveAndWithdraw } from "../hooks/useApproveAndWithdraw"
@@ -110,13 +111,21 @@ function Withdraw({ poolName }: Props): ReactElement {
 
   const tokensData = React.useMemo(
     () =>
-      POOL.poolTokens.map(({ name, symbol, icon }) => ({
+      POOL.poolTokens.map(({ name, symbol, icon, decimals }) => ({
         name,
         symbol,
         icon,
         inputValue: withdrawFormState.tokenInputs[symbol].valueRaw,
+        // TO-DO: all decimals have been casted to 18 - we need to change that
+        // to generic behavior so we don't have to cast back
+        max: formatBNToString(
+          userShareData?.tokens
+            .find((shareToken) => shareToken.symbol === symbol)
+            ?.value.div(BigNumber.from(10).pow(18 - decimals)) || Zero,
+          decimals,
+        ),
       })),
-    [withdrawFormState, POOL.poolTokens],
+    [withdrawFormState, POOL.poolTokens, userShareData?.tokens],
   )
   const gasPrice = Zero
   // const gasPrice = BigNumber.from(

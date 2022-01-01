@@ -17,6 +17,7 @@ interface Props {
   inputValue: string
   onChange: (value: string) => void
   disabled?: boolean
+  readonly?: boolean
 }
 
 function TokenInput({
@@ -26,6 +27,7 @@ function TokenInput({
   inputValue,
   onChange,
   disabled,
+  readonly,
 }: Props): ReactElement {
   const { t } = useTranslation()
   const { name } = TOKENS_MAP[symbol]
@@ -84,6 +86,7 @@ function TokenInput({
             placeholder="0.0"
             spellCheck="false"
             disabled={disabled ? true : false}
+            readOnly={readonly}
             value={inputValue}
             onChange={onChangeInput}
             onFocus={(e: React.ChangeEvent<HTMLInputElement>): void =>
