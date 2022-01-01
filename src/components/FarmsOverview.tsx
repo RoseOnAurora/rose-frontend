@@ -1,4 +1,3 @@
-/** es-lint: disable */
 import {
   Button,
   Stat,
@@ -9,11 +8,15 @@ import {
 import React, { ReactElement } from "react"
 import { Trans, useTranslation } from "react-i18next"
 import { BigNumber } from "@ethersproject/bignumber"
+import { FarmName } from "../constants"
 import { FarmStats } from "../utils/fetchFarmStats"
 import { Link } from "react-router-dom"
+import { Zero } from "@ethersproject/constants"
 import classNames from "classnames"
 import { formatBNToShortString } from "../utils"
 import styles from "./FarmsOverview.module.scss"
+import useCalculateFarmDeposited from "../hooks/useCalculateFarmDeposited"
+import useFarmData from "../hooks/useFarmData"
 
 interface Props {
   farmRoute: string
@@ -40,6 +43,13 @@ function FarmsOverview(props: Props): ReactElement {
     ? `$${formatBNToShortString(BigNumber.from(farmStats.tvl), 18)}`
     : "-"
   const formattedApr = farmStats?.apr || "-"
+
+  const farmData = useFarmData(farmName as FarmName)
+  const deposited = useCalculateFarmDeposited(
+    farmData?.lpTokenBalance,
+    farmName as FarmName,
+  )
+
   return (
     <div className={styles.farmsOverview}>
       <div className={styles.container}>
@@ -68,6 +78,22 @@ function FarmsOverview(props: Props): ReactElement {
               <StatNumber fontSize="13px">{formattedApr}</StatNumber>
             </Stat>
           </StatGroup>
+        </div>
+        <div className={styles.balanceInfo}>
+          <div style={{ display: "flex", gap: "5px" }}>
+            <div className={styles.tokenBalanceText}>LP Token Balance:</div>
+            <div className={styles.tokenBalanceValue}>{`${formatBNToShortString(
+              farmData?.lpTokenBalance || Zero,
+              18,
+            )}`}</div>
+          </div>
+          <div style={{ display: "flex", gap: "5px" }}>
+            <div className={styles.tokenBalanceText}>Deposited:</div>
+            <div className={styles.tokenBalanceValue}>{`${formatBNToShortString(
+              deposited,
+              18,
+            )}`}</div>
+          </div>
         </div>
         <div className={styles.farmDescription}>
           <p>

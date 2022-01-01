@@ -27,6 +27,30 @@ div.farmsOverview {
     }
   }
 
+  .balanceInfo {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+    @include breakpoint(md) {
+      justify-content: space-between;
+    }
+  }
+
+  .tokenBalanceText {
+    color: var(--text-lighter);
+    @include breakpoint(sm) {
+      font-size: 12px;
+    }
+  }
+
+  .tokenBalanceValue {
+    font-weight: $bold;
+    color: $primary;
+    @include breakpoint(sm) {
+      font-size: 12px;
+    }
+  } 
+
   h4.title {
     font-family: $font-family-title;
     font-size: 30px;
@@ -61,7 +85,7 @@ div.farmsOverview {
       color: var(--text);
       a {
         margin: 0;
-        color: $primary;
+        color: $primary-darker;
         &:hover {
           color: $primary-lighter;
           text-decoration: underline;
