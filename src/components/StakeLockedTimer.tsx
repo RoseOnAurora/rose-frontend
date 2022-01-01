@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react"
-import { Tooltip } from "@chakra-ui/react"
+import { SlideFade, Tooltip } from "@chakra-ui/react"
 import classNames from "classnames"
 import styles from "./StakeLockedTimer.module.scss"
 
@@ -10,7 +10,7 @@ interface Props {
 const StakeLockedTimer = ({ timeLeft }: Props): ReactElement => {
   const locked = timeLeft ? true : false
   return (
-    <div className={styles.stakeLockWrapper}>
+    <SlideFade in={true} className={styles.stakeLockWrapper} offsetY="-30px">
       <div className={styles.messageWrapper}>
         <h4 className={styles.title}>Your stROSE is </h4>
         <Tooltip
@@ -47,7 +47,7 @@ const StakeLockedTimer = ({ timeLeft }: Props): ReactElement => {
           <span className={styles.timeUnits}>(HH:MM:SS)</span>
         </div>
       </div>
-    </div>
+    </SlideFade>
   )
 }
 
