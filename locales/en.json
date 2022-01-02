@@ -204,7 +204,7 @@
   "withdrawal": "Withdrawal",
   "withdrawFrom": "Withdraw from",
   "withdrawFailed": "Your withdrawal failed. Please try again",
-  "withdrawPercentage": "Withdraw percentage",
+  "withdrawPercentage": "Enter a percentage to remove",
   "withdrawSynth": "Withdraw <1></1> {{name}}",
   "withdrewNToken": "Withdrew {{amount}} {{name}}",
   "Withdraw": "Withdraw",
