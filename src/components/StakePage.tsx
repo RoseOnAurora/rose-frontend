@@ -5,6 +5,7 @@ import ConfirmTransaction, {
 } from "./ConfirmTransaction"
 import React, { ReactElement, useState } from "react"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
+import { Trans, useTranslation } from "react-i18next"
 import { commify, formatBNToShortString, formatBNToString } from "../utils"
 import { useRoseContract, useStRoseContract } from "../hooks/useContract"
 import { AppState } from "../state"
@@ -19,12 +20,12 @@ import StakeLockedTimer from "./StakeLockedTimer"
 import { TokenDetails } from "../pages/Stake"
 import { Zero } from "@ethersproject/constants"
 import classNames from "classnames"
+import { getEtherscanLink } from "../utils/getEtherscanLink"
 import { parseUnits } from "@ethersproject/units"
 import styles from "./StakePage.module.scss"
 import { useCheckTokenRequiresApproval } from "../hooks/useCheckTokenRequiresApproval"
 import { useSelector } from "react-redux"
 import useStakeStats from "../hooks/useStakeStats"
-import { useTranslation } from "react-i18next"
 
 interface Props {
   balance: TokenDetails
@@ -98,7 +99,11 @@ function StakePage(props: Props): ReactElement {
     return null
   }
 
-  const updateModal = (modalType: ModalType, tx?: string): void => {
+  const updateModal = (
+    modalType: ModalType,
+    txnType?: string,
+    txnHash?: string,
+  ): void => {
     switch (modalType) {
       case ModalType.CONFIRM:
         setCurrentModal({ type: ModalType.CONFIRM })
@@ -107,14 +112,29 @@ function StakePage(props: Props): ReactElement {
         setCurrentModal({
           type: ModalType.SUCCESS,
           title: t("successTitle"),
-          description: t("txConfirmed", { tx }),
+          description: t("txConfirmed", { tx: txnType }),
         })
         break
       case ModalType.FAILED:
         setCurrentModal({
           type: ModalType.FAILED,
           title: t("failedTitle"),
-          description: t("txFailed", { tx }),
+          description: !txnHash
+            ? t("txFailed_internal", { tx: txnType })
+            : undefined,
+          children: txnHash ? (
+            <Trans i18nKey="txFailed" t={t}>
+              {{ tx: txnType }}
+              <a
+                href={getEtherscanLink(txnHash, "tx")}
+                target="_blank"
+                rel="noreferrer"
+                style={{ textDecoration: "underline", margin: 0 }}
+              >
+                Aurora Explorer
+              </a>
+            </Trans>
+          ) : null,
         })
         break
       default:
@@ -126,7 +146,7 @@ function StakePage(props: Props): ReactElement {
     if (receipt?.status) {
       updateModal(ModalType.SUCCESS, t("stake"))
     } else {
-      updateModal(ModalType.FAILED, t("stake"))
+      updateModal(ModalType.FAILED, t("stake"), receipt?.transactionHash)
     }
   }
 
@@ -134,7 +154,7 @@ function StakePage(props: Props): ReactElement {
     if (receipt?.status) {
       updateModal(ModalType.SUCCESS, t("unstake"))
     } else {
-      updateModal(ModalType.FAILED, t("unstake"))
+      updateModal(ModalType.FAILED, t("unstake"), receipt?.transactionHash)
     }
   }
 
@@ -145,11 +165,7 @@ function StakePage(props: Props): ReactElement {
           isOpen={!!currentModal}
           onClose={(): void => setCurrentModal(null)}
         >
-          <ConfirmTransaction
-            description={currentModal?.description}
-            title={currentModal?.title}
-            type={currentModal?.type}
-          />
+          <ConfirmTransaction {...currentModal} />
         </Modal>
         <Tabs isFitted variant="primary">
           <TabList mb="1em">
