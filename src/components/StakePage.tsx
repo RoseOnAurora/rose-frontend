@@ -269,7 +269,7 @@ function StakePage(props: Props): ReactElement {
           },
           {
             statLabel: "Approx. APR",
-            statValue: totalRoseStaked ? `${apr}` : "-",
+            statValue: apr ? `${apr}` : "-",
             statTooltip:
               "Estimate based on protocol fees earned in the last two weeks.",
           },
