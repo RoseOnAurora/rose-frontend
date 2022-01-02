@@ -113,9 +113,10 @@ const WithdrawPage = (props: Props): ReactElement => {
             <Tabs
               isFitted
               variant="primary"
-              onChange={() =>
+              onChange={() => {
                 onFormChange({ fieldName: "reset", value: "reset" })
-              }
+                setIsOpen(false)
+              }}
             >
               <h3>{t("withdraw")}</h3>
               <TabList>
@@ -133,10 +134,7 @@ const WithdrawPage = (props: Props): ReactElement => {
                       .
                     </p>
                   )}
-                  <div
-                    className="horizontalDisplay"
-                    hidden={formStateData.error !== null}
-                  >
+                  <div className="horizontalDisplay">
                     <span>Select a token: </span>
                     <div>
                       {tokensData.map((t) => {
@@ -204,11 +202,7 @@ const WithdrawPage = (props: Props): ReactElement => {
                   {formStateData.error ? (
                     <div className="error">{formStateData.error.message}</div>
                   ) : null}
-                  <SlideFade
-                    in={isOpen && !formStateData.error}
-                    hidden={!isOpen || formStateData.error !== null}
-                    offsetY="-30px"
-                  >
+                  <SlideFade in={isOpen} hidden={!isOpen} offsetY="-30px">
                     {tokensData.map((token, index) => (
                       <div key={index}>
                         <TokenInput
