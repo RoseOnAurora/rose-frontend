@@ -12,6 +12,7 @@ interface StakeStatsApiResponse {
   strose_rose_ratio: string
   strose_tvl: string
   total_rose_staked: string
+  strose_apr: string
 }
 
 export interface StakeStats {
@@ -19,6 +20,7 @@ export interface StakeStats {
   tvl: string
   totalRoseStaked: string
   priceOfRose: string
+  apr: string
 }
 
 const emptyState = {
@@ -26,6 +28,7 @@ const emptyState = {
   tvl: "",
   totalRoseStaked: "",
   priceOfRose: "",
+  apr: "",
 }
 
 export default function useStakeStats(): StakeStats {
@@ -42,6 +45,7 @@ export default function useStakeStats(): StakeStats {
                 tvl: b?.strose_tvl,
                 totalRoseStaked: b?.total_rose_staked,
                 priceOfRose: b?.price_of_rose,
+                apr: b?.strose_apr,
               }
             })
             setStakeStats(res[0])

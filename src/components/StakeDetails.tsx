@@ -4,13 +4,19 @@ import {
   StatGroup,
   StatLabel,
   StatNumber,
+  Tooltip,
 } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import styles from "./StakeDetails.module.scss"
 
+interface StakeStatLabel {
+  statLabel: string
+  statTooltip?: string
+}
 interface StakeStats {
   statLabel: string
   statValue: string
+  statTooltip?: string
 }
 interface StakedDetailsView {
   tokenName: string
@@ -22,6 +28,20 @@ interface Props {
   balanceView: StakedDetailsView
   stakedView: StakedDetailsView
   stats?: StakeStats[]
+}
+const StakeStat = (props: StakeStatLabel): ReactElement => {
+  const { statLabel, statTooltip } = props
+  if (statTooltip) {
+    return (
+      <Tooltip bgColor="#cc3a59" closeOnClick={false} label={statTooltip}>
+        <div className={styles.statLabel}>
+          <div className={styles.underline}>{statLabel}</div>
+        </div>
+      </Tooltip>
+    )
+  } else {
+    return <div className={styles.statLabel}>{statLabel}</div>
+  }
 }
 const StakeDetails = (props: Props): ReactElement => {
   const { balanceView, stakedView, stats } = props
@@ -68,10 +88,10 @@ const StakeDetails = (props: Props): ReactElement => {
         <>
           <Divider />
           <div className={styles.statsDetails}>
-            {stats.map(({ statLabel, statValue }, index) => {
+            {stats.map(({ statLabel, statValue, statTooltip }, index) => {
               return (
                 <div className={styles.statRow} key={index}>
-                  <div className={styles.statLabel}>{statLabel}</div>
+                  <StakeStat statLabel={statLabel} statTooltip={statTooltip} />
                   <div className={styles.statValue}>{statValue}</div>
                 </div>
               )
