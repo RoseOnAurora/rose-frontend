@@ -3,15 +3,18 @@ import "./WithdrawPage.scss"
 import {
   Button,
   Center,
-  Input,
-  InputGroup,
-  InputRightElement,
   SlideFade,
+  Slider,
+  SliderFilledTrack,
+  SliderMark,
+  SliderThumb,
+  SliderTrack,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
+  Tooltip,
 } from "@chakra-ui/react"
 import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
 import { PoolDataType, UserShareType } from "../hooks/usePoolData"
@@ -91,6 +94,8 @@ const WithdrawPage = (props: Props): ReactElement => {
 
   const { gasPriceSelected } = useSelector((state: AppState) => state.user)
   const [currentModal, setCurrentModal] = useState<string | null>(null)
+  const [sliderValue, setSliderValue] = React.useState(100)
+  const [showTooltip, setShowTooltip] = React.useState(false)
 
   const [isOpen, setIsOpen] = useState(false)
 
@@ -112,13 +117,13 @@ const WithdrawPage = (props: Props): ReactElement => {
                 onFormChange({ fieldName: "reset", value: "reset" })
               }
             >
+              <h3>{t("withdraw")}</h3>
               <TabList>
                 <Tab>Single Token</Tab>
                 <Tab>Multi Token</Tab>
               </TabList>
               <TabPanels>
                 <TabPanel>
-                  <h3>{t("withdraw")}</h3>
                   {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
                     <p className="outdatedInfo">
                       This pool is outdated. Please withdraw your liquidity and{" "}
@@ -128,42 +133,12 @@ const WithdrawPage = (props: Props): ReactElement => {
                       .
                     </p>
                   )}
-                  <div className="percentage">
-                    <span>{t("withdrawPercentage")}</span>
-                    <InputGroup width="120px">
-                      <Input
-                        autoComplete="off"
-                        autoCorrect="off"
-                        placeholder="100"
-                        variant="filled"
-                        onChange={(
-                          e: React.FormEvent<HTMLInputElement>,
-                        ): void =>
-                          onFormChange({
-                            fieldName: "percentage",
-                            value: e.currentTarget.value,
-                          })
-                        }
-                        onFocus={(
-                          e: React.ChangeEvent<HTMLInputElement>,
-                        ): void => e.target.select()}
-                        value={
-                          formStateData.percentage
-                            ? formStateData.percentage
-                            : ""
-                        }
-                      />
-                      <InputRightElement width="2rem">%</InputRightElement>
-                    </InputGroup>
-                  </div>
-                  {formStateData.error ? (
-                    <div className="error">{formStateData.error.message}</div>
-                  ) : null}
                   <div
                     className="horizontalDisplay"
                     hidden={formStateData.error !== null}
                   >
-                    <span>Select a Token: </span>
+                    <br />
+                    <span>Select a token: </span>
                     <div>
                       {tokensData.map((t) => {
                         return (
@@ -183,6 +158,53 @@ const WithdrawPage = (props: Props): ReactElement => {
                       })}
                     </div>
                   </div>
+                  <span>
+                    <small>% of share to withdraw:</small>
+                  </span>
+                  <div className="percentage">
+                    <Slider
+                      id="slider"
+                      defaultValue={100}
+                      min={0}
+                      max={100}
+                      mt="1"
+                      onChange={(v) => {
+                        setSliderValue(v)
+                        onFormChange({
+                          fieldName: "percentage",
+                          value: String(v),
+                        })
+                      }}
+                      onMouseEnter={() => setShowTooltip(true)}
+                      onMouseLeave={() => setShowTooltip(false)}
+                    >
+                      <SliderMark value={25} mt="1" ml="-2.5" fontSize="sm">
+                        25%
+                      </SliderMark>
+                      <SliderMark value={50} mt="1" ml="-2.5" fontSize="sm">
+                        50%
+                      </SliderMark>
+                      <SliderMark value={75} mt="1" ml="-2.5" fontSize="sm">
+                        75%
+                      </SliderMark>
+                      <SliderTrack>
+                        <SliderFilledTrack bg="#cc3a59" />
+                      </SliderTrack>
+                      <Tooltip
+                        hasArrow
+                        bg="#cc3a59"
+                        color="white"
+                        placement="top"
+                        isOpen={showTooltip}
+                        label={`${sliderValue}%`}
+                      >
+                        <SliderThumb />
+                      </Tooltip>
+                    </Slider>
+                  </div>
+                  {formStateData.error ? (
+                    <div className="error">{formStateData.error.message}</div>
+                  ) : null}
                   <SlideFade
                     in={isOpen && !formStateData.error}
                     hidden={!isOpen || formStateData.error !== null}
@@ -239,7 +261,6 @@ const WithdrawPage = (props: Props): ReactElement => {
                   </SlideFade>
                 </TabPanel>
                 <TabPanel>
-                  <h3>Remove Imbalance</h3>
                   {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
                     <p className="outdatedInfo">
                       This pool is outdated. Please withdraw your liquidity and{" "}
@@ -249,6 +270,10 @@ const WithdrawPage = (props: Props): ReactElement => {
                       .
                     </p>
                   )}
+                  <p className="instructions">
+                    Type in below the amounts of each token you want to
+                    withdraw.
+                  </p>
                   {formStateData.error ? (
                     <div className="error">{formStateData.error.message}</div>
                   ) : null}
