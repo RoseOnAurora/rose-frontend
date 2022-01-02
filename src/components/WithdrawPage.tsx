@@ -1,6 +1,21 @@
 import "./WithdrawPage.scss"
 
-import { Button, Center } from "@chakra-ui/react"
+import {
+  Button,
+  Center,
+  SlideFade,
+  Slider,
+  SliderFilledTrack,
+  SliderMark,
+  SliderThumb,
+  SliderTrack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Tooltip,
+} from "@chakra-ui/react"
 import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
 import { PoolDataType, UserShareType } from "../hooks/usePoolData"
 import React, { ReactElement, useState } from "react"
@@ -14,6 +29,7 @@ import { FRAX_STABLES_LP_POOL_NAME } from "../constants"
 import Modal from "./Modal"
 import MyShareCard from "./MyShareCard"
 import PoolInfoCard from "./PoolInfoCard"
+import RadioButton from "./RadioButton"
 import ReviewWithdraw from "./ReviewWithdraw"
 import TokenInput from "./TokenInput"
 import TopMenu from "./TopMenu"
@@ -52,6 +68,7 @@ interface Props {
     name: string
     icon: string
     inputValue: string
+    max: string
   }>
   reviewData: ReviewWithdrawData
   selected?: { [key: string]: any }
@@ -77,6 +94,10 @@ const WithdrawPage = (props: Props): ReactElement => {
 
   const { gasPriceSelected } = useSelector((state: AppState) => state.user)
   const [currentModal, setCurrentModal] = useState<string | null>(null)
+  const [sliderValue, setSliderValue] = React.useState(100)
+  const [showTooltip, setShowTooltip] = React.useState(false)
+
+  const [isOpen, setIsOpen] = useState(false)
 
   const onSubmit = (): void => {
     setCurrentModal("review")
@@ -89,88 +110,222 @@ const WithdrawPage = (props: Props): ReactElement => {
       <div className="content">
         <div className="left">
           <div className="form">
-            <h3>{t("withdraw")}</h3>
-            {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
-              <p className="outdatedInfo">
-                This pool is outdated. Please withdraw your liquidity and{" "}
-                <a href="/#/pools/frax/deposit">migrate to the new Frax pool</a>
-                .
-              </p>
-            )}
-            <p className="instructions">
-              Type below the amounts you want to withdraw, then click the&nbsp;
-              <b>Remove Liquidity</b> button.
-            </p>
-            {formStateData.error ? (
-              <div className="error">{formStateData.error.message}</div>
-            ) : null}
-            {/* <div className="horizontalDisplay">
-              <RadioButton
-                checked={formStateData.withdrawType === "ALL"}
-                onChange={(): void =>
-                  onFormChange({
-                    fieldName: "withdrawType",
-                    value: "ALL",
-                  })
-                }
-                label="Combo"
-              />
-              {tokensData.map((t) => {
-                return (
-                  <RadioButton
-                    key={t.symbol}
-                    checked={formStateData.withdrawType === t.symbol}
-                    onChange={(): void =>
-                      onFormChange({
-                        fieldName: "withdrawType",
-                        value: t.symbol,
-                      })
-                    }
-                    label={t.name}
-                  />
-                )
-              })}
-            </div> */}
-            {tokensData.map((token, index) => (
-              <div key={index}>
-                <TokenInput
-                  {...token}
-                  // inputValue={parseFloat(token.inputValue).toFixed(5)}
-                  onChange={(value): void =>
-                    onFormChange({
-                      fieldName: "tokenInputs",
-                      value: value,
-                      tokenSymbol: token.symbol,
-                    })
-                  }
-                />
-                {index === tokensData.length - 1 ? (
-                  ""
-                ) : (
-                  <div className="formSpace"></div>
-                )}
-              </div>
-            ))}
-            <div className={"transactionInfoContainer"}>
-              <div className="transactionInfo">
-                <div className="transactionInfoItem">
-                  {reviewData.priceImpact.gte(0) ? (
-                    <span className="bonus">{t("bonus")}: </span>
-                  ) : (
-                    <span className="slippage">{t("priceImpact")}</span>
+            <Tabs
+              isFitted
+              variant="primary"
+              onChange={() =>
+                onFormChange({ fieldName: "reset", value: "reset" })
+              }
+            >
+              <h3>{t("withdraw")}</h3>
+              <TabList>
+                <Tab>Single Token</Tab>
+                <Tab>Multi Token</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
+                    <p className="outdatedInfo">
+                      This pool is outdated. Please withdraw your liquidity and{" "}
+                      <a href="/#/pools/frax/deposit">
+                        migrate to the new Frax pool
+                      </a>
+                      .
+                    </p>
                   )}
-                  <span
-                    className={
-                      "value " +
-                      (reviewData.priceImpact.gte(0) ? "bonus" : "slippage")
-                    }
+                  <div
+                    className="horizontalDisplay"
+                    hidden={formStateData.error !== null}
                   >
-                    {" "}
-                    {formatBNToPercentString(reviewData.priceImpact, 18, 4)}
+                    <br />
+                    <span>Select a token: </span>
+                    <div>
+                      {tokensData.map((t) => {
+                        return (
+                          <RadioButton
+                            key={t.symbol}
+                            checked={formStateData.withdrawType === t.symbol}
+                            onChange={(): void => {
+                              onFormChange({
+                                fieldName: "withdrawType",
+                                value: t.symbol,
+                              })
+                              setIsOpen(true)
+                            }}
+                            label={t.name}
+                          />
+                        )
+                      })}
+                    </div>
+                  </div>
+                  <span>
+                    <small>% of share to withdraw:</small>
                   </span>
-                </div>
-              </div>
-            </div>
+                  <div className="percentage">
+                    <Slider
+                      id="slider"
+                      defaultValue={100}
+                      min={0}
+                      max={100}
+                      mt="1"
+                      onChange={(v) => {
+                        setSliderValue(v)
+                        onFormChange({
+                          fieldName: "percentage",
+                          value: String(v),
+                        })
+                      }}
+                      onMouseEnter={() => setShowTooltip(true)}
+                      onMouseLeave={() => setShowTooltip(false)}
+                    >
+                      <SliderMark value={25} mt="1" ml="-2.5" fontSize="sm">
+                        25%
+                      </SliderMark>
+                      <SliderMark value={50} mt="1" ml="-2.5" fontSize="sm">
+                        50%
+                      </SliderMark>
+                      <SliderMark value={75} mt="1" ml="-2.5" fontSize="sm">
+                        75%
+                      </SliderMark>
+                      <SliderTrack>
+                        <SliderFilledTrack bg="#cc3a59" />
+                      </SliderTrack>
+                      <Tooltip
+                        hasArrow
+                        bg="#cc3a59"
+                        color="white"
+                        placement="top"
+                        isOpen={showTooltip}
+                        label={`${sliderValue}%`}
+                      >
+                        <SliderThumb />
+                      </Tooltip>
+                    </Slider>
+                  </div>
+                  {formStateData.error ? (
+                    <div className="error">{formStateData.error.message}</div>
+                  ) : null}
+                  <SlideFade
+                    in={isOpen && !formStateData.error}
+                    hidden={!isOpen || formStateData.error !== null}
+                    offsetY="-30px"
+                  >
+                    {tokensData.map((token, index) => (
+                      <div key={index}>
+                        <TokenInput
+                          {...token}
+                          max={undefined}
+                          readonly={true}
+                          // inputValue={parseFloat(token.inputValue).toFixed(5)}
+                          onChange={(value): void =>
+                            onFormChange({
+                              fieldName: "tokenInputs",
+                              value: value,
+                              tokenSymbol: token.symbol,
+                            })
+                          }
+                        />
+                        {index === tokensData.length - 1 ? (
+                          ""
+                        ) : (
+                          <div className="formSpace"></div>
+                        )}
+                      </div>
+                    ))}
+                    <div className={"transactionInfoContainer"}>
+                      <div className="transactionInfo">
+                        <div className="transactionInfoItem">
+                          {reviewData.priceImpact.gte(0) ? (
+                            <span className="bonus">{t("bonus")}: </span>
+                          ) : (
+                            <span className="slippage">{t("priceImpact")}</span>
+                          )}
+                          <span
+                            className={
+                              "value " +
+                              (reviewData.priceImpact.gte(0)
+                                ? "bonus"
+                                : "slippage")
+                            }
+                          >
+                            {" "}
+                            {formatBNToPercentString(
+                              reviewData.priceImpact,
+                              18,
+                              4,
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </SlideFade>
+                </TabPanel>
+                <TabPanel>
+                  {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
+                    <p className="outdatedInfo">
+                      This pool is outdated. Please withdraw your liquidity and{" "}
+                      <a href="/#/pools/frax/deposit">
+                        migrate to the new Frax pool
+                      </a>
+                      .
+                    </p>
+                  )}
+                  <p className="instructions">
+                    Type in below the amounts of each token you want to
+                    withdraw.
+                  </p>
+                  {formStateData.error ? (
+                    <div className="error">{formStateData.error.message}</div>
+                  ) : null}
+                  {tokensData.map((token, index) => (
+                    <div key={index}>
+                      <TokenInput
+                        {...token}
+                        // inputValue={parseFloat(token.inputValue).toFixed(5)}
+                        onChange={(value): void =>
+                          onFormChange({
+                            fieldName: "tokenInputs",
+                            value: value,
+                            tokenSymbol: token.symbol,
+                          })
+                        }
+                      />
+                      {index === tokensData.length - 1 ? (
+                        ""
+                      ) : (
+                        <div className="formSpace"></div>
+                      )}
+                    </div>
+                  ))}
+                  <div className={"transactionInfoContainer"}>
+                    <div className="transactionInfo">
+                      <div className="transactionInfoItem">
+                        {reviewData.priceImpact.gte(0) ? (
+                          <span className="bonus">{t("bonus")}: </span>
+                        ) : (
+                          <span className="slippage">{t("priceImpact")}</span>
+                        )}
+                        <span
+                          className={
+                            "value " +
+                            (reviewData.priceImpact.gte(0)
+                              ? "bonus"
+                              : "slippage")
+                          }
+                        >
+                          {" "}
+                          {formatBNToPercentString(
+                            reviewData.priceImpact,
+                            18,
+                            4,
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
           </div>
           <BackButton
             route="/pools"
