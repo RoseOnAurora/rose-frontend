@@ -137,7 +137,6 @@ const WithdrawPage = (props: Props): ReactElement => {
                     className="horizontalDisplay"
                     hidden={formStateData.error !== null}
                   >
-                    <br />
                     <span>Select a token: </span>
                     <div>
                       {tokensData.map((t) => {
@@ -178,14 +177,14 @@ const WithdrawPage = (props: Props): ReactElement => {
                       onMouseEnter={() => setShowTooltip(true)}
                       onMouseLeave={() => setShowTooltip(false)}
                     >
-                      <SliderMark value={25} mt="1" ml="-2.5" fontSize="sm">
-                        25%
+                      <SliderMark value={0} mt="1" ml="-2.5" fontSize="sm">
+                        0%
                       </SliderMark>
                       <SliderMark value={50} mt="1" ml="-2.5" fontSize="sm">
                         50%
                       </SliderMark>
-                      <SliderMark value={75} mt="1" ml="-2.5" fontSize="sm">
-                        75%
+                      <SliderMark value={100} mt="1" ml="-2.5" fontSize="sm">
+                        100%
                       </SliderMark>
                       <SliderTrack>
                         <SliderFilledTrack bg="#cc3a59" />
