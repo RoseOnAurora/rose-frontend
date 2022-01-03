@@ -59,6 +59,10 @@
     }
   }
 
+  .underline {
+    border-bottom: 1px dotted var(--text);
+  }  
+
   .statsDetails {
     margin-top: 20px;
     background: #cc3a5a0c;

@@ -49,7 +49,7 @@ function StakePage(props: Props): ReactElement {
   } = props
 
   const { userDarkMode } = useSelector((state: AppState) => state.user)
-  const { priceRatio, tvl, totalRoseStaked, priceOfRose } = useStakeStats()
+  const { priceRatio, tvl, totalRoseStaked, priceOfRose, apr } = useStakeStats()
 
   const [
     currentModal,
@@ -266,6 +266,12 @@ function StakePage(props: Props): ReactElement {
             statValue: tvl
               ? `$${formatBNToShortString(BigNumber.from(tvl), 18)}`
               : "-",
+          },
+          {
+            statLabel: "Approx. APR",
+            statValue: apr ? `${apr}` : "-",
+            statTooltip:
+              "Estimate based on protocol fees earned in the last two weeks.",
           },
         ]}
       />
