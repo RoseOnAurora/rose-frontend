@@ -10,23 +10,26 @@ div.modal {
   width: 100%; /* Full width */
   height: 100%; /* Full height */
   overflow: hidden; /* Enable scroll if needed */
-  background-color: rgba(0, 0, 0, 0.7); /* Black w/ opacity */
-  padding-top: 4%; /* Location of the box */
+  background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+  padding-top: 10%; /* Location of the box */
+  @supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
 }
 
 div.modalContent {
   width: 565px;
-  border: 1px solid $black;
+  border: 2px solid var(--text-primary);
   margin: auto;
-  box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
+  box-shadow: 0px 0px 8px var(--text-primary);
+  border-radius: 15px;
   position: relative;
   max-height: calc(100vh - 72px);
   overflow: auto;
   @include breakpoint(sm) {
-    width: 90%;
+    width: 95%;
     position: relative;
-    right: 3%;
     max-height: calc(100vh - 36px);
   }
 
