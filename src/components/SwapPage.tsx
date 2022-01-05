@@ -5,6 +5,7 @@ import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
 import { FaArrowDown, FaArrowUp } from "react-icons/fa"
 import React, { ReactElement, useMemo, useState } from "react"
 import { SWAP_TYPES, getIsVirtualSwap } from "../constants"
+import { Trans, useTranslation } from "react-i18next"
 import { formatBNToPercentString, formatBNToString } from "../utils"
 
 import AdvancedOptions from "./AdvancedOptions"
@@ -24,11 +25,11 @@ import { Zero } from "@ethersproject/constants"
 import classNames from "classnames"
 import { commify } from "../utils"
 import { formatUnits } from "@ethersproject/units"
+import { getEtherscanLink } from "../utils/getEtherscanLink"
 import { isHighPriceImpact } from "../utils/priceImpact"
 import { logEvent } from "../utils/googleAnalytics"
 import { useActiveWeb3React } from "../hooks"
 import { useSelector } from "react-redux"
-import { useTranslation } from "react-i18next"
 
 interface Props {
   tokenOptions: {
@@ -77,6 +78,7 @@ const SwapPage = (props: Props): ReactElement => {
   } = props
 
   const [currentModal, setCurrentModal] = useState<string | null>(null)
+  const [txnHash, setTxnHash] = useState<string | undefined>(undefined)
   const [activePendingSwap, setActivePendingSwap] = useState<string | null>(
     null,
   )
@@ -328,7 +330,8 @@ const SwapPage = (props: Props): ReactElement => {
             <ReviewSwap
               onClose={(): void => setCurrentModal(null)}
               onConfirm={() => {
-                setCurrentModal("confirm")
+                setTxnHash(undefined)
+                setCurrentModal(ModalType.CONFIRM)
                 logEvent("swap", {
                   from: fromState.symbol,
                   to: toState.symbol,
@@ -339,6 +342,7 @@ const SwapPage = (props: Props): ReactElement => {
                       setCurrentModal(ModalType.SUCCESS)
                     } else {
                       setCurrentModal(ModalType.FAILED)
+                      setTxnHash(res?.transactionHash)
                     }
                   })
                   .catch(() => {
@@ -358,10 +362,26 @@ const SwapPage = (props: Props): ReactElement => {
             <ConfirmTransaction />
           ) : currentModal === ModalType.FAILED ? (
             <ConfirmTransaction
-              description={t("txFailed_swap")}
               title={t("failedTitle")}
               type={ModalType.FAILED}
-            />
+              description={
+                !txnHash ? t("txFailed_internal", { tx: t("swap") }) : undefined
+              }
+            >
+              {txnHash && (
+                <Trans i18nKey="txFailed" t={t}>
+                  {{ tx: t("swap") }}
+                  <a
+                    href={getEtherscanLink(txnHash, "tx")}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ textDecoration: "underline", margin: 0 }}
+                  >
+                    blockscout.
+                  </a>
+                </Trans>
+              )}
+            </ConfirmTransaction>
           ) : currentModal === ModalType.SUCCESS ? (
             <ConfirmTransaction
               title={t("successTitle")}

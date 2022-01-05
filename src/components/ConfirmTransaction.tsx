@@ -11,6 +11,7 @@ export enum ModalType {
   CONFIRM = "confirm",
   FAILED = "failed",
   SUCCESS = "success",
+  REVIEW = "review",
 }
 export interface ConfirmTransactionProps {
   title?: string

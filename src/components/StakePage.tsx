@@ -131,7 +131,7 @@ function StakePage(props: Props): ReactElement {
                 rel="noreferrer"
                 style={{ textDecoration: "underline", margin: 0 }}
               >
-                Aurora Explorer
+                blockscout.
               </a>
             </Trans>
           ) : null,

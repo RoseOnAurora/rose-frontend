@@ -4,7 +4,7 @@ import { Button, Center } from "@chakra-ui/react"
 import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
 import { PoolDataType, UserShareType } from "../hooks/usePoolData"
 import React, { ReactElement, useState } from "react"
-
+import { Trans, useTranslation } from "react-i18next"
 import AdvancedOptions from "./AdvancedOptions"
 import { AppState } from "../state"
 import BackButton from "./BackButton"
@@ -21,9 +21,9 @@ import { WithdrawFormState } from "../hooks/useWithdrawFormState"
 import { Zero } from "@ethersproject/constants"
 import classNames from "classnames"
 import { formatBNToPercentString } from "../utils"
+import { getEtherscanLink } from "../utils/getEtherscanLink"
 import { logEvent } from "../utils/googleAnalytics"
 import { useSelector } from "react-redux"
-import { useTranslation } from "react-i18next"
 
 export interface ReviewWithdrawData {
   withdraw: {
@@ -82,6 +82,7 @@ const WithdrawPage = (props: Props): ReactElement => {
     setCurrentModal("review")
   }
   const noShare = !myShareData || myShareData.lpTokenBalance.eq(Zero)
+  const [txnHash, setTxnHash] = useState<string | undefined>(undefined)
 
   return (
     <div className={"withdraw " + classNames({ noShare: noShare })}>
@@ -213,7 +214,8 @@ const WithdrawPage = (props: Props): ReactElement => {
               data={reviewData}
               gas={gasPriceSelected}
               onConfirm={(): void => {
-                setCurrentModal("confirm")
+                setTxnHash(undefined)
+                setCurrentModal(ModalType.CONFIRM)
                 logEvent(
                   "withdraw",
                   (poolData && { pool: poolData?.name }) || {},
@@ -224,6 +226,7 @@ const WithdrawPage = (props: Props): ReactElement => {
                       setCurrentModal(ModalType.SUCCESS)
                     } else {
                       setCurrentModal(ModalType.FAILED)
+                      setTxnHash(res?.transactionHash)
                     }
                   })
                   .catch(() => {
@@ -237,10 +240,28 @@ const WithdrawPage = (props: Props): ReactElement => {
             <ConfirmTransaction />
           ) : currentModal === ModalType.FAILED ? (
             <ConfirmTransaction
-              description={t("txFailed_withdraw")}
               title={t("failedTitle")}
               type={ModalType.FAILED}
-            />
+              description={
+                !txnHash
+                  ? t("txFailed_internal", { tx: t("withdraw") })
+                  : undefined
+              }
+            >
+              {txnHash && (
+                <Trans i18nKey="txFailed" t={t}>
+                  {{ tx: t("withdraw") }}
+                  <a
+                    href={getEtherscanLink(txnHash, "tx")}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ textDecoration: "underline", margin: 0 }}
+                  >
+                    blockscout.
+                  </a>
+                </Trans>
+              )}
+            </ConfirmTransaction>
           ) : currentModal === ModalType.SUCCESS ? (
             <ConfirmTransaction
               title={t("successTitle")}

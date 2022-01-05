@@ -26,6 +26,7 @@ import TokenInput from "./TokenInput"
 import TopMenu from "./TopMenu"
 import { Zero } from "@ethersproject/constants"
 import { formatBNToPercentString } from "../utils"
+import { getEtherscanLink } from "../utils/getEtherscanLink"
 import { logEvent } from "../utils/googleAnalytics"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -65,6 +66,7 @@ const DepositPage = (props: Props): ReactElement => {
   } = props
 
   const [currentModal, setCurrentModal] = useState<string | null>(null)
+  const [txnHash, setTxnHash] = useState<string | undefined>(undefined)
 
   const validDepositAmount =
     transactionData.to.totalAmount.gt(0) && !exceedsWallet
@@ -256,6 +258,7 @@ const DepositPage = (props: Props): ReactElement => {
             <ReviewDeposit
               transactionData={transactionData}
               onConfirm={(): void => {
+                setTxnHash(undefined)
                 setCurrentModal(ModalType.CONFIRM)
                 logEvent(
                   "deposit",
@@ -267,6 +270,7 @@ const DepositPage = (props: Props): ReactElement => {
                       setCurrentModal(ModalType.SUCCESS)
                     } else {
                       setCurrentModal(ModalType.FAILED)
+                      setTxnHash(res?.transactionHash)
                     }
                   })
                   .catch(() => {
@@ -280,10 +284,28 @@ const DepositPage = (props: Props): ReactElement => {
             <ConfirmTransaction />
           ) : currentModal === ModalType.FAILED ? (
             <ConfirmTransaction
-              description={t("txFailed_deposit")}
               title={t("failedTitle")}
               type={ModalType.FAILED}
-            />
+              description={
+                !txnHash
+                  ? t("txFailed_internal", { tx: t("deposit") })
+                  : undefined
+              }
+            >
+              {txnHash && (
+                <Trans i18nKey="txFailed" t={t}>
+                  {{ tx: t("deposit") }}
+                  <a
+                    href={getEtherscanLink(txnHash, "tx")}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ textDecoration: "underline", margin: 0 }}
+                  >
+                    blockscout.
+                  </a>
+                </Trans>
+              )}
+            </ConfirmTransaction>
           ) : currentModal === ModalType.SUCCESS ? (
             <ConfirmTransaction
               title={t("successTitle")}
