@@ -11,7 +11,7 @@ div.modal {
   height: 100%; /* Full height */
   overflow: hidden; /* Enable scroll if needed */
   background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
-  padding-top: 10%; /* Location of the box */
+  padding-top: 4%; /* Location of the box */
   @supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
