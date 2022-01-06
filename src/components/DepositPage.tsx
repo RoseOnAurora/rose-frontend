@@ -161,9 +161,6 @@ const DepositPage = (props: Props): ReactElement => {
                 .
               </p>
             )}
-            {poolData?.name === UST_METAPOOL_NAME && (
-              <p className="wrappedInfo"></p>
-            )}
             {tokens.map((token, index) => (
               <div key={index}>
                 <TokenInput
