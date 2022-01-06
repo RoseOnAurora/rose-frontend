@@ -3,6 +3,7 @@ import "./DepositPage.scss"
 import {
   ALETH_POOL_NAME,
   FRAX_STABLES_LP_POOL_NAME,
+  UST_METAPOOL_NAME,
   VETH2_POOL_NAME,
   isMetaPool,
 } from "../constants"
@@ -130,7 +131,21 @@ const DepositPage = (props: Props): ReactElement => {
               <p className="wrappedInfo">
                 Deposit to the{" "}
                 <a href="/#/pools/stables/deposit">Stables Pool</a> to get
-                RoseStablesLP.
+                RoseStablesLP.{" "}
+                {poolData?.name === UST_METAPOOL_NAME && (
+                  <>
+                    Get atUST by bridging UST from Terra on{" "}
+                    <a
+                      href="https://app.allbridge.io/bridge?from=TRA&to=AURO&asset=UST"
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ textDecoration: "underline", margin: 0 }}
+                    >
+                      Allbridge
+                    </a>
+                    .
+                  </>
+                )}
               </p>
             )}
             {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
