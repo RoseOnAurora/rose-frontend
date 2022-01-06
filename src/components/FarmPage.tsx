@@ -3,6 +3,7 @@ import ConfirmTransaction, {
   ModalType,
 } from "./ConfirmTransaction"
 import React, { ReactElement, useState } from "react"
+import { Trans, useTranslation } from "react-i18next"
 import { commify, formatBNToShortString, formatBNToString } from "../utils"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
@@ -13,12 +14,12 @@ import FarmTabs from "./FarmTabs"
 import HarvestRewards from "./HarvestRewards"
 import Modal from "./Modal"
 import StakeDetails from "./StakeDetails"
+import { getEtherscanLink } from "../utils/getEtherscanLink"
 import styles from "./FarmPage.module.scss"
 import useClaimReward from "../hooks/useClaimReward"
 import useEarnedRewards from "../hooks/useEarnedRewards"
 import useFarmExit from "../hooks/useFarmExit"
 import { useSelector } from "react-redux"
-import { useTranslation } from "react-i18next"
 
 interface Props {
   lpTokenName: string
@@ -48,7 +49,11 @@ const FarmPage = (props: Props): ReactElement => {
   const apr = farmStats?.[farmName]?.apr || "-"
   const { t } = useTranslation()
 
-  const updateModal = (modalType: ModalType, tx?: string): void => {
+  const updateModal = (
+    modalType: ModalType,
+    txnType?: string,
+    txnHash?: string,
+  ): void => {
     switch (modalType) {
       case ModalType.CONFIRM:
         setCurrentModal({ type: ModalType.CONFIRM })
@@ -57,14 +62,29 @@ const FarmPage = (props: Props): ReactElement => {
         setCurrentModal({
           type: ModalType.SUCCESS,
           title: t("successTitle"),
-          description: t("txConfirmed", { tx }),
+          description: t("txConfirmed", { tx: txnType }),
         })
         break
       case ModalType.FAILED:
         setCurrentModal({
           type: ModalType.FAILED,
           title: t("failedTitle"),
-          description: t("txFailed", { tx }),
+          description: !txnHash
+            ? t("txFailed_internal", { tx: txnType })
+            : undefined,
+          children: txnHash ? (
+            <Trans i18nKey="txFailed" t={t}>
+              {{ tx: txnType }}
+              <a
+                href={getEtherscanLink(txnHash, "tx")}
+                target="_blank"
+                rel="noreferrer"
+                style={{ textDecoration: "underline", margin: 0 }}
+              >
+                blockscout.
+              </a>
+            </Trans>
+          ) : null,
         })
         break
       case ModalType.APPROVE:
@@ -86,11 +106,7 @@ const FarmPage = (props: Props): ReactElement => {
         isOpen={!!currentModal}
         onClose={(): void => setCurrentModal(null)}
       >
-        <ConfirmTransaction
-          description={currentModal?.description}
-          title={currentModal?.title}
-          type={currentModal?.type}
-        >
+        <ConfirmTransaction {...currentModal}>
           {currentModal?.type === ModalType.APPROVE ? (
             <div className={styles.approveButtons}>
               <Button
@@ -101,7 +117,11 @@ const FarmPage = (props: Props): ReactElement => {
                   if (receipt?.status) {
                     updateModal(ModalType.SUCCESS, t("harvestRewards"))
                   } else {
-                    updateModal(ModalType.FAILED, t("harvestRewards"))
+                    updateModal(
+                      ModalType.FAILED,
+                      t("harvestRewards"),
+                      receipt?.transactionHash,
+                    )
                   }
                 }}
               >
@@ -115,7 +135,11 @@ const FarmPage = (props: Props): ReactElement => {
                   if (receipt?.status) {
                     updateModal(ModalType.SUCCESS, t("withdrawAndHarvest"))
                   } else {
-                    updateModal(ModalType.FAILED, t("withdrawAndHarvest"))
+                    updateModal(
+                      ModalType.FAILED,
+                      t("withdrawAndHarvest"),
+                      receipt?.transactionHash,
+                    )
                   }
                 }}
               >

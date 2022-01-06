@@ -25,7 +25,11 @@ interface Props {
   deposited: BigNumber
   farmName: FarmName
   poolName: string
-  handleModal: (modalType: ModalType, tx?: string | undefined) => void
+  handleModal: (
+    modalType: ModalType,
+    txnType?: string,
+    txnHash?: string,
+  ) => void
 }
 
 const FarmTabs = (props: Props): ReactElement => {
@@ -89,7 +93,7 @@ const FarmTabs = (props: Props): ReactElement => {
     if (receipt?.status) {
       handleModal(ModalType.SUCCESS, t("deposit"))
     } else {
-      handleModal(ModalType.FAILED, t("deposit"))
+      handleModal(ModalType.FAILED, t("deposit"), receipt?.transactionHash)
     }
   }
 
@@ -97,7 +101,7 @@ const FarmTabs = (props: Props): ReactElement => {
     if (receipt?.status) {
       handleModal(ModalType.SUCCESS, t("Withdraw"))
     } else {
-      handleModal(ModalType.FAILED, t("Withdraw"))
+      handleModal(ModalType.FAILED, t("Withdraw"), receipt?.transactionHash)
     }
   }
 
