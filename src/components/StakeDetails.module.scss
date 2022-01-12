@@ -1,98 +1,81 @@
 @import "../styles/theme";
 @import "../styles/viewports";
 
-.stakeDetailsContainer {
-  grid-area: rightBlock;
-  background: var(--background-element);
+.stakeDetails {
+  background: var(--secondary-background);
+  padding: 15px;
   border: 1px solid var(--outline);
-  box-shadow: var(--shadow);
   border-radius: 10px;
-  padding: 10px 24px;
+}
+
+.icon {
+  width: 40px;
+  margin-right: 20px;
+  & > img {
+    width: 100%;
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+  width: 100%;
+}
+
+.balanceDetails {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-  @include breakpoint(md) {
-    width: 100%;
-    order: 2;
+  font-size: 18px;
+  @include breakpoint(sm) {
+    font-size: 14px;
   }
 
-  .stakeDetails {
-    padding: 10px;
+  @include breakpoint(sm) {
+    font-size: 12px;
   }
 
-  .icon {
-    width: 70px;
-    & > img {
-      width: 100%;
-    }
+  span {
+    padding: 0.2em;
   }
 
-  .row {
+  .balance {
+    font-weight: 600;
+  }
+
+  .token {
+    font-weight: 300;
+  }
+}
+
+.underline {
+  border-bottom: 1px dotted var(--text);
+}
+
+.statsDetails {
+  background: var(--secondary-background);
+  padding: 15px;
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  font-size: 18px;
+  height: 100%;
+  .statValue {
+    font-weight: 600;
+  }
+
+  .statRow {
     display: flex;
+    margin-bottom: 10px;
+    width: 100%;
+    justify-content: space-between;
     align-items: center;
-    margin: 8px 0;
-    width: 100%;
   }
+}
 
-  .balanceDetails {
-    display: flex;
-    flex-direction: column;
-    font-size: 18px;
-    @include breakpoint(sm) {
-      font-size: 14px;
-    }
-
-    @include breakpoint(sm) {
-      font-size: 12px;
-    }
-
-    span {
-      padding: 0.2em;
-    }
-
-    .balance {
-      font-weight: 600;
-    }
-
-    .token {
-      font-weight: 300;
-    }
-  }
-
-  .underline {
-    border-bottom: 1px dotted var(--text);
-  }  
-
-  .statsDetails {
-    margin-top: 20px;
-    background: #cc3a5a0c;
-    padding: 15px;
-    border: 1px solid var(--outline);
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    font-size: 18px;
-
-    .statRow {
-      display: flex;
-      margin-bottom: 10px;
-      width: 100%;
-      justify-content: space-between;
-      align-items: center;
-    }
-  }
-
-  h3.title {
-    font-weight: 700;
-    font-size: 24px;
-    line-height: 40px;
-
-    @include breakpoint(sm) {
-      font-size: 20px;
-    }
-
-    @include breakpoint(sm) {
-      font-size: 18px;
-    }
-  }
+h3.title {
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 30px;
 }

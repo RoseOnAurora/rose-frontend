@@ -10,7 +10,7 @@ div.swapPage {
 
   h3.swapTitle {
     font-weight: 700;
-    font-size: 24px;
+    font-size: 21px;
     line-height: 30px;
   }
 
@@ -20,9 +20,9 @@ div.swapPage {
 
   .swapForm {
     width: 100%;
-    background: var(--background-element);
-    border: 1px solid var(--outline);
-    box-shadow: var(--shadow);
+    background: var(--secondary-background);
+    // border: 1px solid var(--outline);
+    // box-shadow: var(--shadow);
     border-radius: 10px;
     padding: 24px;
     .row {
@@ -35,7 +35,8 @@ div.swapPage {
       &.swapButtonContainer {
         justify-content: unset;
 
-        .swapTitle, button {
+        .swapTitle,
+        button {
           margin-right: auto;
         }
       }
@@ -58,15 +59,36 @@ div.swapPage {
   .content {
     width: 550px;
     margin: 0 auto;
-    padding-top: 40px;
+    margin-top: 40px;
+    padding: 10px;
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
+    background: var(--background-element);
+    border: 1px solid var(--outline);
+    box-shadow: var(--shadow);
+    border-radius: 10px;
     align-items: center;
     @include breakpoint(sm) {
       width: 100%;
       padding-left: 4px;
       padding-right: 4px;
+    }
+
+    .swapHeader {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--secondary-background);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 10px;
+      & > h3 {
+        font-weight: 700;
+        font-size: 30px;
+        line-height: 30px;
+      }
     }
   }
 
@@ -204,5 +226,11 @@ div.swapPage {
         }
       }
     }
+  }
+
+  .submitButtonWrapper {
+    background: var(--secondary-background);
+    border-radius: 10px;
+    padding: 10px;
   }
 }

@@ -11,10 +11,7 @@
   color: var(--text-title);
   letter-spacing: -1px;
   @include breakpoint(md) {
-    font-size: 20px;
-  }
-  @include breakpoint(sm) {
-    font-size: 18px;
+    font-size: 24px;
   }
 }
 

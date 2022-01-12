@@ -11,7 +11,9 @@ import { formatBNToPercentString, formatBNToString } from "../utils"
 import AdvancedOptions from "./AdvancedOptions"
 import { AppState } from "../state/index"
 import { BigNumber } from "@ethersproject/bignumber"
+import { BsSliders } from "react-icons/bs"
 import { ContractReceipt } from "@ethersproject/contracts"
+import { IconButtonPopover } from "./Popover"
 import { ReactComponent as InfoIcon } from "../assets/icons/info.svg"
 import Modal from "./Modal"
 import { PendingSwap } from "../hooks/usePendingSwapData"
@@ -110,6 +112,19 @@ const SwapPage = (props: Props): ReactElement => {
     <div className="swapPage">
       <TopMenu activeTab={"swap"} />
       <div className="content">
+        <div className="swapHeader">
+          <h3 className="swapTitle">{t("swap")}</h3>
+          <IconButtonPopover
+            IconButtonProps={{
+              "aria-label": "Configure Settings",
+              variant: "outline",
+              size: "lg",
+              icon: <BsSliders size="25px" />,
+              title: "Configure Settings",
+            }}
+            PopoverBodyContent={<AdvancedOptions />}
+          />
+        </div>
         <div className="swapForm">
           <div className="row">
             <h3 className="swapTitle">{t("from")}</h3>
@@ -252,7 +267,7 @@ const SwapPage = (props: Props): ReactElement => {
             {">"}
           </div>
         )}
-        <AdvancedOptions />
+        {/* <AdvancedOptions /> */}
         <div className="pendingSwaps">
           {pendingSwaps.map((pendingSwap) => {
             const formattedSynthBalance = commify(
@@ -306,11 +321,11 @@ const SwapPage = (props: Props): ReactElement => {
             )
           })}
         </div>
-        <Center width="100%" pb={6}>
+        <Center width="100%" className="submitButtonWrapper">
           <Button
             variant="primary"
             size="lg"
-            width="240px"
+            width="100%"
             onClick={(): void => {
               setCurrentModal("review")
             }}

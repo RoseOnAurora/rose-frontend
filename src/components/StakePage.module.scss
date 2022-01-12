@@ -9,7 +9,7 @@ div.stakePage {
   grid-template-rows: auto;
   row-gap: 10px;
   column-gap: 10px;
-  grid-template-areas: 
+  grid-template-areas:
     "leftBlock rightBlock"
     "timer timer";
   justify-content: center;
@@ -22,13 +22,60 @@ div.stakePage {
   }
 }
 
+.stakeDetailsContainer {
+  grid-area: rightBlock;
+  background: var(--background-element);
+  border: 1px solid var(--outline);
+  box-shadow: var(--shadow);
+  border-radius: 10px;
+  padding: 10px;
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  @include breakpoint(md) {
+    width: 100%;
+    order: 2;
+  }
+}
+
+div.titleWrapper {
+  background: var(--secondary-background);
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+
+  & > .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    @include breakpoint(sm) {
+      flex-direction: column;
+      gap: 10px;
+      justify-content: center;
+    }
+  }
+}
+
+.timeLeftTitle {
+  font-family: $font-family-title;
+  font-size: 25px;
+  font-weight: $bold;
+  color: var(--text-title);
+}
+
+.underline {
+  border-bottom: 1px dotted var(--text);
+}
+
 div.stakeForm {
   grid-area: leftBlock;
   background: var(--background-element);
   box-shadow: var(--shadow);
   border: 1px solid var(--outline);
   border-radius: 10px;
-  padding: 15px;
+  padding: 10px;
   @include breakpoint(md) {
     width: 100%;
     order: 1;
@@ -40,20 +87,18 @@ div.stakeForm {
     font-weight: 700;
     border-radius: 2em;
     white-space: nowrap;
-    @include breakpoint(sm) {
-      font-size: 9px;
-    }
   }
 
   .colorPill {
     outline: 2px;
-    background: linear-gradient(to left, #fffbd5, #d88394);
+    background: linear-gradient(195deg, #e8b5af, #f2d3bf);
     min-height: 40px;
     padding: 0 1.618em;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: none;
+    border: 1px solid #e8b5af;
+    box-shadow: 0px 0px 10px #e8b5af;
   }
 
   .glowPill {
@@ -110,20 +155,9 @@ div.stakeForm {
     filter: blur(1rem);
   }
 
-  .row {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-    width: 100%;
-    align-items: center;
-  }
-
   h3.stakeTitle {
     font-weight: 700;
-    font-size: 24px;
+    font-size: 30px;
     line-height: 30px;
-    @include breakpoint(sm) {
-      font-size: 19px;
-    }
   }
 }

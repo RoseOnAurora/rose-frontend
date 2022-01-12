@@ -4,17 +4,26 @@
 
 div.harvestRewards {
   grid-area: rewards;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   background: var(--background-element);
   border: 1px solid var(--outline);
   border-radius: 10px;
-  padding: 24px;
+  padding: 10px;
   @include breakpoint(md) {
     width: 100%;
     order: 2;
-    flex-wrap: wrap;
+  }
+
+  .harvestRewardsContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--secondary-background);
+    border-radius: 10px;
+    padding: 15px;
+    @include breakpoint(md) {
+      width: 100%;
+      flex-wrap: wrap;
+    }
   }
 
   h4.title {

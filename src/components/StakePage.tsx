@@ -3,8 +3,16 @@ import ConfirmTransaction, {
   ConfirmTransactionProps,
   ModalType,
 } from "./ConfirmTransaction"
+import { FaLock, FaUnlock } from "react-icons/fa"
 import React, { ReactElement, useState } from "react"
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
+import {
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Tooltip,
+} from "@chakra-ui/react"
 import { Trans, useTranslation } from "react-i18next"
 import { commify, formatBNToShortString, formatBNToString } from "../utils"
 import { useRoseContract, useStRoseContract } from "../hooks/useContract"
@@ -16,7 +24,7 @@ import Modal from "./Modal"
 import { StRose } from "../../types/ethers-contracts/StRose"
 import StakeDetails from "./StakeDetails"
 import StakeForm from "./StakeForm"
-import StakeLockedTimer from "./StakeLockedTimer"
+// import StakeLockedTimer from "./StakeLockedTimer"
 import { TokenDetails } from "../pages/Stake"
 import { Zero } from "@ethersproject/constants"
 import classNames from "classnames"
@@ -167,25 +175,35 @@ function StakePage(props: Props): ReactElement {
         >
           <ConfirmTransaction {...currentModal} />
         </Modal>
-        <Tabs isFitted variant="primary">
+        <Tabs
+          isFitted
+          variant="primary"
+          bgColor={
+            userDarkMode ? "rgba(28, 29, 33, 0.3)" : "rgba(242, 236, 236, 0.8)"
+          }
+          borderRadius="10px"
+          height="100%"
+        >
           <TabList mb="1em">
             <Tab>{`${t("stake")} Rose`}</Tab>
             <Tab>{`${t("unstake")} stRose`}</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
-              <div className={styles.row}>
-                <h3 className={styles.stakeTitle}>{`${t("stake")} Rose`}</h3>
-                <div
-                  className={classNames(
-                    styles.pill,
-                    { [styles.glowPill]: userDarkMode },
-                    { [styles.colorPill]: !userDarkMode },
-                  )}
-                >
-                  <div>
-                    1 stROSE ≈ {priceRatio ? (+priceRatio).toFixed(5) : "1.00"}{" "}
-                    ROSE
+              <div className={styles.titleWrapper}>
+                <div className={styles.row}>
+                  <h3 className={styles.stakeTitle}>{`${t("stake")} Rose`}</h3>
+                  <div
+                    className={classNames(
+                      styles.pill,
+                      { [styles.glowPill]: userDarkMode },
+                      { [styles.colorPill]: !userDarkMode },
+                    )}
+                  >
+                    <div>
+                      1 stROSE ≈{" "}
+                      {priceRatio ? (+priceRatio).toFixed(5) : "1.00"} ROSE
+                    </div>
                   </div>
                 </div>
               </div>
@@ -213,18 +231,20 @@ function StakePage(props: Props): ReactElement {
               />
             </TabPanel>
             <TabPanel>
-              <div className={styles.row}>
-                <h3 className={styles.stakeTitle}>{t("unstake")}</h3>
-                <div
-                  className={classNames(
-                    styles.pill,
-                    { [styles.glowPill]: userDarkMode },
-                    { [styles.colorPill]: !userDarkMode },
-                  )}
-                >
-                  <div>
-                    1 stROSE ≈ {priceRatio ? (+priceRatio).toFixed(5) : "1.00"}{" "}
-                    ROSE
+              <div className={styles.titleWrapper}>
+                <div className={styles.row}>
+                  <h3 className={styles.stakeTitle}>{t("unstake")}</h3>
+                  <div
+                    className={classNames(
+                      styles.pill,
+                      { [styles.glowPill]: userDarkMode },
+                      { [styles.colorPill]: !userDarkMode },
+                    )}
+                  >
+                    <div>
+                      1 stROSE ≈{" "}
+                      {priceRatio ? (+priceRatio).toFixed(5) : "1.00"} ROSE
+                    </div>
                   </div>
                 </div>
               </div>
@@ -249,49 +269,99 @@ function StakePage(props: Props): ReactElement {
           </TabPanels>
         </Tabs>
       </div>
-      <StakeDetails
-        balanceView={{
-          title: t("balance"),
-          tokenName: "ROSE",
-          icon: roseTokenIcon,
-          amount: commify(
-            formatBNToString(balance.amount || Zero, balance.decimals || 0, 5),
-          ),
-        }}
-        stakedView={{
-          title: t("Staked"),
-          tokenName: "stROSE",
-          icon: stRoseTokenIcon,
-          amount: commify(
-            formatBNToString(staked.amount || Zero, staked.decimals || 0, 5),
-          ),
-        }}
-        stats={[
-          {
-            statLabel: "Total ROSE Staked",
-            statValue: totalRoseStaked
-              ? `${formatBNToShortString(BigNumber.from(totalRoseStaked), 18)}`
-              : "-",
-          },
-          {
-            statLabel: "Price of ROSE",
-            statValue: `$${Number(priceOfRose).toFixed(3)}`,
-          },
-          {
-            statLabel: "TVL",
-            statValue: tvl
-              ? `$${formatBNToShortString(BigNumber.from(tvl), 18)}`
-              : "-",
-          },
-          {
-            statLabel: "Approx. APR",
-            statValue: apr ? `${apr}` : "-",
-            statTooltip:
-              "Estimate based on protocol fees earned in the last two weeks.",
-          },
-        ]}
-      />
-      {staked.amount.gt(Zero) ? <StakeLockedTimer timeLeft={timeLeft} /> : null}
+      <div className={styles.stakeDetailsContainer}>
+        <StakeDetails
+          extraStakeDetailChild={
+            <>
+              {timeLeft && timeLeft > 0 ? (
+                <FaLock
+                  size="25px"
+                  color="#cc3a59"
+                  title="Your stROSE is locked."
+                />
+              ) : (
+                <FaUnlock
+                  size="25px"
+                  color="#4BB543"
+                  title="Your stROSE is unlocked."
+                />
+              )}
+              <Tooltip
+                bgColor="#cc3a59"
+                closeOnClick={false}
+                label="This is an estimate of time remaining until you can unstake. Refresh the page for better accuracy."
+              >
+                <h4
+                  className={classNames(styles.timeLeftTitle, styles.underline)}
+                >
+                  {new Date((timeLeft / 1000) * 1000)
+                    .toISOString()
+                    .substr(11, 8)}
+                </h4>
+              </Tooltip>
+            </>
+          }
+          balanceView={{
+            title: t("balance"),
+            items: [
+              {
+                tokenName: "ROSE",
+                icon: roseTokenIcon,
+                amount: commify(
+                  formatBNToString(
+                    balance.amount || Zero,
+                    balance.decimals || 0,
+                    5,
+                  ),
+                ),
+              },
+            ],
+          }}
+          stakedView={{
+            title: t("Staked"),
+            items: [
+              {
+                tokenName: "stROSE",
+                icon: stRoseTokenIcon,
+                amount: commify(
+                  formatBNToString(
+                    staked.amount || Zero,
+                    staked.decimals || 0,
+                    5,
+                  ),
+                ),
+              },
+            ],
+          }}
+          stats={[
+            {
+              statLabel: "Total ROSE Staked",
+              statValue: totalRoseStaked
+                ? `${formatBNToShortString(
+                    BigNumber.from(totalRoseStaked),
+                    18,
+                  )}`
+                : "-",
+            },
+            {
+              statLabel: "Price of ROSE",
+              statValue: `$${Number(priceOfRose).toFixed(3)}`,
+            },
+            {
+              statLabel: "TVL",
+              statValue: tvl
+                ? `$${formatBNToShortString(BigNumber.from(tvl), 18)}`
+                : "-",
+            },
+            {
+              statLabel: "Approx. APR",
+              statValue: apr ?? "-",
+              statTooltip:
+                "Estimate based on protocol fees earned in the last two weeks.",
+            },
+          ]}
+        />
+      </div>
     </div>
   )
 }

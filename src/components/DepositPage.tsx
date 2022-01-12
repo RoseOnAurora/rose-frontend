@@ -3,6 +3,9 @@ import "./DepositPage.scss"
 import {
   ALETH_POOL_NAME,
   FRAX_STABLES_LP_POOL_NAME,
+  POOLS_MAP,
+  POOL_FEE_PRECISION,
+  TOKENS_MAP,
   UST_METAPOOL_NAME,
   VETH2_POOL_NAME,
   isMetaPool,
@@ -12,21 +15,23 @@ import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
 import { PoolDataType, UserShareType } from "../hooks/usePoolData"
 import React, { ReactElement, useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
-
+import { formatBNToPercentString, formatBNToString } from "../utils"
 import AdvancedOptions from "./AdvancedOptions"
 import BackButton from "./BackButton"
+import { BsSliders } from "react-icons/bs"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { DepositTransaction } from "../interfaces/transactions"
+import { FaChartPie } from "react-icons/fa"
+import { IconButtonPopover } from "./Popover"
 import LPStakingBanner from "./LPStakingBanner"
 import Modal from "./Modal"
-import MyShareCard from "./MyShareCard"
-import PoolInfoCard from "./PoolInfoCard"
 import ReviewDeposit from "./ReviewDeposit"
+import StakeDetails from "./StakeDetails"
 // import { Switch } from "@chakra-ui/react"
 import TokenInput from "./TokenInput"
 import TopMenu from "./TopMenu"
 import { Zero } from "@ethersproject/constants"
-import { formatBNToPercentString } from "../utils"
+import { commify } from "@ethersproject/units"
 import { getEtherscanLink } from "../utils/getEtherscanLink"
 import { logEvent } from "../utils/googleAnalytics"
 
@@ -94,7 +99,25 @@ const DepositPage = (props: Props): ReactElement => {
       <div className="content">
         <div className="left">
           <div className="form">
-            <h3>{t("addLiquidity")}</h3>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "baseline",
+              }}
+            >
+              <h3>{t("addLiquidity")}</h3>
+              <IconButtonPopover
+                IconButtonProps={{
+                  "aria-label": "Configure Settings",
+                  variant: "outline",
+                  size: "lg",
+                  icon: <BsSliders size="25px" />,
+                  title: "Configure Settings",
+                }}
+                PopoverBodyContent={<AdvancedOptions />}
+              />
+            </div>
             {exceedsWallet ? (
               <div className="error">{t("depositBalanceExceeded")}</div>
             ) : null}
@@ -127,40 +150,6 @@ const DepositPage = (props: Props): ReactElement => {
                 </span>
               </div>
             )} */}
-            {shouldDisplayWrappedOption && (
-              <p className="wrappedInfo">
-                Deposit to the{" "}
-                <a href="/#/pools/stables/deposit">Stables Pool</a> to get
-                RoseStablesLP.{" "}
-                {poolData?.name === UST_METAPOOL_NAME && (
-                  <>
-                    Get atUST by bridging UST from Terra on{" "}
-                    <a
-                      href="https://app.allbridge.io/bridge?from=TRA&to=AURO&asset=UST"
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ textDecoration: "underline", margin: 0 }}
-                    >
-                      Allbridge
-                    </a>
-                    .
-                  </>
-                )}
-              </p>
-            )}
-            {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
-              <p className="wrappedInfo">
-                This pool is outdated. Please{" "}
-                <a href="/#/pools/frax-stableslp/withdraw">
-                  go here to withdraw any liquidity
-                </a>{" "}
-                from this pool and{" "}
-                <a href="/#/pools/frax/deposit">
-                  use the new Frax pool instead
-                </a>
-                .
-              </p>
-            )}
             {tokens.map((token, index) => (
               <div key={index}>
                 <TokenInput
@@ -177,93 +166,182 @@ const DepositPage = (props: Props): ReactElement => {
                 )}
               </div>
             ))}
-            <div className={"transactionInfoContainer"}>
-              <div className="transactionInfo">
-                {poolData?.aprs?.keep?.apr.gt(Zero) && (
-                  <div className="transactionInfoItem">
-                    <a
-                      href="https://docs.saddle.finance/faq#what-are-saddles-liquidity-provider-rewards"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <span>{`KEEP APR:`}</span>
-                    </a>{" "}
-                    <span className="value">
-                      {formatBNToPercentString(poolData.aprs.keep.apr, 18)}
-                    </span>
-                  </div>
-                )}
-                {poolData?.aprs?.sharedStake?.apr.gt(Zero) && (
-                  <div className="transactionInfoItem">
-                    <a
-                      href="https://docs.saddle.finance/faq#what-are-saddles-liquidity-provider-rewards"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <span>{`SGT APR:`}</span>
-                    </a>{" "}
-                    <span className="value">
-                      {formatBNToPercentString(
-                        poolData.aprs.sharedStake.apr,
-                        18,
-                      )}
-                    </span>
-                  </div>
-                )}
+            <div className="transactionInfo">
+              {poolData?.aprs?.keep?.apr.gt(Zero) && (
                 <div className="transactionInfoItem">
-                  {transactionData.priceImpact.gte(0) ? (
-                    <span className="bonus">{`${t("bonus")}: `}</span>
-                  ) : (
-                    <span className="slippage">{t("priceImpact")}</span>
-                  )}
-                  <span
-                    className={
-                      "value " +
-                      (transactionData.priceImpact.gte(0)
-                        ? "bonus"
-                        : "slippage")
-                    }
+                  <a
+                    href="https://docs.saddle.finance/faq#what-are-saddles-liquidity-provider-rewards"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    {" "}
-                    {formatBNToPercentString(
-                      transactionData.priceImpact,
-                      18,
-                      4,
-                    )}
+                    <span>{`KEEP APR:`}</span>
+                  </a>{" "}
+                  <span className="value">
+                    {formatBNToPercentString(poolData.aprs.keep.apr, 18)}
                   </span>
                 </div>
+              )}
+              {poolData?.aprs?.sharedStake?.apr.gt(Zero) && (
+                <div className="transactionInfoItem">
+                  <a
+                    href="https://docs.saddle.finance/faq#what-are-saddles-liquidity-provider-rewards"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span>{`SGT APR:`}</span>
+                  </a>{" "}
+                  <span className="value">
+                    {formatBNToPercentString(poolData.aprs.sharedStake.apr, 18)}
+                  </span>
+                </div>
+              )}
+              <div className="transactionInfoItem">
+                {transactionData.priceImpact.gte(0) ? (
+                  <span className="bonus">{`${t("bonus")}: `}</span>
+                ) : (
+                  <span className="slippage">{t("priceImpact")}</span>
+                )}
+                <span
+                  className={
+                    "value " +
+                    (transactionData.priceImpact.gte(0) ? "bonus" : "slippage")
+                  }
+                >
+                  {" "}
+                  {formatBNToPercentString(transactionData.priceImpact, 18, 4)}
+                </span>
               </div>
             </div>
           </div>
-          <BackButton
-            route="/pools"
-            wrapperClass="goBack"
-            buttonText="Go back to pools"
-          />
-          <AdvancedOptions />
-          <Center width="100%" py={6}>
-            <Button
-              variant="primary"
-              size="lg"
-              width="240px"
-              onClick={(): void => {
-                setCurrentModal("review")
-              }}
-              disabled={!validDepositAmount || poolData?.isPaused}
-            >
-              {t("deposit")}
-            </Button>
-          </Center>
+          {shouldDisplayWrappedOption && (
+            <div className="options">
+              <p className="wrappedInfo">
+                Deposit to the{" "}
+                <a href="/#/pools/stables/deposit">Stables Pool</a> to get
+                RoseStablesLP.{" "}
+                {poolData?.name === UST_METAPOOL_NAME && (
+                  <>
+                    Get atUST by bridging UST from Terra on{" "}
+                    <a
+                      href="https://app.allbridge.io/bridge?from=TRA&to=AURO&asset=UST"
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ textDecoration: "underline", margin: 0 }}
+                    >
+                      Allbridge.
+                    </a>
+                  </>
+                )}
+              </p>
+            </div>
+          )}
+          {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
+            <div className="options">
+              <p className="wrappedInfo">
+                This pool is outdated. Please{" "}
+                <a href="/#/pools/frax-stableslp/withdraw">
+                  go here to withdraw any liquidity
+                </a>{" "}
+                from this pool and{" "}
+                <a href="/#/pools/frax/deposit">
+                  use the new Frax pool instead.
+                </a>
+              </p>
+            </div>
+          )}
+          <div className="options" style={{ height: "100%" }}>
+            <Center width="100%">
+              <Button
+                variant="primary"
+                size="lg"
+                width="100%"
+                onClick={(): void => {
+                  setCurrentModal("review")
+                }}
+                disabled={!validDepositAmount || poolData?.isPaused}
+              >
+                {t("deposit")}
+              </Button>
+            </Center>
+            <div className="approvalMessage">
+              Note: The &quot;Approve&quot; transaction is only needed the first
+              time; subsequent actions will not require approval.
+            </div>
+          </div>
         </div>
         <div className="infoPanels">
-          <MyShareCard data={myShareData} />
-          <div
-            style={{
-              display: myShareData ? "block" : "none",
+          <StakeDetails
+            extraStakeDetailChild={
+              <>
+                <FaChartPie
+                  size="40px"
+                  color="#cc3a59"
+                  title="My Share of the Pool"
+                />
+                <span style={{ fontSize: "25px", fontWeight: 700 }}>
+                  {formatBNToPercentString(myShareData?.share || Zero, 18)}
+                </span>
+              </>
+            }
+            balanceView={{
+              title: "LP Token Balance",
+              items: [
+                {
+                  tokenName: poolData?.lpToken ?? "-",
+                  icon: POOLS_MAP[poolData?.name || ""]?.lpToken.icon || "-",
+                  amount: commify(
+                    formatBNToString(
+                      myShareData?.lpTokenBalance || Zero,
+                      18,
+                      5,
+                    ),
+                  ),
+                },
+              ],
             }}
-            className="divider"
-          ></div>{" "}
-          <PoolInfoCard data={poolData} />
+            stakedView={{
+              title: t("deposited"),
+              items:
+                myShareData?.tokens.map((coin) => {
+                  const token = TOKENS_MAP[coin.symbol]
+                  return {
+                    tokenName: token.name,
+                    icon: token.icon,
+                    amount: commify(formatBNToString(coin.value, 18, 5)),
+                  }
+                }) || [],
+            }}
+            stats={[
+              {
+                statLabel: "TVL",
+                statValue: poolData?.reserve
+                  ? `$${commify(formatBNToString(poolData.reserve, 18, 2))}`
+                  : "-",
+              },
+              {
+                statLabel: t("fee"),
+                statValue: poolData?.swapFee
+                  ? formatBNToPercentString(
+                      poolData.swapFee,
+                      POOL_FEE_PRECISION,
+                    )
+                  : "-",
+              },
+              {
+                statLabel: t("virtualPrice"),
+                statValue: poolData?.virtualPrice
+                  ? commify(formatBNToString(poolData.virtualPrice, 18, 2))
+                  : "-",
+              },
+              {
+                statLabel: t("aParameter"),
+                statValue: poolData?.aParameter
+                  ? commify(formatBNToString(poolData.aParameter, 0, 0))
+                  : "-",
+                statTooltip: t("aParameterTooltip"),
+              },
+            ]}
+          />
         </div>
         <Modal
           isOpen={!!currentModal}
@@ -329,6 +407,11 @@ const DepositPage = (props: Props): ReactElement => {
             />
           ) : null}
         </Modal>
+        <BackButton
+          route="/pools"
+          wrapperClass="goBack"
+          buttonText="Go back to pools"
+        />
       </div>
     </div>
   )

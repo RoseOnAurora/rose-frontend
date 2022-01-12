@@ -17,26 +17,34 @@ import {
   Tooltip,
 } from "@chakra-ui/react"
 import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
+import {
+  FRAX_STABLES_LP_POOL_NAME,
+  POOLS_MAP,
+  POOL_FEE_PRECISION,
+  TOKENS_MAP,
+} from "../constants"
 import { PoolDataType, UserShareType } from "../hooks/usePoolData"
 import React, { ReactElement, useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
+import { formatBNToPercentString, formatBNToString } from "../utils"
 import AdvancedOptions from "./AdvancedOptions"
 import { AppState } from "../state"
 import BackButton from "./BackButton"
 import { BigNumber } from "@ethersproject/bignumber"
+import { BsSliders } from "react-icons/bs"
 import { ContractReceipt } from "@ethersproject/contracts"
-import { FRAX_STABLES_LP_POOL_NAME } from "../constants"
+import { FaChartPie } from "react-icons/fa"
+import { IconButtonPopover } from "./Popover"
 import Modal from "./Modal"
-import MyShareCard from "./MyShareCard"
-import PoolInfoCard from "./PoolInfoCard"
 import RadioButton from "./RadioButton"
 import ReviewWithdraw from "./ReviewWithdraw"
+import StakeDetails from "./StakeDetails"
 import TokenInput from "./TokenInput"
 import TopMenu from "./TopMenu"
 import { WithdrawFormState } from "../hooks/useWithdrawFormState"
 import { Zero } from "@ethersproject/constants"
 import classNames from "classnames"
-import { formatBNToPercentString } from "../utils"
+import { commify } from "@ethersproject/units"
 import { getEtherscanLink } from "../utils/getEtherscanLink"
 import { logEvent } from "../utils/googleAnalytics"
 import { useSelector } from "react-redux"
@@ -119,7 +127,25 @@ const WithdrawPage = (props: Props): ReactElement => {
                 setIsOpen(false)
               }}
             >
-              <h3>{t("withdraw")}</h3>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                }}
+              >
+                <h3>{t("withdraw")}</h3>
+                <IconButtonPopover
+                  IconButtonProps={{
+                    "aria-label": "Configure Settings",
+                    variant: "outline",
+                    size: "lg",
+                    icon: <BsSliders size="25px" />,
+                    title: "Configure Settings",
+                  }}
+                  PopoverBodyContent={<AdvancedOptions />}
+                />
+              </div>
               <TabList>
                 <Tab>Single Token</Tab>
                 <Tab>Multi Token</Tab>
@@ -130,9 +156,8 @@ const WithdrawPage = (props: Props): ReactElement => {
                     <p className="outdatedInfo">
                       This pool is outdated. Please withdraw your liquidity and{" "}
                       <a href="/#/pools/frax/deposit">
-                        migrate to the new Frax pool
+                        migrate to the new Frax pool.
                       </a>
-                      .
                     </p>
                   )}
                   <div className="horizontalDisplay">
@@ -259,9 +284,8 @@ const WithdrawPage = (props: Props): ReactElement => {
                     <p className="outdatedInfo">
                       This pool is outdated. Please withdraw your liquidity and{" "}
                       <a href="/#/pools/frax/deposit">
-                        migrate to the new Frax pool
+                        migrate to the new Frax pool.
                       </a>
-                      .
                     </p>
                   )}
                   <p className="instructions">
@@ -321,37 +345,101 @@ const WithdrawPage = (props: Props): ReactElement => {
               </TabPanels>
             </Tabs>
           </div>
-          <BackButton
-            route="/pools"
-            wrapperClass="goBack"
-            buttonText="Go back to pools"
-          />
-          <AdvancedOptions />
-          <Center width="100%" py={6}>
-            <Button
-              variant="primary"
-              size="lg"
-              width="240px"
-              disabled={
-                noShare ||
-                !!formStateData.error ||
-                formStateData.lpTokenAmountToSpend.isZero()
-              }
-              onClick={onSubmit}
-            >
-              {t("withdraw")}
-            </Button>
-          </Center>
+          <div className="options" style={{ height: "100%" }}>
+            <Center width="100%">
+              <Button
+                variant="primary"
+                size="lg"
+                width="100%"
+                disabled={
+                  noShare ||
+                  !!formStateData.error ||
+                  formStateData.lpTokenAmountToSpend.isZero()
+                }
+                onClick={onSubmit}
+              >
+                {t("withdraw")}
+              </Button>
+            </Center>
+            <div className="approvalMessage">
+              Note: The &quot;Approve&quot; transaction is only needed the first
+              time; subsequent actions will not require approval.
+            </div>
+          </div>
         </div>
         <div className="infoPanels">
-          <MyShareCard data={myShareData} />
-          <div
-            style={{
-              display: myShareData ? "block" : "none",
+          <StakeDetails
+            extraStakeDetailChild={
+              <>
+                <FaChartPie
+                  size="40px"
+                  color="#cc3a59"
+                  title="My Share of the Pool"
+                />
+                <span style={{ fontSize: "25px", fontWeight: 700 }}>
+                  {formatBNToPercentString(myShareData?.share || Zero, 18)}
+                </span>
+              </>
+            }
+            balanceView={{
+              title: "LP Token Balance",
+              items: [
+                {
+                  tokenName: poolData?.lpToken ?? "-",
+                  icon: POOLS_MAP[poolData?.name || ""]?.lpToken.icon || "-",
+                  amount: commify(
+                    formatBNToString(
+                      myShareData?.lpTokenBalance || Zero,
+                      18,
+                      5,
+                    ),
+                  ),
+                },
+              ],
             }}
-            className="divider"
-          ></div>{" "}
-          <PoolInfoCard data={poolData} />
+            stakedView={{
+              title: t("deposited"),
+              items:
+                myShareData?.tokens.map((coin) => {
+                  const token = TOKENS_MAP[coin.symbol]
+                  return {
+                    tokenName: token.name,
+                    icon: token.icon,
+                    amount: commify(formatBNToString(coin.value, 18, 5)),
+                  }
+                }) || [],
+            }}
+            stats={[
+              {
+                statLabel: "TVL",
+                statValue: poolData?.reserve
+                  ? `$${commify(formatBNToString(poolData.reserve, 18, 2))}`
+                  : "-",
+              },
+              {
+                statLabel: t("fee"),
+                statValue: poolData?.swapFee
+                  ? formatBNToPercentString(
+                      poolData.swapFee,
+                      POOL_FEE_PRECISION,
+                    )
+                  : "-",
+              },
+              {
+                statLabel: t("virtualPrice"),
+                statValue: poolData?.virtualPrice
+                  ? commify(formatBNToString(poolData.virtualPrice, 18, 2))
+                  : "-",
+              },
+              {
+                statLabel: t("aParameter"),
+                statValue: poolData?.aParameter
+                  ? commify(formatBNToString(poolData.aParameter, 0, 0))
+                  : "-",
+                statTooltip: t("aParameterTooltip"),
+              },
+            ]}
+          />
         </div>
         <Modal
           isOpen={!!currentModal}
@@ -418,6 +506,11 @@ const WithdrawPage = (props: Props): ReactElement => {
             />
           ) : null}
         </Modal>
+        <BackButton
+          route="/pools"
+          wrapperClass="goBack"
+          buttonText="Go back to pools"
+        />
       </div>
     </div>
   )

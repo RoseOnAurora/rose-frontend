@@ -11,7 +11,6 @@ div.farmPage {
   column-gap: 10px;
   grid-template-areas: 
     "leftBlock rightBlock"
-    "rewards rewards"
     "footer footer";
   justify-content: center;
 
@@ -20,6 +19,23 @@ div.farmPage {
     padding-right: 4px;
     flex-wrap: wrap;
     display: flex;
+  }
+
+  .stakeDetailsContainer {
+    grid-area: rightBlock;
+    background: var(--background-element);
+    border: 1px solid var(--outline);
+    box-shadow: var(--shadow);
+    border-radius: 10px;
+    padding: 10px;
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    @include breakpoint(md) {
+      width: 100%;
+      order: 2;
+    }
   }
 
   .approveButtons {

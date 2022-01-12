@@ -8,14 +8,19 @@ import { transparentize } from "@chakra-ui/theme-tools"
 const variantPrimary = (
   props: Dict,
 ): RecursiveCSSObject<CSSWithMultiValues> => {
-  const transparentColor = transparentize("gray.500", 0.6)(props.theme)
-  const disableBg = transparentize("#cc3a59", 0.2)(props.theme)
-  const boxShadowHover =
-    props.colorMode === "light"
-      ? "0px 7px 12px rgba(68, 64, 64, 0.3)"
-      : "2px 2px 12px rgba(68, 64, 64, 0.14)"
+  const darkMode = props.colorMode === "dark"
+  const transparentColor = transparentize(
+    darkMode ? "gray.300" : "gray.100",
+    0.7,
+  )(props.theme)
+  const disableBg = transparentize(
+    darkMode ? "#1c1d21" : "#cc3a59",
+    1,
+  )(props.theme)
+  const boxShadowHover = darkMode
+    ? "2px 2px 12px rgba(68, 64, 64, 0.14)"
+    : "0px 7px 12px rgba(68, 64, 64, 0.3)"
   const disabled = {
-    opacity: "0.8",
     color: transparentColor,
     border: "none",
     cursor: "not-allowed",
@@ -24,15 +29,17 @@ const variantPrimary = (
   }
 
   return {
-    color: "#000000",
-    borderRadius: "4px",
-    bg: "#cc3a59",
+    color: darkMode ? "#000000" : "#ffffff",
+    borderRadius: "10px",
+    bg: darkMode
+      ? "linear-gradient(95deg, #cc3a59, #791038)"
+      : "linear-gradient(195deg, #f7819a, #cc3a59)",
     letterSpacing: "0.02em",
     fontWeight: "700",
     padding: "1px 6px",
     _hover: {
       color: "#ffffff",
-      bg: "#d63255",
+      bg: "linear-gradient(195deg, #cc3a59, #d63255)",
       boxShadow: boxShadowHover,
       _disabled: disabled,
     },
@@ -50,6 +57,7 @@ const variantPrimary = (
 const variantLight = (props: Dict): RecursiveCSSObject<CSSWithMultiValues> => {
   const transparentColor = transparentize("gray.500", 0.6)(props.theme)
   const disableBg = transparentize("#cc3a59", 0.2)(props.theme)
+  const darkMode = props.colorMode === "dark"
   const boxShadowHover =
     props.colorMode === "light"
       ? "0px 7px 12px rgba(68, 64, 64, 0.3)"
@@ -63,7 +71,7 @@ const variantLight = (props: Dict): RecursiveCSSObject<CSSWithMultiValues> => {
     bg: disableBg,
   }
   return {
-    color: "#000000",
+    color: darkMode ? "#000000" : "#ffffff",
     borderRadius: "full",
     fontSize: "13px",
     width: "75px",
@@ -85,8 +93,21 @@ const variantLight = (props: Dict): RecursiveCSSObject<CSSWithMultiValues> => {
   }
 }
 
+const variantOuline = (props: Dict): RecursiveCSSObject<CSSWithMultiValues> => {
+  const darkMode = props.colorMode === "dark"
+
+  return {
+    borderRadius: "10px",
+    borderColor: darkMode ? "var(--chakra-colors-whiteAlpha-300)" : "#555555",
+    _focus: {
+      boxShadow: "none",
+    },
+  }
+}
+
 const variants = {
   primary: variantPrimary,
   light: variantLight,
+  outline: variantOuline,
 }
 export default { variants }

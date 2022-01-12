@@ -8,7 +8,7 @@ import {
   formatBNToShortString,
   formatBNToString,
 } from "../utils"
-import Button from "./Button"
+import { Button } from "@chakra-ui/react"
 import { Link } from "react-router-dom"
 import ToolTip from "./ToolTip"
 import { Zero } from "@ethersproject/constants"
@@ -144,11 +144,11 @@ export default function PoolOverview({
           </div>
           <div className="buttons">
             <Link to={`${poolRoute}/withdraw`}>
-              <Button kind="secondary">{t("removeLiquidity")}</Button>
+              <Button variant="outline">{t("removeLiquidity")}</Button>
             </Link>
             {shouldMigrate ? (
               <Button
-                kind="temporary"
+                variant="temporary"
                 onClick={onClickMigrate}
                 disabled={!hasShare}
               >
@@ -157,7 +157,10 @@ export default function PoolOverview({
             ) : (
               <Link to={`${poolRoute}/deposit`}>
                 <Button
-                  kind="primary"
+                  variant="primary"
+                  padding="15px"
+                  width="175px"
+                  size="md"
                   disabled={poolData?.isPaused || isOutdated}
                 >
                   {t("addLiquidity")}

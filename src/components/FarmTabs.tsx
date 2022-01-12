@@ -5,6 +5,7 @@ import {
   useFarmContract,
   useLPTokenContractForFarm,
 } from "../hooks/useContract"
+import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { FarmName } from "../constants"
@@ -16,6 +17,7 @@ import { parseUnits } from "@ethersproject/units"
 import styles from "./FarmTabs.module.scss"
 import { useApproveAndDepositFarm } from "../hooks/useApproveAndDepositFarm"
 import { useCheckTokenRequiresApproval } from "../hooks/useCheckTokenRequiresApproval"
+import { useSelector } from "react-redux"
 import { useWithdrawFarm } from "../hooks/useWithdrawFarm"
 
 interface Props {
@@ -43,6 +45,7 @@ const FarmTabs = (props: Props): ReactElement => {
     handleModal,
   } = props
   const { t } = useTranslation()
+  const { userDarkMode } = useSelector((state: AppState) => state.user)
   const farm = useApproveAndDepositFarm(farmName)
   const withdraw = useWithdrawFarm(farmName)
 
@@ -107,7 +110,15 @@ const FarmTabs = (props: Props): ReactElement => {
 
   return (
     <div className={styles.farmTabs}>
-      <Tabs isFitted variant="primary">
+      <Tabs
+        isFitted
+        variant="primary"
+        bgColor={
+          userDarkMode ? "rgba(28, 29, 33, 0.3)" : "rgba(242, 236, 236, 0.8)"
+        }
+        borderRadius="10px"
+        height="100%"
+      >
         <TabList mb="1em">
           <Tab>{t("deposit")}</Tab>
           <Tab>{t("Withdraw")}</Tab>

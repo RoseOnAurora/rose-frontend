@@ -15,9 +15,11 @@ import {
 } from "@chakra-ui/react"
 import { Field, FieldAttributes, Form, Formik } from "formik"
 import React, { ReactElement, ReactNode } from "react"
+import { AppState } from "../state"
 import { ContractReceipt } from "@ethersproject/contracts"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import styles from "./StakeForm.module.scss"
+import { useSelector } from "react-redux"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -36,6 +38,7 @@ interface Props {
 }
 function StakeForm(props: Props): ReactElement {
   const { t } = useTranslation()
+  const { userDarkMode } = useSelector((state: AppState) => state.user)
   const {
     fieldName,
     token,
@@ -69,6 +72,13 @@ function StakeForm(props: Props): ReactElement {
             <Field name={fieldName} validate={validator}>
               {({ field, form }: FieldAttributes<any>) => (
                 <FormControl
+                  padding="10px"
+                  bgColor={
+                    userDarkMode
+                      ? "rgba(28, 29, 33, 0.4)"
+                      : "rgba(245, 239, 239, 0.6)"
+                  }
+                  borderRadius="10px"
                   isInvalid={
                     form.errors?.[fieldName] && form.touched?.[fieldName]
                   }
@@ -77,23 +87,25 @@ function StakeForm(props: Props): ReactElement {
                     <InputLeftElement
                       pointerEvents="none"
                       color="gray.300"
-                      fontSize="1.2em"
+                      fontSize="2em"
+                      marginLeft="5px"
                     >
                       <img src={tokenIcon} alt="roseIcon" />
                     </InputLeftElement>
                     <Input
                       {...field}
+                      marginLeft="5px"
                       autoComplete="off"
                       autoCorrect="off"
                       isInvalid={form.errors?.[fieldName]}
-                      placeholder={`${token} Token`}
+                      placeholder="0.0"
                       variant="primary"
                       onChange={(e) => {
                         props.handleChange(e)
                         handleInputChanged?.(e.target.value)
                       }}
                     />
-                    <InputRightElement width="4rem">
+                    <InputRightElement width="6rem" padding="10px">
                       <Button
                         variant="light"
                         size="sm"
@@ -108,37 +120,41 @@ function StakeForm(props: Props): ReactElement {
                     </InputRightElement>
                   </InputGroup>
                   {props.isValid && props.dirty ? (
-                    <Text mt="5px" fontSize="sm" as="i">
+                    <Text mt="5px" fontSize="sm" as="p">
                       You are about to {fieldName} ≈{+props.values?.[fieldName]}{" "}
                       {token} {"Token"}
                     </Text>
                   ) : (
-                    <FormErrorMessage>
+                    <FormErrorMessage color="#cc3a59">
                       {form.errors?.[fieldName]}
                     </FormErrorMessage>
                   )}
                 </FormControl>
               )}
             </Field>
-            {formDescription ? (
+            {formDescription && (
               <div className={styles.stakeInfoContainer}>
                 <div className={styles.infoMessage}>
                   <span>{formDescription}</span>
                 </div>
               </div>
-            ) : null}
+            )}
 
             <div className={styles.submitButton}>
               <Button
                 variant="primary"
                 isLoading={isLoading}
                 size="lg"
-                width="450px"
+                width="100%"
                 type="submit"
                 disabled={!props.isValid || !props.dirty}
               >
                 {props.isValid ? submitButtonLabel : props.errors?.[fieldName]}
               </Button>
+              <div className={styles.approvalMessage}>
+                Note: The &quot;Approve&quot; transaction is only needed the
+                first time; subsequent actions will not require approval.
+              </div>
             </div>
           </Form>
         )}
