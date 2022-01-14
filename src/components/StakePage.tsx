@@ -354,10 +354,10 @@ function StakePage(props: Props): ReactElement {
                 : "-",
             },
             //{
-              //statLabel: "Approx. APR",
-              //statValue: apr ?? "-",
-              //statTooltip:
-                //"Estimate based on protocol fees earned in the last two weeks.",
+            //statLabel: "Approx. APR",
+            //statValue: apr ?? "-",
+            //statTooltip:
+            //"Estimate based on protocol fees earned in the last two weeks.",
             //},
           ]}
         />
