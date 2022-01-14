@@ -11,7 +11,10 @@ jobs:
         with:
           node-version: 16.x
       - run: npm ci
-      - run: npm run build
+      - name: Build
+        run: npm run build
+        env:
+          REACT_APP_NETWORK_URL: ${{ secrets.REACT_APP_NETWORK_URL }}
       - name: "Deploy to Skynet"
         uses: SkynetLabs/deploy-to-skynet-action@v2
         with:
