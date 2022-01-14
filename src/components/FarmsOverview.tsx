@@ -65,7 +65,7 @@ function FarmsOverview(props: Props): ReactElement {
                 justifyContent="space-between"
                 minWidth="115px"
               >
-                {farmData.lpTokenBalance.gt(Zero) && (
+                {farmData?.lpTokenBalance && farmData?.lpTokenBalance.gt(Zero) && (
                   <Stat>
                     <StatLabel>
                       <span className={styles.label}>Balance</span>
@@ -79,7 +79,7 @@ function FarmsOverview(props: Props): ReactElement {
                     )}`}</StatNumber>
                   </Stat>
                 )}
-                {deposited.gt(Zero) && (
+                {deposited && deposited.gt(Zero) && (
                   <Stat ml={3}>
                     <StatLabel>
                       <span className={styles.label}>Deposited</span>
