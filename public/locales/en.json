@@ -51,7 +51,7 @@
   "failedTitle": "Transaction Failed.",
   "farm": "Farm",
   "farms": "Farms",
-  "farmDescription": "Deposit {{tokenName}} to farm ROSE after adding liquidity to the <1>{{poolName}}</1>.",
+  "farmDescription": "Add liquidity to the <1>{{poolName}}<2>{{externalUrlArrow}}</2></1> to get {{tokenName}}.",
   "fast": "Fast",
   "fee": "Protocol fee",
   "from": "From",
