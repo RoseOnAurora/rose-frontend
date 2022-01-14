@@ -66,7 +66,7 @@ function TokenInput({
     <div>
       {max != null && (
         <div className={styles.balanceContainer}>
-          <span>{t("balance")}:</span>
+          <span>{t("max")}:</span>
           &nbsp;
           <a onClick={() => onChange(String(max))}>{max}</a>
         </div>

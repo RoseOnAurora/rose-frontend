@@ -6,83 +6,95 @@ div.deposit {
   background: var(--background-main);
   color: var(--text);
   padding-bottom: 80px;
-  box-sizing: border-box; // Make the padding included in height calculation
 
   .content {
-    width: 888px;
+    max-width: 995px;
     margin: 0 auto;
+    width: 100%;
+    margin-top: 40px;
     display: grid;
-    grid-template-columns: auto auto;
-    column-gap: 20px;
-    align-items: start;
-    @include breakpoint(lg) {
+    grid-template-columns: 54% 42%;
+    grid-template-rows: auto;
+    row-gap: 10px;
+    column-gap: 10px;
+    grid-template-areas: 
+      "leftBlock rightBlock"
+      "footer footer";
+    justify-content: center;
+
+    @include breakpoint(md) {
+      padding-left: 4px;
+      padding-right: 4px;
+      flex-wrap: wrap;
       display: flex;
-      flex-flow: column nowrap;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto;
-      width: 100%;
-      max-width: 995px;
+    }
+
+    .goBack {
+      grid-area: footer;
+      @include breakpoint(md) {
+        order: 2;
+      }
     }
 
     .infoPanels {
-      margin-top: 40px;
-      width: 434px;
-      padding: 24px 32px;
-      border: 1px solid var(--outline);
-      border-radius: 10px;
+      grid-area: rightBlock;
       background: var(--background-element);
-      box-sizing: border-box;
-      @include breakpoint(lg) {
-        margin: 40px auto 0;
-      }
+      border: 1px solid var(--outline);
+      box-shadow: var(--shadow);
+      border-radius: 10px;
+      padding: 10px;
+      gap: 10px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
       @include breakpoint(md) {
-        max-width: 90%;
+        width: 100%;
+        order: 2;
       }
     }
 
     .left {
-      position: relative;
-      width: 434px;
+      grid-area: leftBlock;
+      background: var(--background-element);
+      border: 1px solid var(--outline);
+      box-shadow: var(--shadow);
+      border-radius: 10px;
+      padding: 10px;
+      gap: 10px;
+      display: flex;
+      flex-direction: column;
       height: 100%;
-      @include breakpoint(lg) {
-        margin: 0 auto;
+      @include breakpoint(md) {
         width: 100%;
+        order: 1;
       }
 
-      .goBack {
+      .options {
+        background: var(--secondary-background);
+        border-radius: 10px;
         padding: 10px;
-        display: flex;
-        @include breakpoint(lg) {
-          justify-content: center;
-        }
       }
     }
 
     .form {
-      width: 434px;
+      width: 100%;
       border: 1px solid var(--outline);
-      background: var(--background-element);
+      background: var(--secondary-background);
       border-radius: 10px;
-      padding: 24px;
-      margin-top: 40px;
-      box-sizing: border-box;
-      @include breakpoint(lg) {
-        margin: 40px auto 0;
-      }
-      @include breakpoint(md) {
-        max-width: 90%;
-      }
+      padding: 15px;
     }
 
     .form h3 {
       font-family: $font-family-title;
       font-size: 30px;
       margin-top: 0;
-      margin-bottom: 15px;
+      margin-bottom: 25px;
       font-weight: $bold;
       color: var(--text);
-      text-align: center;
+      text-align: start;
+      @include breakpoint(md) {
+        font-size: 25px;
+      }
     }
 
     .infoPanels .divider {
@@ -94,7 +106,8 @@ div.deposit {
   }
 
   .wrappedInfo {
-    margin-bottom: 12px;
+    text-align: center;
+    padding: 10px;
     a {
       margin-left: 0;
       text-decoration: underline;
@@ -112,11 +125,15 @@ div.deposit {
   }
 
   div.transactionInfo {
-    margin-top: 32px;
-    display: grid;
-    grid-template-rows: auto;
-    row-gap: 8px;
-
+    margin-top: 25px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .transactionInfoItem {
+      display: flex;
+      gap: 5px;
+    }
     span.value {
       color: var(--text-darker);
       font-weight: $bold;
@@ -146,5 +163,15 @@ div.deposit {
   .formSpace {
     width: 100%;
     height: 16px;
+  }
+
+  .approvalMessage {
+    padding: 20px 10px;
+    text-align: center;
+    color: var(--text-lighter);
+    font-size: 14px;
+    @include breakpoint(sm) {
+      font-size: 12px;
+    }
   }
 }

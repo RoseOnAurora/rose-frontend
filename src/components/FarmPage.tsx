@@ -1,3 +1,4 @@
+import { Button, IconButton } from "@chakra-ui/react"
 import ConfirmTransaction, {
   ConfirmTransactionProps,
   ModalType,
@@ -5,13 +6,14 @@ import ConfirmTransaction, {
 import React, { ReactElement, useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
 import { commify, formatBNToShortString, formatBNToString } from "../utils"
+import AnimatingNumber from "./AnimateNumber"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { Button } from "@chakra-ui/react"
+import { FaGift } from "react-icons/fa"
 import FarmFooter from "./FarmFooter"
 import { FarmName } from "../constants"
 import FarmTabs from "./FarmTabs"
-import HarvestRewards from "./HarvestRewards"
+// import HarvestRewards from "./HarvestRewards"
 import Modal from "./Modal"
 import StakeDetails from "./StakeDetails"
 import { getEtherscanLink } from "../utils/getEtherscanLink"
@@ -150,31 +152,57 @@ const FarmPage = (props: Props): ReactElement => {
         </ConfirmTransaction>
       </Modal>
       <FarmTabs {...props} handleModal={updateModal} />
-      <StakeDetails
-        balanceView={{
-          title: t("balance"),
-          tokenName: lpTokenName,
-          icon: lpTokenIcon,
-          amount: formattedBalance,
-        }}
-        stakedView={{
-          title: t("deposited"),
-          tokenName: lpTokenName,
-          icon: lpTokenIcon,
-          amount: formattedDeposited,
-        }}
-        stats={[
-          {
-            statLabel: "TVL",
-            statValue: formattedTvl,
-          },
-          {
-            statLabel: "APR",
-            statValue: apr,
-          },
-        ]}
-      />
-      <HarvestRewards rewardBalance={rewardsEarned} handleModal={updateModal} />
+      <div className={styles.stakeDetailsContainer}>
+        <StakeDetails
+          extraStakeDetailChild={
+            <>
+              <IconButton
+                aria-label="Harvest Rewards"
+                variant="primary"
+                size="lg"
+                disabled={+rewardsEarned <= 0}
+                onClick={() => updateModal(ModalType.APPROVE)}
+                icon={<FaGift size="30px" />}
+                title="Harvest Rewards"
+              />
+              <AnimatingNumber
+                value={+rewardsEarned}
+                precision={+rewardsEarned ? 5 : 1}
+              ></AnimatingNumber>
+            </>
+          }
+          balanceView={{
+            title: t("balance"),
+            items: [
+              {
+                tokenName: lpTokenName,
+                icon: lpTokenIcon,
+                amount: formattedBalance,
+              },
+            ],
+          }}
+          stakedView={{
+            title: t("deposited"),
+            items: [
+              {
+                tokenName: lpTokenName,
+                icon: lpTokenIcon,
+                amount: formattedDeposited,
+              },
+            ],
+          }}
+          stats={[
+            {
+              statLabel: "TVL",
+              statValue: formattedTvl,
+            },
+            {
+              statLabel: "APR",
+              statValue: apr,
+            },
+          ]}
+        />
+      </div>
       <FarmFooter />
     </div>
   )

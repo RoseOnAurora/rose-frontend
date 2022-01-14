@@ -23,6 +23,7 @@ import {
 import {
   calculateExchangeRate,
   calculatePrice,
+  formatBNToString,
   shiftBNDecimals,
 } from "../utils"
 import { formatUnits, parseUnits } from "@ethersproject/units"
@@ -184,10 +185,7 @@ function Swap(): ReactElement {
         formStateArg.to.poolName === undefined
       )
         return
-      const cleanedFormFromValue = (+formStateArg.from.value.replace(
-        /[$,]/g,
-        "",
-      )).toFixed(TOKENS_MAP[formStateArg.from.symbol].decimals)
+      const cleanedFormFromValue = formStateArg.from.value.replace(/[$,]/g, "")
       if (
         cleanedFormFromValue === "" ||
         isNaN(+cleanedFormFromValue) ||
@@ -365,11 +363,11 @@ function Swap(): ReactElement {
         error: null,
         from: {
           symbol: prevState.to.symbol,
-          value: parseFloat(
-            (+prevState.from.value).toFixed(
-              TOKENS_MAP[prevState.to.symbol].decimals,
-            ),
-          ).toLocaleString("en-US", { useGrouping: false }),
+          value: formatBNToString(
+            prevState.to.value,
+            TOKENS_MAP[prevState.to.symbol].decimals,
+            TOKENS_MAP[prevState.to.symbol].decimals,
+          ),
           valueUSD: calculatePrice(
             prevState.from.value,
             tokenPricesUSD?.[prevState.to.symbol],
@@ -405,12 +403,18 @@ function Swap(): ReactElement {
         IS_VIRTUAL_SWAP_ACTIVE && activeSwapPair
           ? activeSwapPair.type !== SWAP_TYPES.INVALID
           : activeSwapPair?.type === SWAP_TYPES.DIRECT
+      const fromDecimals = TOKENS_MAP[prevState.from.symbol]?.decimals || 0
+      const toDecimals = TOKENS_MAP[symbol]?.decimals || 0
       const nextState = {
         ...prevState,
         error: null,
         from: {
           ...prevState.from,
           symbol,
+          value:
+            fromDecimals > toDecimals
+              ? (+prevState.from.value).toFixed(toDecimals)
+              : prevState.from.value,
           valueUSD: calculatePrice(
             prevState.from.value,
             tokenPricesUSD?.[symbol],

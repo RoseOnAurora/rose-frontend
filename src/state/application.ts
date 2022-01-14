@@ -35,6 +35,9 @@ type ApplicationState = GasPrices & { tokenPricesUSD?: TokenPricesUSD } & {
 const initialState: ApplicationState = {
   lastTransactionTimes: {
     [TRANSACTION_TYPES.STAKE]: 0,
+    [TRANSACTION_TYPES.DEPOSIT]: 0,
+    [TRANSACTION_TYPES.WITHDRAW]: 0,
+    [TRANSACTION_TYPES.SWAP]: 0,
   },
 }
 

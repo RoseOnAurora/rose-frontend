@@ -1,12 +1,11 @@
+import React, { ReactElement, ReactNode } from "react"
 import {
-  Divider,
   Stat,
   StatGroup,
   StatLabel,
   StatNumber,
   Tooltip,
 } from "@chakra-ui/react"
-import React, { ReactElement } from "react"
 import styles from "./StakeDetails.module.scss"
 
 interface StakeStatLabel {
@@ -19,14 +18,17 @@ interface StakeStats {
   statTooltip?: string
 }
 interface StakedDetailsView {
-  tokenName: string
-  amount: string
-  icon: string
+  items: {
+    tokenName: string
+    amount: string
+    icon: string
+  }[]
   title?: string
 }
 interface Props {
   balanceView: StakedDetailsView
   stakedView: StakedDetailsView
+  extraStakeDetailChild?: ReactNode
   stats?: StakeStats[]
 }
 const StakeStat = (props: StakeStatLabel): ReactElement => {
@@ -44,62 +46,87 @@ const StakeStat = (props: StakeStatLabel): ReactElement => {
   }
 }
 const StakeDetails = (props: Props): ReactElement => {
-  const { balanceView, stakedView, stats } = props
+  const { balanceView, stakedView, stats, extraStakeDetailChild } = props
   return (
-    <div className={styles.stakeDetailsContainer}>
+    <>
+      {extraStakeDetailChild && (
+        <div className={styles.stakeDetails}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            {extraStakeDetailChild}
+          </div>
+        </div>
+      )}
       <div className={styles.stakeDetails}>
         <div className={styles.row}>
           <h3 className={styles.title}>{balanceView.title}</h3>
         </div>
-        <div className={styles.row}>
-          <div className={styles.icon}>
-            <img src={balanceView.icon} alt="tokenIcon" />
-          </div>
-          <div className={styles.balanceDetails}>
-            <StatGroup>
-              <Stat>
-                <StatLabel>{balanceView.tokenName}</StatLabel>
-                <StatNumber fontSize="18px">{balanceView.amount}</StatNumber>
-              </Stat>
-            </StatGroup>
-          </div>
-        </div>
+        {balanceView.items.map(({ icon, tokenName, amount }, index) => {
+          const iconStyle =
+            /rose-frax/.exec(icon) || /rose-atust/.exec(icon)
+              ? { width: "70px", marginRight: "10px" }
+              : { width: "40px", marginRight: "10px" }
+          return (
+            <div className={styles.row} key={index}>
+              <div style={iconStyle}>
+                <img src={icon} alt="tokenIcon" width="100%" />
+              </div>
+              <div className={styles.balanceDetails}>
+                <StatGroup>
+                  <Stat>
+                    <StatLabel>{tokenName}</StatLabel>
+                    <StatNumber fontSize="18px">{amount}</StatNumber>
+                  </Stat>
+                </StatGroup>
+              </div>
+            </div>
+          )
+        })}
       </div>
-      <Divider />
       <div className={styles.stakeDetails}>
         <div className={styles.row}>
           <h3 className={styles.title}>{stakedView.title}</h3>
         </div>
-        <div className={styles.row}>
-          <div className={styles.icon}>
-            <img src={stakedView.icon} alt="tokenIcon" />
-          </div>
-          <div className={styles.balanceDetails}>
-            <StatGroup>
-              <Stat>
-                <StatLabel>{stakedView.tokenName}</StatLabel>
-                <StatNumber fontSize="18px">{stakedView.amount}</StatNumber>
-              </Stat>
-            </StatGroup>
-          </div>
-        </div>
+        {stakedView.items.map(({ icon, tokenName, amount }, index) => {
+          const iconStyle =
+            /rose-frax/.exec(icon) || /rose-atust/.exec(icon)
+              ? { width: "70px", marginRight: "10px" }
+              : { width: "40px", marginRight: "10px" }
+          return (
+            <div className={styles.row} key={index}>
+              <div style={iconStyle}>
+                <img src={icon} alt="tokenIcon" width="100%" />
+              </div>
+              <div className={styles.balanceDetails}>
+                <StatGroup>
+                  <Stat>
+                    <StatLabel>{tokenName}</StatLabel>
+                    <StatNumber fontSize="18px">{amount}</StatNumber>
+                  </Stat>
+                </StatGroup>
+              </div>
+            </div>
+          )
+        })}
       </div>
       {stats && (
-        <>
-          <Divider />
-          <div className={styles.statsDetails}>
-            {stats.map(({ statLabel, statValue, statTooltip }, index) => {
-              return (
-                <div className={styles.statRow} key={index}>
-                  <StakeStat statLabel={statLabel} statTooltip={statTooltip} />
-                  <div className={styles.statValue}>{statValue}</div>
-                </div>
-              )
-            })}
-          </div>
-        </>
+        <div className={styles.statsDetails}>
+          {stats.map(({ statLabel, statValue, statTooltip }, index) => {
+            return (
+              <div className={styles.statRow} key={index}>
+                <StakeStat statLabel={statLabel} statTooltip={statTooltip} />
+                <div className={styles.statValue}>{statValue}</div>
+              </div>
+            )
+          })}
+        </div>
       )}
-    </div>
+    </>
   )
 }
 
