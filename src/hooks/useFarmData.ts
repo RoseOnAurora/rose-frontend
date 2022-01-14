@@ -46,12 +46,17 @@ export default function useFarmData(
         account ?? undefined,
       ) as LpTokenUnguarded
       let userLpTokenBalance: BigNumber
-      try {
-        userLpTokenBalance = await lpTokenContract.balanceOf(
-          account || AddressZero,
+      if (account && account != AddressZero && account != null) {
+        console.log(
+          `Getting user LPToken balance for account ${account?.toString()}`,
         )
-      } catch (e) {
-        console.log(e)
+        try {
+          userLpTokenBalance = await lpTokenContract.balanceOf(
+            account || AddressZero,
+          )
+        } catch (e) {
+          console.log(e)
+        }
       }
 
       setFarmData((prevState) => ({
