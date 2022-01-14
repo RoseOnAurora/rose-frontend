@@ -88,12 +88,6 @@ export default function PoolOverview({
             )}
             {poolData.isPaused && <Tag kind="error">PAUSED</Tag>}
           </div>
-          {hasShare && (
-            <div className="balance">
-              <span>{t("balance")}: </span>
-              <span>{`$${formattedData.userBalanceUSD}`}</span>
-            </div>
-          )}
           <div className="tokens">
             {formattedData.tokens.map(({ symbol, icon }) => (
               <div className="token" key={symbol}>
@@ -131,6 +125,12 @@ export default function PoolOverview({
                 </div>
               ) : null
             })}
+            {hasShare && (
+              <div className="margin">
+                <span className="label">Balance</span>
+                <span>{`$${formattedData.userBalanceUSD}`}</span>
+              </div>
+            )}
             <div className="margin">
               <span className="label">TVL</span>
               <span>{`$${formattedData.reserve}`}</span>

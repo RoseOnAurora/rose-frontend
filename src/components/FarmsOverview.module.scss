@@ -75,19 +75,18 @@ div.farmsOverview {
   }
   .farmDescription {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     @include breakpoint(md) {
       flex-wrap: wrap;
+      justify-content: space-evenly;
     }
     p {
       margin-top: 15px;
       color: var(--text);
       a {
         margin: 0;
-        color: $primary-darker;
         &:hover {
-          color: $primary-lighter;
           text-decoration: underline;
         }
       }
@@ -123,4 +122,18 @@ div.farmsOverview {
     border: 1px solid var(--text);
     color: var(--text);
   }
+
+  .stats {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .label {
+    color: var(--text-lighter);
+    font-weight: 700;
+    font-size: 12px;
+  }
+
 }

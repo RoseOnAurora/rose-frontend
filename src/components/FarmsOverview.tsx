@@ -56,43 +56,58 @@ function FarmsOverview(props: Props): ReactElement {
         <div className={styles.row}>
           <div className={styles.titleBox}>
             <h4 className={styles.title}>{farmName}</h4>
-            <a href={poolUrl} target={isRose ? "" : "_blank"} rel="noreferrer">
-              <FarmTag isRose={isRose}>
-                {poolName}
-                {isRose ? null : <sup>↗</sup>}
-              </FarmTag>
-            </a>
           </div>
-          <StatGroup
-            display="flex"
-            flexWrap="nowrap"
-            justifyContent="space-between"
-            minWidth="115px"
-          >
-            <Stat mr={2}>
-              <StatLabel>TVL</StatLabel>
-              <StatNumber fontSize="13px">{formattedTvl}</StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel>APR</StatLabel>
-              <StatNumber fontSize="13px">{formattedApr}</StatNumber>
-            </Stat>
-          </StatGroup>
-        </div>
-        <div className={styles.balanceInfo}>
-          <div style={{ display: "flex", gap: "5px" }}>
-            <div className={styles.tokenBalanceText}>LP Token Balance:</div>
-            <div className={styles.tokenBalanceValue}>{`${formatBNToShortString(
-              farmData?.lpTokenBalance || Zero,
-              18,
-            )}`}</div>
-          </div>
-          <div style={{ display: "flex", gap: "5px" }}>
-            <div className={styles.tokenBalanceText}>Deposited:</div>
-            <div className={styles.tokenBalanceValue}>{`${formatBNToShortString(
-              deposited,
-              18,
-            )}`}</div>
+          <div className={styles.stats}>
+            <div className={styles.row}>
+              <StatGroup
+                display="flex"
+                flexWrap="nowrap"
+                justifyContent="space-between"
+                minWidth="115px"
+              >
+                {farmData.lpTokenBalance.gt(Zero) && (
+                  <Stat>
+                    <StatLabel>
+                      <span className={styles.label}>Balance</span>
+                    </StatLabel>
+                    <StatNumber
+                      fontSize="16px"
+                      fontWeight="400"
+                    >{`${formatBNToShortString(
+                      farmData?.lpTokenBalance || Zero,
+                      18,
+                    )}`}</StatNumber>
+                  </Stat>
+                )}
+                {deposited.gt(Zero) && (
+                  <Stat ml={3}>
+                    <StatLabel>
+                      <span className={styles.label}>Deposited</span>
+                    </StatLabel>
+                    <StatNumber
+                      fontSize="16px"
+                      fontWeight="400"
+                    >{`${formatBNToShortString(deposited, 18)}`}</StatNumber>
+                  </Stat>
+                )}
+                <Stat ml={3}>
+                  <StatLabel>
+                    <span className={styles.label}>TVL</span>
+                  </StatLabel>
+                  <StatNumber fontSize="16px" fontWeight="400">
+                    {formattedTvl}
+                  </StatNumber>
+                </Stat>
+                <Stat ml={3}>
+                  <StatLabel>
+                    <span className={styles.label}>APR</span>
+                  </StatLabel>
+                  <StatNumber fontSize="16px" fontWeight="400">
+                    {formattedApr}
+                  </StatNumber>
+                </Stat>
+              </StatGroup>
+            </div>
           </div>
         </div>
         <div className={styles.farmDescription}>
@@ -100,20 +115,27 @@ function FarmsOverview(props: Props): ReactElement {
             {isRose ? (
               <Trans t={t} i18nKey="farmDescription">
                 {{ tokenName: lpTokenName }}
-                <Link to={`pools/${farmRoute}/deposit`}>
-                  {{ poolName: poolName }}
-                </Link>
+                <a
+                  href={`../#/pools/${farmRoute}/deposit`}
+                  className={classNames(styles.tag, { [styles.rose]: isRose })}
+                >
+                  <FarmTag isRose={true}>{{ poolName: poolName }}</FarmTag>
+                </a>
               </Trans>
             ) : (
               <Trans t={t} i18nKey="farmDescription">
                 {{ tokenName: lpTokenName }}
                 <a
-                  className={styles.external}
                   href={poolUrl}
                   target="_blank"
                   rel="noreferrer"
+                  className={classNames(styles.tag, { [styles.rose]: isRose })}
                 >
                   {{ poolName: poolName }}
+                  <span>
+                    {/* TODO: fix superscript */}
+                    <sup>{{ externalUrlArrow: "↗" }}</sup>
+                  </span>
                 </a>
               </Trans>
             )}
