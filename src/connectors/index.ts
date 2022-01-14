@@ -19,7 +19,7 @@ let networkLibrary: BaseProvider | undefined
 export function getNetworkLibrary(): BaseProvider {
   const provider = getDefaultProvider(NETWORK_URL)
   if (NETWORK_URL) {
-    console.log(`Connecting to network URL: ${NETWORK_URL}`)
+    // console.log(`Connecting to network URL: ${NETWORK_URL}`)
   }
   return (networkLibrary = networkLibrary ?? provider)
 }
