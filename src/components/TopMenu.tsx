@@ -1,8 +1,11 @@
 import "./TopMenu.scss"
 
 import {
+  Button,
+  Link as ChakraLink,
   Menu,
   MenuButton,
+  MenuDivider,
   MenuGroup,
   MenuItem,
   MenuList,
@@ -116,6 +119,17 @@ function TopMenu({ activeTab }: Props): ReactElement {
           </Menu>
         </li>
       </ul>
+      <div className="buttonWrapper">
+        <ChakraLink
+          href="https://dex.nearpad.io/swap?outputCurrency=0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970"
+          target="blank"
+          rel="noreferrer"
+          margin="0"
+          _focus={{ boxShadow: "none" }}
+        >
+          <Button variant="outline">Buy ROSE</Button>
+        </ChakraLink>
+      </div>
       <Web3Status />
       <Menu>
         <MenuButton className="addToken">
@@ -134,6 +148,18 @@ function TopMenu({ activeTab }: Props): ReactElement {
               stROSE🌷
             </MenuItem>
           </MenuGroup>
+          <MenuDivider />
+          <MenuItem>
+            <ChakraLink
+              href="https://dex.nearpad.io/swap?outputCurrency=0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970"
+              target="blank"
+              rel="noreferrer"
+              margin="0"
+              _focus={{ boxShadow: "none" }}
+            >
+              Buy ROSE
+            </ChakraLink>
+          </MenuItem>
         </MenuList>
       </Menu>
       <ThemeChanger />
