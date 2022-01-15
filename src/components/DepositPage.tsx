@@ -77,6 +77,26 @@ const DepositPage = (props: Props): ReactElement => {
   const validDepositAmount =
     transactionData.to.totalAmount.gt(0) && !exceedsWallet
   const shouldDisplayWrappedOption = isMetaPool(poolData?.name)
+  const formattedShareTokens =
+    myShareData?.tokens.map((coin) => {
+      const token = TOKENS_MAP[coin.symbol]
+      return {
+        tokenName: token.name,
+        icon: token.icon,
+        amount: commify(formatBNToString(coin.value, 18, 5)),
+      }
+    }) || []
+  const formattedPoolDataTokens =
+    poolData?.tokens.map((coin) => {
+      const token = TOKENS_MAP[coin.symbol]
+      return {
+        symbol: token.symbol,
+        name: token.name,
+        icon: token.icon,
+        percent: coin.percent,
+        value: commify(formatBNToString(coin.value, 18, 5)),
+      }
+    }) || []
 
   return (
     <div className="deposit">
@@ -301,15 +321,7 @@ const DepositPage = (props: Props): ReactElement => {
             }}
             stakedView={{
               title: t("deposited"),
-              items:
-                myShareData?.tokens.map((coin) => {
-                  const token = TOKENS_MAP[coin.symbol]
-                  return {
-                    tokenName: token.name,
-                    icon: token.icon,
-                    amount: commify(formatBNToString(coin.value, 18, 5)),
-                  }
-                }) || [],
+              items: formattedShareTokens,
             }}
             stats={[
               {
@@ -317,6 +329,19 @@ const DepositPage = (props: Props): ReactElement => {
                 statValue: poolData?.reserve
                   ? `$${commify(formatBNToString(poolData.reserve, 18, 2))}`
                   : "-",
+                statPopOver: (
+                  <div className="tokenList">
+                    {formattedPoolDataTokens.map((token, index) => (
+                      <div className="token" key={index}>
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <img alt="icon" src={token.icon} />
+                          <span className="bold">{`${token.symbol} ${token.percent}`}</span>
+                        </div>
+                        <span className="tokenValue">{token.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                ),
               },
               {
                 statLabel: t("fee"),

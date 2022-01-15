@@ -1,21 +1,28 @@
-import React, { ReactElement, ReactNode } from "react"
 import {
+  Collapse,
+  IconButton,
   Stat,
   StatGroup,
   StatLabel,
   StatNumber,
   Tooltip,
+  useDisclosure,
 } from "@chakra-ui/react"
+import React, { ReactElement, ReactNode } from "react"
+import { BsChevronExpand } from "react-icons/bs"
 import styles from "./StakeDetails.module.scss"
 
 interface StakeStatLabel {
   statLabel: string
   statTooltip?: string
+  statPopOver?: ReactNode
+  onClick?: () => void
 }
 interface StakeStats {
   statLabel: string
   statValue: string
   statTooltip?: string
+  statPopOver?: ReactNode
 }
 interface StakedDetailsView {
   items: {
@@ -32,7 +39,7 @@ interface Props {
   stats?: StakeStats[]
 }
 const StakeStat = (props: StakeStatLabel): ReactElement => {
-  const { statLabel, statTooltip } = props
+  const { statLabel, statTooltip, statPopOver, onClick } = props
   if (statTooltip) {
     return (
       <Tooltip bgColor="#cc3a59" closeOnClick={false} label={statTooltip}>
@@ -41,12 +48,28 @@ const StakeStat = (props: StakeStatLabel): ReactElement => {
         </div>
       </Tooltip>
     )
+  } else if (statPopOver) {
+    return (
+      <div className={styles.statLabel}>
+        {statLabel}
+        <IconButton
+          onClick={onClick}
+          aria-label="Expand"
+          variant="outline"
+          size="xs"
+          marginLeft="5px"
+          icon={<BsChevronExpand />}
+          title="Expand"
+        />
+      </div>
+    )
   } else {
     return <div className={styles.statLabel}>{statLabel}</div>
   }
 }
 const StakeDetails = (props: Props): ReactElement => {
   const { balanceView, stakedView, stats, extraStakeDetailChild } = props
+  const { isOpen, onToggle } = useDisclosure()
   return (
     <>
       {extraStakeDetailChild && (
@@ -116,14 +139,28 @@ const StakeDetails = (props: Props): ReactElement => {
       </div>
       {stats && (
         <div className={styles.statsDetails}>
-          {stats.map(({ statLabel, statValue, statTooltip }, index) => {
-            return (
-              <div className={styles.statRow} key={index}>
-                <StakeStat statLabel={statLabel} statTooltip={statTooltip} />
-                <div className={styles.statValue}>{statValue}</div>
-              </div>
-            )
-          })}
+          {stats.map(
+            ({ statLabel, statValue, statTooltip, statPopOver }, index) => {
+              return (
+                <div key={index}>
+                  <div className={styles.statRow}>
+                    <StakeStat
+                      statLabel={statLabel}
+                      statTooltip={statTooltip}
+                      statPopOver={statPopOver}
+                      onClick={onToggle}
+                    />
+                    <div className={styles.statValue}>{statValue}</div>
+                  </div>
+                  {statPopOver && (
+                    <Collapse in={isOpen} animateOpacity>
+                      {statPopOver}
+                    </Collapse>
+                  )}
+                </div>
+              )
+            },
+          )}
         </div>
       )}
     </>
