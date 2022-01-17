@@ -23,12 +23,11 @@ div.farmsOverview {
     display: flex;
     justify-content: space-between;
     @include breakpoint(md) {
-      align-items: baseline;
+      align-items: center;
     }
     @include breakpoint(sm) {
       flex-direction: column;
       justify-content: center;
-      align-items: center;
     }
   }
 
@@ -68,6 +67,11 @@ div.farmsOverview {
       margin-right: 0;
     }
   }
+
+  .underline {
+    border-bottom: 1px dotted var(--text);
+  }
+
   .titleBox {
     display: flex;
     align-items: center;
@@ -148,5 +152,4 @@ div.farmsOverview {
     font-weight: 700;
     font-size: 12px;
   }
-
 }

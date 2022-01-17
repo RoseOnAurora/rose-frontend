@@ -1,4 +1,10 @@
-import { Box, Button, Flex, IconButton } from "@chakra-ui/react"
+import {
+  Box,
+  Button,
+  Flex,
+  IconButton,
+  useColorModeValue,
+} from "@chakra-ui/react"
 import ConfirmTransaction, {
   ConfirmTransactionProps,
   ModalType,
@@ -204,7 +210,10 @@ const FarmPage = (props: Props): ReactElement => {
                 +apr.slice(0, 2) + +(dualRewardApr?.slice(0, 2) || 0)
               ).toString()}%`,
               statPopOver: (
-                <Flex flexDirection="column">
+                <Flex
+                  flexDirection="column"
+                  color={useColorModeValue("#555555", "#bbbbbb")}
+                >
                   <Flex justifyContent="space-between">
                     <Box>ROSE APR</Box>
                     <Box>{apr}</Box>

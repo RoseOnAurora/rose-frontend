@@ -4,6 +4,7 @@ import {
   StatGroup,
   StatLabel,
   StatNumber,
+  Tooltip,
 } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import { Trans, useTranslation } from "react-i18next"
@@ -56,7 +57,19 @@ function FarmsOverview(props: Props): ReactElement {
       <div className={styles.container}>
         <div className={styles.row}>
           <div className={styles.titleBox}>
-            <h4 className={styles.title}>{farmName}</h4>
+            {dualRewardApr && dualRewardTokenName ? (
+              <Tooltip
+                bgColor="#cc3a59"
+                closeOnClick={false}
+                label={`Dual Rewards Farms payout rewards in multiple tokens. This farm pays out rewards in ROSE and ${dualRewardTokenName}.`}
+              >
+                <h4 className={classNames(styles.title, styles.underline)}>
+                  {farmName}
+                </h4>
+              </Tooltip>
+            ) : (
+              <h4 className={styles.title}>{farmName}</h4>
+            )}
           </div>
           <div className={styles.stats}>
             <div className={styles.row}>
@@ -101,7 +114,47 @@ function FarmsOverview(props: Props): ReactElement {
                 </Stat>
                 <Stat ml={3}>
                   <StatLabel>
-                    <span className={styles.label}>APR</span>
+                    {dualRewardApr && dualRewardTokenName ? (
+                      <Tooltip
+                        bgColor="#cc3a59"
+                        closeOnClick={false}
+                        label={
+                          <StatGroup
+                            display="flex"
+                            flexWrap="nowrap"
+                            justifyContent="space-between"
+                            minWidth="115px"
+                          >
+                            <Stat ml={3}>
+                              <StatLabel whiteSpace="nowrap">
+                                <span className={styles.label}>ROSE APR</span>
+                              </StatLabel>
+                              <StatNumber fontSize="15px" fontWeight="400">
+                                {formattedApr}
+                              </StatNumber>
+                            </Stat>
+                            <Stat ml={3}>
+                              <StatLabel whiteSpace="nowrap">
+                                <span className={styles.label}>
+                                  {dualRewardTokenName} APR
+                                </span>
+                              </StatLabel>
+                              <StatNumber fontSize="15px" fontWeight="400">
+                                {dualRewardApr}
+                              </StatNumber>
+                            </Stat>
+                          </StatGroup>
+                        }
+                      >
+                        <span
+                          className={classNames(styles.label, styles.underline)}
+                        >
+                          APR
+                        </span>
+                      </Tooltip>
+                    ) : (
+                      <span className={styles.label}>APR</span>
+                    )}
                   </StatLabel>
                   <StatNumber fontSize="15px" fontWeight="400">
                     {`${(
@@ -110,28 +163,6 @@ function FarmsOverview(props: Props): ReactElement {
                     ).toString()}%`}
                   </StatNumber>
                 </Stat>
-                {dualRewardApr && dualRewardTokenName ? (
-                  <>
-                    <Stat ml={3}>
-                      <StatLabel whiteSpace="nowrap">
-                        <span className={styles.label}>ROSE APR</span>
-                      </StatLabel>
-                      <StatNumber fontSize="15px" fontWeight="400">
-                        {formattedApr}
-                      </StatNumber>
-                    </Stat>
-                    <Stat ml={3}>
-                      <StatLabel whiteSpace="nowrap">
-                        <span className={styles.label}>
-                          {dualRewardTokenName} APR
-                        </span>
-                      </StatLabel>
-                      <StatNumber fontSize="15px" fontWeight="400">
-                        {dualRewardApr}
-                      </StatNumber>
-                    </Stat>
-                  </>
-                ) : null}
               </StatGroup>
             </div>
           </div>
