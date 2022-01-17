@@ -41,7 +41,7 @@ function ReviewWithdraw({ onClose, onConfirm, data }: Props): ReactElement {
     <div className="reviewWithdraw">
       <h3>{t("youWillReceive")}</h3>
       <div className="table">
-        <div className="tokenList">
+        <div>
           {data.withdraw.map((token, index) => (
             <div className="eachToken" key={index}>
               <div className="value">
