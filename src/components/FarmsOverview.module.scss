@@ -25,6 +25,11 @@ div.farmsOverview {
     @include breakpoint(md) {
       align-items: baseline;
     }
+    @include breakpoint(sm) {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
   }
 
   .balanceInfo {
@@ -58,8 +63,9 @@ div.farmsOverview {
     color: var(--text-title);
     margin-right: 16px;
     @include breakpoint(md) {
-      font-size: 21px;
+      font-size: 25px;
       margin-bottom: 7px;
+      margin-right: 0;
     }
   }
   .titleBox {
@@ -78,8 +84,15 @@ div.farmsOverview {
     justify-content: space-between;
     align-items: center;
     @include breakpoint(md) {
-      flex-wrap: wrap;
+      flex-direction: column;
       justify-content: space-evenly;
+    }
+    @include breakpoint(sm) {
+      justify-content: center;
+      align-items: center;
+      & > p {
+        text-align: center;
+      }
     }
     p {
       margin-top: 15px;
@@ -96,7 +109,7 @@ div.farmsOverview {
       button {
         width: 175px;
         @include breakpoint(md) {
-          width: 300px;
+          width: 320px;
         }
       }
       @include breakpoint(md) {

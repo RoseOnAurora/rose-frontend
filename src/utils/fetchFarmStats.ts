@@ -8,6 +8,8 @@ interface FarmStatsResponse {
   deposited_token_address: string
   farm_tvl: string
   apr: string
+  second_apr: string
+  second_rewards_token: string
   name: string
   farm_address: string
 }
@@ -15,6 +17,10 @@ interface FarmStatsResponse {
 export interface FarmStats {
   apr: string
   tvl: string
+  dualReward: {
+    apr: string
+    token: string
+  }
 }
 
 export default function fetchFarmStats(dispatch: AppDispatch): void {
@@ -28,6 +34,10 @@ export default function fetchFarmStats(dispatch: AppDispatch): void {
               [b?.name]: {
                 apr: b?.apr,
                 tvl: b?.farm_tvl,
+                dualReward: {
+                  apr: b?.second_apr,
+                  token: b?.second_rewards_token,
+                },
               },
             }),
           )

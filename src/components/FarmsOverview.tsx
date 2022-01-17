@@ -43,7 +43,8 @@ function FarmsOverview(props: Props): ReactElement {
     ? `$${formatBNToShortString(BigNumber.from(farmStats.tvl), 18)}`
     : "-"
   const formattedApr = farmStats?.apr || "-"
-
+  const dualRewardApr = farmStats?.dualReward.apr
+  const dualRewardTokenName = farmStats?.dualReward.token
   const farmData = useFarmData(farmName as FarmName)
   const deposited = useCalculateFarmDeposited(
     farmData?.lpTokenBalance,
@@ -71,7 +72,7 @@ function FarmsOverview(props: Props): ReactElement {
                       <span className={styles.label}>Balance</span>
                     </StatLabel>
                     <StatNumber
-                      fontSize="16px"
+                      fontSize="15px"
                       fontWeight="400"
                     >{`${formatBNToShortString(
                       farmData?.lpTokenBalance || Zero,
@@ -85,7 +86,7 @@ function FarmsOverview(props: Props): ReactElement {
                       <span className={styles.label}>Deposited</span>
                     </StatLabel>
                     <StatNumber
-                      fontSize="16px"
+                      fontSize="15px"
                       fontWeight="400"
                     >{`${formatBNToShortString(deposited, 18)}`}</StatNumber>
                   </Stat>
@@ -94,7 +95,7 @@ function FarmsOverview(props: Props): ReactElement {
                   <StatLabel>
                     <span className={styles.label}>TVL</span>
                   </StatLabel>
-                  <StatNumber fontSize="16px" fontWeight="400">
+                  <StatNumber fontSize="15px" fontWeight="400">
                     {formattedTvl}
                   </StatNumber>
                 </Stat>
@@ -102,10 +103,35 @@ function FarmsOverview(props: Props): ReactElement {
                   <StatLabel>
                     <span className={styles.label}>APR</span>
                   </StatLabel>
-                  <StatNumber fontSize="16px" fontWeight="400">
-                    {formattedApr}
+                  <StatNumber fontSize="15px" fontWeight="400">
+                    {`${(
+                      +formattedApr.slice(0, 2) +
+                      +(dualRewardApr?.slice(0, 2) || 0)
+                    ).toString()}%`}
                   </StatNumber>
                 </Stat>
+                {dualRewardApr && dualRewardTokenName ? (
+                  <>
+                    <Stat ml={3}>
+                      <StatLabel whiteSpace="nowrap">
+                        <span className={styles.label}>ROSE APR</span>
+                      </StatLabel>
+                      <StatNumber fontSize="15px" fontWeight="400">
+                        {formattedApr}
+                      </StatNumber>
+                    </Stat>
+                    <Stat ml={3}>
+                      <StatLabel whiteSpace="nowrap">
+                        <span className={styles.label}>
+                          {dualRewardTokenName} APR
+                        </span>
+                      </StatLabel>
+                      <StatNumber fontSize="15px" fontWeight="400">
+                        {dualRewardApr}
+                      </StatNumber>
+                    </Stat>
+                  </>
+                ) : null}
               </StatGroup>
             </div>
           </div>

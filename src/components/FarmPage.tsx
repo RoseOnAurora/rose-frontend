@@ -1,4 +1,4 @@
-import { Button, IconButton } from "@chakra-ui/react"
+import { Box, Button, Flex, IconButton } from "@chakra-ui/react"
 import ConfirmTransaction, {
   ConfirmTransactionProps,
   ModalType,
@@ -49,6 +49,8 @@ const FarmPage = (props: Props): ReactElement => {
     ? `$${formatBNToShortString(BigNumber.from(tvl), 18)}`
     : "-"
   const apr = farmStats?.[farmName]?.apr || "-"
+  const dualRewardApr = farmStats?.[farmName]?.dualReward.apr
+  const dualRewardTokenName = farmStats?.[farmName]?.dualReward.token
   const { t } = useTranslation()
 
   const updateModal = (
@@ -198,7 +200,23 @@ const FarmPage = (props: Props): ReactElement => {
             },
             {
               statLabel: "APR",
-              statValue: apr,
+              statValue: `${(
+                +apr.slice(0, 2) + +(dualRewardApr?.slice(0, 2) || 0)
+              ).toString()}%`,
+              statPopOver: (
+                <Flex flexDirection="column">
+                  <Flex justifyContent="space-between">
+                    <Box>ROSE APR</Box>
+                    <Box>{apr}</Box>
+                  </Flex>
+                  {dualRewardApr && dualRewardTokenName ? (
+                    <Flex justifyContent="space-between">
+                      <Box>{dualRewardTokenName} APR</Box>
+                      <Box>{dualRewardApr}</Box>
+                    </Flex>
+                  ) : null}
+                </Flex>
+              ),
             },
           ]}
         />
