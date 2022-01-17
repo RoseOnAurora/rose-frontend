@@ -11,13 +11,15 @@ import {
 } from "@chakra-ui/react"
 import { ROSE, SROSE } from "../constants"
 import React, { ReactElement } from "react"
+import { AppState } from "../state"
 import { FaCoins } from "react-icons/fa"
 import styles from "./RosePriceButton.module.scss"
 import useAddTokenToMetamask from "../hooks/useAddTokenToMetamask"
-import useStakeStats from "../hooks/useStakeStats"
+import { useSelector } from "react-redux"
 
 export default function RosePriceButton(): ReactElement {
-  const { priceOfRose } = useStakeStats()
+  const { stakeStats } = useSelector((state: AppState) => state.application)
+  const { priceOfRose } = { ...stakeStats }
   const addRoseToken = useAddTokenToMetamask(ROSE)
   const addStRoseToken = useAddTokenToMetamask(SROSE)
 
@@ -37,7 +39,7 @@ export default function RosePriceButton(): ReactElement {
             </Icon>
           }
         >
-          {`$${Number(priceOfRose).toFixed(2)}`}
+          {priceOfRose ? `$${Number(priceOfRose).toFixed(2)}` : "-"}
         </MenuButton>
         <MenuList bg={useColorModeValue("#fff", "rgb(28, 29, 33)")}>
           <MenuGroup title="ROSE TOKEN">
