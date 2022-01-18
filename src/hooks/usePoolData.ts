@@ -27,6 +27,13 @@ import { useActiveWeb3React } from "."
 import { usePoolContract } from "./useContract"
 import { useSelector } from "react-redux"
 
+const poolStatsApi = "https://raw.githubusercontent.com/RoseOnAurora/apr/master/pools.json"
+
+interface PoolStatsApiResponse {
+  pool_name: string
+  daily_volume: string
+}
+
 interface TokenShareType {
   percent: string
   symbol: string
@@ -121,6 +128,26 @@ export default function usePoolData(
         chainId == null
       )
         return
+
+      // fetch pool stats, TODO: don't need to call for each pool, store somewhere else
+      let dailyVolume;
+      let poolStats = await fetch(poolStatsApi)
+        .then((res) => res.json())
+        .then((body: PoolStatsApiResponse[]) => {
+          return body.map((b) => {
+            return {
+              pool_name: b.pool_name,
+              daily_volume: b.daily_volume,
+            }
+          })
+        })
+      let poolStat = poolStats.find( ({ pool_name }) => pool_name === poolName)
+      if (typeof poolStat !== "undefined") {
+        dailyVolume = 
+          BigNumber.from(Math.round(parseFloat(poolStat.daily_volume))).mul(BigNumber.from(10).pow(18))
+      } else {
+        dailyVolume = null
+      }
 
       // TODO: move to utils
       function calculatePctOfTotalShare(lpTokenAmount: BigNumber): BigNumber {
@@ -272,6 +299,7 @@ export default function usePoolData(
         virtualPrice,
         lpTokenPriceUSD,
         lpToken: POOL.lpToken.symbol,
+        volume: dailyVolume,
       }
       const userShareData = account
         ? {

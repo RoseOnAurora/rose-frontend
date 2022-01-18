@@ -135,12 +135,12 @@ export default function PoolOverview({
               <span className="label">TVL</span>
               <span>{`$${formattedData.reserve}`}</span>
             </div>
-            {/* {formattedData.volume && (
-            <div>
-              <span className="label">{`${t("24HrVolume")}`}</span>
-              <span>{formattedData.volume}</span>
-            </div>
-          )} */}
+            {formattedData.volume && (
+              <div>
+                <span className="label">{`${t("24HrVolume")}`}</span>
+                <span>{formattedData.volume}</span>
+              </div>
+            )}
           </div>
           <div className="buttons">
             <Link to={`${poolRoute}/withdraw`}>
