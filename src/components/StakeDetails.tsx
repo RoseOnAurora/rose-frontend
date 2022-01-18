@@ -16,14 +16,14 @@ import { BsChevronExpand } from "react-icons/bs"
 import styles from "./StakeDetails.module.scss"
 
 interface StakeStatLabel {
-  statLabel: string
+  statLabel: ReactNode
   statTooltip?: string
   statPopOver?: ReactNode
   onClick?: () => void
 }
 interface StakeStats {
-  statLabel: string
-  statValue: string
+  statLabel: ReactNode
+  statValue: ReactNode
   statTooltip?: string
   statPopOver?: ReactNode
 }

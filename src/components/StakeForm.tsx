@@ -122,8 +122,8 @@ function StakeForm(props: Props): ReactElement {
                   </InputGroup>
                   {props.isValid && props.dirty ? (
                     <Text mt="5px" fontSize="sm" as="p">
-                      You are about to {fieldName} ≈{+props.values?.[fieldName]}{" "}
-                      {token} {"Token"}
+                      You are about to {fieldName} ~{" "}
+                      {+props.values?.[fieldName]} {token} {"Token"}
                     </Text>
                   ) : (
                     <FormErrorMessage color="#cc3a59">

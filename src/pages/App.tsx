@@ -9,6 +9,7 @@ import { isChainSupportedByNotify, notify } from "../utils/notifyHandler"
 import { useDispatch, useSelector } from "react-redux"
 
 // import Banner from "../components/Banner"
+import Borrow from "./Borrow"
 import BottomMenu from "../components/BottomMenu"
 import Deposit from "./Deposit"
 import Farm from "./Farm"
@@ -62,6 +63,7 @@ export default function App(): ReactElement {
               <Route exact path="/pools" component={Pools} />
               <Route exact path="/farms" component={Farms} />
               <Route exact path="/stake" component={Stake} />
+              <Route exact path="/borrow" component={Borrow} />
               {Object.values(POOLS_MAP).map(({ name, route }) => (
                 <Route
                   exact
