@@ -6,7 +6,7 @@ div.walletStatus {
   justify-content: space-evenly;
   & > button {
     @include breakpoint(sm) {
-      font-size: 12px;
+      font-size: 13px;
     }
   }
 

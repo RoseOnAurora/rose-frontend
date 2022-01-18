@@ -1,6 +1,17 @@
 import "./TopMenu.scss"
 
 import {
+  Box,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuGroup,
+  MenuItem,
+  MenuList,
+  useColorModeValue,
+} from "@chakra-ui/react"
+import {
   BsArrowLeftRight,
   BsMedium,
   BsRainbow,
@@ -17,16 +28,6 @@ import {
   FaTelegram,
   FaTwitter,
 } from "react-icons/fa"
-import {
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuDivider,
-  MenuGroup,
-  MenuItem,
-  MenuList,
-  useColorModeValue,
-} from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import { Link } from "react-router-dom"
 import RosePriceButton from "./RosePriceButton"
@@ -49,7 +50,7 @@ function TopMenu({ activeTab }: Props): ReactElement {
       <h1>
         <Link to="/">Rose</Link>
       </h1>
-      <div style={{ zIndex: 3 }}>
+      <div style={{ zIndex: 3, display: "flex" }}>
         <Menu>
           {({ isOpen }) => (
             <>
@@ -135,7 +136,7 @@ function TopMenu({ activeTab }: Props): ReactElement {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Twitter
+                    Twitter↗
                   </MenuItem>
                   <MenuItem
                     icon={<BsMedium />}
@@ -145,7 +146,7 @@ function TopMenu({ activeTab }: Props): ReactElement {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Medium
+                    Medium↗
                   </MenuItem>
                   <MenuItem
                     icon={<FaTelegram />}
@@ -155,7 +156,7 @@ function TopMenu({ activeTab }: Props): ReactElement {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Telegram
+                    Telegram↗
                   </MenuItem>
                   <MenuItem
                     icon={<FaDiscord />}
@@ -165,7 +166,7 @@ function TopMenu({ activeTab }: Props): ReactElement {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Discord
+                    Discord↗
                   </MenuItem>
                   <MenuItem
                     icon={<FaGithub />}
@@ -175,13 +176,16 @@ function TopMenu({ activeTab }: Props): ReactElement {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Github
+                    Github↗
                   </MenuItem>
                 </MenuGroup>
               </MenuList>
             </>
           )}
         </Menu>
+        <Box display={{ lg: "none" }}>
+          <ThemeChanger />
+        </Box>
       </div>
       <ul className="nav">
         <li>

@@ -1,12 +1,13 @@
 import "./Web3Status.scss"
 
-import { Button, Icon, IconButton } from "@chakra-ui/react"
+import { Box, Button, Flex, Icon } from "@chakra-ui/react"
 import { FaExclamationTriangle, FaWallet } from "react-icons/fa"
 import React, { ReactElement, useEffect, useState } from "react"
 import AccountDetails from "./AccountDetails"
 import { AppState } from "../state"
 import { ChainId } from "../constants"
 import ConnectWallet from "./ConnectWallet"
+import { IconButtonPopover } from "./Popover"
 import Identicon from "./Identicon"
 import Modal from "./Modal"
 import SupportedChains from "./SupportedChains"
@@ -55,22 +56,47 @@ const Web3Status = (): ReactElement => {
   return (
     <div className="walletStatus">
       {account ? (
-        <IconButton
-          aria-label="Connected Network"
-          variant="outline"
-          size="md"
-          className="networkIcon"
-          icon={
-            <Icon viewBox="-5 -1 37 37">
-              <path
-                d="M15 2.292a3.317 3.317 0 012.981 1.841l9.375 18.75a3.333 3.333 0 01-2.981 4.825H5.625a3.333 3.333 0 01-2.98-4.825l9.374-18.75A3.317 3.317 0 0115 2.292M15 0a5.625 5.625 0 00-5.031 3.108L.594 21.858A5.625 5.625 0 005.625 30h18.75a5.625 5.625 0 005.03-8.142l-9.374-18.75A5.625 5.625 0 0015 0z"
-                stroke={userDarkMode ? "rgba(120,214,75)" : "rgba(70,164,25)"}
-                fill={userDarkMode ? "rgba(120,214,75)" : "rgba(70,164,25)"}
-              />
-            </Icon>
+        <IconButtonPopover
+          IconButtonProps={{
+            "aria-label": "Connected Network",
+            variant: "outline",
+            size: "md",
+            title: chainIdToName(chainId),
+            marginRight: "10px",
+            icon: (
+              <Icon viewBox="-5 -1 37 37">
+                <path
+                  d="M15 2.292a3.317 3.317 0 012.981 1.841l9.375 18.75a3.333 3.333 0 01-2.981 4.825H5.625a3.333 3.333 0 01-2.98-4.825l9.374-18.75A3.317 3.317 0 0115 2.292M15 0a5.625 5.625 0 00-5.031 3.108L.594 21.858A5.625 5.625 0 005.625 30h18.75a5.625 5.625 0 005.03-8.142l-9.374-18.75A5.625 5.625 0 0015 0z"
+                  stroke={userDarkMode ? "rgba(120,214,75)" : "rgba(70,164,25)"}
+                  fill={userDarkMode ? "rgba(120,214,75)" : "rgba(70,164,25)"}
+                />
+              </Icon>
+            ),
+          }}
+          PopoverBodyContent={
+            <Flex flexDirection="column">
+              <Flex justifyContent="space-between" fontSize="15px">
+                You are connected on the
+              </Flex>
+              <Flex
+                fontSize="21px"
+                fontWeight="700"
+                alignItems="center"
+                marginTop="5px"
+              >
+                <Box>{chainIdToName(chainId)} Network &nbsp;</Box>
+                <Icon viewBox="-5 -1 37 37">
+                  <path
+                    d="M15 2.292a3.317 3.317 0 012.981 1.841l9.375 18.75a3.333 3.333 0 01-2.981 4.825H5.625a3.333 3.333 0 01-2.98-4.825l9.374-18.75A3.317 3.317 0 0115 2.292M15 0a5.625 5.625 0 00-5.031 3.108L.594 21.858A5.625 5.625 0 005.625 30h18.75a5.625 5.625 0 005.03-8.142l-9.374-18.75A5.625 5.625 0 0015 0z"
+                    stroke={
+                      userDarkMode ? "rgba(120,214,75)" : "rgba(70,164,25)"
+                    }
+                    fill={userDarkMode ? "rgba(120,214,75)" : "rgba(70,164,25)"}
+                  />
+                </Icon>
+              </Flex>
+            </Flex>
           }
-          title={chainIdToName(chainId)}
-          marginRight="10px"
         />
       ) : null}
       <Button
