@@ -97,7 +97,7 @@ function StakeForm(props: Props): ReactElement {
                       marginLeft="5px"
                       autoComplete="off"
                       autoCorrect="off"
-                      type="number"
+                      type="text"
                       isInvalid={form.errors?.[fieldName]}
                       placeholder="0.0"
                       variant="primary"

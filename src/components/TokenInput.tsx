@@ -82,7 +82,7 @@ function TokenInput({
           <input
             autoComplete="off"
             autoCorrect="off"
-            type="number"
+            type="text"
             placeholder="0.0"
             spellCheck="false"
             disabled={disabled ? true : false}
