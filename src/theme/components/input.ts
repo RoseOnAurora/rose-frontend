@@ -34,7 +34,26 @@ const variantPrimary = (
     },
   }
 }
+
+const variantOuline = (props: Dict): RecursiveCSSObject<CSSWithMultiValues> => {
+  const darkMode = props.colorMode === "dark"
+
+  return {
+    field: {
+      borderColor: darkMode ? "var(--chakra-colors-whiteAlpha-300)" : "#555555",
+      _focus: {
+        boxShadow: "none",
+        borderColor: darkMode ? "#cc3a59" : "#881f36",
+      },
+      _hover: {
+        borderColor: darkMode ? "var(--chakra-colors-whiteAlpha-400)" : "#000",
+      },
+    },
+  }
+}
+
 const variants = {
   primary: variantPrimary,
+  outline: variantOuline,
 }
 export default { variants }

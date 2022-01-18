@@ -1,3 +1,4 @@
+import { Input, InputGroup, InputRightElement } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import {
   updateInfiniteApproval,
@@ -26,7 +27,7 @@ export default function AdvancedOptions(): ReactElement {
   return (
     <div className={styles.advancedOptions}>
       <div className={styles.parameter}>
-        <div className={styles.infiniteApproval}>
+        <div className={styles.infiniteApproval} style={{ zIndex: 3 }}>
           <CheckboxInput
             checked={infiniteApproval}
             onChange={(): PayloadAction<boolean> =>
@@ -63,21 +64,25 @@ export default function AdvancedOptions(): ReactElement {
               <span>1%</span>
             </button>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <input
-                value={slippageCustom?.valueRaw}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>): void => {
-                  const value = e.target.value
-                  if (value && !isNaN(+value)) {
-                    dispatch(updateSlippageCustom(value))
-                    if (slippageSelected !== Slippages.Custom) {
-                      dispatch(updateSlippageSelected(Slippages.Custom))
+              <InputGroup marginLeft="5px" width="90px">
+                <Input
+                  value={slippageCustom?.valueRaw}
+                  type="number"
+                  variant="outline"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>): void => {
+                    const value = e.target.value
+                    if (value && !isNaN(+value)) {
+                      dispatch(updateSlippageCustom(value))
+                      if (slippageSelected !== Slippages.Custom) {
+                        dispatch(updateSlippageSelected(Slippages.Custom))
+                      }
+                    } else {
+                      dispatch(updateSlippageSelected(Slippages.OneTenth))
                     }
-                  } else {
-                    dispatch(updateSlippageSelected(Slippages.OneTenth))
-                  }
-                }}
-              />
-              &nbsp;%
+                  }}
+                />
+                <InputRightElement width="2rem">%</InputRightElement>
+              </InputGroup>
             </div>
           </div>
         </div>
