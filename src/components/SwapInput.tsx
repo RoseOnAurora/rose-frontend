@@ -117,7 +117,7 @@ export default function SwapInput({
           ref={inputRef}
           autoComplete="off"
           autoCorrect="off"
-          type="number"
+          type="text"
           placeholder="0.0"
           spellCheck="false"
           value={isSwapFrom ? inputValue : commify(inputValue)}

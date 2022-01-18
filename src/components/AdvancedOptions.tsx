@@ -67,7 +67,7 @@ export default function AdvancedOptions(): ReactElement {
               <InputGroup marginLeft="5px" width="90px">
                 <Input
                   value={slippageCustom?.valueRaw}
-                  type="number"
+                  type="text"
                   variant="outline"
                   onChange={(e: React.ChangeEvent<HTMLInputElement>): void => {
                     const value = e.target.value
