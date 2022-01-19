@@ -22,9 +22,7 @@ div.farmsOverview {
   .row {
     display: flex;
     justify-content: space-between;
-    @include breakpoint(md) {
-      align-items: center;
-    }
+    align-items: center;
     @include breakpoint(sm) {
       flex-direction: column;
       justify-content: center;
@@ -145,6 +143,9 @@ div.farmsOverview {
     justify-content: space-between;
     flex-wrap: wrap;
     margin-bottom: 8px;
+    @include breakpoint(sm) {
+      margin-top: 20px;
+    }
   }
 
   .label {

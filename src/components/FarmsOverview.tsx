@@ -1,9 +1,13 @@
 import {
+  Box,
   Button,
+  Flex,
+  HStack,
   Stat,
   StatGroup,
   StatLabel,
   StatNumber,
+  Tag,
   Tooltip,
 } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
@@ -15,7 +19,9 @@ import { Link } from "react-router-dom"
 import { Zero } from "@ethersproject/constants"
 import classNames from "classnames"
 import { formatBNToShortString } from "../utils"
+import roseIcon from "../assets/icons/rose.svg"
 import styles from "./FarmsOverview.module.scss"
+import terraLunaIcon from "../assets/icons/terra-luna-logo.svg"
 import useCalculateFarmDeposited from "../hooks/useCalculateFarmDeposited"
 import useFarmData from "../hooks/useFarmData"
 
@@ -24,6 +30,7 @@ interface Props {
   farmName: string
   poolName: string
   lpTokenName: string
+  lpTokenIcon: string
   isRose: boolean
   farmStats?: FarmStats
   poolUrl?: string
@@ -36,6 +43,7 @@ function FarmsOverview(props: Props): ReactElement {
     poolName,
     poolUrl,
     lpTokenName,
+    lpTokenIcon,
     isRose,
     farmStats,
   } = props
@@ -51,12 +59,19 @@ function FarmsOverview(props: Props): ReactElement {
     farmData?.lpTokenBalance,
     farmName as FarmName,
   )
+  const iconWidth =
+    /rose-frax/.exec(lpTokenIcon) || /rose-atust/.exec(lpTokenIcon)
+      ? "70px"
+      : "30px"
 
   return (
     <div className={styles.farmsOverview}>
       <div className={styles.container}>
         <div className={styles.row}>
           <div className={styles.titleBox}>
+            <Box width={iconWidth} marginRight="5px">
+              <img alt="icon" src={lpTokenIcon} width="100%" />
+            </Box>
             {dualRewardApr && dualRewardTokenName ? (
               <Tooltip
                 bgColor="#cc3a59"
@@ -167,6 +182,53 @@ function FarmsOverview(props: Props): ReactElement {
             </div>
           </div>
         </div>
+        <HStack
+          mt="10px"
+          mb="5px"
+          spacing="20px"
+          justifyContent={{ base: "center", md: "start" }}
+        >
+          <Box
+            color="var(--text-lighter)"
+            fontSize={{ base: "13px", md: "16px" }}
+          >
+            {dualRewardTokenName ? "Dual Rewards" : "Rewards"}:
+          </Box>
+          <Tag
+            size="md"
+            borderRadius="full"
+            variant="outline"
+            color="var(--text)"
+            boxShadow="inset 0 0 0px 1px #cc3a59"
+            p="7px"
+          >
+            <Flex alignItems="center">
+              <Box width="20px" mr="5px" ml="8px">
+                <img alt="icon" src={roseIcon} width="100%" />
+              </Box>
+              <span style={{ fontSize: "12px", marginRight: "8px" }}>ROSE</span>
+            </Flex>
+          </Tag>
+          {dualRewardTokenName ? (
+            <Tag
+              size="md"
+              borderRadius="full"
+              variant="outline"
+              color="var(--text)"
+              boxShadow="inset 0 0 0px 1px #cc3a59"
+              p="8px"
+            >
+              <Flex alignItems="center" mr="5x">
+                <Box width="20px" mr="5px" ml="8px">
+                  <img alt="icon" src={terraLunaIcon} width="100%" />
+                </Box>
+                <span style={{ fontSize: "12px", marginRight: "8px" }}>
+                  {dualRewardTokenName}
+                </span>
+              </Flex>
+            </Tag>
+          ) : null}
+        </HStack>
         <div className={styles.farmDescription}>
           <p>
             {isRose ? (
