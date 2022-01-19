@@ -2,7 +2,8 @@
 $screen-xs-max: 440px;
 $screen-sm-max: 544px;
 $screen-md-max: 768px;
-$screen-lg-max: 1024px;
+$screen-lg-max: 991px;
+$screen-xl-max: 1400px;
 
 /* Create the mixin */
 @mixin breakpoint($media) {
@@ -22,7 +23,11 @@ $screen-lg-max: 1024px;
     @media only screen and (max-width: $screen-lg-max) {
       @content;
     }
-  }
+  } @else if $media == xl {
+    @media only screen and (max-width: $screen-xl-max) {
+      @content;
+    }
+  } 
 }
 
 /*

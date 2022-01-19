@@ -98,9 +98,21 @@ const variantOuline = (props: Dict): RecursiveCSSObject<CSSWithMultiValues> => {
 
   return {
     borderRadius: "10px",
-    borderColor: darkMode ? "var(--chakra-colors-whiteAlpha-300)" : "#555555",
+    borderColor: darkMode
+      ? "var(--chakra-colors-whiteAlpha-300)"
+      : "var(--chakra-colors-blackAlpha-400)",
+    _hover: {
+      bg: darkMode
+        ? "var(--chakra-colors-whiteAlpha-200)"
+        : "var(--chakra-colors-whiteAlpha-500)",
+    },
     _focus: {
       boxShadow: "none",
+    },
+    _active: {
+      bg: darkMode
+        ? "var(--chakra-colors-whiteAlpha-300)"
+        : "var(--chakra-colors-whiteAlpha-600)",
     },
   }
 }

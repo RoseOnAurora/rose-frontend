@@ -1,25 +1,40 @@
 import "./TopMenu.scss"
 
 import {
-  Button,
-  Link as ChakraLink,
+  Box,
+  IconButton,
   Menu,
   MenuButton,
   MenuDivider,
   MenuGroup,
   MenuItem,
   MenuList,
+  useColorModeValue,
 } from "@chakra-ui/react"
-import { ROSE, SROSE } from "../constants"
+import {
+  BsArrowLeftRight,
+  BsMedium,
+  BsRainbow,
+  BsReceipt,
+} from "react-icons/bs"
+import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons"
+import {
+  FaChartPie,
+  FaDiscord,
+  FaGift,
+  FaGithub,
+  FaHandHoldingUsd,
+  FaRegCircle,
+  FaTelegram,
+  FaTwitter,
+} from "react-icons/fa"
 import React, { ReactElement } from "react"
-
-import { FaCog } from "react-icons/fa"
 import { Link } from "react-router-dom"
+import RosePriceButton from "./RosePriceButton"
 import ThemeChanger from "./ThemeChanger"
 import ToolTip from "./ToolTip"
 import Web3Status from "./Web3Status"
 import classNames from "classnames"
-import useAddTokenToMetamask from "../hooks/useAddTokenToMetamask"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -28,15 +43,150 @@ interface Props {
 
 function TopMenu({ activeTab }: Props): ReactElement {
   const { t } = useTranslation()
-  const addRoseToken = useAddTokenToMetamask(ROSE)
-  const addStRoseToken = useAddTokenToMetamask(SROSE)
+  const menuColor = useColorModeValue("#fff", "rgb(28, 29, 33)")
 
   return (
     <header className="top">
       <h1>
         <Link to="/">Rose</Link>
       </h1>
-
+      <div style={{ zIndex: 3, display: "flex" }}>
+        <Menu>
+          {({ isOpen }) => (
+            <>
+              <MenuButton
+                isActive={isOpen}
+                as={IconButton}
+                aria-label="Open Menu"
+                display={{ lg: "none" }}
+                variant="outline"
+                lineHeight="unset"
+              >
+                {isOpen ? <CloseIcon /> : <HamburgerIcon />}
+              </MenuButton>
+              <MenuList bg={menuColor}>
+                <MenuGroup title="Pages">
+                  <MenuItem
+                    icon={<BsArrowLeftRight />}
+                    as={Link}
+                    to="/"
+                    margin="0"
+                  >
+                    {t("swap")}
+                  </MenuItem>
+                  <MenuItem
+                    icon={<FaChartPie />}
+                    as={Link}
+                    to="/pools"
+                    margin="0"
+                  >
+                    {t("pools")}
+                  </MenuItem>
+                  <MenuItem icon={<FaGift />} as={Link} to="/farms" margin="0">
+                    {t("farms")}
+                  </MenuItem>
+                  <MenuItem
+                    icon={<BsReceipt />}
+                    as={Link}
+                    to="/stake"
+                    margin="0"
+                  >
+                    {t("stake")}
+                  </MenuItem>
+                  <MenuItem
+                    icon={<FaHandHoldingUsd />}
+                    as={Link}
+                    to="#"
+                    margin="0"
+                    command="Coming Soon!"
+                  >
+                    <span className="disabled">{t("borrow")}</span>
+                  </MenuItem>
+                </MenuGroup>
+                <MenuDivider />
+                <MenuGroup title="Bridges">
+                  <MenuItem
+                    icon={<BsRainbow />}
+                    href="https://rainbowbridge.app/transfer"
+                    as="a"
+                    margin="0"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Rainbow Bridge↗
+                  </MenuItem>
+                  <MenuItem
+                    icon={<FaRegCircle />}
+                    href="https://app.allbridge.io/bridge"
+                    as="a"
+                    margin="0"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Allbridge↗
+                  </MenuItem>
+                </MenuGroup>
+                <MenuDivider />
+                <MenuGroup title="Socials">
+                  <MenuItem
+                    icon={<FaTwitter />}
+                    href="https://twitter.com/roseonaurora"
+                    as="a"
+                    margin="0"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Twitter↗
+                  </MenuItem>
+                  <MenuItem
+                    icon={<BsMedium />}
+                    href="https://medium.com/@roseonaurora"
+                    as="a"
+                    margin="0"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Medium↗
+                  </MenuItem>
+                  <MenuItem
+                    icon={<FaTelegram />}
+                    href="https://t.me/RoseOnAurora"
+                    as="a"
+                    margin="0"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Telegram↗
+                  </MenuItem>
+                  <MenuItem
+                    icon={<FaDiscord />}
+                    href="https://discord.gg/dG6mWH4rHj"
+                    as="a"
+                    margin="0"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Discord↗
+                  </MenuItem>
+                  <MenuItem
+                    icon={<FaGithub />}
+                    href="https://github.com/RoseOnAurora"
+                    as="a"
+                    margin="0"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Github↗
+                  </MenuItem>
+                </MenuGroup>
+              </MenuList>
+            </>
+          )}
+        </Menu>
+        <Box display={{ lg: "none" }}>
+          <ThemeChanger />
+        </Box>
+      </div>
       <ul className="nav">
         <li>
           <Link to="/" className={classNames({ active: activeTab === "swap" })}>
@@ -119,50 +269,11 @@ function TopMenu({ activeTab }: Props): ReactElement {
           </Menu>
         </li>
       </ul>
-      <div className="buttonWrapper">
-        <ChakraLink
-          href="https://dex.nearpad.io/swap?outputCurrency=0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970"
-          target="blank"
-          rel="noreferrer"
-          margin="0"
-          _focus={{ boxShadow: "none" }}
-        >
-          <Button variant="outline">Buy ROSE</Button>
-        </ChakraLink>
+      <div className="topMenuBar">
+        <RosePriceButton />
+        <Web3Status />
+        <ThemeChanger />
       </div>
-      <Web3Status />
-      <Menu>
-        <MenuButton className="addToken">
-          <FaCog />
-        </MenuButton>
-        <MenuList>
-          <MenuGroup title="ADD TOKEN TO WALLET">
-            <MenuItem
-              onClick={async () => {
-                await addRoseToken()
-              }}
-            >
-              ROSE🌹
-            </MenuItem>
-            <MenuItem onClick={async () => await addStRoseToken()}>
-              stROSE🌷
-            </MenuItem>
-          </MenuGroup>
-          <MenuDivider />
-          <MenuItem>
-            <ChakraLink
-              href="https://dex.nearpad.io/swap?outputCurrency=0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970"
-              target="blank"
-              rel="noreferrer"
-              margin="0"
-              _focus={{ boxShadow: "none" }}
-            >
-              Buy ROSE
-            </ChakraLink>
-          </MenuItem>
-        </MenuList>
-      </Menu>
-      <ThemeChanger />
     </header>
   )
 }

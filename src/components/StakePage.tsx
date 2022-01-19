@@ -33,7 +33,6 @@ import { parseUnits } from "@ethersproject/units"
 import styles from "./StakePage.module.scss"
 import { useCheckTokenRequiresApproval } from "../hooks/useCheckTokenRequiresApproval"
 import { useSelector } from "react-redux"
-import useStakeStats from "../hooks/useStakeStats"
 
 interface Props {
   balance: TokenDetails
@@ -58,7 +57,10 @@ function StakePage(props: Props): ReactElement {
   } = props
 
   const { userDarkMode } = useSelector((state: AppState) => state.user)
-  const { priceRatio, tvl, totalRoseStaked, priceOfRose, apr } = useStakeStats()
+  const { stakeStats } = useSelector((state: AppState) => state.application)
+  const { priceRatio, tvl, totalRoseStaked, priceOfRose, apr } = {
+    ...stakeStats,
+  }
 
   const [
     currentModal,
@@ -201,8 +203,8 @@ function StakePage(props: Props): ReactElement {
                     )}
                   >
                     <div>
-                      1 stROSE ≈{" "}
-                      {priceRatio ? (+priceRatio).toFixed(5) : "1.00"} ROSE
+                      1 stROSE ≈ {priceRatio ? (+priceRatio).toFixed(5) : "-"}{" "}
+                      ROSE
                     </div>
                   </div>
                 </div>
