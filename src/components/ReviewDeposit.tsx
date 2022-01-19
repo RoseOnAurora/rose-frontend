@@ -45,7 +45,7 @@ function ReviewDeposit({
       <h3>{t("reviewDeposit")}</h3>
       <div className="table">
         <h4>{t("depositing")}</h4>
-        <div className="tokenList">
+        <div>
           {transactionData.from.items.map(({ token, amount }) => (
             <div className="eachToken" key={token.symbol}>
               <div className="token">
@@ -74,7 +74,7 @@ function ReviewDeposit({
         </div>
         <div className="divider" style={{ height: "1px", width: "100%" }}></div>
         <h4>{t("receiving")}</h4>
-        <div className="tokenList">
+        <div>
           <div className="eachToken" key={transactionData.to.item.token.symbol}>
             <div className="token">
               <img src={transactionData.to.item.token.icon} alt="icon" />
