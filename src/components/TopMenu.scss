@@ -27,7 +27,7 @@ header.top {
   }
 
   h1 {
-    width: 15%;
+    width: 2%;
     margin: 0;
     margin-right: auto;
     font-size: 35px;
@@ -45,7 +45,7 @@ header.top {
       display: inline;
       margin-right: 40px;
       @include breakpoint(xl) {
-        margin-right: 13px;
+        margin-right: 4px;
       }
       &:last-child {
         margin-right: 0;
@@ -57,7 +57,7 @@ header.top {
         font-weight: $normal;
         font-size: 20px;
         @include breakpoint(xl) {
-          font-size: 16px;
+          font-size: 15px;
         }
         &:hover {
           opacity: 1;
@@ -74,7 +74,7 @@ header.top {
   .topMenuBar {
     display: flex;
     justify-content: flex-end;
-    width: 45%;
+    width: 38%;
     margin-left: auto;
     & > :nth-child(3) {
       @include breakpoint(lg) {
