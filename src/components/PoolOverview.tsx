@@ -1,5 +1,6 @@
 import "./PoolOverview.scss"
 
+import { Button, Tooltip } from "@chakra-ui/react"
 import { POOLS_MAP, PoolTypes, TOKENS_MAP, isMetaPool } from "../constants"
 import { Partners, PoolDataType, UserShareType } from "../hooks/usePoolData"
 import React, { ReactElement } from "react"
@@ -8,7 +9,6 @@ import {
   formatBNToShortString,
   formatBNToString,
 } from "../utils"
-import { Button } from "@chakra-ui/react"
 import { Link } from "react-router-dom"
 import ToolTip from "./ToolTip"
 import { Zero } from "@ethersproject/constants"
@@ -77,9 +77,11 @@ export default function PoolOverview({
         <div className="left">
           <div className="titleAndTag">
             {isMetapool ? (
-              <ToolTip content={t("metapool")}>
-                <h4 className="title underline">{formattedData.name}</h4>
-              </ToolTip>
+              <Tooltip bgColor="#cc3a59" label={t("metapool")} gutter={33}>
+                <div style={{ display: "inline-block" }}>
+                  <h4 className="title underline">{formattedData.name}</h4>
+                </div>
+              </Tooltip>
             ) : (
               <h4 className="title">{formattedData.name}</h4>
             )}
