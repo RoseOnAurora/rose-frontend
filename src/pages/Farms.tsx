@@ -14,7 +14,7 @@ function Farms(): ReactElement {
       <div className={styles.container}>
         {Object.values(FARMS_MAP)
           .sort((a) => {
-            return a.isRose ? 1 : -1
+            return farmStats?.[a.name]?.dualReward.token ? -1 : 1
           })
           .map((farm) => (
             <FarmsOverview
@@ -25,6 +25,7 @@ function Farms(): ReactElement {
               poolName={farm.poolName}
               poolUrl={farm.poolUrl}
               lpTokenName={farm.lpToken.name}
+              lpTokenIcon={farm.lpToken.icon}
               isRose={farm.isRose}
             />
           ))}
