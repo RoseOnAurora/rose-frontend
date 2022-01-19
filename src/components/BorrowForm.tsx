@@ -79,6 +79,20 @@ const BorrowForm = (props: Props): ReactElement => {
   )
   return (
     <Box pt="15px">
+      {formDescription && (
+        <Box
+          mb="15px"
+          bg="var(--secondary-background)"
+          border="1px solid var(--outline)"
+          borderRadius="10px"
+          p="24px"
+          width="100%"
+        >
+          <Box textAlign="justify" color="var(--text-lighter)">
+            <Text as="span">{formDescription}</Text>
+          </Box>
+        </Box>
+      )}
       <Formik
         initialValues={{ collateral: "", borrow: "" }}
         onSubmit={async (values, actions) => {
@@ -134,7 +148,7 @@ const BorrowForm = (props: Props): ReactElement => {
                         onClick={() => {
                           props.setFieldTouched("collateral", true)
                           props.setFieldValue("collateral", max)
-                          props.setFieldValue("borrow", "0.0")
+                          props.setFieldValue("borrow", "")
                         }}
                       >
                         {t("max")}
@@ -262,20 +276,6 @@ const BorrowForm = (props: Props): ReactElement => {
                 </FormControl>
               )}
             </Field>
-            {formDescription && (
-              <Box
-                mt="20px"
-                bg="var(--secondary-background)"
-                border="1px solid var(--outline)"
-                borderRadius="10px"
-                p="24px"
-                width="100%"
-              >
-                <Box textAlign="justify" color="var(--text-lighter)">
-                  <Text as="span">{formDescription}</Text>
-                </Box>
-              </Box>
-            )}
             <Flex
               mt="20px"
               alignItems="center"

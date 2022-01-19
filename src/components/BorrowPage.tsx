@@ -100,7 +100,12 @@ const BorrowPage = (): ReactElement => {
                 collateralToken={{ token: "ROSE", tokenIcon: roseIcon }}
                 max="100"
                 submitButtonLabel="Add Collateral & Borrow"
-                formDescription="PUT SOMETHING HERE"
+                formDescription={
+                  <Flex justifyContent="space-between">
+                    <Box>1 RUSD = 1 USD</Box>
+                    <Box>1 ROSE = 0.23 RUSD</Box>
+                  </Flex>
+                }
                 handleSubmit={() => Promise.resolve()}
               />
             </TabPanel>
