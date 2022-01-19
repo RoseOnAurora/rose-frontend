@@ -244,7 +244,7 @@ function TopMenu({ activeTab }: Props): ReactElement {
             <MenuButton>
               <Link to="#">Bridge↗</Link>
             </MenuButton>
-            <MenuList>
+            <MenuList bg={useColorModeValue("#fff", "rgb(28, 29, 33)")}>
               <MenuGroup>
                 <MenuItem>
                   <a
