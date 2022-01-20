@@ -46,6 +46,8 @@ const Web3Status = (): ReactElement => {
   const { t } = useTranslation()
   const { userDarkMode } = useSelector((state: AppState) => state.user)
   const variant = useBreakpointValue({ base: "primary", lg: "outline" })
+  const padding = useBreakpointValue({ base: "20px", lg: "16px" })
+  const color = useBreakpointValue({ base: "white", lg: "inherit" })
 
   // always reset to account view
   useEffect(() => {
@@ -104,8 +106,8 @@ const Web3Status = (): ReactElement => {
         variant={variant}
         lineHeight="unset"
         size="md"
-        p="20px"
-        color="white"
+        p={padding}
+        color={color}
         onClick={(): void => setModalOpen(true)}
         rightIcon={
           account ? (
