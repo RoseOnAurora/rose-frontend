@@ -1,6 +1,6 @@
 import "./Web3Status.scss"
 
-import { Box, Button, Flex, Icon } from "@chakra-ui/react"
+import { Box, Button, Flex, Icon, useBreakpointValue } from "@chakra-ui/react"
 import { FaExclamationTriangle, FaWallet } from "react-icons/fa"
 import React, { ReactElement, useEffect, useState } from "react"
 import AccountDetails from "./AccountDetails"
@@ -45,6 +45,7 @@ const Web3Status = (): ReactElement => {
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
   const { t } = useTranslation()
   const { userDarkMode } = useSelector((state: AppState) => state.user)
+  const variant = useBreakpointValue({ base: "primary", lg: "outline" })
 
   // always reset to account view
   useEffect(() => {
@@ -100,9 +101,11 @@ const Web3Status = (): ReactElement => {
         />
       ) : null}
       <Button
-        variant="outline"
+        variant={variant}
         lineHeight="unset"
         size="md"
+        p="20px"
+        color="white"
         onClick={(): void => setModalOpen(true)}
         rightIcon={
           account ? (
