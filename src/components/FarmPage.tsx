@@ -206,9 +206,11 @@ const FarmPage = (props: Props): ReactElement => {
             },
             {
               statLabel: "APR",
-              statValue: `${(
-                +apr.slice(0, 2) + +(dualRewardApr?.slice(0, 2) || 0)
-              ).toString()}%`,
+              statValue: farmStats?.[farmName]?.apr
+                ? `${(
+                    +apr.slice(0, -1) + +(dualRewardApr?.slice(0, -1) || 0)
+                  ).toString()}%`
+                : "-",
               statPopOver: (
                 <Flex
                   flexDirection="column"

@@ -172,10 +172,12 @@ function FarmsOverview(props: Props): ReactElement {
                     )}
                   </StatLabel>
                   <StatNumber fontSize="15px" fontWeight="400">
-                    {`${(
-                      +formattedApr.slice(0, 2) +
-                      +(dualRewardApr?.slice(0, 2) || 0)
-                    ).toString()}%`}
+                    {farmStats?.apr
+                      ? `${(
+                          +formattedApr.slice(0, -1) +
+                          +(dualRewardApr?.slice(0, -1) || 0)
+                        ).toString()}%`
+                      : "-"}
                   </StatNumber>
                 </Stat>
               </StatGroup>
