@@ -2,6 +2,9 @@
 import {
   BRIDGE_CONTRACT_ADDRESSES,
   BTC_POOL_NAME,
+  BUSD,
+  BUSD_METAPOOL_FARM_NAME,
+  BUSD_METAPOOL_NAME,
   DAI,
   FARMS_MAP,
   FRAX,
@@ -121,12 +124,12 @@ export function useFarmContract(farmName: FarmName): RoseStablesFarm | null {
             account ?? undefined,
           ) as RoseStablesFarm
         case UST_METAPOOL_FARM_NAME:
-            return getContract(
-              farm.addresses[chainId],
-              JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
-              library,
-              account ?? undefined,
-            ) as RoseStablesFarm
+          return getContract(
+            farm.addresses[chainId],
+            JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
+            library,
+            account ?? undefined,
+          ) as RoseStablesFarm
         case ROSE_PAD_NLP_FARM_NAME:
           return getContract(
             farm.addresses[chainId],
@@ -135,6 +138,13 @@ export function useFarmContract(farmName: FarmName): RoseStablesFarm | null {
             account ?? undefined,
           ) as RoseStablesFarm
         case ROSE_FRAX_NLP_FARM_NAME:
+          return getContract(
+            farm.addresses[chainId],
+            JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
+            library,
+            account ?? undefined,
+          ) as RoseStablesFarm
+        case BUSD_METAPOOL_FARM_NAME:
           return getContract(
             farm.addresses[chainId],
             JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
@@ -266,6 +276,13 @@ export function usePoolContract(poolName?: PoolName): Contract | null {
             library,
             account ?? undefined,
           ) as FraxMetaPool
+        case BUSD_METAPOOL_NAME:
+          return getContract(
+            pool.addresses[chainId],
+            JSON.stringify(FRAX_META_POOL_ABI),
+            library,
+            account ?? undefined,
+          ) as FraxMetaPool
         default:
           return null
       }
@@ -377,6 +394,13 @@ export function useLPTokenContract(
             library,
             account ?? undefined,
           ) as RoseFraxLP
+        case BUSD_METAPOOL_NAME:
+          return getContract(
+            pool.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
         default:
           return null
       }
@@ -412,12 +436,12 @@ export function useLPTokenContractForFarm(
             account ?? undefined,
           ) as RoseFraxLP
         case UST_METAPOOL_FARM_NAME:
-            return getContract(
-              farm.lpToken.addresses[chainId],
-              JSON.stringify(ROSE_FRAX_LP_ABI),
-              library,
-              account ?? undefined,
-            ) as RoseFraxLP
+          return getContract(
+            farm.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
         case ROSE_PAD_NLP_FARM_NAME:
           return getContract(
             farm.lpToken.addresses[chainId],
@@ -426,6 +450,13 @@ export function useLPTokenContractForFarm(
             account ?? undefined,
           ) as RoseFraxLP
         case ROSE_FRAX_NLP_FARM_NAME:
+          return getContract(
+            farm.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
+        case BUSD_METAPOOL_FARM_NAME:
           return getContract(
             farm.lpToken.addresses[chainId],
             JSON.stringify(ROSE_FRAX_LP_ABI),
@@ -463,12 +494,20 @@ export function useAllContracts(): AllContractsObject | null {
   const roseContract = useTokenContract(ROSE) as Erc20
   const stroseContract = useTokenContract(SROSE) as Erc20
   const ustContract = useTokenContract(UST) as Erc20
+  const busdContract = useTokenContract(BUSD) as Erc20
 
   return useMemo(() => {
     if (
-      ![daiContract, usdcContract, usdtContract, roseStablesLPContract].some(
-        Boolean,
-      )
+      ![
+        daiContract,
+        usdcContract,
+        usdtContract,
+        roseStablesLPContract,
+        stroseContract,
+        ustContract,
+        roseContract,
+        fraxContract,
+      ].some(Boolean)
     )
       return null
     return {
@@ -480,6 +519,7 @@ export function useAllContracts(): AllContractsObject | null {
       [ROSE.symbol]: roseContract,
       [SROSE.symbol]: stroseContract,
       [UST.symbol]: ustContract,
+      [BUSD.symbol]: busdContract,
     }
   }, [
     daiContract,
