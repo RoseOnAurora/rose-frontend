@@ -235,7 +235,7 @@ function FarmsOverview(props: Props): ReactElement {
               <Trans t={t} i18nKey="farmDescription">
                 {{ tokenName: lpTokenName }}
                 <a
-                  href={`../#/pools/${farmRoute}/deposit`}
+                  href={poolUrl}
                   className={classNames(styles.tag, { [styles.rose]: isRose })}
                 >
                   <FarmTag isRose={true}>{{ poolName: poolName }}</FarmTag>
@@ -251,10 +251,7 @@ function FarmsOverview(props: Props): ReactElement {
                   className={classNames(styles.tag, { [styles.rose]: isRose })}
                 >
                   {{ poolName: poolName }}
-                  <span>
-                    {/* TODO: fix superscript */}
-                    <sup>{{ externalUrlArrow: "↗" }}</sup>
-                  </span>
+                  <sup>{{ externalUrlArrow: "↗" }}</sup>
                 </a>
               </Trans>
             )}

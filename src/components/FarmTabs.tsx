@@ -1,3 +1,4 @@
+import { FARMS_MAP, FarmName } from "../constants"
 import React, { ReactElement } from "react"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
 import { Trans, useTranslation } from "react-i18next"
@@ -8,7 +9,6 @@ import {
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
-import { FarmName } from "../constants"
 import { ModalType } from "./ConfirmTransaction"
 import StakeForm from "./StakeForm"
 import { Zero } from "@ethersproject/constants"
@@ -48,7 +48,7 @@ const FarmTabs = (props: Props): ReactElement => {
   const { userDarkMode } = useSelector((state: AppState) => state.user)
   const farm = useApproveAndDepositFarm(farmName)
   const withdraw = useWithdrawFarm(farmName)
-
+  const { poolUrl, isRose } = FARMS_MAP[farmName]
   const farmContract = useFarmContract(farmName)
   const lpTokenContract = useLPTokenContractForFarm(farmName)
 
@@ -139,10 +139,27 @@ const FarmTabs = (props: Props): ReactElement => {
               }
               isLoading={loading}
               formDescription={
-                <Trans t={t} i18nKey="farmDescription">
-                  {{ tokenName: lpTokenName }}
-                  <b>{{ poolName: poolName }}</b>
-                </Trans>
+                isRose ? (
+                  <Trans t={t} i18nKey="farmDescription">
+                    {{ tokenName: lpTokenName }}
+                    <a href={poolUrl} style={{ margin: 0, fontWeight: "bold" }}>
+                      {{ poolName: poolName }}
+                    </a>
+                  </Trans>
+                ) : (
+                  <Trans t={t} i18nKey="farmDescription">
+                    {{ tokenName: lpTokenName }}
+                    <a
+                      href={poolUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ margin: 0, fontWeight: "bold" }}
+                    >
+                      {{ poolName: poolName }}
+                      <sup>{{ externalUrlArrow: "↗" }}</sup>
+                    </a>
+                  </Trans>
+                )
               }
               max={formatBNToString(balance || Zero, 18, 18)}
               handleSubmit={farm}
@@ -163,10 +180,27 @@ const FarmTabs = (props: Props): ReactElement => {
               isLoading={false}
               submitButtonLabel={t("Withdraw")}
               formDescription={
-                <Trans t={t} i18nKey="farmDescription">
-                  {{ tokenName: lpTokenName }}
-                  <b>{{ poolName: poolName }}</b>
-                </Trans>
+                isRose ? (
+                  <Trans t={t} i18nKey="farmDescription">
+                    {{ tokenName: lpTokenName }}
+                    <a href={poolUrl} style={{ margin: 0, fontWeight: "bold" }}>
+                      {{ poolName: poolName }}
+                    </a>
+                  </Trans>
+                ) : (
+                  <Trans t={t} i18nKey="farmDescription">
+                    {{ tokenName: lpTokenName }}
+                    <a
+                      href={poolUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ margin: 0, fontWeight: "bold" }}
+                    >
+                      {{ poolName: poolName }}
+                      <sup>{{ externalUrlArrow: "↗" }}</sup>
+                    </a>
+                  </Trans>
+                )
               }
               max={formatBNToString(deposited || Zero, 18, 18)}
               handleSubmit={withdraw}
