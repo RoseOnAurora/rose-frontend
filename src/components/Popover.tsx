@@ -35,7 +35,10 @@ export const IconButtonPopover = ({
           }
           borderColor={userDarkMode ? "inherit" : "#555555"}
           _focus={{ boxShadow: "none" }}
-          style={{ backdropFilter: "blur(8px)" }}
+          style={{
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+          }}
         >
           <PopoverArrow />
           <PopoverCloseButton />
