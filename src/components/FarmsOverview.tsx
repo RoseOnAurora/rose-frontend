@@ -59,10 +59,7 @@ function FarmsOverview(props: Props): ReactElement {
     farmData?.lpTokenBalance,
     farmName as FarmName,
   )
-  const iconWidth =
-    /rose-frax/.exec(lpTokenIcon) || /rose-atust/.exec(lpTokenIcon)
-      ? "70px"
-      : "30px"
+  const iconWidth = /rose-/.exec(lpTokenIcon) ? "70px" : "30px"
 
   return (
     <div className={styles.farmsOverview}>

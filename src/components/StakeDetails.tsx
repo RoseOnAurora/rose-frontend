@@ -90,10 +90,9 @@ const StakeDetails = (props: Props): ReactElement => {
           <h3 className={styles.title}>{balanceView.title}</h3>
         </div>
         {balanceView.items.map(({ icon, tokenName, amount }, index) => {
-          const iconStyle =
-            /rose-frax/.exec(icon) || /rose-atust/.exec(icon)
-              ? { width: "70px", marginRight: "10px" }
-              : { width: "40px", marginRight: "10px" }
+          const iconStyle = /rose-/.exec(icon)
+            ? { width: "70px", marginRight: "10px" }
+            : { width: "40px", marginRight: "10px" }
           return (
             <div className={styles.row} key={index}>
               <div style={iconStyle}>
@@ -116,10 +115,9 @@ const StakeDetails = (props: Props): ReactElement => {
           <h3 className={styles.title}>{stakedView.title}</h3>
         </div>
         {stakedView.items.map(({ icon, tokenName, amount }, index) => {
-          const iconStyle =
-            /rose-frax/.exec(icon) || /rose-atust/.exec(icon)
-              ? { width: "70px", marginRight: "10px" }
-              : { width: "40px", marginRight: "10px" }
+          const iconStyle = /rose-/.exec(icon)
+            ? { width: "70px", marginRight: "10px" }
+            : { width: "40px", marginRight: "10px" }
           return (
             <div className={styles.row} key={index}>
               <div style={iconStyle}>

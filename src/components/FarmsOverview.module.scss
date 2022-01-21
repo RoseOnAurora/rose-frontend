@@ -64,6 +64,9 @@ div.farmsOverview {
       margin-bottom: 7px;
       margin-right: 0;
     }
+    @include breakpoint(sm) {
+      font-size: 21px;
+    }
   }
 
   .underline {

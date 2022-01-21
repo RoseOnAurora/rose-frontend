@@ -31,10 +31,11 @@ export const IconButtonPopover = ({
       <Portal>
         <PopoverContent
           bgColor={
-            userDarkMode ? "rgba(28, 29, 33, 0.9)" : "rgba(235, 229, 229, 0.9)"
+            userDarkMode ? "rgba(28, 29, 33, 0.8)" : "rgba(235, 229, 229, 0.8)"
           }
           borderColor={userDarkMode ? "inherit" : "#555555"}
           _focus={{ boxShadow: "none" }}
+          _active={{ boxShadow: "none" }}
           style={{
             backdropFilter: "blur(8px)",
             WebkitBackdropFilter: "blur(8px)",
