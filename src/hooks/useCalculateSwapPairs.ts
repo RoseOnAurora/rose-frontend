@@ -253,8 +253,7 @@ function getTradingPairsForToken(
         ? originPool
         : destinationPool
       if (
-        !(originToken.symbol === "FRAX" && token.symbol === "atUST") &&
-        !(originToken.symbol === "atUST" && token.symbol === "FRAX")
+        !(originPool?.metaSwapAddresses && destinationPool?.metaSwapAddresses)
       ) {
         swapData = {
           type: SWAP_TYPES.DIRECT,

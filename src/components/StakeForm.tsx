@@ -94,7 +94,7 @@ function StakeForm(props: Props): ReactElement {
                     </InputLeftElement>
                     <Input
                       {...field}
-                      marginLeft="5px"
+                      paddingLeft="60px"
                       autoComplete="off"
                       autoCorrect="off"
                       type="text"

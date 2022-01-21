@@ -5,6 +5,7 @@ import { BigNumber } from "@ethersproject/bignumber"
 import alethLogo from "../assets/icons/aleth.svg"
 import alusdLogo from "../assets/icons/alusd.svg"
 import atustLogo from "../assets/icons/atust.svg"
+import busdLogo from "../assets/icons/busd.svg"
 // import coinbasewalletIcon from "../assets/icons/coinbasewallet.svg"
 import daiLogo from "../assets/icons/dai.svg"
 import feiLogo from "../assets/icons/fei.svg"
@@ -13,6 +14,7 @@ import lusdLogo from "../assets/icons/lusd.svg"
 import metamaskIcon from "../assets/icons/metamask.svg"
 import renbtcLogo from "../assets/icons/renbtc.svg"
 import roseAtust from "../assets/icons/rose-atust.svg"
+import roseBusdLogo from "../assets/icons/rose-busd.svg"
 import roseFraxLogo from "../assets/icons/rose-frax.svg"
 import roseLogo from "../assets/icons/rose.svg"
 import sRoseLogo from "../assets/icons/srose.svg"
@@ -46,6 +48,7 @@ export const FRAX_STABLES_LP_POOL_NAME = "Frax Pool (outdated)"
 export const FRAX_METAPOOL_NAME = "Frax Pool"
 export const STAKED_ROSE_LP_POOL_NAME = "stRose Pool"
 export const UST_METAPOOL_NAME = "UST Pool"
+export const BUSD_METAPOOL_NAME = "BUSD Pool"
 
 // FARMS
 export const STABLES_FARM_NAME = "Stables Farm"
@@ -54,6 +57,7 @@ export const UST_METAPOOL_FARM_NAME = "UST Farm"
 export const ROSE_PAD_NLP_FARM_NAME = "ROSE/PAD PLP Farm"
 export const ROSE_FRAX_NLP_FARM_NAME = "ROSE/FRAX PLP Farm"
 export const SROSE_FARM_NAME = "stRose Farm"
+export const BUSD_METAPOOL_FARM_NAME = "BUSD Farm"
 
 export type PoolName =
   | typeof BTC_POOL_NAME
@@ -71,6 +75,7 @@ export type PoolName =
   | typeof UST_METAPOOL_NAME
   | typeof STAKED_ROSE_LP_POOL_NAME
   | typeof UST_METAPOOL_NAME
+  | typeof BUSD_METAPOOL_NAME
 
 export type FarmName =
   | typeof STABLES_FARM_NAME
@@ -78,6 +83,7 @@ export type FarmName =
   | typeof UST_METAPOOL_FARM_NAME
   | typeof ROSE_PAD_NLP_FARM_NAME
   | typeof ROSE_FRAX_NLP_FARM_NAME
+  | typeof BUSD_METAPOOL_FARM_NAME
 // | typeof SROSE_FARM_NAME
 
 export enum ChainId {
@@ -258,6 +264,14 @@ export const UST_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x1B8f7ac4acCa4ede18848203a54E57DF104C6f30",
   [ChainId.AURORA_MAINNET]: "0x8fe44f5cce02D5BE44e3446bBc2e8132958d22B8",
+}
+
+export const BUSD_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xD6cb7Bb7D63f636d1cA72A1D3ed6f7F67678068a",
+  [ChainId.AURORA_MAINNET]: "0xD6cb7Bb7D63f636d1cA72A1D3ed6f7F67678068a",
 }
 
 export const STAKED_ROSE_POOL_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -476,6 +490,16 @@ export const SROSE_LP_TOKEN_CONTRACT_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "0x7Ba8C17010a48283D38a4bd5f87EfEB5594c92f8",
 }
 
+export const BUSD_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x158f57CF9A4DBFCD1Bc521161d86AeCcFC5aF3Bc", // note: missing testnet deployment
+  [ChainId.AURORA_MAINNET]: "0x158f57CF9A4DBFCD1Bc521161d86AeCcFC5aF3Bc",
+}
+
 export const SUSD_SWAP_TOKEN = new Token(
   SUSD_SWAP_TOKEN_CONTRACT_ADDRESSES,
   18,
@@ -604,6 +628,17 @@ export const SROSE_LP_TOKEN = new Token(
   "stakedrosenlp",
   "Rose ROSE/stROSE",
   sRoseLogo, // TO-DO: change to new logo
+  false,
+  true,
+)
+
+export const BUSD_METAPOOL_LP_TOKEN = new Token(
+  BUSD_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES,
+  18,
+  "RoseBUSDLP",
+  "rosebusdlp",
+  "Rose/BUSD LP",
+  roseBusdLogo,
   false,
   true,
 )
@@ -1010,6 +1045,23 @@ export const SROSE = new Token(
   sRoseLogo,
 )
 
+export const BUSD_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x5C92A4A7f59A9484AFD79DbE251AD2380E589783", // note: no testnet deployment
+  [ChainId.AURORA_MAINNET]: "0x5C92A4A7f59A9484AFD79DbE251AD2380E589783",
+}
+
+export const BUSD = new Token(
+  BUSD_CONTRACT_ADDRESSES,
+  18,
+  "abBUSD",
+  "binance-usd",
+  "BUSD BSC (Allbridge)",
+  busdLogo,
+)
+
 export const ROSE_FARM_STABLES_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
@@ -1068,6 +1120,16 @@ export const SROSE_FARM_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "0x247c9DA96BfC4720580ee84E01566D79a8c901ca",
 }
 
+export const BUSD_FARM_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x18A6115150A060F22Bacf62628169ee9b231368f", // note: missing testnet deployment
+  [ChainId.AURORA_MAINNET]: "0x18A6115150A060F22Bacf62628169ee9b231368f",
+}
+
 export const FRAX_METAPOOL_DEPOSIT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
@@ -1088,11 +1150,22 @@ export const UST_METAPOOL_DEPOSIT_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "0x6df16C4C708089aB6c436e1be7f7062C0bA5C317",
 }
 
+export const BUSD_METAPOOL_DEPOSIT_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x1685506373B560906d9ef0053F0Bc6C38370B6F1", // note: missing testnet deployment
+  [ChainId.AURORA_MAINNET]: "0x1685506373B560906d9ef0053F0Bc6C38370B6F1",
+}
+
 export const D4_POOL_TOKENS = [ALUSD, FEI, FRAX, LUSD]
 export const FRAX_STABLES_LP_POOL_TOKENS = [FRAX, STABLECOIN_SWAP_V2_TOKEN]
 export const FRAX_METAPOOL_TOKENS = [FRAX, STABLECOIN_SWAP_V2_TOKEN]
 export const STAKED_ROSE_POOL_TOKENS = [ROSE, SROSE]
 export const UST_METAPOOL_TOKENS = [UST, STABLECOIN_SWAP_V2_TOKEN]
+export const BUSD_METAPOOL_TOKENS = [BUSD, STABLECOIN_SWAP_V2_TOKEN]
 export const WCUSD_POOL_TOKENS = [WCUSD, ...STABLECOIN_POOL_TOKENS]
 export const WCUSD_UNDERLYING_POOL_TOKENS = [WCUSD, STABLECOIN_SWAP_V2_TOKEN]
 
@@ -1157,6 +1230,18 @@ export const POOLS_MAP: PoolsMap = {
     isSynthetic: false,
     type: PoolTypes.USD,
     route: "ust",
+  },
+  [BUSD_METAPOOL_NAME]: {
+    name: BUSD_METAPOOL_NAME,
+    addresses: BUSD_METAPOOL_ADDRESSES,
+    lpToken: BUSD_METAPOOL_LP_TOKEN,
+    poolTokens: BUSD_METAPOOL_TOKENS,
+    underlyingPoolTokens: [BUSD, ...STABLECOIN_POOL_TOKENS],
+    underlyingPool: STABLECOIN_POOL_V2_NAME,
+    metaSwapAddresses: BUSD_METAPOOL_DEPOSIT_ADDRESSES,
+    isSynthetic: false,
+    type: PoolTypes.USD,
+    route: "busd",
   },
   // [STAKED_ROSE_LP_POOL_NAME]: {
   //   name: STAKED_ROSE_LP_POOL_NAME,
@@ -1229,6 +1314,15 @@ export const FARMS_MAP: FarmsMap = {
     isRose: false,
     poolName: "ROSE/FRAX PLP Pool",
   },
+  [BUSD_METAPOOL_FARM_NAME]: {
+    name: BUSD_METAPOOL_FARM_NAME,
+    lpToken: BUSD_METAPOOL_LP_TOKEN,
+    addresses: BUSD_FARM_ADDRESSES,
+    poolUrl: "../#/pools/busd/deposit",
+    route: "busd",
+    isRose: true,
+    poolName: BUSD_METAPOOL_NAME,
+  },
   // [SROSE_FARM_NAME]: {
   //   name: SROSE_FARM_NAME,
   //   lpToken: SROSE_LP_TOKEN,
@@ -1250,6 +1344,7 @@ export function isMetaPool(poolName = ""): boolean {
     WCUSD_METAPOOL_NAME,
     FRAX_METAPOOL_NAME,
     UST_METAPOOL_NAME,
+    BUSD_METAPOOL_NAME,
   ]).has(poolName)
 }
 
