@@ -11,6 +11,10 @@ div.bottommenu {
   padding: 0 20px;
   color: var(--text);
 
+  a {
+    margin-left: 20px;
+  }
+
   @include breakpoint(lg) {
     display: none;
   }
