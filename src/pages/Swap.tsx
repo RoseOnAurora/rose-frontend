@@ -268,7 +268,9 @@ function Swap(): ReactElement {
           formStateArg.from.symbol === "FRAX" ||
           formStateArg.from.symbol === "atUST" ||
           formStateArg.to.symbol === "FRAX" ||
-          formStateArg.to.symbol === "atUST"
+          formStateArg.to.symbol === "atUST" ||
+          formStateArg.from.symbol === "abBUSD" ||
+          formStateArg.to.symbol === "abBUSD"
         ) {
           amountToReceive = await swapContract.get_dy_underlying(
             formStateArg.from.tokenIndex,

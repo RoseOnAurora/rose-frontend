@@ -14,6 +14,7 @@ import lusdLogo from "../assets/icons/lusd.svg"
 import metamaskIcon from "../assets/icons/metamask.svg"
 import renbtcLogo from "../assets/icons/renbtc.svg"
 import roseAtust from "../assets/icons/rose-atust.svg"
+import roseBusdLogo from "../assets/icons/rose-busd.svg"
 import roseFraxLogo from "../assets/icons/rose-frax.svg"
 import roseLogo from "../assets/icons/rose.svg"
 import sRoseLogo from "../assets/icons/srose.svg"
@@ -637,7 +638,7 @@ export const BUSD_METAPOOL_LP_TOKEN = new Token(
   "RoseBUSDLP",
   "rosebusdlp",
   "Rose/BUSD LP",
-  busdLogo,
+  roseBusdLogo,
   false,
   true,
 )

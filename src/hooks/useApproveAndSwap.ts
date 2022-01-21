@@ -149,8 +149,10 @@ export function useApproveAndSwap(): (
         if (
           state.from.symbol === "FRAX" ||
           state.from.symbol === "atUST" ||
+          state.from.symbol === "abBUSD" ||
           state.to.symbol === "FRAX" ||
-          state.to.symbol === "atUST"
+          state.to.symbol === "atUST" ||
+          state.to.symbol === "abBUSD"
         ) {
           const args = [
             state.from.tokenIndex,
