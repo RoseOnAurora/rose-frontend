@@ -1,6 +1,6 @@
-import { BUSD_METAPOOL_FARM_NAME, FARMS_MAP } from "../constants"
 import React, { ReactElement } from "react"
 import { AppState } from "../state"
+import { FARMS_MAP } from "../constants"
 import FarmsOverview from "../components/FarmsOverview"
 import TopMenu from "../components/TopMenu"
 import styles from "./Farms.module.scss"
@@ -15,9 +15,6 @@ function Farms(): ReactElement {
         {Object.values(FARMS_MAP)
           .sort((a) => {
             return farmStats?.[a.name]?.dualReward.token ? -1 : 1
-          })
-          .filter((a) => {
-            return a.name !== BUSD_METAPOOL_FARM_NAME
           })
           .map((farm) => (
             <FarmsOverview
