@@ -1,4 +1,5 @@
 /* eslint @typescript-eslint/no-unsafe-assignment: 0 */
+/* eslint @typescript-eslint/no-explicit-any: 0 */
 import "chartjs-adapter-moment"
 import React, { ReactElement, useMemo } from "react"
 import { Line } from "react-chartjs-2"
