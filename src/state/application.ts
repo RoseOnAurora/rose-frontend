@@ -28,11 +28,16 @@ interface UpdatedFarmStats {
   [farmName: string]: FarmStats
 }
 
+interface RosePriceHistory {
+  time: number
+  price: number
+}
+
 type ApplicationState = GasPrices & { tokenPricesUSD?: TokenPricesUSD } & {
   lastTransactionTimes: LastTransactionTimes
 } & { swapStats?: SwapStats } & { farmStats?: UpdatedFarmStats } & {
   stakeStats?: StakeStats
-}
+} & { rosePriceHistory?: RosePriceHistory[] }
 
 const initialState: ApplicationState = {
   lastTransactionTimes: {
@@ -64,6 +69,12 @@ const applicationSlice = createSlice({
         ...state.stakeStats,
         ...action.payload,
       }
+    },
+    updateRosePriceHistory(
+      state,
+      action: PayloadAction<RosePriceHistory[]>,
+    ): void {
+      state.rosePriceHistory = action.payload
     },
     updateTokensPricesUSD(state, action: PayloadAction<TokenPricesUSD>): void {
       state.tokenPricesUSD = action.payload
@@ -112,6 +123,7 @@ export const {
   updateSwapStats,
   updateFarmStats,
   updateStakeStats,
+  updateRosePriceHistory,
 } = applicationSlice.actions
 
 export default applicationSlice.reducer

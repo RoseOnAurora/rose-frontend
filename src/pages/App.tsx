@@ -20,6 +20,7 @@ import Swap from "./Swap"
 import Web3ReactManager from "../components/Web3ReactManager"
 import Withdraw from "./Withdraw"
 import fetchFarmStats from "../utils/fetchFarmStats"
+import fetchRosePriceHistory from "../utils/fetchRosePriceHistory"
 import fetchStakeStats from "../utils/fetchStakeStats"
 import fetchSwapStats from "../utils/getSwapStats"
 import fetchTokenPricesUSD from "../utils/updateTokenPrices"
@@ -114,10 +115,14 @@ function GasAndTokenPrices({
   const fetchAndUpdateStakeStats = useCallback(() => {
     void fetchStakeStats(dispatch)
   }, [dispatch])
+  const fetchAndUpdateRosePriceHistory = useCallback(() => {
+    void fetchRosePriceHistory(dispatch)
+  }, [dispatch])
   // usePoller(fetchAndUpdateGasPrice, 5 * 1000)
   usePoller(fetchAndUpdateTokensPrice, BLOCK_TIME * 3)
   usePoller(fetchAndUpdateSwapStats, BLOCK_TIME * 280) // ~ 1hr
   usePoller(fetchAndUpdateFarmStats, BLOCK_TIME * 70) // ~ 15min
   usePoller(fetchAndUpdateStakeStats, BLOCK_TIME * 70)
+  usePoller(fetchAndUpdateRosePriceHistory, BLOCK_TIME * 70)
   return <>{children}</>
 }
