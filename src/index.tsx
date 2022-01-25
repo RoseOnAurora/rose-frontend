@@ -2,6 +2,7 @@ import "./index.css"
 import "./i18n"
 
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react"
+import { Chart, registerables } from "chart.js"
 import { Web3ReactProvider, createWeb3ReactRoot } from "@web3-react/core"
 // import { logError, sendWebVitalsToGA } from "./utils/googleAnalytics"
 
@@ -22,6 +23,8 @@ const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
 if (window && window.ethereum) {
   window.ethereum.autoRefreshOnNetworkChange = false
 }
+
+Chart.register(...registerables)
 
 // window.addEventListener("error", logError)
 
