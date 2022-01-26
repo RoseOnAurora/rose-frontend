@@ -10,6 +10,7 @@ interface FarmStatsResponse {
   apr: string
   second_apr: string
   second_rewards_token: string
+  second_rewards_token_address: string
   name: string
   farm_address: string
 }
@@ -20,6 +21,7 @@ export interface FarmStats {
   dualReward: {
     apr: string
     token: string
+    address: string
   }
 }
 
@@ -37,6 +39,7 @@ export default function fetchFarmStats(dispatch: AppDispatch): void {
                 dualReward: {
                   apr: b?.second_apr,
                   token: b?.second_rewards_token,
+                  address: b?.second_rewards_token_address,
                 },
               },
             }),
