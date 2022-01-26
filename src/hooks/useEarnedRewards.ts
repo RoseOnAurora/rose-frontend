@@ -6,10 +6,23 @@ import { useActiveWeb3React } from "."
 import usePoller from "./usePoller"
 import { useState } from "react"
 
-export default function useEarnedRewards(farmName: FarmName): string {
+interface EarnedRewards {
+  roseRewards: string
+  totalRewards?: string
+  dualRewards?: string
+}
+
+export default function useEarnedRewards(
+  farmName: FarmName,
+  dualRewardAddress?: string,
+): EarnedRewards {
   const { account } = useActiveWeb3React()
 
-  const [rewardsEarned, setRewardsEarned] = useState<string>("0.0")
+  const [rewardsEarned, setRewardsEarned] = useState<EarnedRewards>({
+    roseRewards: "",
+    totalRewards: "",
+    dualRewards: "",
+  })
   const roseContract = useRoseContract()
   const farmContract = useFarmContract(farmName)
 
@@ -19,9 +32,33 @@ export default function useEarnedRewards(farmName: FarmName): string {
       if (!farmContract || !roseContract)
         throw new Error("Contracts are not loaded")
 
-      const earned = await farmContract.earned(account, roseContract.address)
+      const roseEarned = await farmContract.earned(
+        account,
+        roseContract.address,
+      )
 
-      setRewardsEarned(formatBNToString(earned || Zero, 18, 5))
+      setRewardsEarned((prevState) => ({
+        ...prevState,
+        roseRewards: formatBNToString(roseEarned || Zero, 18),
+      }))
+
+      if (dualRewardAddress) {
+        const dualRewardEarned = await farmContract.earned(
+          account,
+          dualRewardAddress,
+        )
+        setRewardsEarned((prevState) => ({
+          ...prevState,
+          dualRewards: formatBNToString(dualRewardEarned || Zero, 18),
+        }))
+        setRewardsEarned((prevState) => ({
+          ...prevState,
+          totalRewards: formatBNToString(
+            dualRewardEarned.add(roseEarned) || Zero,
+            18,
+          ),
+        }))
+      }
     }
     if (account) {
       void pollRewards()
