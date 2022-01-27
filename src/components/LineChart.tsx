@@ -1,5 +1,7 @@
 /* eslint @typescript-eslint/no-unsafe-assignment: 0 */
 /* eslint @typescript-eslint/no-explicit-any: 0 */
+/* eslint @typescript-eslint/no-unsafe-member-access: 0 */
+/* eslint @typescript-eslint/no-unsafe-return: 0 */
 import "chartjs-adapter-moment"
 import React, { ReactElement, useMemo } from "react"
 import { Line } from "react-chartjs-2"
@@ -71,6 +73,23 @@ function configs(chart: Chart, colors: ChartColors): { [key: string]: any } {
         legend: {
           display: false,
         },
+        tooltip: {
+          callbacks: {
+            label: (context: { [key: string]: any }) => {
+              let label = context.dataset.label || ""
+              if (label) {
+                label += ": "
+              }
+              if (context.parsed.y !== null) {
+                label += new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                }).format(context.parsed.y)
+              }
+              return label
+            },
+          },
+        },
       },
       interaction: {
         intersect: false,
@@ -97,6 +116,7 @@ function configs(chart: Chart, colors: ChartColors): { [key: string]: any } {
               style: "normal",
               lineHeight: 2,
             },
+            callback: (value: string) => "$" + value,
           },
         },
         x: {
