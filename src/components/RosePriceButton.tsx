@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Flex,
   Icon,
   Menu,
   MenuButton,
@@ -12,25 +13,44 @@ import {
   RadioGroup,
   Spinner,
   Stack,
+  Stat,
+  StatArrow,
+  StatGroup,
+  StatNumber,
   Text,
   useColorModeValue,
 } from "@chakra-ui/react"
-import { ROSE, SROSE } from "../constants"
+import { ROSE, SROSE, TRANSACTION_TYPES } from "../constants"
 import React, { ReactElement, useState } from "react"
 import { AppState } from "../state"
+import { BsClock } from "react-icons/bs"
 import LineChart from "./LineChart"
 import styles from "./RosePriceButton.module.scss"
 import useAddTokenToMetamask from "../hooks/useAddTokenToMetamask"
 import { useSelector } from "react-redux"
 
 export default function RosePriceButton(): ReactElement {
-  const { stakeStats, rosePriceHistory } = useSelector(
+  const { stakeStats, rosePriceHistory, lastTransactionTimes } = useSelector(
     (state: AppState) => state.application,
   )
   const { priceOfRose } = { ...stakeStats }
   const addRoseToken = useAddTokenToMetamask(ROSE)
   const addStRoseToken = useAddTokenToMetamask(SROSE)
   const [timeUnit, setTimeUnit] = useState("hour")
+  const priceChartLastUpdate = Math.round(
+    (Date.now() - lastTransactionTimes[TRANSACTION_TYPES.ROSE_PRICE]) /
+      1000 /
+      60,
+  )
+  const formattedPriceData =
+    timeUnit === "hour" && rosePriceHistory
+      ? rosePriceHistory.slice(-rosePriceHistory.length / 6)
+      : rosePriceHistory
+  const priceChange = formattedPriceData
+    ? (formattedPriceData[formattedPriceData.length - 1].price -
+        formattedPriceData[0].price) *
+      100
+    : 0
 
   return (
     <div style={{ marginRight: "10px" }}>
@@ -52,15 +72,10 @@ export default function RosePriceButton(): ReactElement {
         </MenuButton>
         <MenuList bg={useColorModeValue("#fff", "rgb(28, 29, 33)")}>
           <Box p="10px" textAlign="center" height="100%">
-            {rosePriceHistory ? (
+            {formattedPriceData ? (
               <>
                 <RadioGroup value={timeUnit} onChange={setTimeUnit}>
-                  <Stack
-                    spacing={5}
-                    direction="row"
-                    justifyContent="flex-end"
-                    p="10px"
-                  >
+                  <Stack spacing={5} direction="row" p="10px">
                     <Text>Rose Price Chart</Text>
                     <Radio colorScheme="green" value="hour">
                       24h
@@ -75,7 +90,7 @@ export default function RosePriceButton(): ReactElement {
                     chart={{
                       datasets: {
                         label: "ROSE 🌹 Price",
-                        data: rosePriceHistory.map(({ time, price }) => ({
+                        data: formattedPriceData.map(({ time, price }) => ({
                           x: time,
                           y: price,
                         })),
@@ -84,11 +99,38 @@ export default function RosePriceButton(): ReactElement {
                     }}
                   />
                 </Box>
+                <Flex justifyContent="space-between" p="10px" mt="5px">
+                  <StatGroup>
+                    <Stat>
+                      <StatNumber fontSize="16px">
+                        <StatArrow
+                          type={priceChange > 0 ? "increase" : "decrease"}
+                        />
+                        {priceChange.toFixed(2)}%
+                      </StatNumber>
+                    </Stat>
+                  </StatGroup>
+                  <Flex
+                    alignItems="center"
+                    gridGap="5px"
+                    color="var(--text-lighter)"
+                    fontSize="12px"
+                  >
+                    <BsClock />
+                    <Text as="span">
+                      updated{" "}
+                      {priceChartLastUpdate
+                        ? `${priceChartLastUpdate} min ago`
+                        : "just now"}{" "}
+                    </Text>
+                  </Flex>
+                </Flex>
               </>
             ) : (
               <Spinner size="xl" color="#cc3a59" />
             )}
           </Box>
+          <MenuDivider />
           <MenuGroup title="ROSE TOKEN">
             <MenuItem
               icon={

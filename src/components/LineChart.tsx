@@ -44,10 +44,6 @@ const LineChart = (props: Props): ReactElement => {
 }
 
 function configs(chart: Chart, colors: ChartColors): { [key: string]: any } {
-  const formattedData =
-    chart.timeUnit === "hour"
-      ? chart.datasets.data.slice(-chart.datasets.data.length / 6)
-      : chart.datasets.data
   return {
     data: {
       datasets: [
@@ -61,7 +57,7 @@ function configs(chart: Chart, colors: ChartColors): { [key: string]: any } {
           borderWidth: 4,
           backgroundColor: "transparent",
           fill: true,
-          data: formattedData,
+          data: chart.datasets.data,
           maxBarThickness: 6,
         },
       ],
