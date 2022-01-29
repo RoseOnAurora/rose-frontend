@@ -80,6 +80,7 @@ function configs(chart: Chart, colors: ChartColors): { [key: string]: any } {
                 label += new Intl.NumberFormat("en-US", {
                   style: "currency",
                   currency: "USD",
+                  maximumSignificantDigits: 3,
                 }).format(context.parsed.y)
               }
               return label
