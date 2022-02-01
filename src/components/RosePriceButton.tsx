@@ -47,7 +47,8 @@ export default function RosePriceButton(): ReactElement {
       ? rosePriceHistory.slice(-rosePriceHistory.length / 6)
       : rosePriceHistory
   const priceChange = formattedPriceData
-    ? (formattedPriceData[formattedPriceData.length - 1].price -
+    ? ((formattedPriceData[formattedPriceData.length - 1].price -
+        formattedPriceData[0].price) /
         formattedPriceData[0].price) *
       100
     : 0
