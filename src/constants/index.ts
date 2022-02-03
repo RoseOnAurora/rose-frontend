@@ -1358,6 +1358,14 @@ export const ROSE_TOKENS_MAP: TokensMap = {
   stRose: SROSE,
 }
 
+export const LP_TOKEN_MAP: TokensMap = Object.values(FARMS_MAP).reduce(
+  (acc, farm) => ({
+    ...acc,
+    [farm.lpToken.symbol]: farm.lpToken,
+  }),
+  {} as TokensMap,
+)
+
 export const TOKENS_MAP = Object.keys(POOLS_MAP).reduce((acc, poolName) => {
   const pool = POOLS_MAP[poolName as PoolName]
   const newAcc = { ...acc }

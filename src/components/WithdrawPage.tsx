@@ -3,6 +3,7 @@ import "./WithdrawPage.scss"
 import {
   Button,
   Center,
+  Flex,
   SlideFade,
   Slider,
   SliderFilledTrack,
@@ -391,7 +392,7 @@ const WithdrawPage = (props: Props): ReactElement => {
         <div className="infoPanels">
           <StakeDetails
             extraStakeDetailChild={
-              <>
+              <Flex justifyContent="space-between" alignItems="center">
                 <FaChartPie
                   size="40px"
                   color="#cc3a59"
@@ -400,7 +401,7 @@ const WithdrawPage = (props: Props): ReactElement => {
                 <span style={{ fontSize: "25px", fontWeight: 700 }}>
                   {formatBNToPercentString(myShareData?.share || Zero, 18)}
                 </span>
-              </>
+              </Flex>
             }
             balanceView={{
               title: "LP Token Balance",

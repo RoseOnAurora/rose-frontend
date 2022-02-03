@@ -28,6 +28,28 @@ export enum Deadlines {
   Custom = "CUSTOM",
 }
 
+export enum FarmSortFields {
+  APR = "apr",
+  NAME = "name",
+  TVL = "tvl",
+  DUAL = "dual",
+  DEPOSIT = "deposit",
+  BALANCE = "balance",
+}
+
+export enum FarmFilterFields {
+  DEPOSIT = "deposit",
+  BALANCE = "balance",
+  DUAL = "dual",
+  NO_FILTER = "noFilter",
+}
+
+interface FarmPreferences {
+  showRewards: number
+  farmFilterField: FarmFilterFields
+  farmSortField: FarmSortFields
+}
+
 interface UserState {
   userSwapAdvancedMode: boolean
   userPoolAdvancedMode: boolean
@@ -39,6 +61,7 @@ interface UserState {
   infiniteApproval: boolean
   transactionDeadlineSelected: Deadlines
   transactionDeadlineCustom?: string
+  farmPreferences: FarmPreferences
 }
 
 export const initialState: UserState = {
@@ -49,6 +72,11 @@ export const initialState: UserState = {
   slippageSelected: Slippages.OneTenth,
   infiniteApproval: false,
   transactionDeadlineSelected: Deadlines.Twenty,
+  farmPreferences: {
+    showRewards: 1,
+    farmFilterField: FarmFilterFields.NO_FILTER,
+    farmSortField: FarmSortFields.APR,
+  },
 }
 
 const gasCustomStateCreator = numberInputStateCreator(
@@ -134,6 +162,33 @@ const userSlice = createSlice({
     ): void {
       state.transactionDeadlineCustom = action.payload
     },
+    updateFarmFilterPreferences(
+      state: UserState,
+      action: PayloadAction<FarmFilterFields>,
+    ): void {
+      state.farmPreferences = {
+        ...state.farmPreferences,
+        farmFilterField: action.payload,
+      }
+    },
+    updateFarmSortPreferences(
+      state: UserState,
+      action: PayloadAction<FarmSortFields>,
+    ): void {
+      state.farmPreferences = {
+        ...state.farmPreferences,
+        farmSortField: action.payload,
+      }
+    },
+    updateFarmRewardsPreferences(
+      state: UserState,
+      action: PayloadAction<number>,
+    ): void {
+      state.farmPreferences = {
+        ...state.farmPreferences,
+        showRewards: action.payload,
+      }
+    },
   },
 })
 
@@ -148,6 +203,9 @@ export const {
   updateInfiniteApproval,
   updateTransactionDeadlineSelected,
   updateTransactionDeadlineCustom,
+  updateFarmFilterPreferences,
+  updateFarmSortPreferences,
+  updateFarmRewardsPreferences,
 } = userSlice.actions
 
 export default userSlice.reducer

@@ -4,8 +4,8 @@ import ConfirmTransaction, {
   ModalType,
 } from "./ConfirmTransaction"
 import { FaLock, FaUnlock } from "react-icons/fa"
-import React, { ReactElement, useState } from "react"
 import {
+  Flex,
   Tab,
   TabList,
   TabPanel,
@@ -13,6 +13,7 @@ import {
   Tabs,
   Tooltip,
 } from "@chakra-ui/react"
+import React, { ReactElement, useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
 import { commify, formatBNToShortString, formatBNToString } from "../utils"
 import { useRoseContract, useStRoseContract } from "../hooks/useContract"
@@ -187,14 +188,14 @@ function StakePage(props: Props): ReactElement {
           height="100%"
         >
           <TabList mb="1em">
-            <Tab>{`${t("stake")} Rose`}</Tab>
-            <Tab>{`${t("unstake")} stRose`}</Tab>
+            <Tab>{t("stake")}</Tab>
+            <Tab>{t("unstake")}</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
               <div className={styles.titleWrapper}>
                 <div className={styles.row}>
-                  <h3 className={styles.stakeTitle}>{`${t("stake")} Rose`}</h3>
+                  <h3 className={styles.stakeTitle}>{`${t("stake")} ROSE`}</h3>
                   <div
                     className={classNames(
                       styles.pill,
@@ -235,7 +236,9 @@ function StakePage(props: Props): ReactElement {
             <TabPanel>
               <div className={styles.titleWrapper}>
                 <div className={styles.row}>
-                  <h3 className={styles.stakeTitle}>{t("unstake")}</h3>
+                  <h3 className={styles.stakeTitle}>{`${t(
+                    "unstake",
+                  )} stROSE`}</h3>
                   <div
                     className={classNames(
                       styles.pill,
@@ -274,7 +277,7 @@ function StakePage(props: Props): ReactElement {
       <div className={styles.stakeDetailsContainer}>
         <StakeDetails
           extraStakeDetailChild={
-            <>
+            <Flex justifyContent="space-between" alignItems="center">
               {timeLeft && timeLeft > 0 ? (
                 <FaLock
                   size="25px"
@@ -301,7 +304,7 @@ function StakePage(props: Props): ReactElement {
                     .substr(11, 8)}
                 </h4>
               </Tooltip>
-            </>
+            </Flex>
           }
           balanceView={{
             title: t("balance"),
