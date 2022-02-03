@@ -1,10 +1,13 @@
 import {
+  Box,
   Collapse,
   IconButton,
+  Skeleton,
   Stat,
   StatGroup,
   StatLabel,
   StatNumber,
+  Text,
   Tooltip,
   useDisclosure,
 } from "@chakra-ui/react"
@@ -37,6 +40,7 @@ interface Props {
   stakedView: StakedDetailsView
   extraStakeDetailChild?: ReactNode
   stats?: StakeStats[]
+  loading?: boolean
 }
 const StakeStat = (props: StakeStatLabel): ReactElement => {
   const { statLabel, statTooltip, statPopOver, onClick } = props
@@ -68,98 +72,126 @@ const StakeStat = (props: StakeStatLabel): ReactElement => {
   }
 }
 const StakeDetails = (props: Props): ReactElement => {
-  const { balanceView, stakedView, stats, extraStakeDetailChild } = props
+  const {
+    balanceView,
+    stakedView,
+    stats,
+    extraStakeDetailChild,
+    loading,
+  } = props
   const { isOpen, onToggle } = useDisclosure()
   return (
     <>
-      {extraStakeDetailChild && (
-        <div className={styles.stakeDetails}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            {extraStakeDetailChild}
-          </div>
-        </div>
+      {loading === true ? (
+        <Skeleton height="80px" borderRadius="10px" />
+      ) : (
+        extraStakeDetailChild && (
+          <div className={styles.stakeDetails}>{extraStakeDetailChild}</div>
+        )
       )}
-      <div className={styles.stakeDetails}>
-        <div className={styles.row}>
-          <h3 className={styles.title}>{balanceView.title}</h3>
-        </div>
-        {balanceView.items.map(({ icon, tokenName, amount }, index) => {
-          const iconStyle = /rose-/.exec(icon)
-            ? { width: "70px", marginRight: "10px" }
-            : { width: "40px", marginRight: "10px" }
-          return (
-            <div className={styles.row} key={index}>
-              <div style={iconStyle}>
-                <img src={icon} alt="tokenIcon" width="100%" />
-              </div>
-              <div className={styles.balanceDetails}>
-                <StatGroup>
-                  <Stat>
-                    <StatLabel>{tokenName}</StatLabel>
-                    <StatNumber fontSize="18px">{amount}</StatNumber>
-                  </Stat>
-                </StatGroup>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-      <div className={styles.stakeDetails}>
-        <div className={styles.row}>
-          <h3 className={styles.title}>{stakedView.title}</h3>
-        </div>
-        {stakedView.items.map(({ icon, tokenName, amount }, index) => {
-          const iconStyle = /rose-/.exec(icon)
-            ? { width: "70px", marginRight: "10px" }
-            : { width: "40px", marginRight: "10px" }
-          return (
-            <div className={styles.row} key={index}>
-              <div style={iconStyle}>
-                <img src={icon} alt="tokenIcon" width="100%" />
-              </div>
-              <div className={styles.balanceDetails}>
-                <StatGroup>
-                  <Stat>
-                    <StatLabel>{tokenName}</StatLabel>
-                    <StatNumber fontSize="18px">{amount}</StatNumber>
-                  </Stat>
-                </StatGroup>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-      {stats && (
-        <div className={styles.statsDetails}>
-          {stats.map(
-            ({ statLabel, statValue, statTooltip, statPopOver }, index) => {
+      {loading === true ? (
+        <Skeleton height="80px" borderRadius="10px" />
+      ) : (
+        <div className={styles.stakeDetails}>
+          <div className={styles.row}>
+            <h3 className={styles.title}>{balanceView.title}</h3>
+          </div>
+          {balanceView.items.length ? (
+            balanceView.items.map(({ icon, tokenName, amount }, index) => {
               return (
-                <div key={index}>
-                  <div className={styles.statRow}>
-                    <StakeStat
-                      statLabel={statLabel}
-                      statTooltip={statTooltip}
-                      statPopOver={statPopOver}
-                      onClick={onToggle}
-                    />
-                    <div className={styles.statValue}>{statValue}</div>
-                  </div>
-                  {statPopOver && (
-                    <Collapse in={isOpen} animateOpacity>
-                      {statPopOver}
-                    </Collapse>
-                  )}
+                <div className={styles.detailsRow} key={index}>
+                  <Box width={/rose-/.exec(icon) ? "70px" : "40px"}>
+                    <img src={icon} alt="tokenIcon" width="100%" />
+                  </Box>
+                  <Box>
+                    <StatGroup>
+                      <Stat>
+                        <StatLabel color="var(--text-lighter)">
+                          {tokenName}
+                        </StatLabel>
+                        <StatNumber fontSize="18px">{amount}</StatNumber>
+                      </Stat>
+                    </StatGroup>
+                  </Box>
                 </div>
               )
-            },
+            })
+          ) : (
+            <Box p="20px">
+              <Text textAlign="center" color="var(--text-lighter)">
+                {`${balanceView.title || "Your Balances"} will appear here.`}
+              </Text>
+            </Box>
           )}
         </div>
+      )}
+      {loading === true ? (
+        <Skeleton height="80px" borderRadius="10px" />
+      ) : (
+        <div className={styles.stakeDetails}>
+          <div className={styles.row}>
+            <h3 className={styles.title}>{stakedView.title}</h3>
+          </div>
+          {stakedView.items.length ? (
+            stakedView.items.map(({ icon, tokenName, amount }, index) => {
+              return (
+                <div className={styles.detailsRow} key={index}>
+                  <Box width={/rose-/.exec(icon) ? "70px" : "40px"}>
+                    <img src={icon} alt="tokenIcon" width="100%" />
+                  </Box>
+                  <Box>
+                    <StatGroup>
+                      <Stat>
+                        <StatLabel color="var(--text-lighter)">
+                          {tokenName}
+                        </StatLabel>
+                        <StatNumber fontSize="18px">{amount}</StatNumber>
+                      </Stat>
+                    </StatGroup>
+                  </Box>
+                </div>
+              )
+            })
+          ) : (
+            <Box p="20px">
+              <Text textAlign="center" color="var(--text-lighter)">
+                {`${
+                  stakedView.title || "Your Staked/Deposits details"
+                } will appear here.`}
+              </Text>
+            </Box>
+          )}
+        </div>
+      )}
+      {loading === true ? (
+        <Skeleton height="80px" borderRadius="10px" />
+      ) : (
+        stats && (
+          <div className={styles.statsDetails}>
+            {stats.map(
+              ({ statLabel, statValue, statTooltip, statPopOver }, index) => {
+                return (
+                  <div key={index}>
+                    <div className={styles.statRow}>
+                      <StakeStat
+                        statLabel={statLabel}
+                        statTooltip={statTooltip}
+                        statPopOver={statPopOver}
+                        onClick={onToggle}
+                      />
+                      <div className={styles.statValue}>{statValue}</div>
+                    </div>
+                    {statPopOver && (
+                      <Collapse in={isOpen} animateOpacity>
+                        {statPopOver}
+                      </Collapse>
+                    )}
+                  </div>
+                )
+              },
+            )}
+          </div>
+        )
       )}
     </>
   )

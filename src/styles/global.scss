@@ -39,14 +39,13 @@ ul {
 :root {
   --primary-foreground: #000;
   --primary-background: #fff;
-  --secondary-background: rgba(245, 239, 239, 0.8);
-  --secondary-background-alt: rgba(242, 236, 236, 0.8);
+  --secondary-background: var(--chakra-colors-whiteAlpha-600);
   --primary-background-dropdown: #fff;
   --background: linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9);
   // --background: linear-gradient(to right, #d9a7c7, #fffcdc);
   --background-lightgrey: #dfdde3;
-  --background-element: rgba(240, 230, 230, 0.8);
-  --background-element-hover: rgba(255, 255, 255, 0.88);
+  --background-element: var(--chakra-colors-whiteAlpha-700);
+  --background-element-hover: var(--chakra-colors-whiteAlpha-600);
   --background-main: linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9);
   --background-logo: #{$primary};
   --secondary-button: #{$primary-muted};
@@ -75,13 +74,12 @@ body.dark {
   --primary-foreground: #fff;
   --primary-background: #000;
   --secondary-background: rgba(28, 29, 33, 0.4);
-  --secondary-background-alt: rgba(28, 29, 33, 0.3);
   --primary-background-dropdown: #0e1818;
   // --background: linear-gradient(to right, #3a1c71, #d76d77, #ffaf7b);
   --background: linear-gradient(to right, #141414, #200122, #791038);
   --background-lightgrey: #{$black80};
   --background-element: linear-gradient(195deg, #141414, #000);
-  --background-element-hover: rgba(0, 0, 0, 0.8);
+  --background-element-hover: linear-gradient(195deg, rgb(25, 25, 25), rgb(4, 4, 4));
   --background-main: linear-gradient(to right, #141414, #200122, #791038);
   --background-logo: linear-gradient(to right, #f7819a, #ebd9c2, #e9d9e4);
   --secondary-button: #{$primary-darker};

@@ -48,7 +48,7 @@ const FarmPage = (props: Props): ReactElement => {
   const { farmStats } = useSelector((state: AppState) => state.application)
   const { roseRewards, dualRewards, totalRewards } = useEarnedRewards(
     farmName,
-    farmStats?.[farmName].dualReward.address,
+    farmStats?.[farmName]?.dualReward.address,
   )
   const rewardsEarned = totalRewards ? totalRewards : roseRewards
   const exit = useFarmExit(farmName)
@@ -222,7 +222,7 @@ const FarmPage = (props: Props): ReactElement => {
       <div className={styles.stakeDetailsContainer}>
         <StakeDetails
           extraStakeDetailChild={
-            <>
+            <Flex justifyContent="space-between" alignItems="center">
               <IconButton
                 aria-label="Harvest Rewards"
                 variant="primary"
@@ -236,7 +236,7 @@ const FarmPage = (props: Props): ReactElement => {
                 value={+rewardsEarned}
                 precision={+rewardsEarned ? 5 : 1}
               ></AnimatingNumber>
-            </>
+            </Flex>
           }
           balanceView={{
             title: t("balance"),

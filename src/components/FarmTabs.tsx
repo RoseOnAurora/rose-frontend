@@ -126,7 +126,7 @@ const FarmTabs = (props: Props): ReactElement => {
         <TabPanels>
           <TabPanel>
             <h4 className={styles.farmTitle}>
-              {t("farm")} {lpTokenName}
+              {t("deposit")} {lpTokenName}
             </h4>
             <StakeForm
               fieldName={"deposit"}

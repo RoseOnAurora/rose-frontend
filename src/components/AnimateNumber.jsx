@@ -66,7 +66,7 @@ export default function AnimatingNumber({ value, precision = 2 }) {
   const previousNumber = usePrevious(value)
 
   let delta = null
-  if (value > previousNumber) delta = "increase"
+  if (value >= previousNumber) delta = "increase"
   if (value < previousNumber) delta = "decrease"
 
   return (

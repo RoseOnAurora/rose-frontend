@@ -10,7 +10,7 @@ import {
   VETH2_POOL_NAME,
   isMetaPool,
 } from "../constants"
-import { Button, Center } from "@chakra-ui/react"
+import { Button, Center, Flex } from "@chakra-ui/react"
 import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
 import { PoolDataType, UserShareType } from "../hooks/usePoolData"
 import React, { ReactElement, useState } from "react"
@@ -292,7 +292,7 @@ const DepositPage = (props: Props): ReactElement => {
         <div className="infoPanels">
           <StakeDetails
             extraStakeDetailChild={
-              <>
+              <Flex justifyContent="space-between" alignItems="center">
                 <FaChartPie
                   size="40px"
                   color="#cc3a59"
@@ -301,7 +301,7 @@ const DepositPage = (props: Props): ReactElement => {
                 <span style={{ fontSize: "25px", fontWeight: 700 }}>
                   {formatBNToPercentString(myShareData?.share || Zero, 18)}
                 </span>
-              </>
+              </Flex>
             }
             balanceView={{
               title: "LP Token Balance",

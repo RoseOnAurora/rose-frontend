@@ -8,14 +8,6 @@
   border-radius: 10px;
 }
 
-.icon {
-  width: 40px;
-  margin-right: 20px;
-  & > img {
-    width: 100%;
-  }
-}
-
 .row {
   display: flex;
   align-items: center;
@@ -23,29 +15,13 @@
   width: 100%;
 }
 
-.balanceDetails {
-  display: flex;
-  flex-direction: column;
-  font-size: 18px;
-  @include breakpoint(sm) {
-    font-size: 14px;
-  }
-
-  @include breakpoint(sm) {
-    font-size: 12px;
-  }
-
-  span {
-    padding: 0.2em;
-  }
-
-  .balance {
-    font-weight: 600;
-  }
-
-  .token {
-    font-weight: 300;
-  }
+.detailsRow {
+  display: grid;
+  grid-template-columns: 70px auto;
+  gap: 10px;
+  align-items: center;
+  margin: 8px 0;
+  width: 100%;
 }
 
 .underline {
