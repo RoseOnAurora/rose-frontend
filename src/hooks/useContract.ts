@@ -11,6 +11,7 @@ import {
   // FRAX_STABLES_LP_FARM_NAME,
   FRAX_METAPOOL_NAME,
   FRAX_METAPOOL_FARM_NAME,
+  MAI_METAPOOL_NAME,
   UST_METAPOOL_FARM_NAME,
   FRAX_STABLES_LP_POOL_NAME,
   FarmName,
@@ -37,6 +38,7 @@ import {
   isMetaPool,
   UST_METAPOOL_NAME,
   UST,
+  MAI,
 } from "../constants"
 
 import BRIDGE_CONTRACT_ABI from "../constants/abis/bridge.json"
@@ -283,6 +285,13 @@ export function usePoolContract(poolName?: PoolName): Contract | null {
             library,
             account ?? undefined,
           ) as FraxMetaPool
+        case MAI_METAPOOL_NAME:
+          return getContract(
+            pool.addresses[chainId],
+            JSON.stringify(FRAX_META_POOL_ABI),
+            library,
+            account ?? undefined,
+          ) as FraxMetaPool
         default:
           return null
       }
@@ -401,6 +410,13 @@ export function useLPTokenContract(
             library,
             account ?? undefined,
           ) as RoseFraxLP
+        case MAI_METAPOOL_NAME:
+          return getContract(
+            pool.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
         default:
           return null
       }
@@ -495,6 +511,7 @@ export function useAllContracts(): AllContractsObject | null {
   const stroseContract = useTokenContract(SROSE) as Erc20
   const ustContract = useTokenContract(UST) as Erc20
   const busdContract = useTokenContract(BUSD) as Erc20
+  const maiContract = useTokenContract(MAI) as Erc20
 
   return useMemo(() => {
     if (
@@ -507,6 +524,8 @@ export function useAllContracts(): AllContractsObject | null {
         ustContract,
         roseContract,
         fraxContract,
+        busdContract,
+        maiContract,
       ].some(Boolean)
     )
       return null
@@ -520,6 +539,7 @@ export function useAllContracts(): AllContractsObject | null {
       [SROSE.symbol]: stroseContract,
       [UST.symbol]: ustContract,
       [BUSD.symbol]: busdContract,
+      [MAI.symbol]: maiContract,
     }
   }, [
     daiContract,
@@ -530,5 +550,6 @@ export function useAllContracts(): AllContractsObject | null {
     roseContract,
     stroseContract,
     ustContract,
+    busdContract,
   ])
 }
