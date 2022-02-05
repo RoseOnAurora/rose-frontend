@@ -100,7 +100,15 @@ const StakeDetails = (props: Props): ReactElement => {
             balanceView.items.map(({ icon, tokenName, amount }, index) => {
               return (
                 <div className={styles.detailsRow} key={index}>
-                  <Box width={/rose-/.exec(icon) ? "70px" : "40px"}>
+                  <Box
+                    width={
+                      /rose-/.exec(icon)
+                        ? "70px"
+                        : /dai-usdt-usdc/.exec(icon)
+                        ? "60px"
+                        : "40px"
+                    }
+                  >
                     <img src={icon} alt="tokenIcon" width="100%" />
                   </Box>
                   <Box>
@@ -136,7 +144,15 @@ const StakeDetails = (props: Props): ReactElement => {
             stakedView.items.map(({ icon, tokenName, amount }, index) => {
               return (
                 <div className={styles.detailsRow} key={index}>
-                  <Box width={/rose-/.exec(icon) ? "70px" : "40px"}>
+                  <Box
+                    width={
+                      /rose-/.exec(icon)
+                        ? "70px"
+                        : /dai-usdt-usdc/.exec(icon)
+                        ? "60px"
+                        : "40px"
+                    }
+                  >
                     <img src={icon} alt="tokenIcon" width="100%" />
                   </Box>
                   <Box>

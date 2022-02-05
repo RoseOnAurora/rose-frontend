@@ -1177,6 +1177,7 @@ export type Pool = {
   addresses: { [chainId in ChainId]: string }
   type: PoolTypes
   route: string
+  farmName?: FarmName
   migration?: PoolName
   metaSwapAddresses?: { [chainId in ChainId]: string }
   underlyingPoolTokens?: Token[]
@@ -1195,6 +1196,7 @@ export const POOLS_MAP: PoolsMap = {
     isSynthetic: false,
     type: PoolTypes.USD,
     route: "stables",
+    farmName: STABLES_FARM_NAME,
   },
   [FRAX_STABLES_LP_POOL_NAME]: {
     name: FRAX_STABLES_LP_POOL_NAME,
@@ -1218,6 +1220,7 @@ export const POOLS_MAP: PoolsMap = {
     isSynthetic: false,
     type: PoolTypes.USD,
     route: "frax",
+    farmName: FRAX_METAPOOL_FARM_NAME,
   },
   [UST_METAPOOL_NAME]: {
     name: UST_METAPOOL_NAME,
@@ -1230,6 +1233,7 @@ export const POOLS_MAP: PoolsMap = {
     isSynthetic: false,
     type: PoolTypes.USD,
     route: "ust",
+    farmName: UST_METAPOOL_FARM_NAME,
   },
   [BUSD_METAPOOL_NAME]: {
     name: BUSD_METAPOOL_NAME,
@@ -1242,6 +1246,7 @@ export const POOLS_MAP: PoolsMap = {
     isSynthetic: false,
     type: PoolTypes.USD,
     route: "busd",
+    farmName: BUSD_METAPOOL_FARM_NAME,
   },
   // [STAKED_ROSE_LP_POOL_NAME]: {
   //   name: STAKED_ROSE_LP_POOL_NAME,
