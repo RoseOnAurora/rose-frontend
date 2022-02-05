@@ -1,4 +1,10 @@
-import { BLOCK_TIME, ChainId, FARMS_MAP, ROSE } from "../constants"
+import {
+  BLOCK_TIME,
+  ChainId,
+  FARMS_MAP,
+  ROSE,
+  UST_METAPOOL_FARM_NAME,
+} from "../constants"
 import { Contract, Provider } from "ethcall"
 import { MulticallContract, MulticallProvider } from "../types/ethcall"
 import { BigNumber } from "@ethersproject/bignumber"
@@ -6,6 +12,7 @@ import ROSE_STABLES_FARM_ABI from "../constants/abis/RoseStablesFarm.json"
 import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
 import { Zero } from "@ethersproject/constants"
 import { useActiveWeb3React } from "."
+import { useFarmContract } from "./useContract"
 import usePoller from "./usePoller"
 import { useState } from "react"
 
@@ -14,7 +21,7 @@ export const useMultiCallEarnedRewards = (): {
 } | null => {
   const { account, chainId, library } = useActiveWeb3React()
   const [rewards, setRewards] = useState<{ [farmName: string]: BigNumber }>({})
-
+  const farmContractDualReward = useFarmContract(UST_METAPOOL_FARM_NAME)
   const ethcallProvider = new Provider() as MulticallProvider
 
   usePoller((): void => {
@@ -39,6 +46,10 @@ export const useMultiCallEarnedRewards = (): {
           ) as MulticallContract<RoseStablesFarm>
         })
         .map((c) => c.earned(account, ROSE.addresses[chainId]))
+      const dualReward = await farmContractDualReward?.earned(
+        account,
+        "0xC4bdd27c33ec7daa6fcfd8532ddB524Bf4038096",
+      )
       const rewards = await ethcallProvider.all(balanceCalls, "latest")
       setRewards(
         Object.keys(FARMS_MAP).reduce(
@@ -46,22 +57,12 @@ export const useMultiCallEarnedRewards = (): {
             ...acc,
             [farmName]: rewards[i],
           }),
-          {},
+          { dualReward: dualReward || Zero },
         ),
       )
     }
     if (account) {
       void pollEarnedRewards()
-    } else {
-      setRewards(
-        Object.keys(FARMS_MAP).reduce(
-          (acc, key) => ({
-            ...acc,
-            [key]: Zero,
-          }),
-          {} as { [farmName: string]: BigNumber },
-        ),
-      )
     }
   }, BLOCK_TIME)
 

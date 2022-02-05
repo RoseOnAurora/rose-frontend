@@ -399,7 +399,7 @@ const WithdrawPage = (props: Props): ReactElement => {
                   title="My Share of the Pool"
                 />
                 <span style={{ fontSize: "25px", fontWeight: 700 }}>
-                  {formatBNToPercentString(myShareData?.share || Zero, 18)}
+                  {formatBNToPercentString(myShareData?.share || Zero, 18, 5)}
                 </span>
               </Flex>
             }

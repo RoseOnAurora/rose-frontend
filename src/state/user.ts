@@ -29,12 +29,12 @@ export enum Deadlines {
 }
 
 export enum FarmSortFields {
-  APR = "apr",
   NAME = "name",
-  TVL = "tvl",
-  DUAL = "dual",
-  DEPOSIT = "deposit",
   BALANCE = "balance",
+  DEPOSIT = "deposit",
+  TVL = "tvl",
+  APR = "apr",
+  REWARD = "rewards",
 }
 
 export enum FarmFilterFields {
@@ -45,9 +45,11 @@ export enum FarmFilterFields {
 }
 
 interface FarmPreferences {
-  showRewards: number
-  farmFilterField: FarmFilterFields
-  farmSortField: FarmSortFields
+  visibleFields: {
+    [field in FarmSortFields]: number
+  }
+  filterField: FarmFilterFields
+  sortField: FarmSortFields
 }
 
 interface UserState {
@@ -73,9 +75,16 @@ export const initialState: UserState = {
   infiniteApproval: false,
   transactionDeadlineSelected: Deadlines.Twenty,
   farmPreferences: {
-    showRewards: 1,
-    farmFilterField: FarmFilterFields.NO_FILTER,
-    farmSortField: FarmSortFields.APR,
+    visibleFields: {
+      name: 1,
+      balance: 1,
+      deposit: 1,
+      tvl: 1,
+      apr: 1,
+      rewards: 1,
+    },
+    filterField: FarmFilterFields.NO_FILTER,
+    sortField: FarmSortFields.APR,
   },
 }
 
@@ -168,7 +177,7 @@ const userSlice = createSlice({
     ): void {
       state.farmPreferences = {
         ...state.farmPreferences,
-        farmFilterField: action.payload,
+        filterField: action.payload,
       }
     },
     updateFarmSortPreferences(
@@ -177,16 +186,19 @@ const userSlice = createSlice({
     ): void {
       state.farmPreferences = {
         ...state.farmPreferences,
-        farmSortField: action.payload,
+        sortField: action.payload,
       }
     },
-    updateFarmRewardsPreferences(
+    updateFarmVisibleFieldPreferences(
       state: UserState,
-      action: PayloadAction<number>,
+      action: PayloadAction<{ field: FarmSortFields; value: number }>,
     ): void {
       state.farmPreferences = {
         ...state.farmPreferences,
-        showRewards: action.payload,
+        visibleFields: {
+          ...state.farmPreferences.visibleFields,
+          [action.payload.field]: action.payload.value,
+        },
       }
     },
   },
@@ -205,7 +217,7 @@ export const {
   updateTransactionDeadlineCustom,
   updateFarmFilterPreferences,
   updateFarmSortPreferences,
-  updateFarmRewardsPreferences,
+  updateFarmVisibleFieldPreferences,
 } = userSlice.actions
 
 export default userSlice.reducer

@@ -4,7 +4,6 @@ import { MulticallContract, MulticallProvider } from "../types/ethcall"
 import { BigNumber } from "@ethersproject/bignumber"
 import ROSE_STABLES_FARM_ABI from "../constants/abis/RoseStablesFarm.json"
 import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
-import { Zero } from "@ethersproject/constants"
 import { useActiveWeb3React } from "."
 import usePoller from "./usePoller"
 import { useState } from "react"
@@ -54,16 +53,6 @@ export const useMultiCallFarmDeposits = (): {
     }
     if (account) {
       void pollFarmBalances()
-    } else {
-      setBalances(
-        Object.keys(FARMS_MAP).reduce(
-          (acc, key) => ({
-            ...acc,
-            [key]: Zero,
-          }),
-          {} as { [farmName: string]: BigNumber },
-        ),
-      )
     }
   }, BLOCK_TIME)
 

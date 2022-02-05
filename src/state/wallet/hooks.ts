@@ -12,7 +12,6 @@ import { MulticallContract, MulticallProvider } from "../../types/ethcall"
 import { BigNumber } from "@ethersproject/bignumber"
 import ERC20_ABI from "../../constants/abis/erc20.json"
 import { Erc20 } from "../../../types/ethers-contracts/Erc20"
-import { Zero } from "@ethersproject/constants"
 import { useActiveWeb3React } from "../../hooks"
 import usePoller from "../../hooks/usePoller"
 import { useState } from "react"
@@ -62,16 +61,6 @@ const useTokenBalancesHelper = (
     }
     if (account) {
       void pollBalances()
-    } else {
-      setBalances(
-        Object.keys(tokenMap).reduce(
-          (acc, key) => ({
-            ...acc,
-            [key]: Zero,
-          }),
-          {} as { [token: string]: BigNumber },
-        ),
-      )
     }
   }, BLOCK_TIME)
 
