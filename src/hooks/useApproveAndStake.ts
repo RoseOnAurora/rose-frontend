@@ -1,6 +1,7 @@
 /* eslint sort-imports: 0 */
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
+/* eslint @typescript-eslint/no-explicit-any: 0 */
 import { useRoseContract, useStRoseContract } from "./useContract"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
