@@ -10,6 +10,7 @@ import { ContractReceipt } from "@ethersproject/contracts"
 import { Zero } from "@ethersproject/constants"
 import { calculateGasEstimate } from "../utils/gasEstimate"
 import { calculatePriceImpact } from "../utils/priceImpact"
+import { formatGasToString } from "../utils/gas"
 import { formatBNToString } from "../utils"
 import { formatSlippageToString } from "../utils/slippage"
 import { useActiveWeb3React } from "../hooks"
@@ -27,10 +28,10 @@ function Withdraw({ poolName }: Props): ReactElement {
   const [withdrawFormState, updateWithdrawFormState] = useWithdrawFormState(
     poolName,
   )
-  const { slippageCustom, slippageSelected } = useSelector(
+  const { slippageCustom, slippageSelected, gasPriceSelected, gasCustom } = useSelector(
     (state: AppState) => state.user,
   )
-  const { tokenPricesUSD } = useSelector((state: AppState) => state.application)
+  const { tokenPricesUSD, gasStandard, gasFast, gasInstant } = useSelector((state: AppState) => state.application)
   const approveAndWithdraw = useApproveAndWithdraw(poolName)
   const poolContract = usePoolContract(poolName)
   const { account } = useActiveWeb3React()
@@ -127,14 +128,14 @@ function Withdraw({ poolName }: Props): ReactElement {
       })),
     [withdrawFormState, POOL.poolTokens, userShareData?.tokens],
   )
-  const gasPrice = Zero
-  // const gasPrice = BigNumber.from(
-  //   formatGasToString(
-  //     { gasStandard, gasFast, gasInstant },
-  //     gasPriceSelected,
-  //     gasCustom,
-  //   ),
-  // )
+  // const gasPrice = Zero
+  const gasPrice = BigNumber.from(
+    formatGasToString(
+      { gasStandard, gasFast, gasInstant },
+      gasPriceSelected,
+      gasCustom,
+    ),
+  )
   const gasAmount = calculateGasEstimate("removeLiquidityImbalance").mul(
     gasPrice,
   ) // units of gas * GWEI/Unit of gas

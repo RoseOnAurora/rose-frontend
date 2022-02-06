@@ -1,13 +1,16 @@
+/* eslint sort-imports: 0 */
 import { FarmName, TRANSACTION_TYPES } from "../constants"
 import { useFarmContract, useLPTokenContractForFarm } from "./useContract"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
-import { Zero } from "@ethersproject/constants"
+// import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
+import { formatGasToString } from "../utils/gas"
+import { AppState } from "../state"
 
 export function useApproveAndDepositFarm(
   farmName: FarmName,
@@ -15,6 +18,12 @@ export function useApproveAndDepositFarm(
   const dispatch = useDispatch()
   const farmContract = useFarmContract(farmName) as RoseStablesFarm
   const lpTokenContract = useLPTokenContractForFarm(farmName)
+  const { gasPriceSelected, gasCustom } = useSelector(
+    (state: AppState) => state.user,
+  )
+  const { gasStandard, gasFast, gasInstant } = useSelector(
+    (state: AppState) => state.application,
+  )
   const { account } = useActiveWeb3React()
   return async function approveAndStake(
     amount: string,
@@ -23,7 +32,14 @@ export function useApproveAndDepositFarm(
       if (!account) throw new Error("Wallet must be connected")
       if (!farmContract) throw new Error("Farm contract is not loaded")
       if (!lpTokenContract) throw new Error("LP Token contract is not loaded")
-      const gasPrice = Zero
+      // const gasPrice = Zero
+      const gasPrice = BigNumber.from(
+        formatGasToString(
+          { gasStandard, gasFast, gasInstant },
+          gasPriceSelected,
+          gasCustom,
+        ),
+      )
       const amountToStake = BigNumber.from(amount)
       await checkAndApproveTokenForTrade(
         lpTokenContract,

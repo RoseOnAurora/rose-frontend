@@ -14,13 +14,14 @@ import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { FraxPoolDeposit } from "../../types/ethers-contracts/FraxPoolDeposit"
 import FRAX_POOL_DEPOSIT from "../constants/abis/FraxPoolDeposit.json"
 import { NumberInputState } from "../utils/numberInputState"
-import { Zero } from "@ethersproject/constants"
+// import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { getContract } from "../utils"
 import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
 import { useMemo } from "react"
+import { formatGasToString } from "../utils/gas"
 
 interface ApproveAndDepositStateArgument {
   [tokenSymbol: string]: NumberInputState
@@ -38,8 +39,11 @@ export function useApproveAndDeposit(
   const lpTokenContract = useLPTokenContract(poolName)
   const tokenContracts = useAllContracts()
   const { account, chainId, library } = useActiveWeb3React()
-  const { slippageCustom, slippageSelected, infiniteApproval } = useSelector(
+  const { slippageCustom, slippageSelected, infiniteApproval, gasPriceSelected, gasCustom } = useSelector(
     (state: AppState) => state.user,
+  )
+  const { gasStandard, gasFast, gasInstant } = useSelector(
+    (state: AppState) => state.application,
   )
   const POOL = POOLS_MAP[poolName]
   const metaSwapContract = useMemo(() => {
@@ -75,7 +79,14 @@ export function useApproveAndDeposit(
         : poolContract
 
       // const gasPrice = parseUnits(String(gasPriceUnsafe) || "45", 9)
-      const gasPrice = Zero
+      // const gasPrice = Zero
+      const gasPrice = BigNumber.from(
+        formatGasToString(
+          { gasStandard, gasFast, gasInstant },
+          gasPriceSelected,
+          gasCustom,
+        ),
+      )
       const approveSingleToken = async (token: Token): Promise<void> => {
         const spendingValue = BigNumber.from(state[token.symbol].valueSafe)
         if (spendingValue.isZero()) return
