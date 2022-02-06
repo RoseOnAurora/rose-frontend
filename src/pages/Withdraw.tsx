@@ -4,6 +4,7 @@ import React, { ReactElement, useEffect, useState } from "react"
 import WithdrawPage, { ReviewWithdrawData } from "../components/WithdrawPage"
 import { commify, formatUnits, parseUnits } from "@ethersproject/units"
 
+import { ethers } from "ethers"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
@@ -129,12 +130,13 @@ function Withdraw({ poolName }: Props): ReactElement {
     [withdrawFormState, POOL.poolTokens, userShareData?.tokens],
   )
   // const gasPrice = Zero
-  const gasPrice = BigNumber.from(
+  const gasPrice = ethers.utils.parseUnits(
     formatGasToString(
       { gasStandard, gasFast, gasInstant },
       gasPriceSelected,
       gasCustom,
     ),
+    "gwei"
   )
   const gasAmount = calculateGasEstimate("removeLiquidityImbalance").mul(
     gasPrice,

@@ -42,6 +42,7 @@ import { Zero } from "@ethersproject/constants"
 import { calculateGasEstimate } from "../utils/gasEstimate"
 import { calculatePriceImpact } from "../utils/priceImpact"
 import { debounce } from "lodash"
+import { ethers } from "ethers"
 import { formatGasToString } from "../utils/gas"
 import { useActiveWeb3React } from "../hooks"
 import { useApproveAndSwap } from "../hooks/useApproveAndSwap"
@@ -536,12 +537,13 @@ function Swap(): ReactElement {
     return receipt
   }
 
-  const gasPrice = BigNumber.from(
+  const gasPrice = ethers.utils.parseUnits(
     formatGasToString(
       { gasStandard, gasFast, gasInstant },
       gasPriceSelected,
       gasCustom,
     ),
+    "gwei",
   )
   const gasAmount = calculateGasEstimate(formState.swapType).mul(gasPrice) // units of gas * GWEI/Unit of gas
 
