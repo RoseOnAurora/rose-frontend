@@ -3,16 +3,19 @@
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-return: 0 */
+/* eslint sort-imports: 0 */
 import { Contract, ContractReceipt } from "@ethersproject/contracts"
 import { POOLS_MAP, SWAP_TYPES, TRANSACTION_TYPES } from "../constants"
 // import { notifyCustomError, notifyHandler } from "../utils/notifyHandler"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { Bridge } from "../../types/ethers-contracts/Bridge"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import { Zero } from "@ethersproject/constants"
+import { Bridge } from "../../types/ethers-contracts/Bridge"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
+import { GasPrices } from "../state/user"
+import { parseUnits } from "@ethersproject/units"
+// import { Zero } from "@ethersproject/constants"
 import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
@@ -44,9 +47,16 @@ export function useApproveAndSwap(): (
   const dispatch = useDispatch()
   const tokenContracts = useAllContracts()
   const { account, chainId } = useActiveWeb3React()
-  const { slippageCustom, slippageSelected, infiniteApproval } = useSelector(
-    (state: AppState) => state.user,
+  const { gasStandard, gasFast, gasInstant } = useSelector(
+    (state: AppState) => state.application,
   )
+  const {
+    slippageCustom,
+    slippageSelected,
+    gasPriceSelected,
+    gasCustom,
+    infiniteApproval,
+  } = useSelector((state: AppState) => state.user)
   return async function approveAndSwap(
     state: ApproveAndSwapStateArgument,
   ): Promise<ContractReceipt | void> {
@@ -59,17 +69,18 @@ export function useApproveAndSwap(): (
       if (chainId === undefined) throw new Error("Unknown chain")
       // For each token being deposited, check the allowance and approve it if necessary
       const tokenContract = tokenContracts?.[state.from.symbol] as Erc20
-      const gasPrice = Zero
-      // if (gasPriceSelected === GasPrices.Custom) {
-      //   gasPrice = gasCustom?.valueSafe
-      // } else if (gasPriceSelected === GasPrices.Fast) {
-      //   gasPrice = gasFast
-      // } else if (gasPriceSelected === GasPrices.Instant) {
-      //   gasPrice = gasInstant
-      // } else {
-      //   gasPrice = gasStandard
-      // }
-      // gasPrice = parseUnits(String(gasPrice) || "45", 9)
+      // const gasPrice = Zero
+      let gasPrice
+      if (gasPriceSelected === GasPrices.Custom) {
+        gasPrice = gasCustom?.valueSafe
+      } else if (gasPriceSelected === GasPrices.Fast) {
+        gasPrice = gasFast
+      } else if (gasPriceSelected === GasPrices.Instant) {
+        gasPrice = gasInstant
+      } else {
+        gasPrice = gasStandard
+      }
+      gasPrice = parseUnits(gasPrice?.toString() || "45", "gwei")
       if (tokenContract == null) return
       let addressToApprove = ""
       if (state.swapType === SWAP_TYPES.DIRECT) {

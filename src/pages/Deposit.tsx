@@ -14,6 +14,7 @@ import FRAX_POOL_DEPOSIT from "../constants/abis/FraxPoolDeposit.json"
 import { TokenPricesUSD } from "../state/application"
 import { Zero } from "@ethersproject/constants"
 import { calculatePriceImpact } from "../utils/priceImpact"
+import { ethers } from "ethers"
 import { formatGasToString } from "../utils/gas"
 import { parseUnits } from "@ethersproject/units"
 import { useActiveWeb3React } from "../hooks"
@@ -92,12 +93,13 @@ function Deposit({ poolName }: Props): ReactElement | null {
   const { gasPriceSelected, gasCustom } = useSelector(
     (state: AppState) => state.user,
   )
-  const gasPrice = BigNumber.from(
+  const gasPrice = ethers.utils.parseUnits(
     formatGasToString(
       { gasStandard, gasFast, gasInstant },
       gasPriceSelected,
       gasCustom,
     ),
+    "gwei"
   )
   const [estDepositLPTokenAmount, setEstDepositLPTokenAmount] = useState(Zero)
   const [priceImpact, setPriceImpact] = useState(Zero)

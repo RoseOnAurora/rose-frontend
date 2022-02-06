@@ -14,13 +14,15 @@ import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { FraxPoolDeposit } from "../../types/ethers-contracts/FraxPoolDeposit"
 import FRAX_POOL_DEPOSIT from "../constants/abis/FraxPoolDeposit.json"
 import { NumberInputState } from "../utils/numberInputState"
-import { Zero } from "@ethersproject/constants"
+// import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { getContract } from "../utils"
+import { parseUnits } from "@ethersproject/units"
 import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
 import { useMemo } from "react"
+import { GasPrices } from "../state/user"
 
 interface ApproveAndDepositStateArgument {
   [tokenSymbol: string]: NumberInputState
@@ -38,8 +40,15 @@ export function useApproveAndDeposit(
   const lpTokenContract = useLPTokenContract(poolName)
   const tokenContracts = useAllContracts()
   const { account, chainId, library } = useActiveWeb3React()
-  const { slippageCustom, slippageSelected, infiniteApproval } = useSelector(
-    (state: AppState) => state.user,
+  const {
+    slippageCustom,
+    slippageSelected,
+    infiniteApproval,
+    gasPriceSelected,
+    gasCustom,
+  } = useSelector((state: AppState) => state.user)
+  const { gasStandard, gasFast, gasInstant } = useSelector(
+    (state: AppState) => state.application,
   )
   const POOL = POOLS_MAP[poolName]
   const metaSwapContract = useMemo(() => {
@@ -74,8 +83,17 @@ export function useApproveAndDeposit(
         ? (metaSwapContract as FraxPoolDeposit)
         : poolContract
 
-      // const gasPrice = parseUnits(String(gasPriceUnsafe) || "45", 9)
-      const gasPrice = Zero
+      let gasPrice: any
+      if (gasPriceSelected === GasPrices.Custom) {
+        gasPrice = gasCustom?.valueSafe
+      } else if (gasPriceSelected === GasPrices.Fast) {
+        gasPrice = gasFast
+      } else if (gasPriceSelected === GasPrices.Instant) {
+        gasPrice = gasInstant
+      } else {
+        gasPrice = gasStandard
+      }
+      gasPrice = parseUnits(gasPrice?.toString() || "45", "gwei")
       const approveSingleToken = async (token: Token): Promise<void> => {
         const spendingValue = BigNumber.from(state[token.symbol].valueSafe)
         if (spendingValue.isZero()) return
@@ -119,7 +137,7 @@ export function useApproveAndDeposit(
       }
 
       minToMint = subtractSlippage(minToMint, slippageSelected, slippageCustom)
-      
+
       // const swapFlashLoanContract = effectiveSwapContract as RoseStablesPool
       const spendTransaction = await effectivePoolContract.add_liquidity(
         txnAmounts,

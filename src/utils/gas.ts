@@ -1,4 +1,5 @@
-import { BigNumber } from "ethers"
+/* eslint-disable */
+import { BigNumber, ethers } from "ethers"
 import { GasPrices } from "../state/user"
 import { NumberInputState } from "./numberInputState"
 
@@ -22,7 +23,12 @@ export function gasBNFromState(
   } else {
     gasPrice = gasStandard
   }
-  return BigNumber.from(gasPrice)
+  // return BigNumber.from(gasPrice)
+  if (typeof gasPrice === "number") {
+    return ethers.utils.parseUnits(gasPrice.toString(), "gwei")
+  } else {
+    return BigNumber.from(gasPrice)
+  }
 }
 
 export function formatGasToString(
@@ -34,5 +40,10 @@ export function formatGasToString(
   gasSelected: GasPrices,
   gasCustom?: NumberInputState,
 ): string {
-  return gasBNFromState(gasPricesGwei, gasSelected, gasCustom).toString()
+  // return gasBNFromState(gasPricesGwei, gasSelected, gasCustom).toString()
+  if (typeof gasPricesGwei.gasStandard === "number") {
+    return gasPricesGwei.gasStandard.toString();
+  } else {
+    return "0.1";
+  }
 }
