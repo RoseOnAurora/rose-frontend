@@ -113,7 +113,7 @@ function configs(chart: Chart, colors: ChartColors): { [key: string]: any } {
               style: "normal",
               lineHeight: 2,
             },
-            callback: (value: string) => "$" + value,
+            callback: (value: number) => "$" + value.toFixed(3),
           },
         },
         x: {
