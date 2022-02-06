@@ -1,4 +1,6 @@
 /* eslint sort-imports: 0 */
+/* eslint @typescript-eslint/no-unsafe-member-access: 0 */
+/* eslint @typescript-eslint/no-unsafe-call: 0 */
 import { FarmName, TRANSACTION_TYPES } from "../constants"
 import { useFarmContract, useLPTokenContractForFarm } from "./useContract"
 import { BigNumber } from "@ethersproject/bignumber"
@@ -9,8 +11,9 @@ import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
 import { useDispatch, useSelector } from "react-redux"
-import { formatGasToString } from "../utils/gas"
 import { AppState } from "../state"
+import { GasPrices } from "../state/user"
+import { parseUnits } from "ethers/lib/utils"
 
 export function useApproveAndDepositFarm(
   farmName: FarmName,
@@ -32,14 +35,17 @@ export function useApproveAndDepositFarm(
       if (!account) throw new Error("Wallet must be connected")
       if (!farmContract) throw new Error("Farm contract is not loaded")
       if (!lpTokenContract) throw new Error("LP Token contract is not loaded")
-      // const gasPrice = Zero
-      const gasPrice = BigNumber.from(
-        formatGasToString(
-          { gasStandard, gasFast, gasInstant },
-          gasPriceSelected,
-          gasCustom,
-        ),
-      )
+      let gasPrice: any
+      if (gasPriceSelected === GasPrices.Custom) {
+        gasPrice = gasCustom?.valueSafe
+      } else if (gasPriceSelected === GasPrices.Fast) {
+        gasPrice = gasFast
+      } else if (gasPriceSelected === GasPrices.Instant) {
+        gasPrice = gasInstant
+      } else {
+        gasPrice = gasStandard
+      }
+      gasPrice = parseUnits(gasPrice?.toString() || "45", "gwei")
       const amountToStake = BigNumber.from(amount)
       await checkAndApproveTokenForTrade(
         lpTokenContract,
