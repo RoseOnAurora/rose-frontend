@@ -1,6 +1,7 @@
 /* eslint sort-imports: 0 */
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
+/* eslint @typescript-eslint/no-explicit-any: 0 */
 import { FarmName, TRANSACTION_TYPES } from "../constants"
 import { useFarmContract, useLPTokenContractForFarm } from "./useContract"
 import { BigNumber } from "@ethersproject/bignumber"
