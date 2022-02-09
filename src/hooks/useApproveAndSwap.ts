@@ -157,13 +157,16 @@ export function useApproveAndSwap(): (
           ...args,
         )
       } else if (state.swapType === SWAP_TYPES.DIRECT) {
+        // TO-DO: Clean this up
         if (
           state.from.symbol === "FRAX" ||
           state.from.symbol === "atUST" ||
           state.from.symbol === "abBUSD" ||
+          state.from.symbol === "MAI" ||
           state.to.symbol === "FRAX" ||
           state.to.symbol === "atUST" ||
-          state.to.symbol === "abBUSD"
+          state.to.symbol === "abBUSD" ||
+          state.to.symbol === "MAI"
         ) {
           const args = [
             state.from.tokenIndex,

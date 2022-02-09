@@ -2,6 +2,7 @@ import {
   BUSD_METAPOOL_NAME,
   FRAX_METAPOOL_NAME,
   FRAX_STABLES_LP_POOL_NAME,
+  MAI_METAPOOL_NAME,
   POOLS_MAP,
   PoolName,
   PoolTypes,
@@ -32,6 +33,9 @@ function Pools(): ReactElement | null {
   )
   const [busdMetaPoolData, busdMetaPoolUserShareData] = usePoolData(
     BUSD_METAPOOL_NAME,
+  )
+  const [maiMetaPoolData, maiMetaPoolUserShareData] = usePoolData(
+    MAI_METAPOOL_NAME,
   )
   // const [stRosePoolData, stRoseUserShareData] = usePoolData(
   //   STAKED_ROSE_LP_POOL_NAME,
@@ -73,6 +77,13 @@ function Pools(): ReactElement | null {
           name: poolName,
           poolData: busdMetaPoolData,
           userShareData: busdMetaPoolUserShareData,
+          poolRoute: `pools/${POOLS_MAP[poolName].route}`,
+        }
+      case MAI_METAPOOL_NAME:
+        return {
+          name: poolName,
+          poolData: maiMetaPoolData,
+          userShareData: maiMetaPoolUserShareData,
           poolRoute: `pools/${POOLS_MAP[poolName].route}`,
         }
       default:

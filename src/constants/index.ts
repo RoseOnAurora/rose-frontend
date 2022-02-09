@@ -11,12 +11,14 @@ import daiLogo from "../assets/icons/dai.svg"
 import feiLogo from "../assets/icons/fei.svg"
 import fraxLogo from "../assets/icons/frax.svg"
 import lusdLogo from "../assets/icons/lusd.svg"
+import maiLogo from "../assets/icons/mai.svg"
 import metamaskIcon from "../assets/icons/metamask.svg"
 import renbtcLogo from "../assets/icons/renbtc.svg"
 import roseAtust from "../assets/icons/rose-atust.svg"
 import roseBusdLogo from "../assets/icons/rose-busd.svg"
 import roseFraxLogo from "../assets/icons/rose-frax.svg"
 import roseLogo from "../assets/icons/rose.svg"
+import roseMaiLogo from "../assets/icons/rose-mai.svg"
 import sRoseLogo from "../assets/icons/srose.svg"
 import saddleLogo from "../assets/icons/logo_24.svg"
 import sbtcLogo from "../assets/icons/sbtc.svg"
@@ -49,6 +51,7 @@ export const FRAX_METAPOOL_NAME = "Frax Pool"
 export const STAKED_ROSE_LP_POOL_NAME = "stRose Pool"
 export const UST_METAPOOL_NAME = "UST Pool"
 export const BUSD_METAPOOL_NAME = "BUSD Pool"
+export const MAI_METAPOOL_NAME = "Mai Pool"
 
 // FARMS
 export const STABLES_FARM_NAME = "Stables Farm"
@@ -76,6 +79,7 @@ export type PoolName =
   | typeof STAKED_ROSE_LP_POOL_NAME
   | typeof UST_METAPOOL_NAME
   | typeof BUSD_METAPOOL_NAME
+  | typeof MAI_METAPOOL_NAME
 
 export type FarmName =
   | typeof STABLES_FARM_NAME
@@ -272,6 +276,14 @@ export const BUSD_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xD6cb7Bb7D63f636d1cA72A1D3ed6f7F67678068a",
   [ChainId.AURORA_MAINNET]: "0xD6cb7Bb7D63f636d1cA72A1D3ed6f7F67678068a",
+}
+
+export const MAI_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x65a761136815B45A9d78d9781d22d47247B49D23", // need to add testnet
+  [ChainId.AURORA_MAINNET]: "0x65a761136815B45A9d78d9781d22d47247B49D23",
 }
 
 export const STAKED_ROSE_POOL_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -500,6 +512,16 @@ export const BUSD_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "0x158f57CF9A4DBFCD1Bc521161d86AeCcFC5aF3Bc",
 }
 
+export const MAI_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xA7ae42224Bf48eCeFc5f838C230EE339E5fd8e62", // note: missing testnet deployment
+  [ChainId.AURORA_MAINNET]: "0xA7ae42224Bf48eCeFc5f838C230EE339E5fd8e62",
+}
+
 export const SUSD_SWAP_TOKEN = new Token(
   SUSD_SWAP_TOKEN_CONTRACT_ADDRESSES,
   18,
@@ -570,7 +592,7 @@ export const FRAX_STABLES_LP_TOKEN = new Token(
   FRAX_STABLES_LP_TOKEN_CONTRACT_ADDRESSES,
   18,
   "RoseFraxLP",
-  "rosefraxlp",
+  "tether", // tracking tether: cannot fetch coingecko for LPs
   "Rose FRAX/StablesLP",
   roseFraxLogo,
   false,
@@ -581,7 +603,7 @@ export const FRAX_METAPOOL_LP_TOKEN = new Token(
   FRAX_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES,
   18,
   "RoseFraxLP",
-  "rosefraxlp",
+  "tether", // tracking tether: cannot fetch coingecko for LPs
   "Rose FRAX/StablesLP",
   roseFraxLogo,
   false,
@@ -593,7 +615,7 @@ export const UST_METAPOOL_LP_TOKEN = new Token(
   18,
   "RoseUSTLP",
   "roseustlp",
-  "Rose atUST/StablesLP",
+  "tether", // tracking tether: cannot fetch coingecko for LPs
   roseAtust,
   false,
   true,
@@ -603,7 +625,7 @@ export const ROSE_PAD_NLP_TOKEN = new Token(
   ROSE_PAD_NLP_TOKEN_CONTRACT_ADDRESSES,
   18,
   "RosePadNLP",
-  "rosepadnlp",
+  "tether", // tracking tether: cannot fetch coingecko for LPs
   "ROSE/PAD PLP",
   roseLogo, // TO-DO: change to new logo
   false,
@@ -614,7 +636,7 @@ export const ROSE_FRAX_NLP_TOKEN = new Token(
   ROSE_FRAX_NLP_TOKEN_CONTRACT_ADDRESSES,
   18,
   "RoseFraxNLP",
-  "rosefraxnlp",
+  "tether", // tracking tether: cannot fetch coingecko for LPs
   "ROSE/FRAX PLP",
   roseFraxLogo, // TO-DO: change to new logo
   false,
@@ -625,7 +647,7 @@ export const SROSE_LP_TOKEN = new Token(
   SROSE_LP_TOKEN_CONTRACT_ADDRESSES,
   18,
   "StakedRoseLP",
-  "stakedrosenlp",
+  "tether", // tracking tether: cannot fetch coingecko for LPs
   "Rose ROSE/stROSE",
   sRoseLogo, // TO-DO: change to new logo
   false,
@@ -636,9 +658,20 @@ export const BUSD_METAPOOL_LP_TOKEN = new Token(
   BUSD_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES,
   18,
   "RoseBUSDLP",
-  "rosebusdlp",
+  "tether", // tracking tether: cannot fetch coingecko for LPs
   "Rose/BUSD LP",
   roseBusdLogo,
+  false,
+  true,
+)
+
+export const MAI_METAPOOL_LP_TOKEN = new Token(
+  MAI_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES,
+  18,
+  "RoseMAILP",
+  "tether", // tracking tether: cannot fetch coingecko for LPs
+  "Rose MAI/Stables",
+  roseMaiLogo,
   false,
   true,
 )
@@ -1062,6 +1095,23 @@ export const BUSD = new Token(
   busdLogo,
 )
 
+export const MAI_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xdFA46478F9e5EA86d57387849598dbFB2e964b02", // note: no testnet deployment
+  [ChainId.AURORA_MAINNET]: "0xdFA46478F9e5EA86d57387849598dbFB2e964b02",
+}
+
+export const MAI = new Token(
+  MAI_CONTRACT_ADDRESSES,
+  18,
+  "MAI",
+  "tether",
+  "MAI",
+  maiLogo,
+)
+
 export const ROSE_FARM_STABLES_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
@@ -1160,12 +1210,23 @@ export const BUSD_METAPOOL_DEPOSIT_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "0x1685506373B560906d9ef0053F0Bc6C38370B6F1",
 }
 
+export const MAI_METAPOOL_DEPOSIT_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x81B2DF6Da4E944B0CE5B3f62473D8637b65c631C", // note: missing testnet deployment
+  [ChainId.AURORA_MAINNET]: "0x81B2DF6Da4E944B0CE5B3f62473D8637b65c631C",
+}
+
 export const D4_POOL_TOKENS = [ALUSD, FEI, FRAX, LUSD]
 export const FRAX_STABLES_LP_POOL_TOKENS = [FRAX, STABLECOIN_SWAP_V2_TOKEN]
 export const FRAX_METAPOOL_TOKENS = [FRAX, STABLECOIN_SWAP_V2_TOKEN]
 export const STAKED_ROSE_POOL_TOKENS = [ROSE, SROSE]
 export const UST_METAPOOL_TOKENS = [UST, STABLECOIN_SWAP_V2_TOKEN]
 export const BUSD_METAPOOL_TOKENS = [BUSD, STABLECOIN_SWAP_V2_TOKEN]
+export const MAI_METAPOOL_TOKENS = [MAI, STABLECOIN_SWAP_V2_TOKEN]
 export const WCUSD_POOL_TOKENS = [WCUSD, ...STABLECOIN_POOL_TOKENS]
 export const WCUSD_UNDERLYING_POOL_TOKENS = [WCUSD, STABLECOIN_SWAP_V2_TOKEN]
 
@@ -1247,6 +1308,18 @@ export const POOLS_MAP: PoolsMap = {
     type: PoolTypes.USD,
     route: "busd",
     farmName: BUSD_METAPOOL_FARM_NAME,
+  },
+  [MAI_METAPOOL_NAME]: {
+    name: MAI_METAPOOL_NAME,
+    addresses: MAI_METAPOOL_ADDRESSES,
+    lpToken: MAI_METAPOOL_LP_TOKEN,
+    poolTokens: MAI_METAPOOL_TOKENS,
+    underlyingPoolTokens: [MAI, ...STABLECOIN_POOL_TOKENS],
+    underlyingPool: STABLECOIN_POOL_V2_NAME,
+    metaSwapAddresses: BUSD_METAPOOL_DEPOSIT_ADDRESSES,
+    isSynthetic: false,
+    type: PoolTypes.USD,
+    route: "mai",
   },
   // [STAKED_ROSE_LP_POOL_NAME]: {
   //   name: STAKED_ROSE_LP_POOL_NAME,
@@ -1350,6 +1423,7 @@ export function isMetaPool(poolName = ""): boolean {
     FRAX_METAPOOL_NAME,
     UST_METAPOOL_NAME,
     BUSD_METAPOOL_NAME,
+    MAI_METAPOOL_NAME,
   ]).has(poolName)
 }
 

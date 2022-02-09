@@ -265,13 +265,16 @@ function Swap(): ReactElement {
         formStateArg.swapType === SWAP_TYPES.DIRECT &&
         swapContract != null
       ) {
+        // TO-DO: Clean this up
         if (
           formStateArg.from.symbol === "FRAX" ||
           formStateArg.from.symbol === "atUST" ||
+          formStateArg.from.symbol === "abBUSD" ||
+          formStateArg.from.symbol === "MAI" ||
           formStateArg.to.symbol === "FRAX" ||
           formStateArg.to.symbol === "atUST" ||
-          formStateArg.from.symbol === "abBUSD" ||
-          formStateArg.to.symbol === "abBUSD"
+          formStateArg.to.symbol === "abBUSD" ||
+          formStateArg.to.symbol === "MAI"
         ) {
           amountToReceive = await swapContract.get_dy_underlying(
             formStateArg.from.tokenIndex,
