@@ -8,31 +8,31 @@ import {
   StatNumber,
   Tooltip,
 } from "@chakra-ui/react"
-import React, { ReactElement, ReactNode } from "react"
+import React, { ReactElement, ReactNode, memo, useRef } from "react"
 import { Link } from "react-router-dom"
+import { motion } from "framer-motion"
+import { useEffect } from "react"
 
 interface Props extends BoxProps {
   fields: Field[]
+  fieldLength: number
+  name: string
   route: string
 }
 
 export interface Field {
   label: string
-  value: ReactNode
+  valueRaw: string
+  valueComponent?: ReactNode
   tooltip?: ReactNode
-}
-
-interface FormattedStatProps {
-  label: string
-  value: ReactNode
-  hasTooltip?: boolean
 }
 
 const FormmattedStat = ({
   label,
-  value,
-  hasTooltip,
-}: FormattedStatProps): ReactElement => {
+  valueRaw,
+  valueComponent,
+  tooltip,
+}: Field): ReactElement => {
   return (
     <Stat ml={3}>
       <StatLabel
@@ -41,52 +41,73 @@ const FormmattedStat = ({
       >
         {label}
       </StatLabel>
-      <StatNumber
-        display="inline"
-        fontSize={{ base: "13px", md: "16px" }}
-        fontWeight="400"
-        {...(hasTooltip && {
-          borderBottom: "1px dotted var(--text)",
-          cursor: "help",
-        })}
-      >
-        {value}
-      </StatNumber>
+      {tooltip ? (
+        <Tooltip bgColor="#cc3a59" label={tooltip}>
+          <StatNumber
+            display="inline-block"
+            fontSize={{ base: "13px", md: "16px" }}
+            fontWeight="400"
+            borderBottom="1px dotted var(--text)"
+            cursor="help"
+          >
+            {valueComponent || valueRaw}
+          </StatNumber>
+        </Tooltip>
+      ) : (
+        <StatNumber fontSize={{ base: "13px", md: "16px" }} fontWeight="400">
+          {valueComponent || valueRaw}
+        </StatNumber>
+      )}
     </Stat>
   )
 }
 
-function ComponentCard(props: Props): ReactElement {
-  const { fields, route, ...other } = props
+const AnimatedComponentCard = memo(
+  (props: Props) => {
+    const { fields, route, name, ...other } = props
+    const MotionBox = motion(Box)
+    const prevNameRef = useRef<string>()
+    useEffect(() => {
+      prevNameRef.current = name
+    }, [name])
+    return (
+      <MotionBox
+        initial={
+          prevNameRef.current === name
+            ? { opacity: 1, scale: 1 }
+            : { opacity: 0, scale: 0 }
+        }
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        exit={{ opacity: 0, scale: 1 }}
+        layout
+        {...other}
+      >
+        <Link to={route} style={{ margin: 0, width: "100%" }}>
+          <Grid
+            templateColumns={{
+              base: `repeat(${fields.length < 3 ? fields.length : 3}, 1fr)`,
+              md: `repeat(${fields.length}, 1fr)`,
+            }}
+            gap={3}
+            alignItems="baseline"
+          >
+            {fields.map((field, index) => (
+              <GridItem key={index} ml="10px">
+                <FormmattedStat {...field} />
+              </GridItem>
+            ))}
+          </Grid>
+        </Link>
+      </MotionBox>
+    )
+  },
+  (next, prev) =>
+    next.fields.every(
+      ({ valueRaw = "" }, index) => valueRaw === prev.fields[index]?.valueRaw,
+    ) && next.fieldLength === prev.fieldLength,
+)
 
-  return (
-    <Box {...other}>
-      <Link to={route} style={{ margin: 0, width: "100%" }}>
-        <Grid
-          templateColumns={{
-            base: `repeat(${fields.length < 3 ? fields.length : 3}, 1fr)`,
-            md: `repeat(${fields.length}, 1fr)`,
-          }}
-          gap={3}
-          alignItems="baseline"
-        >
-          {fields.map(({ label, value, tooltip }, index) => (
-            <GridItem key={index} ml="10px">
-              {tooltip ? (
-                <Tooltip bgColor="#cc3a59" closeOnClick={false} label={tooltip}>
-                  <Box>
-                    <FormmattedStat value={value} label={label} hasTooltip />
-                  </Box>
-                </Tooltip>
-              ) : (
-                <FormmattedStat value={value} label={label} />
-              )}
-            </GridItem>
-          ))}
-        </Grid>
-      </Link>
-    </Box>
-  )
-}
+AnimatedComponentCard.displayName = "AnimatedComponentCard"
 
-export default ComponentCard
+export default AnimatedComponentCard
