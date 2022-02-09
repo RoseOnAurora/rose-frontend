@@ -105,8 +105,13 @@ function Farms(): ReactElement {
   const [preferencesHelp, setPreferencesHelp] = useState(-1)
   const [poolsHelp, setPoolsHelp] = useState(-1)
   const [timeout, setTimout] = useState(false)
+  const [isInfo, setIsInfo] = useState(false)
 
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const resetDashboardView = () => {
+    onClose()
+    setIsInfo(false)
+  }
   useTimeout(() => setTimout(true), 10000)
 
   const lpTokenBalances = useFarmLPTokenBalances()
@@ -184,7 +189,12 @@ function Farms(): ReactElement {
 
   return (
     <>
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="sm">
+      <Drawer
+        isOpen={isOpen}
+        placement="right"
+        onClose={resetDashboardView}
+        size="sm"
+      >
         <DrawerOverlay />
         <DrawerContent
           bg={useColorModeValue(
@@ -195,58 +205,261 @@ function Farms(): ReactElement {
         >
           <DrawerCloseButton />
           <DrawerBody p="5px">
-            <Dashboard
-              dashboardName="Farms"
-              dashboardContent={
-                <StakeDetails
-                  extraStakeDetailChild={
-                    <Flex justifyContent="space-between" alignItems="center">
-                      <FaGift
-                        color="#cc3a59"
-                        size="35px"
-                        title="Total ROSE Rewards"
-                      />
-                      <AnimatingNumber
-                        value={allRewardsFormatted}
-                        precision={allRewardsFormatted > 0 ? 3 : 1}
+            {isInfo ? (
+              <Box
+                p="30px"
+                borderRadius="10px"
+                background="var(--background-element)"
+              >
+                <Grid gridTemplateRows="auto" rowGap="15px">
+                  <GridItem>
+                    <Text fontSize="25px" fontWeight="700">
+                      Farm Information
+                    </Text>
+                  </GridItem>
+                  <Divider />
+                  <GridItem>
+                    <Flex>
+                      <Text mb="10px" fontWeight="600" fontSize="20px">
+                        How to Farm
+                      </Text>
+                      <IconButton
+                        onClick={() => setHowToOpen(howToOpen * -1)}
+                        aria-label={howToOpen > 0 ? "Collapse" : "Expand"}
+                        variant="outline"
+                        size="xs"
+                        marginLeft="5px"
+                        icon={<BsChevronExpand />}
+                        title={howToOpen > 0 ? "Collapse" : "Expand"}
                       />
                     </Flex>
-                  }
-                  loading={
-                    (_.isEmpty(lpTokenBalances) ||
-                      _.isEmpty(farmDeposits) ||
-                      _.isEmpty(allRewards)) &&
-                    !timeout
-                  }
-                  balanceView={{
-                    title: "LP Token Balances",
-                    items: lpTokenBalancesFormatted,
-                  }}
-                  stakedView={{
-                    title: "Farm Deposits",
-                    items: farmDepositsFormatted,
-                  }}
-                  stats={[
-                    {
-                      statLabel: "Total Farm TVL",
-                      statValue: `$${commify(
-                        formatBNToString(
-                          Object.values(farmStats || {})
-                            ?.map((stat) => {
-                              return BigNumber.from(stat?.tvl || Zero)
-                            })
-                            .reduce((sum, tvl) => {
-                              return sum.add(tvl)
-                            }, Zero),
-                          18,
-                          2,
-                        ),
-                      )}`,
-                    },
-                  ]}
-                />
-              }
-            />
+                    <Collapse in={howToOpen > 0 ? true : false} animateOpacity>
+                      <List color="var(--text-lighter)" spacing={3}>
+                        <ListItem>
+                          <ListIcon
+                            as={FaChartPie}
+                            color="var(--text-primary)"
+                          />
+                          Add liquidity to one of our pools and receive LP
+                          tokens in exchange.
+                        </ListItem>
+                        <ListItem>
+                          <ListIcon
+                            as={FaReceipt}
+                            color="var(--text-primary)"
+                          />
+                          Click on any of the farm cards to deposit your LP
+                          tokens and earn rewards!
+                        </ListItem>
+                        <ListItem>
+                          <ListIcon as={FaGift} color="var(--text-primary)" />
+                          Withdraw your LP tokens and claim rewards at any time.
+                        </ListItem>
+                      </List>
+                    </Collapse>
+                  </GridItem>
+                  <Divider />
+                  <GridItem>
+                    <Flex>
+                      <Text mb="10px" fontWeight="600" fontSize="20px">
+                        Dashboard
+                      </Text>
+                      <IconButton
+                        onClick={() => setDashboardHelp(dashboardHelp * -1)}
+                        aria-label={dashboardHelp > 0 ? "Collapse" : "Expand"}
+                        variant="outline"
+                        size="xs"
+                        marginLeft="5px"
+                        icon={<BsChevronExpand />}
+                        title={dashboardHelp > 0 ? "Collapse" : "Expand"}
+                      />
+                    </Flex>
+                    <Collapse
+                      in={dashboardHelp > 0 ? true : false}
+                      animateOpacity
+                    >
+                      <List color="var(--text-lighter)" spacing={3}>
+                        <ListItem>
+                          <ListIcon
+                            as={FaLayerGroup}
+                            color="var(--text-primary)"
+                          />
+                          View your total rewards, LP token balances, & Farm
+                          Deposits across all farms all in one view!
+                        </ListItem>
+                      </List>
+                    </Collapse>
+                  </GridItem>
+                  <Divider />
+                  <GridItem>
+                    <Flex>
+                      <Text mb="10px" fontWeight="600" fontSize="20px">
+                        Preferences
+                      </Text>
+                      <IconButton
+                        onClick={() => setPreferencesHelp(preferencesHelp * -1)}
+                        aria-label={preferencesHelp > 0 ? "Collapse" : "Expand"}
+                        variant="outline"
+                        size="xs"
+                        marginLeft="5px"
+                        icon={<BsChevronExpand />}
+                        title={preferencesHelp > 0 ? "Collapse" : "Expand"}
+                      />
+                    </Flex>
+                    <Collapse
+                      in={preferencesHelp > 0 ? true : false}
+                      animateOpacity
+                    >
+                      <List color="var(--text-lighter)" spacing={3}>
+                        <ListItem>
+                          <ListIcon
+                            as={FaSortAmountUp}
+                            color="var(--text-primary)"
+                          />
+                          Sort by any of the farm card fields like TVL, APR &
+                          Name.
+                        </ListItem>
+                        <ListItem>
+                          <ListIcon as={FaFilter} color="var(--text-primary)" />
+                          Filter by your Farm Deposits, LP Token Balances and
+                          Farms with Dual Rewards.
+                        </ListItem>
+                        <ListItem>
+                          <ListIcon
+                            as={BsSliders}
+                            color="var(--text-primary)"
+                          />
+                          Configure your preferences on this page like default
+                          sorting behavior. We will save this info for you and
+                          apply it each time you visit the page!
+                        </ListItem>
+                      </List>
+                    </Collapse>
+                  </GridItem>
+                  <Divider />
+                  <GridItem>
+                    <Flex>
+                      <Text mb="10px" fontWeight="600" fontSize="20px">
+                        Pools
+                      </Text>
+                      <IconButton
+                        onClick={() => setPoolsHelp(poolsHelp * -1)}
+                        aria-label={poolsHelp > 0 ? "Collapse" : "Expand"}
+                        variant="outline"
+                        size="xs"
+                        marginLeft="5px"
+                        icon={<BsChevronExpand />}
+                        title={poolsHelp > 0 ? "Collapse" : "Expand"}
+                      />
+                    </Flex>
+                    <Collapse in={poolsHelp > 0 ? true : false} animateOpacity>
+                      <List color="var(--text-lighter)" spacing={3}>
+                        <ListItem>
+                          <ListIcon
+                            as={FaChartPie}
+                            color="var(--text-primary)"
+                          />
+                          Most of our liquidity pools can be found by visiting
+                          our{" "}
+                          <Link
+                            to="/pools"
+                            style={{
+                              textDecoration: "underline",
+                              margin: 0,
+                              fontWeight: "bold",
+                            }}
+                          >
+                            pools page
+                          </Link>
+                          , but the{" "}
+                          <a
+                            href="https://dex.nearpad.io/add/0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970/0x885f8CF6E45bdd3fdcDc644efdcd0AC93880c781"
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              textDecoration: "underline",
+                              margin: 0,
+                              fontWeight: "bold",
+                            }}
+                          >
+                            ROSE/PAD
+                            <sup>↗</sup>
+                          </a>{" "}
+                          and{" "}
+                          <a
+                            href="https://dex.nearpad.io/add/0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970/0xDA2585430fEf327aD8ee44Af8F1f989a2A91A3d2"
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              textDecoration: "underline",
+                              margin: 0,
+                              fontWeight: "bold",
+                            }}
+                          >
+                            ROSE/Frax
+                            <sup>↗</sup>
+                          </a>{" "}
+                          pairs can be found on the Nearpad DEX.
+                        </ListItem>
+                      </List>
+                    </Collapse>
+                  </GridItem>
+                </Grid>
+              </Box>
+            ) : (
+              <Dashboard
+                dashboardName="Farms"
+                dashboardContent={
+                  <StakeDetails
+                    extraStakeDetailChild={
+                      <Flex justifyContent="space-between" alignItems="center">
+                        <FaGift
+                          color="#cc3a59"
+                          size="35px"
+                          title="Total Rewards"
+                        />
+                        <AnimatingNumber
+                          value={allRewardsFormatted}
+                          precision={allRewardsFormatted > 0 ? 3 : 1}
+                        />
+                      </Flex>
+                    }
+                    loading={
+                      (_.isEmpty(lpTokenBalances) ||
+                        _.isEmpty(farmDeposits) ||
+                        _.isEmpty(allRewards)) &&
+                      !timeout
+                    }
+                    balanceView={{
+                      title: "LP Token Balances",
+                      items: lpTokenBalancesFormatted,
+                    }}
+                    stakedView={{
+                      title: "Farm Deposits",
+                      items: farmDepositsFormatted,
+                    }}
+                    stats={[
+                      {
+                        statLabel: "Total Farm TVL",
+                        statValue: `$${commify(
+                          formatBNToString(
+                            Object.values(farmStats || {})
+                              ?.map((stat) => {
+                                return BigNumber.from(stat?.tvl || Zero)
+                              })
+                              .reduce((sum, tvl) => {
+                                return sum.add(tvl)
+                              }, Zero),
+                            18,
+                            2,
+                          ),
+                        )}`,
+                      },
+                    ]}
+                  />
+                }
+              />
+            )}
           </DrawerBody>
         </DrawerContent>
       </Drawer>
@@ -607,259 +820,16 @@ function Farms(): ReactElement {
                     p="10px"
                     boxShadow="var(--shadow)"
                   >
-                    <IconButtonPopover
-                      IconButtonProps={{
-                        "aria-label": "Help",
-                        size: "md",
-                        icon: <FaInfoCircle />,
-                        title: "Need Help?",
-                        _focus: { boxShadow: "none" },
+                    <IconButton
+                      aria-label="Help"
+                      size="md"
+                      title="Need Help?"
+                      _focus={{ boxShadow: "none" }}
+                      icon={<FaInfoCircle />}
+                      onClick={() => {
+                        onOpen()
+                        setIsInfo(true)
                       }}
-                      PopoverBodyContent={
-                        <Box p="15px">
-                          <Grid gridTemplateRows="auto" rowGap="15px">
-                            <GridItem>
-                              <Text fontSize="23px" fontWeight="700">
-                                Farm Information
-                              </Text>
-                            </GridItem>
-                            <Divider />
-                            <GridItem>
-                              <Flex>
-                                <Text mb="10px" fontWeight="600">
-                                  How to Farm
-                                </Text>
-                                <IconButton
-                                  onClick={() => setHowToOpen(howToOpen * -1)}
-                                  aria-label={
-                                    howToOpen > 0 ? "Collapse" : "Expand"
-                                  }
-                                  variant="outline"
-                                  size="xs"
-                                  marginLeft="5px"
-                                  icon={<BsChevronExpand />}
-                                  title={howToOpen > 0 ? "Collapse" : "Expand"}
-                                />
-                              </Flex>
-                              <Collapse
-                                in={howToOpen > 0 ? true : false}
-                                animateOpacity
-                              >
-                                <List
-                                  fontSize="13px"
-                                  color="var(--text-lighter)"
-                                  spacing={3}
-                                >
-                                  <ListItem>
-                                    <ListIcon
-                                      as={FaChartPie}
-                                      color="var(--text-primary)"
-                                    />
-                                    Add liquidity to one of our pools and
-                                    receive LP tokens in exchange.
-                                  </ListItem>
-                                  <ListItem>
-                                    <ListIcon
-                                      as={FaReceipt}
-                                      color="var(--text-primary)"
-                                    />
-                                    Click on any of the farm cards to deposit
-                                    your LP tokens and earn rewards!
-                                  </ListItem>
-                                  <ListItem>
-                                    <ListIcon
-                                      as={FaGift}
-                                      color="var(--text-primary)"
-                                    />
-                                    Withdraw your LP tokens and claim rewards at
-                                    any time.
-                                  </ListItem>
-                                </List>
-                              </Collapse>
-                            </GridItem>
-                            <Divider />
-                            <GridItem>
-                              <Flex>
-                                <Text mb="10px" fontWeight="600">
-                                  Dashboard
-                                </Text>
-                                <IconButton
-                                  onClick={() =>
-                                    setDashboardHelp(dashboardHelp * -1)
-                                  }
-                                  aria-label={
-                                    dashboardHelp > 0 ? "Collapse" : "Expand"
-                                  }
-                                  variant="outline"
-                                  size="xs"
-                                  marginLeft="5px"
-                                  icon={<BsChevronExpand />}
-                                  title={
-                                    dashboardHelp > 0 ? "Collapse" : "Expand"
-                                  }
-                                />
-                              </Flex>
-                              <Collapse
-                                in={dashboardHelp > 0 ? true : false}
-                                animateOpacity
-                              >
-                                <List
-                                  fontSize="13px"
-                                  color="var(--text-lighter)"
-                                  spacing={3}
-                                >
-                                  <ListItem>
-                                    <ListIcon
-                                      as={FaLayerGroup}
-                                      color="var(--text-primary)"
-                                    />
-                                    View your total rewards, LP token balances,
-                                    & Farm Deposits across all farms all in one
-                                    view!
-                                  </ListItem>
-                                </List>
-                              </Collapse>
-                            </GridItem>
-                            <Divider />
-                            <GridItem>
-                              <Flex>
-                                <Text mb="10px" fontWeight="600">
-                                  Preferences
-                                </Text>
-                                <IconButton
-                                  onClick={() =>
-                                    setPreferencesHelp(preferencesHelp * -1)
-                                  }
-                                  aria-label={
-                                    preferencesHelp > 0 ? "Collapse" : "Expand"
-                                  }
-                                  variant="outline"
-                                  size="xs"
-                                  marginLeft="5px"
-                                  icon={<BsChevronExpand />}
-                                  title={
-                                    preferencesHelp > 0 ? "Collapse" : "Expand"
-                                  }
-                                />
-                              </Flex>
-                              <Collapse
-                                in={preferencesHelp > 0 ? true : false}
-                                animateOpacity
-                              >
-                                <List
-                                  fontSize="13px"
-                                  color="var(--text-lighter)"
-                                  spacing={3}
-                                >
-                                  <ListItem>
-                                    <ListIcon
-                                      as={FaSortAmountUp}
-                                      color="var(--text-primary)"
-                                    />
-                                    Sort by any of the farm card fields like
-                                    TVL, APR & Name.
-                                  </ListItem>
-                                  <ListItem>
-                                    <ListIcon
-                                      as={FaFilter}
-                                      color="var(--text-primary)"
-                                    />
-                                    Filter by your Farm Deposits, LP Token
-                                    Balances and Farms with Dual Rewards.
-                                  </ListItem>
-                                  <ListItem>
-                                    <ListIcon
-                                      as={BsSliders}
-                                      color="var(--text-primary)"
-                                    />
-                                    Configure your preferences on this page like
-                                    default sorting behavior. We will save this
-                                    info for you and apply it each time you
-                                    visit the page!
-                                  </ListItem>
-                                </List>
-                              </Collapse>
-                            </GridItem>
-                            <Divider />
-                            <GridItem>
-                              <Flex>
-                                <Text mb="10px" fontWeight="600">
-                                  Pools
-                                </Text>
-                                <IconButton
-                                  onClick={() => setPoolsHelp(poolsHelp * -1)}
-                                  aria-label={
-                                    poolsHelp > 0 ? "Collapse" : "Expand"
-                                  }
-                                  variant="outline"
-                                  size="xs"
-                                  marginLeft="5px"
-                                  icon={<BsChevronExpand />}
-                                  title={poolsHelp > 0 ? "Collapse" : "Expand"}
-                                />
-                              </Flex>
-                              <Collapse
-                                in={poolsHelp > 0 ? true : false}
-                                animateOpacity
-                              >
-                                <List
-                                  fontSize="13px"
-                                  color="var(--text-lighter)"
-                                  spacing={3}
-                                >
-                                  <ListItem>
-                                    <ListIcon
-                                      as={FaChartPie}
-                                      color="var(--text-primary)"
-                                    />
-                                    Most of our liquidity pools can be found by
-                                    visiting our{" "}
-                                    <Link
-                                      to="/pools"
-                                      style={{
-                                        textDecoration: "underline",
-                                        margin: 0,
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      pools page
-                                    </Link>
-                                    , but the{" "}
-                                    <a
-                                      href="https://dex.nearpad.io/add/0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970/0x885f8CF6E45bdd3fdcDc644efdcd0AC93880c781"
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      style={{
-                                        textDecoration: "underline",
-                                        margin: 0,
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      ROSE/PAD
-                                      <sup>↗</sup>
-                                    </a>{" "}
-                                    and{" "}
-                                    <a
-                                      href="https://dex.nearpad.io/add/0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970/0xDA2585430fEf327aD8ee44Af8F1f989a2A91A3d2"
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      style={{
-                                        textDecoration: "underline",
-                                        margin: 0,
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      ROSE/Frax
-                                      <sup>↗</sup>
-                                    </a>{" "}
-                                    pairs can be found on the Nearpad DEX.
-                                  </ListItem>
-                                </List>
-                              </Collapse>
-                            </GridItem>
-                          </Grid>
-                        </Box>
-                      }
                     />
                   </Box>
                   <Box
@@ -897,7 +867,7 @@ function Farms(): ReactElement {
                         <FaGift
                           color="#cc3a59"
                           size="35px"
-                          title="Total ROSE Rewards"
+                          title="Total Rewards"
                         />
                         <AnimatingNumber
                           value={allRewardsFormatted}
