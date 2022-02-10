@@ -61,6 +61,7 @@ export const ROSE_PAD_NLP_FARM_NAME = "ROSE/PAD PLP Farm"
 export const ROSE_FRAX_NLP_FARM_NAME = "ROSE/FRAX PLP Farm"
 export const SROSE_FARM_NAME = "stRose Farm"
 export const BUSD_METAPOOL_FARM_NAME = "BUSD Farm"
+export const MAI_METAPOOL_FARM_NAME = "MAI Farm"
 
 export type PoolName =
   | typeof BTC_POOL_NAME
@@ -88,6 +89,7 @@ export type FarmName =
   | typeof ROSE_PAD_NLP_FARM_NAME
   | typeof ROSE_FRAX_NLP_FARM_NAME
   | typeof BUSD_METAPOOL_FARM_NAME
+  | typeof MAI_METAPOOL_FARM_NAME
 // | typeof SROSE_FARM_NAME
 
 export enum ChainId {
@@ -614,8 +616,8 @@ export const UST_METAPOOL_LP_TOKEN = new Token(
   UST_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES,
   18,
   "RoseUSTLP",
-  "roseustlp",
   "tether", // tracking tether: cannot fetch coingecko for LPs
+  "Rose atUST/StablesLP",
   roseAtust,
   false,
   true,
@@ -1180,6 +1182,16 @@ export const BUSD_FARM_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "0x18A6115150A060F22Bacf62628169ee9b231368f",
 }
 
+export const MAI_FARM_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x226991aADeEfDe03bF557eF067da95fc613aBfFc", // note: missing testnet deployment
+  [ChainId.AURORA_MAINNET]: "0x226991aADeEfDe03bF557eF067da95fc613aBfFc",
+}
+
 export const FRAX_METAPOOL_DEPOSIT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
@@ -1320,6 +1332,7 @@ export const POOLS_MAP: PoolsMap = {
     isSynthetic: false,
     type: PoolTypes.USD,
     route: "mai",
+    farmName: MAI_METAPOOL_FARM_NAME,
   },
   // [STAKED_ROSE_LP_POOL_NAME]: {
   //   name: STAKED_ROSE_LP_POOL_NAME,
@@ -1400,6 +1413,15 @@ export const FARMS_MAP: FarmsMap = {
     route: "busd",
     isRose: true,
     poolName: BUSD_METAPOOL_NAME,
+  },
+  [MAI_METAPOOL_FARM_NAME]: {
+    name: MAI_METAPOOL_FARM_NAME,
+    lpToken: MAI_METAPOOL_LP_TOKEN,
+    addresses: MAI_FARM_ADDRESSES,
+    poolUrl: "../#/pools/mai/deposit",
+    route: "mai",
+    isRose: true,
+    poolName: MAI_METAPOOL_FARM_NAME,
   },
   // [SROSE_FARM_NAME]: {
   //   name: SROSE_FARM_NAME,

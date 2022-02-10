@@ -911,7 +911,7 @@ function Farms(): ReactElement {
                 }
               />
             </GridItem>
-            <GridItem rowSpan={9} colSpan={1}>
+            <GridItem rowSpan="auto" colSpan={1}>
               <Stack spacing="10px">
                 <AnimatePresence>
                   {Object.values(FARMS_MAP)
