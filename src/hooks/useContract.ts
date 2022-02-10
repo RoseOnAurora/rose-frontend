@@ -39,6 +39,7 @@ import {
   UST_METAPOOL_NAME,
   UST,
   MAI,
+  MAI_METAPOOL_FARM_NAME,
 } from "../constants"
 
 import BRIDGE_CONTRACT_ABI from "../constants/abis/bridge.json"
@@ -102,7 +103,7 @@ function useContract(
   }, [address, ABI, library, withSignerIfPossible, account])
 }
 
-// TO-DO: update ABI
+// TO-DO: update ABI and replace function with generic getContract call
 export function useFarmContract(farmName: FarmName): RoseStablesFarm | null {
   const { chainId, account, library } = useActiveWeb3React()
   return useMemo(() => {
@@ -147,6 +148,13 @@ export function useFarmContract(farmName: FarmName): RoseStablesFarm | null {
             account ?? undefined,
           ) as RoseStablesFarm
         case BUSD_METAPOOL_FARM_NAME:
+          return getContract(
+            farm.addresses[chainId],
+            JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
+            library,
+            account ?? undefined,
+          ) as RoseStablesFarm
+        case MAI_METAPOOL_FARM_NAME:
           return getContract(
             farm.addresses[chainId],
             JSON.stringify(ROSE_STABLES_FARM_ABI.abi),
@@ -473,6 +481,13 @@ export function useLPTokenContractForFarm(
             account ?? undefined,
           ) as RoseFraxLP
         case BUSD_METAPOOL_FARM_NAME:
+          return getContract(
+            farm.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
+        case MAI_METAPOOL_FARM_NAME:
           return getContract(
             farm.lpToken.addresses[chainId],
             JSON.stringify(ROSE_FRAX_LP_ABI),

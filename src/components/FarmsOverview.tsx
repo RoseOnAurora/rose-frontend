@@ -204,7 +204,6 @@ function FarmsOverview(props: FarmOverviewData): ReactElement {
     <AnimatedComponentCard
       name={formattedData.name.valueRaw}
       fields={fields}
-      fieldLength={fields.length}
       route={`farms/${farmRoute}`}
       borderRadius="10px"
       p="15px"

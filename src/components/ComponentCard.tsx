@@ -15,7 +15,6 @@ import { useEffect } from "react"
 
 interface Props extends BoxProps {
   fields: Field[]
-  fieldLength: number
   name: string
   route: string
 }
@@ -105,7 +104,7 @@ const AnimatedComponentCard = memo(
   (next, prev) =>
     next.fields.every(
       ({ valueRaw = "" }, index) => valueRaw === prev.fields[index]?.valueRaw,
-    ) && next.fieldLength === prev.fieldLength,
+    ) && next.fields.length === prev.fields.length,
 )
 
 AnimatedComponentCard.displayName = "AnimatedComponentCard"
