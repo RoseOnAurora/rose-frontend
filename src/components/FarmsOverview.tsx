@@ -134,9 +134,11 @@ function FarmsOverview(props: FarmOverviewData): ReactElement {
     apr: {
       label: "APR",
       valueRaw: roseApr
-        ? `${(
-            +roseApr.slice(0, -1) + +(dualRewardApr?.slice(0, -1) || 0)
-          ).toString()}%`
+        ? roseApr === "∞%"
+          ? "∞%"
+          : `${(
+              +roseApr.slice(0, -1) + +(dualRewardApr?.slice(0, -1) || 0)
+            ).toString()}%`
         : "-",
       tooltip:
         dualRewardTokenName && dualRewardApr ? (
