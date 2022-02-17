@@ -63,6 +63,9 @@ export const SROSE_FARM_NAME = "stRose Farm"
 export const BUSD_METAPOOL_FARM_NAME = "BUSD Farm"
 export const MAI_METAPOOL_FARM_NAME = "MAI Farm"
 
+// BORROW MARKETS
+export const FRAX_MARKET_NAME = "Frax Market"
+
 export type PoolName =
   | typeof BTC_POOL_NAME
   | typeof BTC_POOL_V2_NAME
@@ -91,6 +94,8 @@ export type FarmName =
   | typeof BUSD_METAPOOL_FARM_NAME
   | typeof MAI_METAPOOL_FARM_NAME
 // | typeof SROSE_FARM_NAME
+
+export type BorrowMarketName = typeof FRAX_MARKET_NAME
 
 export enum ChainId {
   MAINNET = 1,
@@ -1114,6 +1119,23 @@ export const MAI = new Token(
   maiLogo,
 )
 
+export const RUSD_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xcF00D067684a1a69353B333dCc2aAD73e75D9701",
+  [ChainId.AURORA_MAINNET]: "0xcF00D067684a1a69353B333dCc2aAD73e75D9701", // TO-DO: update mainnet
+}
+
+export const RUSD = new Token(
+  RUSD_CONTRACT_ADDRESSES,
+  18,
+  "RUSD",
+  "rusd", // to-do: update
+  "RoseUSD",
+  roseLogo, // to-do: update
+)
+
 export const ROSE_FARM_STABLES_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
@@ -1230,6 +1252,22 @@ export const MAI_METAPOOL_DEPOSIT_ADDRESSES: {
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x81B2DF6Da4E944B0CE5B3f62473D8637b65c631C", // note: missing testnet deployment
   [ChainId.AURORA_MAINNET]: "0x81B2DF6Da4E944B0CE5B3f62473D8637b65c631C",
+}
+
+export const FRAX_CAULDRON_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x5C33C52b08ec2Ae9C7924CDe630BD52eD5538E76",
+  [ChainId.AURORA_MAINNET]: "0x5C33C52b08ec2Ae9C7924CDe630BD52eD5538E76", // update mainnet
+}
+
+export const BENTO_BOX_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x3f9CCE2c3C7F64134FE42c3BC04332c88a50699e",
+  [ChainId.AURORA_MAINNET]: "0x3f9CCE2c3C7F64134FE42c3BC04332c88a50699e", // update mainnet
 }
 
 export const D4_POOL_TOKENS = [ALUSD, FEI, FRAX, LUSD]
@@ -1432,6 +1470,31 @@ export const FARMS_MAP: FarmsMap = {
   //   poolName: "stRose Pool",
   // },
 }
+
+export type BorrowMarket = {
+  name: string
+  collateralToken: Token
+  borrowToken: Token
+  cauldronAddresses: { [chainId in ChainId]: string }
+  bentoBoxAddresses: { [chainId in ChainId]: string }
+  route: string
+}
+
+export type BorrowMarketMap = {
+  [borrowMarketName in BorrowMarketName]: BorrowMarket
+}
+
+export const BORROW_MARKET_MAP: BorrowMarketMap = {
+  [FRAX_MARKET_NAME]: {
+    name: FRAX.symbol,
+    collateralToken: FRAX,
+    borrowToken: RUSD,
+    cauldronAddresses: FRAX_CAULDRON_ADDRESSES,
+    bentoBoxAddresses: BENTO_BOX_ADDRESSES,
+    route: "frax",
+  },
+}
+
 export function isLegacySwapABIPool(poolName: string): boolean {
   return new Set([BTC_POOL_NAME, STABLECOIN_POOL_NAME, VETH2_POOL_NAME]).has(
     poolName,
@@ -1514,6 +1577,7 @@ export const TRANSACTION_TYPES = {
   MIGRATE: "MIGRATE",
   STAKE: "STAKE",
   ROSE_PRICE: "ROSE_PRICE",
+  BORROW: "BORROW",
 }
 
 export const POOL_FEE_PRECISION = 10

@@ -1,4 +1,12 @@
 import { AppDispatch, AppState } from "../state"
+import { BORROW_MARKET_MAP, BorrowMarket } from "../constants"
+import {
+  BorrowFilterFields,
+  BorrowSortFields,
+  updateBorrowFilterPreferences,
+  updateBorrowSortPreferences,
+  updateBorrowVisibleFieldPreferences,
+} from "../state/user"
 import {
   Box,
   Collapse,
@@ -17,6 +25,7 @@ import {
   List,
   ListIcon,
   ListItem,
+  Progress,
   Radio,
   RadioGroup,
   Select,
@@ -30,161 +39,95 @@ import {
 } from "@chakra-ui/react"
 import { BsChevronExpand, BsSliders } from "react-icons/bs"
 import {
-  FARMS_MAP,
-  Farm,
-  FarmName,
-  LP_TOKEN_MAP,
-  UST_METAPOOL_FARM_NAME,
-} from "../constants"
-import {
-  FaChartPie,
   FaFilter,
-  FaGift,
+  FaHandHoldingUsd,
   FaInfoCircle,
   FaLayerGroup,
-  FaReceipt,
   FaSortAmountDownAlt,
   FaSortAmountUp,
   FaUndo,
 } from "react-icons/fa"
-import {
-  FarmFilterFields,
-  FarmSortFields,
-  updateFarmFilterPreferences,
-  updateFarmSortPreferences,
-  updateFarmVisibleFieldPreferences,
-} from "../state/user"
-import React, { ReactElement, useMemo, useState } from "react"
+import React, { ReactElement, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { AnimatePresence } from "framer-motion"
 import AnimatingNumber from "../components/AnimateNumber"
-import { BigNumber } from "@ethersproject/bignumber"
+import BorrowMarketsOverview from "../components/BorrowMarketsOverview"
 import Dashboard from "../components/Dashboard"
-import FarmsOverview from "../components/FarmsOverview"
+import FormattedComponentName from "../components/FormattedComponentName"
 import { IconButtonPopover } from "../components/Popover"
-import { Link } from "react-router-dom"
 import StakeDetails from "../components/StakeDetails"
 import TopMenu from "../components/TopMenu"
 import { Zero } from "@ethersproject/constants"
-import _ from "lodash"
-import { commify } from "@ethersproject/units"
-import { formatBNToString } from "../utils"
-import { useFarmLPTokenBalances } from "../state/wallet/hooks"
-import { useMultiCallEarnedRewards } from "../hooks/useMultiCallEarnedRewards"
-import { useMultiCallFarmDeposits } from "../hooks/useMultiCallFarmDeposits"
 
-export const SORT_FIELDS_TO_LABEL: { [sortField in FarmSortFields]: string } = {
-  apr: "APR",
+export const SORT_FIELDS_TO_LABEL: {
+  [sortField in BorrowSortFields]: string
+} = {
   name: "Name",
   tvl: "TVL",
-  rewards: "Rewards",
-  deposit: "Deposited",
-  balance: "Balance",
+  collateral: "Collateral Deposited",
+  borrow: "Borrowed",
+  supply: "RUSD Left to Borrow",
+  interest: "Interest",
+  liquidationFee: "Liquidation Fee",
 }
 
-const FILTER_FIELDS_TO_LABEL: { [filterField in FarmFilterFields]: string } = {
+const FILTER_FIELDS_TO_LABEL: {
+  [filterField in BorrowFilterFields]: string
+} = {
   noFilter: "No Filter",
-  dual: "Dual Rewards",
-  deposit: "Deposited",
-  balance: "Balance",
+  supply: "RUSD Left to Borrow",
+  collateral: "Collateral Deposited",
+  borrow: "Borrowed",
 }
 
-function Farms(): ReactElement {
+function BorrowMarkets(): ReactElement {
   const dispatch = useDispatch<AppDispatch>()
 
-  const { farmPreferences } = useSelector((state: AppState) => state.user)
-  const { farmStats } = useSelector((state: AppState) => state.application)
+  const { borrowPreferences } = useSelector((state: AppState) => state.user)
 
   const [sortDirection, setSortDirection] = useState(1)
-  const [sortByField, setSortByField] = useState(farmPreferences.sortField)
+  const [sortByField, setSortByField] = useState(borrowPreferences.sortField)
   const [filterByField, setfilterByField] = useState(
-    farmPreferences.filterField,
+    borrowPreferences.filterField,
   )
+  const [timeout, setTimout] = useState(false)
+  const [isInfo, setIsInfo] = useState(false)
+
   const [howToOpen, setHowToOpen] = useState(1)
   const [dashboardHelp, setDashboardHelp] = useState(-1)
   const [preferencesHelp, setPreferencesHelp] = useState(-1)
-  const [poolsHelp, setPoolsHelp] = useState(-1)
-  const [timeout, setTimout] = useState(false)
-  const [isInfo, setIsInfo] = useState(false)
+  const [glossaryHelp, setGlossaryHelp] = useState(-1)
 
   const { isOpen, onOpen, onClose } = useDisclosure()
   const resetDashboardView = () => {
     onClose()
     setIsInfo(false)
   }
-  useTimeout(() => setTimout(true), 10000)
 
-  const lpTokenBalances = useFarmLPTokenBalances()
-  const farmDeposits = useMultiCallFarmDeposits()
-  const allRewards = useMultiCallEarnedRewards()
-
-  const allRewardsFormatted = useMemo(() => {
-    return +formatBNToString(
-      Object.values(allRewards || {})?.reduce((sum, balance) => {
-        return sum.add(balance)
-      }, Zero),
-      18,
-      5,
-    )
-  }, [allRewards])
-
-  const lpTokenBalancesFormatted = useMemo(() => {
-    return Object.entries(lpTokenBalances || {})
-      ?.filter((balance) => {
-        return balance[1].gt(Zero)
-      })
-      .map(([symbol, value]) => {
-        return {
-          tokenName: symbol,
-          icon: LP_TOKEN_MAP[symbol].icon,
-          amount: commify(formatBNToString(value, 18, 5)),
-        }
-      })
-  }, [lpTokenBalances])
-
-  const farmDepositsFormatted = useMemo(() => {
-    return Object.entries(farmDeposits || {})
-      ?.filter((balance) => {
-        return balance[1].gt(Zero)
-      })
-      .map(([symbol, value]) => {
-        return {
-          tokenName: symbol,
-          icon: FARMS_MAP[symbol as FarmName].lpToken.icon,
-          amount: commify(formatBNToString(value, 18, 5)),
-        }
-      })
-  }, [farmDeposits])
+  useTimeout(() => setTimout(true), 3000)
 
   const FILTER_FUNCTIONS: {
-    [filterField in FarmFilterFields]: (a: Farm) => boolean
+    [filterField in BorrowFilterFields]: (a: BorrowMarket) => boolean
   } = {
-    balance: (a: Farm) =>
-      (lpTokenBalances?.[a.lpToken.symbol] || Zero).gt(Zero),
-    deposit: (a: Farm) => farmDeposits?.[a.name]?.gt(Zero) || false,
-    dual: (a: Farm) => (farmStats?.[a.name]?.dualReward.token ? true : false),
-    noFilter: (a: Farm) => (a ? true : false),
+    borrow: (a: BorrowMarket) => a.name === "ROSE",
+    supply: (a: BorrowMarket) => a.name === "ROSE",
+    collateral: (a: BorrowMarket) => a.name === "ROSE",
+    noFilter: (a: BorrowMarket) => (a ? true : false),
   }
 
   const SORT_FUNCTIONS: {
-    [sortField in FarmSortFields]: (a: Farm, b: Farm) => boolean
+    [sortField in BorrowSortFields]: (
+      a: BorrowMarket,
+      b: BorrowMarket,
+    ) => boolean
   } = {
-    apr: (a: Farm, b: Farm) =>
-      +(farmStats?.[a.name]?.apr.slice(0, -1) || 0) +
-        +(farmStats?.[a.name]?.dualReward.apr?.slice(0, -1) || 0) >
-      +(farmStats?.[b.name]?.apr.slice(0, -1) || 0) +
-        +(farmStats?.[b.name]?.dualReward.apr?.slice(0, -1) || 0),
-    name: (a: Farm, b: Farm) => a.name > b.name,
-    tvl: (a: Farm, b: Farm) =>
-      +(farmStats?.[a.name].tvl || 0) > +(farmStats?.[b.name].tvl || 0),
-    rewards: (a: Farm, b: Farm) =>
-      (allRewards?.[a.name] || Zero).gt(allRewards?.[b.name] || Zero),
-    balance: (a: Farm, b: Farm) =>
-      (lpTokenBalances?.[a.lpToken.symbol] || Zero).gt(
-        lpTokenBalances?.[b.lpToken.symbol] || Zero,
-      ),
-    deposit: (a: Farm, b: Farm) =>
-      (farmDeposits?.[a.name] || Zero).gt(farmDeposits?.[b.name] || Zero),
+    borrow: (a: BorrowMarket, b: BorrowMarket) => a.name > b.name,
+    supply: (a: BorrowMarket, b: BorrowMarket) => a.name > b.name,
+    name: (a: BorrowMarket, b: BorrowMarket) => a.name > b.name,
+    tvl: (a: BorrowMarket, b: BorrowMarket) => a.name > b.name,
+    interest: (a: BorrowMarket, b: BorrowMarket) => a.name > b.name,
+    liquidationFee: (a: BorrowMarket, b: BorrowMarket) => a.name > b.name,
+    collateral: (a: BorrowMarket, b: BorrowMarket) => a.name > b.name,
   }
 
   return (
@@ -214,14 +157,14 @@ function Farms(): ReactElement {
                 <Grid gridTemplateRows="auto" rowGap="15px">
                   <GridItem>
                     <Text fontSize="25px" fontWeight="700">
-                      Farm Information
+                      Borrow Information
                     </Text>
                   </GridItem>
                   <Divider />
                   <GridItem>
                     <Flex>
                       <Text mb="10px" fontWeight="600" fontSize="20px">
-                        How to Farm
+                        How to Borrow
                       </Text>
                       <IconButton
                         onClick={() => setHowToOpen(howToOpen * -1)}
@@ -237,23 +180,12 @@ function Farms(): ReactElement {
                       <List color="var(--text-lighter)" spacing={3}>
                         <ListItem>
                           <ListIcon
-                            as={FaChartPie}
+                            as={FaHandHoldingUsd}
                             color="var(--text-primary)"
                           />
-                          Add liquidity to one of our pools and receive LP
-                          tokens in exchange.
-                        </ListItem>
-                        <ListItem>
-                          <ListIcon
-                            as={FaReceipt}
-                            color="var(--text-primary)"
-                          />
-                          Click on any of the farm cards to deposit your LP
-                          tokens and earn rewards!
-                        </ListItem>
-                        <ListItem>
-                          <ListIcon as={FaGift} color="var(--text-primary)" />
-                          Withdraw your LP tokens and claim rewards at any time.
+                          Click on one of the borrow markets cards to add
+                          collateral to borrow RUSD. The name of the market
+                          indicates which token(s) are accepted as collateral.
                         </ListItem>
                       </List>
                     </Collapse>
@@ -284,8 +216,8 @@ function Farms(): ReactElement {
                             as={FaLayerGroup}
                             color="var(--text-primary)"
                           />
-                          View your total rewards, LP token balances, & Farm
-                          Deposits across all farms all in one view!
+                          View your total borrowed & collateralized positions
+                          across all markets all in one view!
                         </ListItem>
                       </List>
                     </Collapse>
@@ -316,13 +248,13 @@ function Farms(): ReactElement {
                             as={FaSortAmountUp}
                             color="var(--text-primary)"
                           />
-                          Sort by any of the farm card fields like TVL, APR &
-                          Name.
+                          Sort by any of the borrow market card fields like TVL,
+                          Interest & Name.
                         </ListItem>
                         <ListItem>
                           <ListIcon as={FaFilter} color="var(--text-primary)" />
-                          Filter by your Farm Deposits, LP Token Balances and
-                          Farms with Dual Rewards.
+                          Filter by your Borrowed Balances and collateralized
+                          positions.
                         </ListItem>
                         <ListItem>
                           <ListIcon
@@ -340,120 +272,55 @@ function Farms(): ReactElement {
                   <GridItem>
                     <Flex>
                       <Text mb="10px" fontWeight="600" fontSize="20px">
-                        Pools
+                        Glossary
                       </Text>
                       <IconButton
-                        onClick={() => setPoolsHelp(poolsHelp * -1)}
-                        aria-label={poolsHelp > 0 ? "Collapse" : "Expand"}
+                        onClick={() => setGlossaryHelp(glossaryHelp * -1)}
+                        aria-label={glossaryHelp > 0 ? "Collapse" : "Expand"}
                         variant="outline"
                         size="xs"
                         marginLeft="5px"
                         icon={<BsChevronExpand />}
-                        title={poolsHelp > 0 ? "Collapse" : "Expand"}
+                        title={glossaryHelp > 0 ? "Collapse" : "Expand"}
                       />
                     </Flex>
-                    <Collapse in={poolsHelp > 0 ? true : false} animateOpacity>
-                      <List color="var(--text-lighter)" spacing={3}>
-                        <ListItem>
-                          <ListIcon
-                            as={FaChartPie}
-                            color="var(--text-primary)"
-                          />
-                          Most of our liquidity pools can be found by visiting
-                          our{" "}
-                          <Link
-                            to="/pools"
-                            style={{
-                              textDecoration: "underline",
-                              margin: 0,
-                              fontWeight: "bold",
-                            }}
-                          >
-                            pools page
-                          </Link>
-                          , but the{" "}
-                          <a
-                            href="https://dex.nearpad.io/add/0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970/0x885f8CF6E45bdd3fdcDc644efdcd0AC93880c781"
-                            target="_blank"
-                            rel="noreferrer"
-                            style={{
-                              textDecoration: "underline",
-                              margin: 0,
-                              fontWeight: "bold",
-                            }}
-                          >
-                            ROSE/PAD
-                            <sup>↗</sup>
-                          </a>{" "}
-                          and{" "}
-                          <a
-                            href="https://dex.nearpad.io/add/0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970/0xDA2585430fEf327aD8ee44Af8F1f989a2A91A3d2"
-                            target="_blank"
-                            rel="noreferrer"
-                            style={{
-                              textDecoration: "underline",
-                              margin: 0,
-                              fontWeight: "bold",
-                            }}
-                          >
-                            ROSE/Frax
-                            <sup>↗</sup>
-                          </a>{" "}
-                          pairs can be found on the Nearpad DEX.
-                        </ListItem>
-                      </List>
+                    <Collapse
+                      in={glossaryHelp > 0 ? true : false}
+                      animateOpacity
+                    >
+                      <List color="var(--text-lighter)" spacing={3}></List>
                     </Collapse>
                   </GridItem>
                 </Grid>
               </Box>
             ) : (
               <Dashboard
-                dashboardName="Farms"
+                dashboardName="Borrow Markets"
                 dashboardContent={
                   <StakeDetails
                     extraStakeDetailChild={
                       <Flex justifyContent="space-between" alignItems="center">
-                        <FaGift
+                        <FaHandHoldingUsd
                           color="#cc3a59"
                           size="35px"
-                          title="Total Rewards"
+                          title="Total RUSD Borrowed"
                         />
-                        <AnimatingNumber
-                          value={allRewardsFormatted}
-                          precision={allRewardsFormatted > 0 ? 3 : 1}
-                        />
+                        <AnimatingNumber value={1205.7} precision={2} />
                       </Flex>
                     }
-                    loading={
-                      (_.isEmpty(lpTokenBalances) ||
-                        _.isEmpty(farmDeposits) ||
-                        _.isEmpty(allRewards)) &&
-                      !timeout
-                    }
+                    loading={!timeout}
                     balanceView={{
-                      title: "LP Token Balances",
-                      items: lpTokenBalancesFormatted,
+                      title: "Your RUSD Borrowed",
+                      items: [],
                     }}
                     stakedView={{
-                      title: "Farm Deposits",
-                      items: farmDepositsFormatted,
+                      title: "Your Deposited Collateral",
+                      items: [],
                     }}
                     stats={[
                       {
-                        statLabel: "Total Farm TVL",
-                        statValue: `$${commify(
-                          formatBNToString(
-                            Object.values(farmStats || {})
-                              ?.map((stat) => {
-                                return BigNumber.from(stat?.tvl || Zero)
-                              })
-                              .reduce((sum, tvl) => {
-                                return sum.add(tvl)
-                              }, Zero),
-                            18,
-                            2,
-                          ),
-                        )}`,
+                        statLabel: "RUSD Rate",
+                        statValue: "1 RUSD = 1 USD",
                       },
                     ]}
                   />
@@ -470,15 +337,10 @@ function Farms(): ReactElement {
         fontSize="16px"
         pb="300px"
       >
-        <TopMenu activeTab="farms" />
-        <Container
-          maxW="1550px"
-          mt="40px"
-          paddingInlineStart={"0.5em"}
-          paddingInlineEnd={"0.5em"}
-        >
+        <TopMenu activeTab="borrow" />
+        <Container maxW="1550px" mt="40px">
           <Grid
-            templateColumns={{ base: "100%", lg: "63% 34%" }}
+            templateColumns={{ base: "100%", lg: "65% 32%" }}
             templateRows="auto"
             columnGap={{ base: "0", lg: "30px" }}
             rowGap="20px"
@@ -535,31 +397,34 @@ function Farms(): ReactElement {
                         value={sortByField}
                         variant="filled"
                         focusBorderColor={useColorModeValue(
-                          "blackAlpha.900",
+                          "blackAlpha.500",
                           "rosybrown",
                         )}
                         fontSize={{ base: "12px", sm: "13px", md: "16px" }}
                         onChange={(e) =>
-                          setSortByField(e.target.value as FarmSortFields)
+                          setSortByField(e.target.value as BorrowSortFields)
                         }
                       >
-                        <option value={FarmSortFields.APR}>
-                          Sort by {SORT_FIELDS_TO_LABEL[FarmSortFields.APR]}
+                        <option value={BorrowSortFields.TVL}>
+                          Sort by TVL
                         </option>
-                        <option value={FarmSortFields.TVL}>
-                          Sort by {SORT_FIELDS_TO_LABEL[FarmSortFields.TVL]}
+                        <option value={BorrowSortFields.INTEREST}>
+                          Sort by Interest Rate
                         </option>
-                        <option value={FarmSortFields.REWARD}>
-                          Sort by {SORT_FIELDS_TO_LABEL[FarmSortFields.REWARD]}
+                        <option value={BorrowSortFields.SUPPLY}>
+                          Sort by RUSD Left to Borrow
                         </option>
-                        <option value={FarmSortFields.DEPOSIT}>
-                          Sort by {SORT_FIELDS_TO_LABEL[FarmSortFields.DEPOSIT]}
+                        <option value={BorrowSortFields.LIQUIDATION_FEE}>
+                          Sort by Liquidation Fee
                         </option>
-                        <option value={FarmSortFields.BALANCE}>
-                          Sort by {SORT_FIELDS_TO_LABEL[FarmSortFields.BALANCE]}
+                        <option value={BorrowSortFields.BORROW}>
+                          Sort by Borrowed
                         </option>
-                        <option value={FarmSortFields.NAME}>
-                          Sort by {SORT_FIELDS_TO_LABEL[FarmSortFields.NAME]}
+                        <option value={BorrowSortFields.COLLATERAL}>
+                          Sort by Collateralized Position
+                        </option>
+                        <option value={BorrowSortFields.NAME}>
+                          Sort by Name
                         </option>
                       </Select>
                     </Box>
@@ -567,7 +432,7 @@ function Farms(): ReactElement {
                   <HStack spacing="5px">
                     <Box
                       bgColor={useColorModeValue(
-                        "whiteAlpha.600",
+                        "whiteAlpha.500",
                         "blackAlpha.900",
                       )}
                       borderRadius="10px"
@@ -577,21 +442,23 @@ function Farms(): ReactElement {
                       <IconButton
                         _focus={{ boxShadow: "none" }}
                         aria-label="sort"
-                        disabled={filterByField === FarmFilterFields.NO_FILTER}
+                        disabled={
+                          filterByField === BorrowFilterFields.NO_FILTER
+                        }
                         title={
-                          filterByField === FarmFilterFields.NO_FILTER
+                          filterByField === BorrowFilterFields.NO_FILTER
                             ? "Filter"
                             : "Clear Filter"
                         }
                         icon={
-                          filterByField === FarmFilterFields.NO_FILTER ? (
+                          filterByField === BorrowFilterFields.NO_FILTER ? (
                             <FaFilter />
                           ) : (
                             <FaUndo />
                           )
                         }
                         onClick={() =>
-                          setfilterByField(FarmFilterFields.NO_FILTER)
+                          setfilterByField(BorrowFilterFields.NO_FILTER)
                         }
                       />
                     </Box>
@@ -610,27 +477,24 @@ function Farms(): ReactElement {
                         fontSize={{ base: "12px", sm: "13px", md: "16px" }}
                         variant="filled"
                         focusBorderColor={useColorModeValue(
-                          "blackAlpha.900",
+                          "blackAlpha.500",
                           "rosybrown",
                         )}
                         onChange={(e) =>
-                          setfilterByField(e.target.value as FarmFilterFields)
+                          setfilterByField(e.target.value as BorrowFilterFields)
                         }
                       >
-                        <option disabled value={FarmFilterFields.NO_FILTER}>
+                        <option disabled value={BorrowFilterFields.NO_FILTER}>
                           Select A Filter
                         </option>
-                        <option value={FarmFilterFields.DEPOSIT}>
-                          Filter By{" "}
-                          {FILTER_FIELDS_TO_LABEL[FarmSortFields.DEPOSIT]}
+                        <option value={BorrowFilterFields.BORROW}>
+                          Filter By Borrowed
                         </option>
-                        <option value={FarmFilterFields.BALANCE}>
-                          Filter By{" "}
-                          {FILTER_FIELDS_TO_LABEL[FarmSortFields.BALANCE]}
+                        <option value={BorrowFilterFields.SUPPLY}>
+                          Filter By Total RUSD Left to Borrow
                         </option>
-                        <option value={FarmFilterFields.DUAL}>
-                          Filter by{" "}
-                          {FILTER_FIELDS_TO_LABEL[FarmFilterFields.DUAL]}
+                        <option value={BorrowFilterFields.COLLATERAL}>
+                          Filter By Position
                         </option>
                       </Select>
                     </Box>
@@ -674,8 +538,9 @@ function Farms(): ReactElement {
                               <Grid
                                 gridTemplateRows="auto"
                                 gridTemplateColumns="repeat(2, 1fr)"
+                                rowGap="5px"
                               >
-                                {Object.values(FarmSortFields).map(
+                                {Object.values(BorrowSortFields).map(
                                   (field, index) => (
                                     <GridItem
                                       rowSpan={1}
@@ -695,7 +560,7 @@ function Farms(): ReactElement {
                                           <Switch
                                             onChange={(e) =>
                                               dispatch(
-                                                updateFarmVisibleFieldPreferences(
+                                                updateBorrowVisibleFieldPreferences(
                                                   {
                                                     field: field,
                                                     value: +e.target.value * -1,
@@ -704,12 +569,12 @@ function Farms(): ReactElement {
                                               )
                                             }
                                             value={
-                                              farmPreferences.visibleFields[
+                                              borrowPreferences.visibleFields[
                                                 field
                                               ]
                                             }
                                             isChecked={
-                                              farmPreferences.visibleFields[
+                                              borrowPreferences.visibleFields[
                                                 field
                                               ] > 0
                                                 ? true
@@ -731,27 +596,28 @@ function Farms(): ReactElement {
                                 Default Sorting Field
                               </Text>
                               <RadioGroup
-                                value={farmPreferences.sortField}
+                                value={borrowPreferences.sortField}
                                 size="sm"
-                                defaultValue={"1"}
                               >
                                 <Grid
                                   gridTemplateRows="auto"
                                   gridTemplateColumns="repeat(2, 1fr)"
+                                  rowGap="5px"
                                 >
-                                  {Object.values(FarmSortFields).map(
+                                  {Object.values(BorrowSortFields).map(
                                     (field, index) => (
                                       <GridItem
                                         rowSpan={1}
                                         colSpan={1}
                                         key={index}
+                                        fontSize="12px"
                                       >
                                         <Radio
                                           onChange={(e) =>
                                             dispatch(
-                                              updateFarmSortPreferences(
+                                              updateBorrowSortPreferences(
                                                 e.target
-                                                  .value as FarmSortFields,
+                                                  .value as BorrowSortFields,
                                               ),
                                             )
                                           }
@@ -773,13 +639,14 @@ function Farms(): ReactElement {
                               </Text>
                               <RadioGroup
                                 size="sm"
-                                value={farmPreferences.filterField}
+                                value={borrowPreferences.filterField}
                               >
                                 <Grid
                                   gridTemplateRows="auto"
                                   gridTemplateColumns="repeat(2, 1fr)"
+                                  rowGap="5px"
                                 >
-                                  {Object.values(FarmFilterFields).map(
+                                  {Object.values(BorrowFilterFields).map(
                                     (field, index) => (
                                       <GridItem
                                         rowSpan={1}
@@ -789,9 +656,9 @@ function Farms(): ReactElement {
                                         <Radio
                                           onChange={(e) =>
                                             dispatch(
-                                              updateFarmFilterPreferences(
+                                              updateBorrowFilterPreferences(
                                                 e.target
-                                                  .value as FarmFilterFields,
+                                                  .value as BorrowFilterFields,
                                               ),
                                             )
                                           }
@@ -821,10 +688,9 @@ function Farms(): ReactElement {
                     boxShadow="var(--shadow)"
                   >
                     <IconButton
-                      aria-label="Help"
-                      size="md"
-                      title="Need Help?"
                       _focus={{ boxShadow: "none" }}
+                      aria-label="info"
+                      title="Need Help?"
                       icon={<FaInfoCircle />}
                       onClick={() => {
                         onOpen()
@@ -859,52 +725,74 @@ function Farms(): ReactElement {
               colSpan={1}
             >
               <Dashboard
-                dashboardName="Farms"
+                dashboardName="Borrow Markets"
                 dashboardContent={
                   <StakeDetails
                     extraStakeDetailChild={
-                      <Flex justifyContent="space-between" alignItems="center">
-                        <FaGift
-                          color="#cc3a59"
-                          size="35px"
-                          title="Total Rewards"
-                        />
-                        <AnimatingNumber
-                          value={allRewardsFormatted}
-                          precision={allRewardsFormatted > 0 ? 3 : 1}
-                        />
-                      </Flex>
+                      <Grid gridTemplateRows="auto" rowGap="30px">
+                        <GridItem>
+                          <Flex
+                            justifyContent="space-between"
+                            alignItems="center"
+                          >
+                            <FaHandHoldingUsd
+                              color="#cc3a59"
+                              size="35px"
+                              title="Total RUSD Borrowed"
+                            />
+                            <AnimatingNumber value={1205.7} precision={2} />
+                          </Flex>
+                        </GridItem>
+                        <Divider />
+                        <GridItem>
+                          <Grid gridTemplateRows="auto" rowGap="20px">
+                            <GridItem>
+                              <Text
+                                fontWeight={700}
+                                lineHeight="30px"
+                                fontSize="25px"
+                              >
+                                Your Position Health
+                              </Text>
+                            </GridItem>
+                            <GridItem>
+                              <Flex
+                                justifyContent="space-between"
+                                alignItems="center"
+                              >
+                                <FormattedComponentName
+                                  name={"FRAX"}
+                                  icon={
+                                    BORROW_MARKET_MAP["Frax Market"]
+                                      .collateralToken.icon
+                                  }
+                                />
+                                <Box width={150}>
+                                  <Progress
+                                    colorScheme={"green"}
+                                    height="30px"
+                                    value={80}
+                                  />
+                                </Box>
+                              </Flex>
+                            </GridItem>
+                          </Grid>
+                        </GridItem>
+                      </Grid>
                     }
-                    loading={
-                      (_.isEmpty(lpTokenBalances) ||
-                        _.isEmpty(farmDeposits) ||
-                        _.isEmpty(allRewards)) &&
-                      !timeout
-                    }
+                    loading={!timeout}
                     balanceView={{
-                      title: "LP Token Balances",
-                      items: lpTokenBalancesFormatted,
+                      title: "Your RUSD Borrowed",
+                      items: [],
                     }}
                     stakedView={{
-                      title: "Farm Deposits",
-                      items: farmDepositsFormatted,
+                      title: "Your Collateral Deposited",
+                      items: [],
                     }}
                     stats={[
                       {
-                        statLabel: "Total Farm TVL",
-                        statValue: `$${commify(
-                          formatBNToString(
-                            Object.values(farmStats || {})
-                              ?.map((stat) => {
-                                return BigNumber.from(stat?.tvl || Zero)
-                              })
-                              .reduce((sum, tvl) => {
-                                return sum.add(tvl)
-                              }, Zero),
-                            18,
-                            2,
-                          ),
-                        )}`,
+                        statLabel: "RUSD Rate",
+                        statValue: "1 RUSD = 1 USD",
                       },
                     ]}
                   />
@@ -914,43 +802,28 @@ function Farms(): ReactElement {
             <GridItem rowSpan="auto" colSpan={1}>
               <Stack spacing="10px">
                 <AnimatePresence>
-                  {Object.values(FARMS_MAP)
-                    .filter((farm) => FILTER_FUNCTIONS[filterByField](farm))
+                  {Object.values(BORROW_MARKET_MAP)
+                    .filter((borrowMarket) =>
+                      FILTER_FUNCTIONS[filterByField](borrowMarket),
+                    )
                     .sort((a, b) => {
                       return SORT_FUNCTIONS[sortByField](a, b)
                         ? sortDirection * -1
                         : sortDirection
                     })
-                    .map((farm, index) =>
-                      (farmStats &&
-                        lpTokenBalances?.[farm.lpToken.symbol] &&
-                        farmDeposits?.[farm.name] &&
-                        allRewards?.[farm.name]) ||
+                    .map((borrowMarket, index) =>
                       timeout ? (
-                        <FarmsOverview
-                          key={farm.name}
-                          farmName={farm.name}
-                          lpTokenIcon={farm.lpToken.icon}
-                          farmRoute={farm.route}
-                          balance={
-                            lpTokenBalances?.[farm.lpToken.symbol] || Zero
-                          }
-                          deposited={farmDeposits?.[farm.name] || Zero}
-                          tvl={farmStats?.[farm.name]?.tvl}
-                          apr={{
-                            roseApr: farmStats?.[farm.name]?.apr,
-                            dualRewardApr:
-                              farmStats?.[farm.name]?.dualReward.apr,
-                            dualRewardTokenName:
-                              farmStats?.[farm.name]?.dualReward.token,
-                          }}
-                          rewards={{
-                            rose: allRewards?.[farm.name] || Zero,
-                            dual:
-                              farm.name === UST_METAPOOL_FARM_NAME
-                                ? allRewards?.["dualReward"] || Zero
-                                : Zero,
-                          }}
+                        <BorrowMarketsOverview
+                          key={borrowMarket.name}
+                          marketName={borrowMarket.name}
+                          borrowRoute={borrowMarket.route}
+                          tokenIcon={borrowMarket.collateralToken.icon}
+                          borrowed={Zero}
+                          position={Zero}
+                          rusdLeftToBorrow={Zero}
+                          tvl={Zero}
+                          interest={Zero}
+                          fee={Zero}
                         />
                       ) : (
                         <Skeleton
@@ -970,4 +843,4 @@ function Farms(): ReactElement {
   )
 }
 
-export default Farms
+export default BorrowMarkets

@@ -1,6 +1,9 @@
 import {
   Box,
   Collapse,
+  Flex,
+  Grid,
+  GridItem,
   IconButton,
   Skeleton,
   Stat,
@@ -47,9 +50,9 @@ const StakeStat = (props: StakeStatLabel): ReactElement => {
   if (statTooltip) {
     return (
       <Tooltip bgColor="#cc3a59" closeOnClick={false} label={statTooltip}>
-        <div className={styles.statLabel}>
-          <div className={styles.underline}>{statLabel}</div>
-        </div>
+        <Text cursor="help" borderBottom="1px dotted var(--text)">
+          {statLabel}
+        </Text>
       </Tooltip>
     )
   } else if (statPopOver) {
@@ -83,14 +86,14 @@ const StakeDetails = (props: Props): ReactElement => {
   return (
     <>
       {loading === true ? (
-        <Skeleton height="80px" borderRadius="10px" />
+        <Skeleton minH="80px" height="100%" borderRadius="10px" />
       ) : (
         extraStakeDetailChild && (
           <div className={styles.stakeDetails}>{extraStakeDetailChild}</div>
         )
       )}
       {loading === true ? (
-        <Skeleton height="80px" borderRadius="10px" />
+        <Skeleton minH="80px" height="100%" borderRadius="10px" />
       ) : (
         <div className={styles.stakeDetails}>
           <div className={styles.row}>
@@ -134,7 +137,7 @@ const StakeDetails = (props: Props): ReactElement => {
         </div>
       )}
       {loading === true ? (
-        <Skeleton height="80px" borderRadius="10px" />
+        <Skeleton minH="80px" height="100%" borderRadius="10px" />
       ) : (
         <div className={styles.stakeDetails}>
           <div className={styles.row}>
@@ -180,33 +183,44 @@ const StakeDetails = (props: Props): ReactElement => {
         </div>
       )}
       {loading === true ? (
-        <Skeleton height="80px" borderRadius="10px" />
+        <Skeleton minH="80px" height="100%" borderRadius="10px" />
       ) : (
         stats && (
-          <div className={styles.statsDetails}>
-            {stats.map(
-              ({ statLabel, statValue, statTooltip, statPopOver }, index) => {
-                return (
-                  <div key={index}>
-                    <div className={styles.statRow}>
-                      <StakeStat
-                        statLabel={statLabel}
-                        statTooltip={statTooltip}
-                        statPopOver={statPopOver}
-                        onClick={onToggle}
-                      />
-                      <div className={styles.statValue}>{statValue}</div>
-                    </div>
-                    {statPopOver && (
-                      <Collapse in={isOpen} animateOpacity>
-                        {statPopOver}
-                      </Collapse>
-                    )}
-                  </div>
-                )
-              },
-            )}
-          </div>
+          <Box
+            borderRadius="10px"
+            border="1px solid var(--outline)"
+            p="15px"
+            bg="var(--secondary-background)"
+          >
+            <Grid rowGap="15px" gridTemplateRows="auto">
+              {stats.map(
+                ({ statLabel, statValue, statTooltip, statPopOver }, index) => {
+                  return (
+                    <GridItem key={index}>
+                      <Flex
+                        fontSize="18px"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <StakeStat
+                          statLabel={statLabel}
+                          statTooltip={statTooltip}
+                          statPopOver={statPopOver}
+                          onClick={onToggle}
+                        />
+                        <Text fontWeight="600">{statValue}</Text>
+                      </Flex>
+                      {statPopOver && (
+                        <Collapse in={isOpen} animateOpacity>
+                          {statPopOver}
+                        </Collapse>
+                      )}
+                    </GridItem>
+                  )
+                },
+              )}
+            </Grid>
+          </Box>
         )
       )}
     </>

@@ -14,6 +14,7 @@ import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { FarmSortFields } from "../state/user"
 import FormattedComponentName from "./FormattedComponentName"
+import { SORT_FIELDS_TO_LABEL } from "../pages/Farms"
 import { Zero } from "@ethersproject/constants"
 import { formatBNToShortString } from "../utils"
 import roseIcon from "../assets/icons/rose.svg"
@@ -118,7 +119,7 @@ function FarmsOverview(props: FarmOverviewData): ReactElement {
     [field in FarmSortFields]: Field
   } = {
     name: {
-      label: "Name",
+      label: SORT_FIELDS_TO_LABEL[FarmSortFields.NAME],
       valueRaw: farmName.replace(/ Farm/, ""),
       valueComponent: (
         <FormattedComponentName
@@ -132,7 +133,7 @@ function FarmsOverview(props: FarmOverviewData): ReactElement {
           : undefined,
     },
     apr: {
-      label: "APR",
+      label: SORT_FIELDS_TO_LABEL[FarmSortFields.APR],
       valueRaw: roseApr
         ? roseApr === "∞%"
           ? "∞%"
@@ -150,21 +151,21 @@ function FarmsOverview(props: FarmOverviewData): ReactElement {
         ) : null,
     },
     tvl: {
-      label: "TVL",
+      label: SORT_FIELDS_TO_LABEL[FarmSortFields.TVL],
       valueRaw: tvl
         ? `$${formatBNToShortString(BigNumber.from(tvl), 18)}`
         : "-",
     },
     deposit: {
-      label: "Deposited",
+      label: SORT_FIELDS_TO_LABEL[FarmSortFields.DEPOSIT],
       valueRaw: deposited.gt(Zero) ? formatBNToShortString(deposited, 18) : "-",
     },
     balance: {
-      label: "Balance",
+      label: SORT_FIELDS_TO_LABEL[FarmSortFields.BALANCE],
       valueRaw: balance.gt(Zero) ? formatBNToShortString(balance, 18) : "-",
     },
     rewards: {
-      label: "Rewards",
+      label: SORT_FIELDS_TO_LABEL[FarmSortFields.REWARD],
       valueRaw:
         (rewards.rose.gt(Zero)
           ? formatBNToShortString(rewards.rose, 18)

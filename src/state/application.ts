@@ -45,6 +45,7 @@ const initialState: ApplicationState = {
     [TRANSACTION_TYPES.DEPOSIT]: 0,
     [TRANSACTION_TYPES.WITHDRAW]: 0,
     [TRANSACTION_TYPES.SWAP]: 0,
+    [TRANSACTION_TYPES.BORROW]: 0,
   },
 }
 

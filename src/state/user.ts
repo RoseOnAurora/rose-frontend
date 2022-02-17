@@ -52,6 +52,31 @@ interface FarmPreferences {
   sortField: FarmSortFields
 }
 
+export enum BorrowSortFields {
+  NAME = "name",
+  BORROW = "borrow",
+  COLLATERAL = "collateral",
+  TVL = "tvl",
+  SUPPLY = "supply",
+  INTEREST = "interest",
+  LIQUIDATION_FEE = "liquidationFee",
+}
+
+export enum BorrowFilterFields {
+  BORROW = "borrow",
+  SUPPLY = "supply",
+  COLLATERAL = "collateral",
+  NO_FILTER = "noFilter",
+}
+
+interface BorrowPreferences {
+  visibleFields: {
+    [field in BorrowSortFields]: number
+  }
+  filterField: BorrowFilterFields
+  sortField: BorrowSortFields
+}
+
 interface UserState {
   userSwapAdvancedMode: boolean
   userPoolAdvancedMode: boolean
@@ -64,6 +89,7 @@ interface UserState {
   transactionDeadlineSelected: Deadlines
   transactionDeadlineCustom?: string
   farmPreferences: FarmPreferences
+  borrowPreferences: BorrowPreferences
 }
 
 export const initialState: UserState = {
@@ -85,6 +111,19 @@ export const initialState: UserState = {
     },
     filterField: FarmFilterFields.NO_FILTER,
     sortField: FarmSortFields.APR,
+  },
+  borrowPreferences: {
+    visibleFields: {
+      name: 1,
+      borrow: 1,
+      collateral: -1,
+      tvl: 1,
+      supply: 1,
+      interest: 1,
+      liquidationFee: 1,
+    },
+    filterField: BorrowFilterFields.NO_FILTER,
+    sortField: BorrowSortFields.TVL,
   },
 }
 
@@ -201,6 +240,36 @@ const userSlice = createSlice({
         },
       }
     },
+    updateBorrowFilterPreferences(
+      state: UserState,
+      action: PayloadAction<BorrowFilterFields>,
+    ): void {
+      state.borrowPreferences = {
+        ...state.borrowPreferences,
+        filterField: action.payload,
+      }
+    },
+    updateBorrowSortPreferences(
+      state: UserState,
+      action: PayloadAction<BorrowSortFields>,
+    ): void {
+      state.borrowPreferences = {
+        ...state.borrowPreferences,
+        sortField: action.payload,
+      }
+    },
+    updateBorrowVisibleFieldPreferences(
+      state: UserState,
+      action: PayloadAction<{ field: BorrowSortFields; value: number }>,
+    ): void {
+      state.borrowPreferences = {
+        ...state.borrowPreferences,
+        visibleFields: {
+          ...state.borrowPreferences.visibleFields,
+          [action.payload.field]: action.payload.value,
+        },
+      }
+    },
   },
 })
 
@@ -218,6 +287,9 @@ export const {
   updateFarmFilterPreferences,
   updateFarmSortPreferences,
   updateFarmVisibleFieldPreferences,
+  updateBorrowFilterPreferences,
+  updateBorrowSortPreferences,
+  updateBorrowVisibleFieldPreferences,
 } = userSlice.actions
 
 export default userSlice.reducer

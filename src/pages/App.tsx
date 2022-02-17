@@ -2,7 +2,13 @@ import "../styles/global.scss"
 import "./NotifyStyle.scss"
 
 import { AppDispatch, AppState } from "../state"
-import { BLOCK_TIME, FARMS_MAP, POOLS_MAP } from "../constants"
+import {
+  BLOCK_TIME,
+  BORROW_MARKET_MAP,
+  BorrowMarketName,
+  FARMS_MAP,
+  POOLS_MAP,
+} from "../constants"
 import React, { ReactElement, Suspense, useCallback, useEffect } from "react"
 import { Route, Switch } from "react-router-dom"
 import { isChainSupportedByNotify, notify } from "../utils/notifyHandler"
@@ -10,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux"
 
 // import Banner from "../components/Banner"
 import Borrow from "./Borrow"
+import BorrowMarkets from "./BorrowMarkets"
 import BottomMenu from "../components/BottomMenu"
 import Deposit from "./Deposit"
 import Farm from "./Farm"
@@ -63,7 +70,7 @@ export default function App(): ReactElement {
               <Route exact path="/pools" component={Pools} />
               <Route exact path="/farms" component={Farms} />
               <Route exact path="/stake" component={Stake} />
-              <Route exact path="/borrow" component={Borrow} />
+              <Route exact path="/borrow" component={BorrowMarkets} />
               {Object.values(POOLS_MAP).map(({ name, route }) => (
                 <Route
                   exact
@@ -86,6 +93,16 @@ export default function App(): ReactElement {
                   path={`/farms/${route}`}
                   render={(props) => <Farm {...props} farmName={name} />}
                   key={`${name}-farm`}
+                ></Route>
+              ))}
+              {Object.entries(BORROW_MARKET_MAP).map(([key, { route }]) => (
+                <Route
+                  exact
+                  path={`/borrow/${route}`}
+                  render={(props) => (
+                    <Borrow {...props} borrowName={key as BorrowMarketName} />
+                  )}
+                  key={`${key}-borrow`}
                 ></Route>
               ))}
             </Switch>

@@ -31,6 +31,7 @@ const otherTokens = {
   KEEP: "keep-network",
   SGT: "sharedstake-governance-token",
   ALCX: "alchemix",
+  ROSE: "rose",
 }
 
 export default function fetchTokenPricesUSD(
@@ -78,7 +79,6 @@ export default function fetchTokenPricesUSD(
             .then((body: RosePriceResponse[]) => {
               result = {
                 ...result,
-                ROSE: +body[0].price_of_rose || 0,
                 stRose: +body[0].price_of_strose || 0,
               }
               dispatch(updateTokensPricesUSD(result))

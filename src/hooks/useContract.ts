@@ -40,10 +40,15 @@ import {
   UST,
   MAI,
   MAI_METAPOOL_FARM_NAME,
+  BorrowMarketName,
+  BORROW_MARKET_MAP,
 } from "../constants"
 
+import BENTO_BOX_ABI from "../constants/abis/BentoBox.json"
+import { BentoBox } from "../../types/ethers-contracts/BentoBox"
 import BRIDGE_CONTRACT_ABI from "../constants/abis/bridge.json"
 import { Bridge } from "../../types/ethers-contracts/Bridge"
+import CAULDRON_ABI from "../constants/abis/Cauldron.json"
 import { Contract } from "@ethersproject/contracts"
 import ERC20_ABI from "../constants/abis/erc20.json"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
@@ -78,6 +83,7 @@ import { SynthetixNetworkToken } from "../../types/ethers-contracts/SynthetixNet
 import { getContract } from "../utils"
 import { useActiveWeb3React } from "./index"
 import { useMemo } from "react"
+import { Cauldron } from "../../types/ethers-contracts/Cauldron"
 
 // returns null on errors
 function useContract(
@@ -190,6 +196,46 @@ export function useStRoseContract(): StRose | null {
     ? SROSE_CONTRACT_ADDRESSES[chainId]
     : undefined
   return useContract(contractAddress, SROSE_ABI.abi) as StRose
+}
+
+export function useCauldronContract(
+  borrowMarket: BorrowMarketName,
+): Cauldron | null {
+  const { chainId } = useActiveWeb3React()
+  const contractAddress = chainId
+    ? BORROW_MARKET_MAP[borrowMarket].cauldronAddresses[chainId]
+    : undefined
+  return useContract(contractAddress, JSON.stringify(CAULDRON_ABI)) as Cauldron
+}
+
+export function useBentoBoxContract(
+  borrowMarket: BorrowMarketName,
+): BentoBox | null {
+  const { chainId } = useActiveWeb3React()
+  const contractAddress = chainId
+    ? BORROW_MARKET_MAP[borrowMarket].bentoBoxAddresses[chainId]
+    : undefined
+  return useContract(contractAddress, JSON.stringify(BENTO_BOX_ABI)) as BentoBox
+}
+
+export function useCollateralContract(
+  borrowMarket: BorrowMarketName,
+): Erc20 | null {
+  const { chainId } = useActiveWeb3React()
+  const contractAddress = chainId
+    ? BORROW_MARKET_MAP[borrowMarket].collateralToken.addresses[chainId]
+    : undefined
+  return useContract(contractAddress, JSON.stringify(ERC20_ABI)) as Erc20
+}
+
+export function useBorrowContract(
+  borrowMarket: BorrowMarketName,
+): Erc20 | null {
+  const { chainId } = useActiveWeb3React()
+  const contractAddress = chainId
+    ? BORROW_MARKET_MAP[borrowMarket].borrowToken.addresses[chainId]
+    : undefined
+  return useContract(contractAddress, JSON.stringify(ERC20_ABI)) as Erc20
 }
 
 export function useSwapMigratorUSDContract(): SwapMigratorUSD | null {

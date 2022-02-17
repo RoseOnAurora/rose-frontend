@@ -3,7 +3,6 @@
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
 /* eslint @typescript-eslint/no-unsafe-assignment: 0 */
 /* eslint @typescript-eslint/no-explicit-any: 0 */
-
 import {
   Box,
   Button,
@@ -17,35 +16,24 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  Slider,
-  SliderFilledTrack,
-  SliderMark,
-  SliderThumb,
-  SliderTrack,
   Text,
-  Tooltip,
   useColorModeValue,
 } from "@chakra-ui/react"
 import { Field, FieldAttributes, Form, Formik } from "formik"
-import React, { ReactElement, ReactNode, useState } from "react"
+import React, { ReactElement, ReactNode } from "react"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { CookAction } from "../hooks/useCook"
-import { FaHandHoldingUsd } from "react-icons/fa"
 import SafetyTag from "./SafetyTag"
 import { formatBNToString } from "../utils"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
-import { parseUnits } from "@ethersproject/units"
 import { useTranslation } from "react-i18next"
 
-export interface BorrowFormTokenDetails {
-  symbol: string
-  icon: string
-}
-
 interface Props {
-  borrowToken: BorrowFormTokenDetails
-  collateralToken: BorrowFormTokenDetails
+  borrowTokenSymbol: string
+  borrowTokenIcon: string
+  collateralTokenSymbol: string
+  collateralTokenIcon: string
   max: string
   submitButtonLabel: string
   collateralUSDPrice: number
@@ -53,13 +41,14 @@ interface Props {
   updateLiquidationPrice: (
     borrowAmount: string,
     collateralAmount: string,
+    negate: boolean,
   ) => { valueRaw: BigNumber; formatted: string }
-  getMaxBorrow: (collateralAmount: string) => BigNumber
-  borrowValidator: (
+  getMaxWithdraw: (repayAmount: string) => BigNumber
+  repayValidator: (amount: string) => string | undefined
+  collateralValidator: (
     borrowAmount: string,
     collateralAmount: string,
   ) => string | undefined
-  collateralValidator: (amount: string) => string | undefined
   handleSubmit: (
     collateralAmount: string,
     borrowAmount: string,
@@ -69,25 +58,25 @@ interface Props {
   handlePostSubmit?: (receipt: ContractReceipt | null) => void
 }
 
-const BorrowForm = (props: Props): ReactElement => {
+const RepayForm = (props: Props): ReactElement => {
   const {
-    borrowToken,
-    collateralToken,
+    borrowTokenSymbol,
+    borrowTokenIcon,
+    collateralTokenSymbol,
+    collateralTokenIcon,
     max,
     submitButtonLabel,
     formDescription,
     collateralUSDPrice,
     updateLiquidationPrice,
-    getMaxBorrow,
-    borrowValidator,
+    getMaxWithdraw,
+    repayValidator,
     collateralValidator,
     handleSubmit,
     handlePreSubmit,
     handlePostSubmit,
   } = props
   const { t } = useTranslation()
-  const [sliderValue, setSliderValue] = useState(0)
-  const [showTooltip, setShowTooltip] = useState(false)
   const collateralFieldBgColor = useColorModeValue(
     "rgba(245, 239, 239, 0.6)",
     "rgba(28, 29, 33, 0.4)",
@@ -113,9 +102,9 @@ const BorrowForm = (props: Props): ReactElement => {
       return borrowError || collateralError
     }
     if (borrowError || borrow === "") {
-      return "Deposit Collateral"
+      return "Withdraw Collateral"
     }
-    return "Borrow"
+    return "Repay"
   }
 
   return (
@@ -144,101 +133,27 @@ const BorrowForm = (props: Props): ReactElement => {
           const receipt = (await handleSubmit(
             collateralValueSafe.value.toString(),
             borrowValueSafe.value.toString(),
-            CookAction.BORROW,
+            CookAction.REPAY,
           )) as ContractReceipt
           actions.resetForm({ values: { collateral: "", borrow: "" } })
-          setSliderValue(0)
           handlePostSubmit?.(receipt)
         }}
         validate={(values) => {
-          const collateral = collateralValidator(values.collateral)
-          const borrow = borrowValidator(values.borrow, values.collateral)
+          const collateral = collateralValidator(
+            values.borrow,
+            values.collateral,
+          )
+          const borrow = repayValidator(values.borrow)
           if (collateral || borrow) {
             return {
               collateral,
               borrow,
             }
-          } else {
-            setSliderValue(
-              Math.round(
-                Math.min(
-                  +values?.borrow && values?.collateral
-                    ? (+values.borrow /
-                        collateralUSDPrice /
-                        +values.collateral) *
-                        100
-                    : 0,
-                  100,
-                ),
-              ),
-            )
           }
         }}
       >
         {(props) => (
           <Form onSubmit={props.handleSubmit}>
-            <Field name="collateral">
-              {({ field, form }: FieldAttributes<any>) => (
-                <FormControl
-                  padding="10px"
-                  bgColor={collateralFieldBgColor}
-                  borderRadius="10px"
-                  isInvalid={form.errors?.collateral}
-                >
-                  <FormLabel fontWeight={700} htmlFor="amount">
-                    Deposit Collateral
-                  </FormLabel>
-                  <InputGroup mt="25px">
-                    <InputLeftElement
-                      pointerEvents="none"
-                      color="gray.300"
-                      fontSize="2em"
-                      marginLeft="5px"
-                    >
-                      <img src={collateralToken.icon} alt="tokenIcon" />
-                    </InputLeftElement>
-                    <Input
-                      {...field}
-                      paddingLeft="60px"
-                      autoComplete="off"
-                      autoCorrect="off"
-                      fontSize={{ base: "12px", md: "16px" }}
-                      type="text"
-                      isInvalid={form.errors?.collateral}
-                      placeholder="0.0"
-                      variant="primary"
-                    />
-                    <InputRightElement width="6rem" padding="10px">
-                      <Button
-                        variant="light"
-                        size="sm"
-                        onClick={() => {
-                          props.setFieldTouched("collateral", true)
-                          props.setFieldValue("collateral", max)
-                          props.setFieldValue("borrow", "")
-                        }}
-                      >
-                        {t("max")}
-                      </Button>
-                    </InputRightElement>
-                  </InputGroup>
-                  {form.errors?.collateral ? (
-                    <FormErrorMessage color="#cc3a59">
-                      {form.errors?.collateral}
-                    </FormErrorMessage>
-                  ) : (
-                    <FormHelperText mt="15px" fontSize="sm" as="p">
-                      {+props.values.collateral !== 0 &&
-                        `You are about to deposit ≈
-                      $${(
-                        collateralUSDPrice * +props.values.collateral
-                      ).toFixed(2)}
-                      ${collateralToken.symbol} as collateral.`}
-                    </FormHelperText>
-                  )}
-                </FormControl>
-              )}
-            </Field>
             <Field name="borrow">
               {({ field, form }: FieldAttributes<any>) => (
                 <FormControl
@@ -254,7 +169,7 @@ const BorrowForm = (props: Props): ReactElement => {
                     flexWrap={{ base: "wrap", md: "nowrap" }}
                   >
                     <FormLabel fontWeight={700} htmlFor="amount">
-                      Borrow RUSD
+                      Repay RUSD
                     </FormLabel>
                     <HStack spacing="20px">
                       <Flex>
@@ -269,6 +184,7 @@ const BorrowForm = (props: Props): ReactElement => {
                             ? updateLiquidationPrice(
                                 props.values.borrow,
                                 props.values.collateral,
+                                true,
                               ).formatted
                             : "$xx.xxx"}
                         </Text>
@@ -279,6 +195,7 @@ const BorrowForm = (props: Props): ReactElement => {
                             updateLiquidationPrice(
                               props.values.borrow,
                               props.values.collateral,
+                              true,
                             ).valueRaw,
                             18,
                           ) /
@@ -288,110 +205,33 @@ const BorrowForm = (props: Props): ReactElement => {
                       />
                     </HStack>
                   </Flex>
-                  <Slider
-                    id="slider"
-                    value={sliderValue}
-                    min={0}
-                    max={100}
-                    mb="40px"
-                    mt="20px"
-                    isDisabled={
-                      form.errors?.collateral || +props.values.collateral === 0
-                    }
-                    focusThumbOnChange={false}
-                    onChange={(v) => {
-                      setSliderValue(v)
-                      props.setFieldValue(
-                        "borrow",
-                        formatBNToString(
-                          parseUnits(props.values?.collateral || "0", 18)
-                            .mul(
-                              parseUnits(String(collateralUSDPrice || 0), 18),
-                            )
-                            .div(BigNumber.from(10).pow(18))
-                            .mul(BigNumber.from(v).shl(18))
-                            .div(BigNumber.from(100).shl(18)),
-                          18,
-                        ),
-                      )
-                    }}
-                    onMouseEnter={() => setShowTooltip(true)}
-                    onMouseLeave={() => setShowTooltip(false)}
-                  >
-                    <SliderMark value={25} mt="3" ml="-2.5" fontSize="sm">
-                      25%
-                    </SliderMark>
-                    <SliderMark value={50} mt="3" ml="-2.5" fontSize="sm">
-                      50%
-                    </SliderMark>
-                    <SliderMark value={75} mt="3" ml="-2.5" fontSize="sm">
-                      75%
-                    </SliderMark>
-                    <SliderTrack>
-                      <SliderFilledTrack bg="#cc3a59" />
-                    </SliderTrack>
-                    <Tooltip
-                      hasArrow
-                      bg="#cc3a59"
-                      color="white"
-                      placement="top"
-                      isOpen={showTooltip}
-                      label={`${sliderValue}%`}
-                    >
-                      <SliderThumb boxSize={6}>
-                        <Box color="#cc3a59" as={FaHandHoldingUsd} />
-                      </SliderThumb>
-                    </Tooltip>
-                  </Slider>
-                  <InputGroup>
+                  <InputGroup mt="25px">
                     <InputLeftElement
                       pointerEvents="none"
                       color="gray.300"
                       fontSize="2em"
                       marginLeft="5px"
                     >
-                      <img src={borrowToken.icon} alt="tokenIcon" />
+                      <img src={borrowTokenIcon} alt="tokenIcon" />
                     </InputLeftElement>
                     <Input
                       {...field}
                       paddingLeft="60px"
                       autoComplete="off"
                       autoCorrect="off"
-                      fontSize={{ base: "12px", md: "16px" }}
                       type="text"
                       isInvalid={form.errors?.borrow}
                       placeholder="0.0"
                       variant="primary"
-                      onChange={(e) => {
-                        props.handleChange(e)
-                        const decimalRegex = /^[0-9]\d*(\.\d{1,18})?$/
-                        const formattedVal = decimalRegex.exec(e.target.value)
-                          ? +e.target.value
-                          : 0
-                        setSliderValue(
-                          Math.round(
-                            Math.min(
-                              (formattedVal /
-                                collateralUSDPrice /
-                                (+props.values?.collateral || 1)) *
-                                100,
-                              100,
-                            ),
-                          ),
-                        )
-                      }}
                     />
                     <InputRightElement width="6rem" padding="10px">
                       <Button
                         variant="light"
                         size="sm"
                         onClick={() => {
-                          const borrowMax = formatBNToString(
-                            getMaxBorrow(props.values.collateral),
-                            18,
-                          )
                           props.setFieldTouched("borrow", true)
-                          props.setFieldValue("borrow", borrowMax)
+                          props.setFieldValue("borrow", max)
+                          props.setFieldValue("collateral", "")
                         }}
                       >
                         {t("max")}
@@ -405,10 +245,75 @@ const BorrowForm = (props: Props): ReactElement => {
                   ) : (
                     <FormHelperText mt="15px" fontSize="sm" as="p">
                       {+props.values.borrow !== 0 &&
-                        `You are about to borrow ≈
-                      ${(+props.values.borrow).toFixed(2)} ${
-                          borrowToken.symbol
-                        }.`}
+                        `You are about to repay ≈
+                      ${(+props.values.borrow).toFixed(
+                        2,
+                      )} ${borrowTokenSymbol}.`}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+              )}
+            </Field>
+            <Field name="collateral">
+              {({ field, form }: FieldAttributes<any>) => (
+                <FormControl
+                  padding="10px"
+                  mt="15px"
+                  bgColor={collateralFieldBgColor}
+                  borderRadius="10px"
+                  isInvalid={form.errors?.collateral}
+                >
+                  <FormLabel fontWeight={700} htmlFor="amount">
+                    Withdraw Collateral
+                  </FormLabel>
+                  <InputGroup mt="25px">
+                    <InputLeftElement
+                      pointerEvents="none"
+                      color="gray.300"
+                      fontSize="2em"
+                      marginLeft="5px"
+                    >
+                      <img src={collateralTokenIcon} alt="tokenIcon" />
+                    </InputLeftElement>
+                    <Input
+                      {...field}
+                      paddingLeft="60px"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      type="text"
+                      isInvalid={form.errors?.collateral}
+                      placeholder="0.0"
+                      variant="primary"
+                    />
+                    <InputRightElement width="6rem" padding="10px">
+                      <Button
+                        variant="light"
+                        size="sm"
+                        onClick={() => {
+                          const withdrawMax = formatBNToString(
+                            getMaxWithdraw(props.values.borrow),
+                            18,
+                          )
+                          props.setFieldTouched("collateral", true)
+                          props.setFieldValue("collateral", withdrawMax)
+                        }}
+                      >
+                        {t("max")}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+                  {form.errors?.collateral ? (
+                    <FormErrorMessage color="#cc3a59">
+                      {form.errors?.collateral}
+                    </FormErrorMessage>
+                  ) : (
+                    <FormHelperText mt="15px" fontSize="sm" as="p">
+                      {+props.values.collateral !== 0 &&
+                        `You are about to withdraw ≈
+                      $${(
+                        collateralUSDPrice * +props.values?.collateral
+                      ).toFixed(2)}
+                      ${collateralTokenSymbol} as collateral.`}
                     </FormHelperText>
                   )}
                 </FormControl>
@@ -422,7 +327,7 @@ const BorrowForm = (props: Props): ReactElement => {
               bg="var(--secondary-background)"
               border="1px solid var(--outline)"
               borderRadius="10px"
-              padding="5px"
+              padding="10px"
             >
               <Button
                 variant="primary"
@@ -460,4 +365,4 @@ const BorrowForm = (props: Props): ReactElement => {
   )
 }
 
-export default BorrowForm
+export default RepayForm

@@ -32,9 +32,9 @@ export default async function checkAndApproveTokenForTrade(
     onTransactionSuccess?: (transaction: ContractReceipt) => () => void
     onTransactionError?: (error: Error | string) => () => void
   } = {},
-): Promise<void> {
-  if (srcTokenContract == null) return
-  if (spendingValue.eq(0)) return
+): Promise<boolean> {
+  if (srcTokenContract == null) return false
+  if (spendingValue.eq(0)) return true
   const tokenName = await srcTokenContract.name()
   const existingAllowance = await srcTokenContract.allowance(
     spenderAddress,
@@ -46,7 +46,7 @@ export default async function checkAndApproveTokenForTrade(
     `Existing ${tokenName} Allowance: ${existingAllowance.toString()}`,
   )
   console.log(`Spending ${spendingValue.toString()} ${tokenName}`)
-  if (existingAllowance.gte(spendingValue)) return
+  if (existingAllowance.gte(spendingValue)) return true
   console.log(`need to approve`)
   async function approve(amount: BigNumber): Promise<void> {
     try {
@@ -72,4 +72,5 @@ export default async function checkAndApproveTokenForTrade(
   }
   await approve(infiniteApproval ? MaxUint256 : spendingValue)
   console.debug(`Approving ${tokenName} spend of ${spendingValue.toString()}`)
+  return false
 }
