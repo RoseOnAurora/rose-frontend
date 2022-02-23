@@ -1,3 +1,9 @@
+import {
+  BorrowFilterFields,
+  BorrowSortFields,
+  FarmFilterFields,
+  FarmSortFields,
+} from "../state/user"
 import { injected, walletconnect } from "../connectors"
 
 import { AbstractConnector } from "@web3-react/abstract-connector"
@@ -64,7 +70,7 @@ export const BUSD_METAPOOL_FARM_NAME = "BUSD Farm"
 export const MAI_METAPOOL_FARM_NAME = "MAI Farm"
 
 // BORROW MARKETS
-export const FRAX_MARKET_NAME = "Frax Market"
+export const FRAX_MARKET_NAME = "FRAX"
 
 export type PoolName =
   | typeof BTC_POOL_NAME
@@ -1270,6 +1276,14 @@ export const BENTO_BOX_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.AURORA_MAINNET]: "0x3f9CCE2c3C7F64134FE42c3BC04332c88a50699e", // update mainnet
 }
 
+export const FRAX_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x0cFfD32E7199C9d4bb821cF5ec8fd1b0704E8D62",
+  [ChainId.AURORA_MAINNET]: "0x0cFfD32E7199C9d4bb821cF5ec8fd1b0704E8D62", // update mainnet
+}
+
 export const D4_POOL_TOKENS = [ALUSD, FEI, FRAX, LUSD]
 export const FRAX_STABLES_LP_POOL_TOKENS = [FRAX, STABLECOIN_SWAP_V2_TOKEN]
 export const FRAX_METAPOOL_TOKENS = [FRAX, STABLECOIN_SWAP_V2_TOKEN]
@@ -1472,11 +1486,12 @@ export const FARMS_MAP: FarmsMap = {
 }
 
 export type BorrowMarket = {
-  name: string
+  name: BorrowMarketName
   collateralToken: Token
   borrowToken: Token
   cauldronAddresses: { [chainId in ChainId]: string }
   bentoBoxAddresses: { [chainId in ChainId]: string }
+  oracleAddresses: { [chainId in ChainId]: string }
   route: string
 }
 
@@ -1486,11 +1501,12 @@ export type BorrowMarketMap = {
 
 export const BORROW_MARKET_MAP: BorrowMarketMap = {
   [FRAX_MARKET_NAME]: {
-    name: FRAX.symbol,
+    name: FRAX_MARKET_NAME,
     collateralToken: FRAX,
     borrowToken: RUSD,
     cauldronAddresses: FRAX_CAULDRON_ADDRESSES,
     bentoBoxAddresses: BENTO_BOX_ADDRESSES,
+    oracleAddresses: FRAX_ORACLE_ADDRESSES,
     route: "frax",
   },
 }
@@ -1643,6 +1659,59 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
 export interface ChainInfo {
   name: string
   rpc: string
+}
+
+export type SignedSignatureRes = {
+  r: string
+  s: string
+  v: number
+}
+
+export interface DashboardItems {
+  tokenName: string
+  amount: string
+  icon: string
+}
+
+export const FARM_SORT_FIELDS_TO_LABEL: {
+  [sortField in FarmSortFields]: string
+} = {
+  apr: "APR",
+  name: "Name",
+  tvl: "TVL",
+  rewards: "Rewards",
+  deposit: "Deposited",
+  balance: "Balance",
+}
+
+export const FARM_FILTER_FIELDS_TO_LABEL: {
+  [filterField in FarmFilterFields]: string
+} = {
+  noFilter: "No Filter",
+  dual: "Dual Rewards",
+  deposit: "Deposited",
+  balance: "Balance",
+}
+
+export const BORROW_SORT_FIELDS_TO_LABEL: {
+  [sortField in BorrowSortFields]: string
+} = {
+  name: "Name",
+  tvl: "TVL",
+  collateral: "Collateral Deposited",
+  borrow: "Borrowed",
+  supply: "RUSD Left to Borrow",
+  interest: "Interest",
+  liquidationFee: "Liquidation Fee",
+}
+
+export const BORROW_FILTER_FIELDS_TO_LABEL: {
+  [filterField in BorrowFilterFields]: string
+} = {
+  noFilter: "No Filter",
+  supply: "RUSD Left to Borrow",
+  collateral: "Collateral Deposited",
+  borrow: "Borrowed",
 }
 
 // kinda hacky, but will change once we update our chain IDs

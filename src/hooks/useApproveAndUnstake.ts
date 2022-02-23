@@ -20,7 +20,8 @@ export function useApproveAndUnstake(): (
       const tx = await stRoseContract.burn(account, amountToUnStake)
       return await tx.wait()
     } catch (e) {
-      console.error(e)
+      const error = e as { code: number; message: string }
+      throw error
     }
   }
 }

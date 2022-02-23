@@ -5,7 +5,6 @@ import { commify, formatBNToString } from "../utils"
 import Copy from "./Copy"
 import Identicon from "./Identicon"
 import { SUPPORTED_WALLETS } from "../constants"
-import Transactions from "./Transactions"
 import { Zero } from "@ethersproject/constants"
 import { find } from "lodash"
 import { getEtherscanLink } from "../utils/getEtherscanLink"
@@ -100,10 +99,10 @@ export default function AccountDetail({ openOptions }: Props): ReactElement {
           </div>
         </div>
       </div>
-
-      <div className="lowerSection">
+      {/* TO-DO: REPLACE THIS WITH OUR SUBGRAPH */}
+      {/* <div className="lowerSection">
         <Transactions />
-      </div>
+      </div> */}
     </div>
   )
 }

@@ -32,6 +32,7 @@ export function useApproveAndStake(): (
   const dispatch = useDispatch()
   return async function approveAndStake(
     amount: string,
+    onApprovalTransactionStart?: () => void,
   ): Promise<ContractReceipt | void> {
     try {
       if (!account) throw new Error("Wallet must be connected")
@@ -58,9 +59,9 @@ export function useApproveAndStake(): (
         true,
         gasPrice,
         {
-          onTransactionError: (error) => {
-            console.error(error)
-            throw new Error("Your transaction could not be completed")
+          onTransactionStart: () => {
+            onApprovalTransactionStart?.()
+            return undefined
           },
         },
       )
@@ -73,7 +74,8 @@ export function useApproveAndStake(): (
       )
       return receipt
     } catch (e) {
-      console.error(e)
+      const error = e as { code: number; message: string }
+      throw error
     }
   }
 }

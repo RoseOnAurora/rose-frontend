@@ -1,28 +1,28 @@
+import { AppDispatch, AppState } from "../state"
+import { BigNumber, BigNumberish } from "@ethersproject/bignumber"
 import {
-  BORROW_MARKET_MAP,
   BorrowMarketName,
   ChainId,
+  SignedSignatureRes,
   TRANSACTION_TYPES,
 } from "../constants"
-import { BigNumber, BigNumberish } from "@ethersproject/bignumber"
 import { BytesLike, ethers } from "ethers"
 import { ContractReceipt, PayableOverrides } from "@ethersproject/contracts"
+import { getSigner, parseSignature } from "../utils"
 import {
   useBentoBoxContract,
   useBorrowContract,
   useCauldronContract,
   useCollateralContract,
 } from "./useContract"
-import { AppDispatch } from "../state"
+import { useDispatch, useSelector } from "react-redux"
 import { BentoBox } from "../../types/ethers-contracts/BentoBox"
 import { Cauldron } from "../../types/ethers-contracts/Cauldron"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
-import { getSigner } from "../utils"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
-import { useDispatch } from "react-redux"
 
 enum CauldronActions {
   REPAY = 2,
@@ -41,10 +41,15 @@ export enum CookAction {
   REPAY = 1,
 }
 
-type SignedSignatureRes = {
-  r: string
-  s: string
-  v: number
+interface CookArgsProps {
+  parsedSignature: SignedSignatureRes | null
+  account: string
+  borrowAmount: BigNumber
+  collateralAmount: BigNumber
+  borrowTokenAddress: string
+  collateralTokenAddress: string
+  masterContractAddress: string
+  updateOraclePrice: boolean
 }
 
 interface CookArgs {
@@ -54,28 +59,158 @@ interface CookArgs {
   overrides?: PayableOverrides & { from?: string | Promise<string> }
 }
 
-const parseSignature = (signature: string): SignedSignatureRes => {
-  const parsedSignature = signature.substring(2)
-  const r = parsedSignature.substring(0, 64)
-  const s = parsedSignature.substring(64, 128)
-  const v = parsedSignature.substring(128, 130)
-  return {
-    r: "0x" + r,
-    s: "0x" + s,
-    v: parseInt(v, 16),
+export function useCook(
+  borrowMarket: BorrowMarketName,
+): (
+  collateral: string,
+  borrow: string,
+  cookAction: CookAction,
+  onMessageSignatureTransactionStart?: () => void,
+  onApprovalTransactionStart?: () => void,
+  onApprovalTransactionSuccess?: () => void,
+) => Promise<ContractReceipt | void> {
+  const cauldronContract = useCauldronContract(borrowMarket) as Cauldron
+  const bentoBoxContract = useBentoBoxContract(borrowMarket) as BentoBox
+  const collateralTokenContract = useCollateralContract(borrowMarket) as Erc20
+  const borrowTokenContract = useBorrowContract(borrowMarket) as Erc20
+
+  const { library, account, chainId } = useActiveWeb3React()
+  const dispatch = useDispatch<AppDispatch>()
+
+  const { infiniteApproval, priceFromOracle } = useSelector(
+    (state: AppState) => state.user,
+  )
+
+  return async function cook(
+    collateralAmount: string,
+    borrowAmount: string,
+    cookAction: CookAction,
+    onMessageSignatureTransactionStart?: () => void,
+    onApprovalTransactionStart?: () => void,
+    onApprovalTransactionSuccess?: () => void,
+  ): Promise<ContractReceipt | void> {
+    // validation checks
+    if (
+      !account ||
+      !chainId ||
+      !library ||
+      !cauldronContract ||
+      !bentoBoxContract ||
+      !collateralTokenContract
+    ) {
+      return
+    }
+
+    try {
+      const masterContractAddress = await cauldronContract.masterContract()
+      const bentoBoxAddress = await cauldronContract.bentoBox()
+
+      const amountToDeposit = BigNumber.from(collateralAmount)
+      const amountToBorrow = BigNumber.from(borrowAmount)
+
+      const gasPrice = Zero // change this
+
+      // approve
+      const alreadyApproved = await checkAndApproveTokenForTrade(
+        cookAction === CookAction.BORROW
+          ? collateralTokenContract
+          : borrowTokenContract,
+        bentoBoxAddress,
+        account,
+        cookAction === CookAction.BORROW ? amountToDeposit : amountToBorrow,
+        infiniteApproval,
+        gasPrice,
+        {
+          onTransactionStart: () => {
+            onApprovalTransactionStart?.()
+            return undefined
+          },
+          onTransactionSuccess: () => onApprovalTransactionSuccess?.(),
+        },
+      )
+
+      // signature request if not already approved
+      if (!alreadyApproved) {
+        onMessageSignatureTransactionStart?.()
+      }
+
+      const parsedSignature = alreadyApproved
+        ? null
+        : await requestSignature(
+            chainId,
+            bentoBoxAddress,
+            "BentoBox V1",
+            "Give FULL access to funds in (and approved to) BentoBox?",
+            masterContractAddress,
+            bentoBoxContract,
+            account,
+            library,
+          )
+
+      // cook
+      const cookArgProps = {
+        parsedSignature: parsedSignature,
+        account: account,
+        borrowAmount: amountToBorrow,
+        collateralAmount: amountToDeposit,
+        borrowTokenAddress: borrowTokenContract.address,
+        collateralTokenAddress: collateralTokenContract.address,
+        masterContractAddress: masterContractAddress,
+        updateOraclePrice: priceFromOracle,
+      }
+
+      const cookArgs =
+        cookAction === CookAction.BORROW
+          ? getBorrowCookArgs({ ...cookArgProps })
+          : repayCookArgs({ ...cookArgProps })
+
+      const tx = await cauldronContract.cook(
+        cookArgs.actions,
+        cookArgs.values,
+        cookArgs.datas,
+      )
+
+      // complete
+      const receipt = await tx.wait()
+      dispatch(
+        updateLastTransactionTimes({ [TRANSACTION_TYPES.BORROW]: Date.now() }),
+      )
+      dispatch(
+        updateLastTransactionTimes({ [TRANSACTION_TYPES.BORROW]: Date.now() }),
+      )
+
+      return receipt
+    } catch (e) {
+      const error = e as { code: number; message: string }
+      throw error
+    }
   }
 }
 
+/**
+ * Create a JsonRpcSigner signature request for BentoBox
+ * @param chainId ChainId
+ * @param verifyingContractAddress string
+ * @param verifyingDomainName string
+ * @param messageToSign string
+ * @param masterContractAddress string
+ * @param verifyingContract Contract
+ * @param account string
+ * @param library Web3Provider
+ * @returns Promise<SignedSignatureRes>
+ */
 const requestSignature = async (
   chainId: ChainId,
   verifyingContractAddress: string,
+  verifyingDomainName: string,
+  messageToSign: string,
   masterContractAddress: string,
   verifyingContract: BentoBox,
   account: string,
   library: ethers.providers.Web3Provider,
 ): Promise<SignedSignatureRes> => {
   const domain = {
-    name: "BentoBox V1",
+    name: verifyingDomainName,
     chainId,
     verifyingContract: verifyingContractAddress,
   }
@@ -92,7 +227,7 @@ const requestSignature = async (
   }
   // The data to sign
   const value = {
-    warning: "Give FULL access to funds in (and approved to) BentoBox?",
+    warning: messageToSign,
     user: account,
     masterContract: masterContractAddress,
     approved: true,
@@ -108,15 +243,12 @@ const requestSignature = async (
   return parseSignature(signature)
 }
 
-const getBorrowCookArgs = (
-  parsedSignature: SignedSignatureRes | null,
-  account: string,
-  borrowAmount: BigNumber,
-  collateralAmount: BigNumber,
-  borrowTokenAddress: string,
-  collateralTokenAddress: string,
-  masterContractAddress: string,
-): CookArgs => {
+const getDefaultCookArgs = ({
+  parsedSignature,
+  account,
+  masterContractAddress,
+  updateOraclePrice,
+}: CookArgsProps): CookArgs => {
   const actions: BigNumberish[] = []
   const values: BigNumberish[] = []
   const datas: BytesLike[] = []
@@ -140,45 +272,14 @@ const getBorrowCookArgs = (
     )
   }
 
-  // TO-DO: condition for adding this?
   // UPDATE EXCHANGE RATE
-  actions.push(CauldronActions.UPDATE_EXCHANGE_RATE)
-  values.push(0)
-  datas.push(
-    ethers.utils.defaultAbiCoder.encode(
-      ["bool", "uint256", "uint256"],
-      [true, "0x00", "0x00"],
-    ),
-  )
-
-  // BORROW
-  if (!borrowAmount.isZero()) {
-    actions.push(CauldronActions.BORROW, CauldronActions.BENTO_WITHDRAW)
-    values.push(0, 0)
+  if (updateOraclePrice) {
+    actions.push(CauldronActions.UPDATE_EXCHANGE_RATE)
+    values.push(0)
     datas.push(
       ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address"],
-        [borrowAmount, account],
-      ),
-      ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [borrowTokenAddress, account, borrowAmount, 0],
-      ),
-    )
-  }
-
-  // DEPOSIT COLLATERAL
-  if (!collateralAmount.isZero()) {
-    actions.push(CauldronActions.BENTO_DEPOSIT, CauldronActions.ADD_COLLATERAL)
-    values.push(0, 0)
-    datas.push(
-      ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [collateralTokenAddress, account, collateralAmount, 0],
-      ),
-      ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address", "bool"],
-        [collateralAmount, account, false],
+        ["bool", "uint256", "uint256"],
+        [true, "0x00", "0x00"],
       ),
     )
   }
@@ -190,51 +291,58 @@ const getBorrowCookArgs = (
   }
 }
 
-const repayCookArgs = (
-  parsedSignature: SignedSignatureRes | null,
-  account: string,
-  borrowAmount: BigNumber,
-  collateralAmount: BigNumber,
-  borrowTokenAddress: string,
-  collateralTokenAddress: string,
-  masterContractAddress: string,
-): CookArgs => {
-  const actions: BigNumberish[] = []
-  const values: BigNumberish[] = []
-  const datas: BytesLike[] = []
+const getBorrowCookArgs = (props: CookArgsProps): CookArgs => {
+  const { actions, values, datas } = getDefaultCookArgs(props)
 
-  // APPROVALS
-  if (parsedSignature) {
-    actions.push(CauldronActions.BENTO_SET_APPROVAL)
-    values.push(0)
+  // BORROW
+  if (!props.borrowAmount.isZero()) {
+    actions.push(CauldronActions.BORROW, CauldronActions.BENTO_WITHDRAW)
+    values.push(0, 0)
     datas.push(
       ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "bool", "uint8", "bytes32", "bytes32"],
-        [
-          account,
-          masterContractAddress,
-          true,
-          parsedSignature.v,
-          parsedSignature.r,
-          parsedSignature.s,
-        ],
+        ["int256", "address"],
+        [props.borrowAmount, props.account],
+      ),
+      ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [props.borrowTokenAddress, props.account, props.borrowAmount, 0],
       ),
     )
   }
 
-  // TO-DO: condition for adding this?
-  // UPDATE EXCHANGE RATE
-  actions.push(CauldronActions.UPDATE_EXCHANGE_RATE)
-  values.push(0)
-  datas.push(
-    ethers.utils.defaultAbiCoder.encode(
-      ["bool", "uint256", "uint256"],
-      [true, "0x00", "0x00"],
-    ),
-  )
+  // DEPOSIT COLLATERAL
+  if (!props.collateralAmount.isZero()) {
+    actions.push(CauldronActions.BENTO_DEPOSIT, CauldronActions.ADD_COLLATERAL)
+    values.push(0, 0)
+    datas.push(
+      ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [
+          props.collateralTokenAddress,
+          props.account,
+          props.collateralAmount,
+          0,
+        ],
+      ),
+      ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        [props.collateralAmount, props.account, false],
+      ),
+    )
+  }
+
+  return {
+    actions,
+    values,
+    datas,
+  }
+}
+
+const repayCookArgs = (props: CookArgsProps): CookArgs => {
+  const { actions, values, datas } = getDefaultCookArgs(props)
 
   // REPAY
-  if (!borrowAmount.isZero()) {
+  if (!props.borrowAmount.isZero()) {
     actions.push(
       CauldronActions.BENTO_DEPOSIT,
       CauldronActions.REPAY_PART,
@@ -244,18 +352,18 @@ const repayCookArgs = (
     datas.push(
       ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "int256", "int256"],
-        [borrowTokenAddress, account, borrowAmount, 0],
+        [props.borrowTokenAddress, props.account, props.borrowAmount, 0],
       ),
       ethers.utils.defaultAbiCoder.encode(["int256"], ["-0x01"]),
       ethers.utils.defaultAbiCoder.encode(
         ["int256", "address", "bool"],
-        ["-0x01", account, false],
+        ["-0x01", props.account, false],
       ),
     )
   }
 
   // WITHDRAW COLLATERAL
-  if (!collateralAmount.isZero()) {
+  if (!props.collateralAmount.isZero()) {
     actions.push(
       CauldronActions.REMOVE_COLLATERAL,
       CauldronActions.BENTO_WITHDRAW,
@@ -264,11 +372,16 @@ const repayCookArgs = (
     datas.push(
       ethers.utils.defaultAbiCoder.encode(
         ["int256", "address"],
-        [collateralAmount, account],
+        [props.collateralAmount, props.account],
       ),
       ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "int256", "int256"],
-        [collateralTokenAddress, account, 0, collateralAmount],
+        [
+          props.collateralTokenAddress,
+          props.account,
+          0,
+          props.collateralAmount,
+        ],
       ),
     )
   }
@@ -277,107 +390,5 @@ const repayCookArgs = (
     actions,
     values,
     datas,
-  }
-}
-
-export function useCook(
-  borrowMarket: BorrowMarketName,
-): (
-  collateral: string,
-  borrow: string,
-  cookAction: CookAction,
-) => Promise<ContractReceipt | void> {
-  const cauldronContract = useCauldronContract(borrowMarket) as Cauldron
-  const bentoBoxContract = useBentoBoxContract(borrowMarket) as BentoBox
-  const collateralTokenContract = useCollateralContract(borrowMarket) as Erc20
-  const borrowTokenContract = useBorrowContract(borrowMarket) as Erc20
-  const { library, account, chainId } = useActiveWeb3React()
-  const dispatch = useDispatch<AppDispatch>()
-
-  return async function cook(
-    collateralAmount: string,
-    borrowAmount: string,
-    cookAction: CookAction,
-  ): Promise<ContractReceipt | void> {
-    try {
-      if (!account || !chainId || !library)
-        throw new Error("Wallet must be connected")
-      if (!cauldronContract || !bentoBoxContract || !collateralTokenContract)
-        throw new Error("Contracts are not loaded.")
-
-      const BORROW_MARKET = BORROW_MARKET_MAP[borrowMarket]
-
-      const masterContractAddress = await cauldronContract.masterContract()
-      const bentoBoxAddress = await cauldronContract.bentoBox()
-
-      const amountToDeposit = BigNumber.from(collateralAmount)
-      const amountToBorrow = BigNumber.from(borrowAmount)
-
-      const gasPrice = Zero // change this
-
-      // approve collateral
-      const alreadyApproved = await checkAndApproveTokenForTrade(
-        cookAction === CookAction.BORROW
-          ? collateralTokenContract
-          : borrowTokenContract,
-        bentoBoxAddress,
-        account,
-        cookAction === CookAction.BORROW ? amountToDeposit : amountToBorrow,
-        false,
-        gasPrice,
-        {
-          onTransactionError: (error) => {
-            console.error(error)
-            throw new Error("Your transaction could not be completed")
-          },
-        },
-      )
-
-      const parsedSignature = alreadyApproved
-        ? null
-        : await requestSignature(
-            chainId,
-            bentoBoxAddress,
-            masterContractAddress,
-            bentoBoxContract,
-            account,
-            library,
-          )
-
-      const cookArgs =
-        cookAction === CookAction.BORROW
-          ? getBorrowCookArgs(
-              parsedSignature,
-              account,
-              amountToBorrow,
-              amountToDeposit,
-              BORROW_MARKET.borrowToken.addresses[chainId],
-              BORROW_MARKET.collateralToken.addresses[chainId],
-              masterContractAddress,
-            )
-          : repayCookArgs(
-              parsedSignature,
-              account,
-              amountToBorrow,
-              amountToDeposit,
-              BORROW_MARKET.borrowToken.addresses[chainId],
-              BORROW_MARKET.collateralToken.addresses[chainId],
-              masterContractAddress,
-            )
-
-      const tx = await cauldronContract.cook(
-        cookArgs.actions,
-        cookArgs.values,
-        cookArgs.datas,
-      )
-
-      const receipt = await tx.wait()
-      dispatch(
-        updateLastTransactionTimes({ [TRANSACTION_TYPES.BORROW]: Date.now() }),
-      )
-      return receipt
-    } catch (e) {
-      console.error(e)
-    }
   }
 }

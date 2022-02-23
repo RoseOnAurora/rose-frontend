@@ -139,6 +139,7 @@ const WithdrawPage = (props: Props): ReactElement => {
     <div className={"withdraw " + classNames({ noShare: noShare })}>
       <TopMenu activeTab={"withdraw"} />
       <div className="content">
+        <BackButton route="/pools" buttonText="Go back to pools" />
         <div className="left">
           <div className="form">
             <Tabs
@@ -533,11 +534,6 @@ const WithdrawPage = (props: Props): ReactElement => {
             />
           ) : null}
         </Modal>
-        <BackButton
-          route="/pools"
-          wrapperClass="goBack"
-          buttonText="Go back to pools"
-        />
       </div>
     </div>
   )

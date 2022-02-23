@@ -22,17 +22,21 @@ import {
   SliderMark,
   SliderThumb,
   SliderTrack,
+  Stack,
   Text,
   Tooltip,
-  useColorModeValue,
 } from "@chakra-ui/react"
 import { Field, FieldAttributes, Form, Formik } from "formik"
 import React, { ReactElement, ReactNode, useState } from "react"
 import { BigNumber } from "@ethersproject/bignumber"
+import BorrowAdvancedOptions from "../components/BorrowAdvancedOptions"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { CookAction } from "../hooks/useCook"
 import { FaHandHoldingUsd } from "react-icons/fa"
+import FormTitle from "./FormTitleOptions"
+import FormWrapper from "./wrappers/FormWrapper"
 import SafetyTag from "./SafetyTag"
+import { TransactionType } from "../hooks/useChakraToast"
 import { formatBNToString } from "../utils"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import { parseUnits } from "@ethersproject/units"
@@ -47,13 +51,16 @@ interface Props {
   borrowToken: BorrowFormTokenDetails
   collateralToken: BorrowFormTokenDetails
   max: string
-  submitButtonLabel: string
   collateralUSDPrice: number
   formDescription?: ReactNode
   updateLiquidationPrice: (
     borrowAmount: string,
     collateralAmount: string,
-  ) => { valueRaw: BigNumber; formatted: string }
+  ) => string
+  updatePositionHealth: (
+    borrowAmount: string,
+    collateralAmount: string,
+  ) => number
   getMaxBorrow: (collateralAmount: string) => BigNumber
   borrowValidator: (
     borrowAmount: string,
@@ -64,9 +71,26 @@ interface Props {
     collateralAmount: string,
     borrowAmount: string,
     cookAction: CookAction,
+    onMessageSignatureTransactionStart?: () => void,
+    onApprovalTransactionStart?: () => void,
   ) => Promise<ContractReceipt | void>
-  handlePreSubmit?: () => void
-  handlePostSubmit?: (receipt: ContractReceipt | null) => void
+  handleWhileSubmitting?: {
+    onMessageSignatureTransactionStart?: () => void
+    onApprovalTransactionStart?: () => void
+  }
+  handlePreSubmit?: (txnType: TransactionType) => void
+  handlePostSubmit?: (
+    receipt: ContractReceipt | null,
+    transactionType: TransactionType,
+    error?: { code: number; message: string },
+  ) => void
+  submitButtonLabelText: (
+    borrow: string,
+    collateral: string,
+    borrowError: string | undefined,
+    collateralError: string | undefined,
+    txnType: TransactionType,
+  ) => string | undefined
 }
 
 const BorrowForm = (props: Props): ReactElement => {
@@ -74,81 +98,63 @@ const BorrowForm = (props: Props): ReactElement => {
     borrowToken,
     collateralToken,
     max,
-    submitButtonLabel,
     formDescription,
     collateralUSDPrice,
+    handleWhileSubmitting,
     updateLiquidationPrice,
+    updatePositionHealth,
     getMaxBorrow,
     borrowValidator,
     collateralValidator,
     handleSubmit,
     handlePreSubmit,
     handlePostSubmit,
+    submitButtonLabelText,
   } = props
+
   const { t } = useTranslation()
   const [sliderValue, setSliderValue] = useState(0)
   const [showTooltip, setShowTooltip] = useState(false)
-  const collateralFieldBgColor = useColorModeValue(
-    "rgba(245, 239, 239, 0.6)",
-    "rgba(28, 29, 33, 0.4)",
-  )
-  const borrowFieldBgColor = useColorModeValue(
-    "rgba(245, 239, 239, 0.6)",
-    "rgba(28, 29, 33, 0.4)",
-  )
-
-  const submitButtonLabelText = (
-    borrow: string,
-    collateral: string,
-    borrowError: string | undefined,
-    collateralError: string | undefined,
-  ) => {
-    if (
-      (borrow === "" && collateral === "") ||
-      (!borrowError && !collateralError && +borrow !== 0 && +collateral !== 0)
-    ) {
-      return submitButtonLabel
-    }
-    if (borrowError || collateralError) {
-      return borrowError || collateralError
-    }
-    if (borrowError || borrow === "") {
-      return "Deposit Collateral"
-    }
-    return "Borrow"
-  }
 
   return (
-    <Box pt="15px">
-      {formDescription && (
-        <Box
-          mb="15px"
-          bg="var(--secondary-background)"
-          border="1px solid var(--outline)"
-          borderRadius="10px"
-          p="24px"
-          width="100%"
-        >
-          {formDescription}
-        </Box>
-      )}
+    <FormWrapper
+      formDescription={formDescription}
+      formTitle={
+        <FormTitle
+          title={`Borrow ${borrowToken.symbol}`}
+          popoverOptions={<BorrowAdvancedOptions />}
+        />
+      }
+    >
       <Formik
         initialValues={{ collateral: "", borrow: "" }}
         onSubmit={async (values, actions) => {
-          handlePreSubmit?.()
+          handlePreSubmit?.(TransactionType.BORROW)
           const collateralValueSafe = parseStringToBigNumber(
             values?.collateral,
             18,
           )
           const borrowValueSafe = parseStringToBigNumber(values?.borrow, 18)
-          const receipt = (await handleSubmit(
-            collateralValueSafe.value.toString(),
-            borrowValueSafe.value.toString(),
-            CookAction.BORROW,
-          )) as ContractReceipt
+          let receipt: ContractReceipt | null = null
+          try {
+            receipt = (await handleSubmit(
+              collateralValueSafe.value.toString(),
+              borrowValueSafe.value.toString(),
+              CookAction.BORROW,
+              handleWhileSubmitting?.onMessageSignatureTransactionStart,
+              handleWhileSubmitting?.onApprovalTransactionStart,
+            )) as ContractReceipt
+            handlePostSubmit?.(receipt, TransactionType.BORROW)
+          } catch (e) {
+            console.error(e)
+            const error = e as { code: number; message: string }
+            handlePostSubmit?.(receipt, TransactionType.BORROW, {
+              code: error.code,
+              message: error.message,
+            })
+          }
           actions.resetForm({ values: { collateral: "", borrow: "" } })
           setSliderValue(0)
-          handlePostSubmit?.(receipt)
         }}
         validate={(values) => {
           const collateral = collateralValidator(values.collateral)
@@ -181,7 +187,7 @@ const BorrowForm = (props: Props): ReactElement => {
               {({ field, form }: FieldAttributes<any>) => (
                 <FormControl
                   padding="10px"
-                  bgColor={collateralFieldBgColor}
+                  bgColor="var(--secondary-background)"
                   borderRadius="10px"
                   isInvalid={form.errors?.collateral}
                 >
@@ -244,7 +250,7 @@ const BorrowForm = (props: Props): ReactElement => {
                 <FormControl
                   padding="10px"
                   mt="15px"
-                  bgColor={borrowFieldBgColor}
+                  bgColor="var(--secondary-background)"
                   borderRadius="10px"
                   isInvalid={form.errors?.borrow}
                 >
@@ -256,93 +262,107 @@ const BorrowForm = (props: Props): ReactElement => {
                     <FormLabel fontWeight={700} htmlFor="amount">
                       Borrow RUSD
                     </FormLabel>
-                    <HStack spacing="20px">
-                      <Flex>
-                        <Text
-                          color="var(--text-lighter)"
-                          fontSize={{ base: "14px", lg: "16px" }}
-                        >
-                          Updated Liquidation Price:&nbsp;
-                        </Text>
-                        <Text fontWeight={700}>
-                          {!form.errors.borrow && !form.errors.collateral
-                            ? updateLiquidationPrice(
-                                props.values.borrow,
-                                props.values.collateral,
-                              ).formatted
-                            : "$xx.xxx"}
-                        </Text>
-                      </Flex>
+                    <HStack spacing="20px" alignItems="center">
+                      <Stack spacing="5px">
+                        <Flex>
+                          <Text
+                            color="var(--text-lighter)"
+                            fontSize={{ base: "14px", lg: "16px" }}
+                          >
+                            Updated Liquidation Price:&nbsp;
+                          </Text>
+                          <Text fontWeight={700}>
+                            {!form.errors.borrow && !form.errors.collateral
+                              ? updateLiquidationPrice(
+                                  props.values.borrow,
+                                  props.values.collateral,
+                                )
+                              : "$xx.xxx"}
+                          </Text>
+                        </Flex>
+                        <Flex>
+                          <Text
+                            color="var(--text-lighter)"
+                            fontSize={{ base: "14px", lg: "16px" }}
+                          >
+                            Updated Position Health:&nbsp;
+                          </Text>
+                          <Text fontWeight={700}>
+                            {!form.errors.borrow && !form.errors.collateral
+                              ? `${updatePositionHealth(
+                                  props.values.borrow,
+                                  props.values.collateral,
+                                ).toFixed(0)}%`
+                              : "xx%"}
+                          </Text>
+                        </Flex>
+                      </Stack>
                       <SafetyTag
-                        safetyScore={
-                          (+formatBNToString(
-                            updateLiquidationPrice(
-                              props.values.borrow,
-                              props.values.collateral,
-                            ).valueRaw,
-                            18,
-                          ) /
-                            collateralUSDPrice) *
-                          100
-                        }
+                        safetyScore={updatePositionHealth(
+                          props.values.borrow,
+                          props.values.collateral,
+                        )}
                       />
                     </HStack>
                   </Flex>
-                  <Slider
-                    id="slider"
-                    value={sliderValue}
-                    min={0}
-                    max={100}
-                    mb="40px"
-                    mt="20px"
-                    isDisabled={
-                      form.errors?.collateral || +props.values.collateral === 0
-                    }
-                    focusThumbOnChange={false}
-                    onChange={(v) => {
-                      setSliderValue(v)
-                      props.setFieldValue(
-                        "borrow",
-                        formatBNToString(
-                          parseUnits(props.values?.collateral || "0", 18)
-                            .mul(
-                              parseUnits(String(collateralUSDPrice || 0), 18),
-                            )
-                            .div(BigNumber.from(10).pow(18))
-                            .mul(BigNumber.from(v).shl(18))
-                            .div(BigNumber.from(100).shl(18)),
-                          18,
-                        ),
-                      )
-                    }}
-                    onMouseEnter={() => setShowTooltip(true)}
-                    onMouseLeave={() => setShowTooltip(false)}
-                  >
-                    <SliderMark value={25} mt="3" ml="-2.5" fontSize="sm">
-                      25%
-                    </SliderMark>
-                    <SliderMark value={50} mt="3" ml="-2.5" fontSize="sm">
-                      50%
-                    </SliderMark>
-                    <SliderMark value={75} mt="3" ml="-2.5" fontSize="sm">
-                      75%
-                    </SliderMark>
-                    <SliderTrack>
-                      <SliderFilledTrack bg="#cc3a59" />
-                    </SliderTrack>
-                    <Tooltip
-                      hasArrow
-                      bg="#cc3a59"
-                      color="white"
-                      placement="top"
-                      isOpen={showTooltip}
-                      label={`${sliderValue}%`}
+                  <Box p="10px">
+                    <Slider
+                      id="slider"
+                      value={sliderValue}
+                      min={0}
+                      max={100}
+                      mb="40px"
+                      mt="20px"
+                      isDisabled={
+                        form.errors?.collateral ||
+                        +props.values.collateral === 0
+                      }
+                      focusThumbOnChange={false}
+                      onChange={(v) => {
+                        setSliderValue(v)
+                        props.setFieldValue(
+                          "borrow",
+                          formatBNToString(
+                            parseUnits(props.values?.collateral || "0", 18)
+                              .mul(
+                                parseUnits(String(collateralUSDPrice || 0), 18),
+                              )
+                              .div(BigNumber.from(10).pow(18))
+                              .mul(BigNumber.from(v).shl(18))
+                              .div(BigNumber.from(100).shl(18)),
+                            18,
+                          ),
+                        )
+                      }}
+                      onMouseEnter={() => setShowTooltip(true)}
+                      onMouseLeave={() => setShowTooltip(false)}
                     >
-                      <SliderThumb boxSize={6}>
-                        <Box color="#cc3a59" as={FaHandHoldingUsd} />
-                      </SliderThumb>
-                    </Tooltip>
-                  </Slider>
+                      <SliderMark value={25} mt="3" ml="-2.5" fontSize="sm">
+                        25%
+                      </SliderMark>
+                      <SliderMark value={50} mt="3" ml="-2.5" fontSize="sm">
+                        50%
+                      </SliderMark>
+                      <SliderMark value={75} mt="3" ml="-2.5" fontSize="sm">
+                        75%
+                      </SliderMark>
+                      <SliderTrack>
+                        <SliderFilledTrack bg="#cc3a59" />
+                      </SliderTrack>
+                      <Tooltip
+                        hasArrow
+                        bg="#cc3a59"
+                        color="white"
+                        placement="top"
+                        isOpen={showTooltip}
+                        label={`${sliderValue}%`}
+                      >
+                        <SliderThumb boxSize={6}>
+                          <Box color="#cc3a59" as={FaHandHoldingUsd} />
+                        </SliderThumb>
+                      </Tooltip>
+                    </Slider>
+                  </Box>
                   <InputGroup>
                     <InputLeftElement
                       pointerEvents="none"
@@ -422,7 +442,7 @@ const BorrowForm = (props: Props): ReactElement => {
               bg="var(--secondary-background)"
               border="1px solid var(--outline)"
               borderRadius="10px"
-              padding="5px"
+              padding="10px"
             >
               <Button
                 variant="primary"
@@ -440,23 +460,26 @@ const BorrowForm = (props: Props): ReactElement => {
                   props.values.collateral,
                   props.errors.borrow,
                   props.errors.collateral,
+                  TransactionType.BORROW,
                 )}
               </Button>
-              <Text
-                as="p"
-                p="20px 0 10px"
-                textAlign="center"
-                color="var(--text-lighter)"
-                fontSize="14px"
-              >
-                Note: The &quot;Approve&quot; transaction is only needed the
-                first time; subsequent actions will not require approval.
-              </Text>
+              <Box p="15px">
+                <Text
+                  as="p"
+                  p="20px 0 10px"
+                  textAlign="center"
+                  color="var(--text-lighter)"
+                  fontSize="14px"
+                >
+                  Note: The &quot;Approve&quot; transaction is only needed the
+                  first time; subsequent actions will not require approval.
+                </Text>
+              </Box>
             </Flex>
           </Form>
         )}
       </Formik>
-    </Box>
+    </FormWrapper>
   )
 }
 

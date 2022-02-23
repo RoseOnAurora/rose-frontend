@@ -2,10 +2,10 @@ import AnimatedComponentCard, { Field } from "./ComponentCard"
 import React, { ReactElement, useMemo } from "react"
 import { formatBNToPercentString, formatBNToShortString } from "../utils"
 import { AppState } from "../state"
+import { BORROW_SORT_FIELDS_TO_LABEL } from "../constants/index"
 import { BigNumber } from "@ethersproject/bignumber"
 import { BorrowSortFields } from "../state/user"
 import FormattedComponentName from "./FormattedComponentName"
-import { SORT_FIELDS_TO_LABEL } from "../pages/BorrowMarkets"
 import { Zero } from "@ethersproject/constants"
 import { useSelector } from "react-redux"
 
@@ -37,35 +37,37 @@ function BorrowMarketsOverview(props: BorrowMarketsOverviewData): ReactElement {
   const formattedData: { [field in BorrowSortFields]: Field } = useMemo(() => {
     return {
       name: {
-        label: SORT_FIELDS_TO_LABEL[BorrowSortFields.NAME],
+        label: BORROW_SORT_FIELDS_TO_LABEL[BorrowSortFields.NAME],
         valueRaw: marketName,
         valueComponent: (
           <FormattedComponentName name={marketName} icon={tokenIcon} />
         ),
       },
       borrow: {
-        label: SORT_FIELDS_TO_LABEL[BorrowSortFields.BORROW],
+        label: BORROW_SORT_FIELDS_TO_LABEL[BorrowSortFields.BORROW],
         valueRaw: borrowed.gt(Zero) ? formatBNToShortString(borrowed, 18) : "-",
       },
       collateral: {
-        label: SORT_FIELDS_TO_LABEL[BorrowSortFields.COLLATERAL],
-        valueRaw: position.gt(Zero) ? formatBNToShortString(position, 18) : "-",
+        label: BORROW_SORT_FIELDS_TO_LABEL[BorrowSortFields.COLLATERAL],
+        valueRaw: position.gt(Zero)
+          ? `$${formatBNToShortString(position, 18)}`
+          : "-",
       },
       tvl: {
-        label: SORT_FIELDS_TO_LABEL[BorrowSortFields.TVL],
+        label: BORROW_SORT_FIELDS_TO_LABEL[BorrowSortFields.TVL],
         valueRaw: tvl.gt(Zero) ? formatBNToShortString(tvl, 18) : "-",
       },
       supply: {
-        label: SORT_FIELDS_TO_LABEL[BorrowSortFields.SUPPLY],
+        label: BORROW_SORT_FIELDS_TO_LABEL[BorrowSortFields.SUPPLY],
         valueRaw: formatBNToShortString(rusdLeftToBorrow, 18),
       },
 
       interest: {
-        label: SORT_FIELDS_TO_LABEL[BorrowSortFields.INTEREST],
+        label: BORROW_SORT_FIELDS_TO_LABEL[BorrowSortFields.INTEREST],
         valueRaw: formatBNToPercentString(interest, 18, 1),
       },
       liquidationFee: {
-        label: SORT_FIELDS_TO_LABEL[BorrowSortFields.LIQUIDATION_FEE],
+        label: BORROW_SORT_FIELDS_TO_LABEL[BorrowSortFields.LIQUIDATION_FEE],
         valueRaw: formatBNToPercentString(fee, 18, 1),
       },
     }

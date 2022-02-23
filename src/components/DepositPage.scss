@@ -18,8 +18,8 @@ div.deposit {
     row-gap: 10px;
     column-gap: 10px;
     grid-template-areas: 
-      "leftBlock rightBlock"
-      "footer footer";
+      "footer footer"
+      "leftBlock rightBlock";
     justify-content: center;
 
     @include breakpoint(md) {
@@ -27,13 +27,6 @@ div.deposit {
       padding-right: 4px;
       flex-wrap: wrap;
       display: flex;
-    }
-
-    .goBack {
-      grid-area: footer;
-      @include breakpoint(md) {
-        order: 2;
-      }
     }
 
     .infoPanels {

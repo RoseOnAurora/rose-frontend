@@ -86,6 +86,7 @@ interface UserState {
   slippageCustom?: NumberInputState
   slippageSelected: Slippages
   infiniteApproval: boolean
+  priceFromOracle: boolean
   transactionDeadlineSelected: Deadlines
   transactionDeadlineCustom?: string
   farmPreferences: FarmPreferences
@@ -99,6 +100,7 @@ export const initialState: UserState = {
   gasPriceSelected: GasPrices.Standard,
   slippageSelected: Slippages.OneTenth,
   infiniteApproval: false,
+  priceFromOracle: false,
   transactionDeadlineSelected: Deadlines.Twenty,
   farmPreferences: {
     visibleFields: {
@@ -270,6 +272,12 @@ const userSlice = createSlice({
         },
       }
     },
+    updatePriceFromOracle(
+      state: UserState,
+      action: PayloadAction<boolean>,
+    ): void {
+      state.priceFromOracle = action.payload
+    },
   },
 })
 
@@ -290,6 +298,7 @@ export const {
   updateBorrowFilterPreferences,
   updateBorrowSortPreferences,
   updateBorrowVisibleFieldPreferences,
+  updatePriceFromOracle,
 } = userSlice.actions
 
 export default userSlice.reducer

@@ -4,7 +4,6 @@
 /* eslint @typescript-eslint/no-unsafe-assignment: 0 */
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 import {
-  Box,
   Button,
   Flex,
   FormControl,
@@ -16,15 +15,19 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  Stack,
   Text,
-  useColorModeValue,
 } from "@chakra-ui/react"
 import { Field, FieldAttributes, Form, Formik } from "formik"
 import React, { ReactElement, ReactNode } from "react"
 import { BigNumber } from "@ethersproject/bignumber"
+import BorrowAdvancedOptions from "./BorrowAdvancedOptions"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { CookAction } from "../hooks/useCook"
+import FormTitle from "./FormTitleOptions"
+import FormWrapper from "./wrappers/FormWrapper"
 import SafetyTag from "./SafetyTag"
+import { TransactionType } from "../hooks/useChakraToast"
 import { formatBNToString } from "../utils"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import { useTranslation } from "react-i18next"
@@ -35,14 +38,18 @@ interface Props {
   collateralTokenSymbol: string
   collateralTokenIcon: string
   max: string
-  submitButtonLabel: string
   collateralUSDPrice: number
   formDescription?: ReactNode
   updateLiquidationPrice: (
     borrowAmount: string,
     collateralAmount: string,
     negate: boolean,
-  ) => { valueRaw: BigNumber; formatted: string }
+  ) => string
+  updatePositionHealth: (
+    borrowAmount: string,
+    collateralAmount: string,
+    negate: boolean,
+  ) => number
   getMaxWithdraw: (repayAmount: string) => BigNumber
   repayValidator: (amount: string) => string | undefined
   collateralValidator: (
@@ -53,9 +60,26 @@ interface Props {
     collateralAmount: string,
     borrowAmount: string,
     cookAction: CookAction,
+    onMessageSignatureTransactionStart?: () => void,
+    onApprovalTransactionStart?: () => void,
   ) => Promise<ContractReceipt | void>
-  handlePreSubmit?: () => void
-  handlePostSubmit?: (receipt: ContractReceipt | null) => void
+  handleWhileSubmitting?: {
+    onMessageSignatureTransactionStart?: () => void
+    onApprovalTransactionStart?: () => void
+  }
+  handlePreSubmit?: (transactionType: TransactionType) => void
+  handlePostSubmit?: (
+    receipt: ContractReceipt | null,
+    transactionType: TransactionType,
+    error?: { code: number; message: string },
+  ) => void
+  submitButtonLabelText: (
+    borrow: string,
+    collateral: string,
+    borrowError: string | undefined,
+    collateralError: string | undefined,
+    txnType: TransactionType,
+  ) => string | undefined
 }
 
 const RepayForm = (props: Props): ReactElement => {
@@ -65,78 +89,60 @@ const RepayForm = (props: Props): ReactElement => {
     collateralTokenSymbol,
     collateralTokenIcon,
     max,
-    submitButtonLabel,
     formDescription,
     collateralUSDPrice,
+    handleWhileSubmitting,
     updateLiquidationPrice,
+    updatePositionHealth,
     getMaxWithdraw,
     repayValidator,
     collateralValidator,
     handleSubmit,
     handlePreSubmit,
     handlePostSubmit,
+    submitButtonLabelText,
   } = props
-  const { t } = useTranslation()
-  const collateralFieldBgColor = useColorModeValue(
-    "rgba(245, 239, 239, 0.6)",
-    "rgba(28, 29, 33, 0.4)",
-  )
-  const borrowFieldBgColor = useColorModeValue(
-    "rgba(245, 239, 239, 0.6)",
-    "rgba(28, 29, 33, 0.4)",
-  )
 
-  const submitButtonLabelText = (
-    borrow: string,
-    collateral: string,
-    borrowError: string | undefined,
-    collateralError: string | undefined,
-  ) => {
-    if (
-      (borrow === "" && collateral === "") ||
-      (!borrowError && !collateralError && +borrow !== 0 && +collateral !== 0)
-    ) {
-      return submitButtonLabel
-    }
-    if (borrowError || collateralError) {
-      return borrowError || collateralError
-    }
-    if (borrowError || borrow === "") {
-      return "Withdraw Collateral"
-    }
-    return "Repay"
-  }
+  const { t } = useTranslation()
 
   return (
-    <Box pt="15px">
-      {formDescription && (
-        <Box
-          mb="15px"
-          bg="var(--secondary-background)"
-          border="1px solid var(--outline)"
-          borderRadius="10px"
-          p="24px"
-          width="100%"
-        >
-          {formDescription}
-        </Box>
-      )}
+    <FormWrapper
+      formDescription={formDescription}
+      formTitle={
+        <FormTitle
+          title={`Repay ${borrowTokenSymbol}`}
+          popoverOptions={<BorrowAdvancedOptions />}
+        />
+      }
+    >
       <Formik
         initialValues={{ collateral: "", borrow: "" }}
         onSubmit={async (values, actions) => {
-          handlePreSubmit?.()
+          handlePreSubmit?.(TransactionType.REPAY)
           const collateralValueSafe = parseStringToBigNumber(
             values?.collateral,
             18,
           )
           const borrowValueSafe = parseStringToBigNumber(values?.borrow, 18)
-          const receipt = (await handleSubmit(
-            collateralValueSafe.value.toString(),
-            borrowValueSafe.value.toString(),
-            CookAction.REPAY,
-          )) as ContractReceipt
+          console.log(values.borrow)
+          let receipt: ContractReceipt | null = null
+          try {
+            receipt = (await handleSubmit(
+              collateralValueSafe.value.toString(),
+              borrowValueSafe.value.toString(),
+              CookAction.REPAY,
+              handleWhileSubmitting?.onMessageSignatureTransactionStart,
+              handleWhileSubmitting?.onApprovalTransactionStart,
+            )) as ContractReceipt
+            handlePostSubmit?.(receipt, TransactionType.REPAY)
+          } catch (e) {
+            const error = e as { code: number; message: string }
+            handlePostSubmit?.(receipt, TransactionType.REPAY, {
+              code: error.code,
+              message: error.message,
+            })
+          }
           actions.resetForm({ values: { collateral: "", borrow: "" } })
-          handlePostSubmit?.(receipt)
         }}
         validate={(values) => {
           const collateral = collateralValidator(
@@ -159,7 +165,7 @@ const RepayForm = (props: Props): ReactElement => {
                 <FormControl
                   padding="10px"
                   mt="15px"
-                  bgColor={borrowFieldBgColor}
+                  bgColor="var(--secondary-background)"
                   borderRadius="10px"
                   isInvalid={form.errors?.borrow}
                 >
@@ -171,37 +177,49 @@ const RepayForm = (props: Props): ReactElement => {
                     <FormLabel fontWeight={700} htmlFor="amount">
                       Repay RUSD
                     </FormLabel>
-                    <HStack spacing="20px">
-                      <Flex>
-                        <Text
-                          color="var(--text-lighter)"
-                          fontSize={{ base: "14px", lg: "16px" }}
-                        >
-                          Updated Liquidation Price:&nbsp;
-                        </Text>
-                        <Text fontWeight={700}>
-                          {!form.errors.borrow && !form.errors.collateral
-                            ? updateLiquidationPrice(
-                                props.values.borrow,
-                                props.values.collateral,
-                                true,
-                              ).formatted
-                            : "$xx.xxx"}
-                        </Text>
-                      </Flex>
+                    <HStack spacing="20px" alignItems="center">
+                      <Stack spacing="5px">
+                        <Flex>
+                          <Text
+                            color="var(--text-lighter)"
+                            fontSize={{ base: "14px", lg: "16px" }}
+                          >
+                            Updated Liquidation Price:&nbsp;
+                          </Text>
+                          <Text fontWeight={700}>
+                            {!form.errors.borrow && !form.errors.collateral
+                              ? updateLiquidationPrice(
+                                  props.values.borrow,
+                                  props.values.collateral,
+                                  true,
+                                )
+                              : "$xx.xxx"}
+                          </Text>
+                        </Flex>
+                        <Flex>
+                          <Text
+                            color="var(--text-lighter)"
+                            fontSize={{ base: "14px", lg: "16px" }}
+                          >
+                            Updated Position Health:&nbsp;
+                          </Text>
+                          <Text fontWeight={700}>
+                            {!form.errors.borrow && !form.errors.collateral
+                              ? `${updatePositionHealth(
+                                  props.values.borrow,
+                                  props.values.collateral,
+                                  true,
+                                ).toFixed(0)}%`
+                              : "xx%"}
+                          </Text>
+                        </Flex>
+                      </Stack>
                       <SafetyTag
-                        safetyScore={
-                          (+formatBNToString(
-                            updateLiquidationPrice(
-                              props.values.borrow,
-                              props.values.collateral,
-                              true,
-                            ).valueRaw,
-                            18,
-                          ) /
-                            collateralUSDPrice) *
-                          100
-                        }
+                        safetyScore={updatePositionHealth(
+                          props.values.borrow,
+                          props.values.collateral,
+                          true,
+                        )}
                       />
                     </HStack>
                   </Flex>
@@ -259,7 +277,7 @@ const RepayForm = (props: Props): ReactElement => {
                 <FormControl
                   padding="10px"
                   mt="15px"
-                  bgColor={collateralFieldBgColor}
+                  bgColor="var(--secondary-background)"
                   borderRadius="10px"
                   isInvalid={form.errors?.collateral}
                 >
@@ -345,6 +363,7 @@ const RepayForm = (props: Props): ReactElement => {
                   props.values.collateral,
                   props.errors.borrow,
                   props.errors.collateral,
+                  TransactionType.REPAY,
                 )}
               </Button>
               <Text
@@ -361,7 +380,7 @@ const RepayForm = (props: Props): ReactElement => {
           </Form>
         )}
       </Formik>
-    </Box>
+    </FormWrapper>
   )
 }
 

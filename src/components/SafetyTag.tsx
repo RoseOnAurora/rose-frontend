@@ -8,15 +8,15 @@ interface Props {
 const SafetyTag = ({ safetyScore }: Props): ReactElement => {
   return (
     <Tag
-      size="md"
+      size="lg"
       borderRadius="full"
       variant="solid"
       colorScheme={
-        safetyScore <= 75 ? "green" : safetyScore > 90 ? "red" : "orange"
+        safetyScore <= 15 ? "red" : safetyScore > 50 ? "green" : "orange"
       }
       fontSize={{ base: "11px", md: "14px" }}
     >
-      {safetyScore <= 75 ? "Safe" : safetyScore > 90 ? "High" : "Moderate"}
+      {safetyScore <= 15 ? "High" : safetyScore > 50 ? "Safe" : "Moderate"}
     </Tag>
   )
 }

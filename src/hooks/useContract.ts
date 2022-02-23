@@ -57,6 +57,8 @@ import { FraxMetaPool } from "../../types/ethers-contracts/FraxMetaPool"
 import META_SWAP_DEPOSIT_ABI from "../constants/abis/metaSwapDeposit.json"
 import MIGRATOR_USD_CONTRACT_ABI from "../constants/abis/swapMigratorUSD.json"
 import { MetaSwapDeposit } from "../../types/ethers-contracts/MetaSwapDeposit"
+import ORACLE_ABI from "../constants/abis/Oracle.json"
+import { Oracle } from "../../types/ethers-contracts/Oracle"
 import ROSE_FRAX_LP_ABI from "../constants/abis/RoseFraxLP.json"
 import ROSE_FRAX_POOL_ABI from "../constants/abis/RoseFraxPool.json"
 import ROSE_STABLES_FARM_ABI from "../constants/abis/RoseStablesFarm.json"
@@ -92,7 +94,6 @@ function useContract(
   withSignerIfPossible = true,
 ): Contract | null {
   const { library, account } = useActiveWeb3React()
-
   return useMemo(() => {
     if (!address || !ABI || !library) return null
     try {
@@ -236,6 +237,16 @@ export function useBorrowContract(
     ? BORROW_MARKET_MAP[borrowMarket].borrowToken.addresses[chainId]
     : undefined
   return useContract(contractAddress, JSON.stringify(ERC20_ABI)) as Erc20
+}
+
+export function useOracleContract(
+  borrowMarket: BorrowMarketName,
+): Oracle | null {
+  const { chainId } = useActiveWeb3React()
+  const contractAddress = chainId
+    ? BORROW_MARKET_MAP[borrowMarket].oracleAddresses[chainId]
+    : undefined
+  return useContract(contractAddress, JSON.stringify(ORACLE_ABI)) as Oracle
 }
 
 export function useSwapMigratorUSDContract(): SwapMigratorUSD | null {

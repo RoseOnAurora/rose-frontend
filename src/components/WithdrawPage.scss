@@ -26,22 +26,14 @@ div.withdraw {
     row-gap: 10px;
     column-gap: 10px;
     grid-template-areas: 
-      "leftBlock rightBlock"
-      "footer footer";
-    justify-content: center;
+      "footer footer"
+      "leftBlock rightBlock";
 
     @include breakpoint(md) {
       padding-left: 4px;
       padding-right: 4px;
       flex-wrap: wrap;
       display: flex;
-    }
-
-    .goBack {
-      grid-area: footer;
-      @include breakpoint(md) {
-        order: 2;
-      }
     }
 
     .infoPanels {

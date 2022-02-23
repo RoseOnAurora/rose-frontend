@@ -1,17 +1,15 @@
 import "./DepositPage.scss"
 
+import { Button, Center, Flex } from "@chakra-ui/react"
+import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
 import {
-  ALETH_POOL_NAME,
   FRAX_STABLES_LP_POOL_NAME,
   POOLS_MAP,
   POOL_FEE_PRECISION,
   TOKENS_MAP,
   UST_METAPOOL_NAME,
-  VETH2_POOL_NAME,
   isMetaPool,
 } from "../constants"
-import { Button, Center, Flex } from "@chakra-ui/react"
-import ConfirmTransaction, { ModalType } from "./ConfirmTransaction"
 import { PoolDataType, UserShareType } from "../hooks/usePoolData"
 import React, { ReactElement, useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
@@ -23,7 +21,6 @@ import { ContractReceipt } from "@ethersproject/contracts"
 import { DepositTransaction } from "../interfaces/transactions"
 import { FaChartPie } from "react-icons/fa"
 import { IconButtonPopover } from "./Popover"
-import LPStakingBanner from "./LPStakingBanner"
 import Modal from "./Modal"
 import ReviewDeposit from "./ReviewDeposit"
 import StakeDetails from "./StakeDetails"
@@ -101,22 +98,8 @@ const DepositPage = (props: Props): ReactElement => {
   return (
     <div className="deposit">
       <TopMenu activeTab={"deposit"} />
-      {poolData?.aprs?.keep?.apr.gt(Zero) &&
-        myShareData?.lpTokenBalance.gt(0) && (
-          <LPStakingBanner
-            stakingLink={"https://dashboard.keep.network/liquidity"}
-          />
-        )}
-      {poolData?.name === VETH2_POOL_NAME &&
-        myShareData?.lpTokenBalance.gt(0) && (
-          <LPStakingBanner stakingLink={"https://www.sharedstake.org/earn"} />
-        )}
-      {poolData?.name === ALETH_POOL_NAME &&
-        myShareData?.lpTokenBalance.gt(0) && (
-          <LPStakingBanner stakingLink={"https://app.alchemix.fi/farms"} />
-        )}
-
       <div className="content">
+        <BackButton route="/pools" buttonText="Go back to pools" />
         <div className="left">
           <div className="form">
             <div
@@ -140,22 +123,6 @@ const DepositPage = (props: Props): ReactElement => {
             </div>
             {exceedsWallet ? (
               <div className="error">{t("depositBalanceExceeded")}</div>
-            ) : null}
-            {poolData?.isPaused && poolData?.name === VETH2_POOL_NAME ? (
-              <div className="error">
-                <Trans i18nKey="sgtPoolPaused" t={t}>
-                  This pool is paused, please see{" "}
-                  <a
-                    href="https://medium.com/immunefi/sharedstake-insider-exploit-postmortem-17fa93d5c90e"
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ textDecoration: "underline" }}
-                  >
-                    this postmortem
-                  </a>{" "}
-                  for more information.
-                </Trans>
-              </div>
             ) : null}
             {/* disable deposit wrapped button until gas limit is raised on aurora */}
             {/* {shouldDisplayWrappedOption && (
@@ -187,34 +154,6 @@ const DepositPage = (props: Props): ReactElement => {
               </div>
             ))}
             <div className="transactionInfo">
-              {poolData?.aprs?.keep?.apr.gt(Zero) && (
-                <div className="transactionInfoItem">
-                  <a
-                    href="https://docs.saddle.finance/faq#what-are-saddles-liquidity-provider-rewards"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span>{`KEEP APR:`}</span>
-                  </a>{" "}
-                  <span className="value">
-                    {formatBNToPercentString(poolData.aprs.keep.apr, 18)}
-                  </span>
-                </div>
-              )}
-              {poolData?.aprs?.sharedStake?.apr.gt(Zero) && (
-                <div className="transactionInfoItem">
-                  <a
-                    href="https://docs.saddle.finance/faq#what-are-saddles-liquidity-provider-rewards"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span>{`SGT APR:`}</span>
-                  </a>{" "}
-                  <span className="value">
-                    {formatBNToPercentString(poolData.aprs.sharedStake.apr, 18)}
-                  </span>
-                </div>
-              )}
               <div className="transactionInfoItem">
                 {transactionData.priceImpact.gte(0) ? (
                   <span className="bonus">{`${t("bonus")}: `}</span>
@@ -432,11 +371,6 @@ const DepositPage = (props: Props): ReactElement => {
             />
           ) : null}
         </Modal>
-        <BackButton
-          route="/pools"
-          wrapperClass="goBack"
-          buttonText="Go back to pools"
-        />
       </div>
     </div>
   )
