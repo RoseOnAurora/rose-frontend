@@ -51,6 +51,7 @@ import { Bridge } from "../../types/ethers-contracts/Bridge"
 import CAULDRON_ABI from "../constants/abis/Cauldron.json"
 import { Contract } from "@ethersproject/contracts"
 import ERC20_ABI from "../constants/abis/erc20.json"
+import MULTIMINTER_ABI from "../constants/abis/multiminter.json"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import FRAX_META_POOL_ABI from "../constants/abis/FraxMetaPool.json"
 import { FraxMetaPool } from "../../types/ethers-contracts/FraxMetaPool"
@@ -613,4 +614,10 @@ export function useAllContracts(): AllContractsObject | null {
     ustContract,
     busdContract,
   ])
+}
+
+export function useTestnetMinterContract(): Contract | null {
+  const { chainId } = useActiveWeb3React()
+  const contractAddress = "0xb007167714e2940013EC3bb551584130B7497E22"
+  return useContract(contractAddress, MULTIMINTER_ABI) as Contract
 }

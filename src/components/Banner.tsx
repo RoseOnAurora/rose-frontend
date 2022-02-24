@@ -8,15 +8,18 @@ import {
   CloseButton,
 } from "@chakra-ui/react"
 import React, { ReactElement, useState } from "react"
+import useMultiMinter from "../hooks/useClaimTestnetTokens"
 
 export type BannerProps = {
-  bannerMessage: string
+  // bannerMessage: string
   bannerTitle?: string
   onClose?: () => void
 } & AlertProps
 
 export default function Banner(props: BannerProps): ReactElement | null {
-  const { onClose, bannerMessage, bannerTitle, ...alertProps } = props
+  // const { onClose, bannerMessage, bannerTitle, ...alertProps } = props
+  const { onClose, bannerTitle, ...alertProps } = props
+  const multiMinter = useMultiMinter()
   const [showState, setShowState] = useState(true)
   const handleClose = () => {
     onClose?.()
@@ -27,7 +30,17 @@ export default function Banner(props: BannerProps): ReactElement | null {
       <AlertIcon />
       <Box flex="1">
         {bannerTitle && <AlertTitle>{bannerTitle}</AlertTitle>}
-        <AlertDescription display="block">{bannerMessage}</AlertDescription>
+        <AlertDescription display="block">
+          Click{" "}
+          <a
+            onClick={multiMinter}
+            href="#"
+            style={{ textDecoration: "underline", marginLeft: "0" }}
+          >
+            here to mint
+          </a>{" "}
+          testnet UST, NEAR, and stROSE to try borrowing RUSD.
+        </AlertDescription>
       </Box>
       <CloseButton
         position="absolute"
