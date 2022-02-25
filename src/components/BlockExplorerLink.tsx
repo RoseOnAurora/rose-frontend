@@ -28,7 +28,7 @@ const BlockExplorerLink = ({
         rel="noreferrer"
         style={{ textDecoration: "underline", margin: 0 }}
       >
-        blockscout.
+        aurorascan.
       </a>
       {{ status: status }}
     </Trans>

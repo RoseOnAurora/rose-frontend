@@ -95,11 +95,10 @@ function TopMenu({ activeTab }: Props): ReactElement {
                   <MenuItem
                     icon={<FaHandHoldingUsd />}
                     as={Link}
-                    to="#"
+                    to="/borrow"
                     margin="0"
-                    command="Coming Soon!"
                   >
-                    <span className="disabled">{t("borrow")}</span>
+                    {t("borrow")}
                   </MenuItem>
                 </MenuGroup>
                 <MenuDivider />

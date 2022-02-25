@@ -3,5 +3,7 @@ export function getEtherscanLink(
   type: "tx" | "token" | "address" | "block",
   network = "mainnet",
 ): string {
-  return `https://explorer.${network}.aurora.dev/${type}/${data}`
+  return network === "testnet"
+    ? `https://${network}.aurorascan.dev/${type}/${data}`
+    : `https://aurorascan.dev/${type}/${data}`
 }

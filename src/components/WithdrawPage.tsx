@@ -154,7 +154,7 @@ const WithdrawPage = (props: Props): ReactElement => {
                   rel="noreferrer"
                   style={{ textDecoration: "underline", margin: 0 }}
                 >
-                  blockscout.
+                  aurorascan.
                 </a>
               </Trans>
             )}
