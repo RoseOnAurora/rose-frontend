@@ -14,7 +14,7 @@ import { Route, Switch } from "react-router-dom"
 import { isChainSupportedByNotify, notify } from "../utils/notifyHandler"
 import { useDispatch, useSelector } from "react-redux"
 
-// import Banner from "../components/Banner"
+import Banner from "../components/Banner"
 import Borrow from "./Borrow"
 import BorrowMarkets from "./BorrowMarkets"
 import BottomMenu from "../components/BottomMenu"
@@ -38,7 +38,7 @@ import usePoller from "../hooks/usePoller"
 export default function App(): ReactElement {
   const { chainId } = useActiveWeb3React()
   const { userDarkMode } = useSelector((state: AppState) => state.user)
-  // const bannerBg = userDarkMode ? "#d2f1e4" : "#a2d2ff"
+  const bannerBg = userDarkMode ? "#d2f1e4" : "#a2d2ff"
 
   useEffect(() => {
     notify?.config({
@@ -51,19 +51,19 @@ export default function App(): ReactElement {
       <Web3ReactManager>
         <GasAndTokenPrices>
           <PendingSwapsProvider>
-            {/* <Banner
+            <Banner
               variant="solid"
               color="black"
               bg={bannerBg}
-              bannerTitle=""
-              bannerMessage=""
+              bannerTitle="Borrowing RUSD on testnet is now out!"
+              // bannerMessage=""
               status="info"
               position="sticky"
               top="0"
               zIndex="3"
               border="none"
               boxShadow="2px 2px 12px rgba(68, 64, 64, 0.14)"
-            /> */}
+            />
             <Switch>
               <Route exact path="/" component={Swap} />
               <Route exact path="/pools" component={Pools} />
