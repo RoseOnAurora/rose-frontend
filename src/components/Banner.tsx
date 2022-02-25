@@ -39,7 +39,7 @@ export default function Banner(props: BannerProps): ReactElement | null {
           >
             here to mint
           </a>{" "}
-          testnet UST, NEAR, and stROSE to try borrowing RUSD.
+          testnet UST, NEAR, and ROSE to try borrowing RUSD.
         </AlertDescription>
       </Box>
       <CloseButton
