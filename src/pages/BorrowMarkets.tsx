@@ -6,7 +6,9 @@ import {
   BorrowMarket,
   BorrowMarketName,
   DashboardItems,
-  FRAX_MARKET_NAME,
+  NEAR_MARKET_NAME,
+  STROSE_MARKET_NAME,
+  UST_MARKET_NAME,
 } from "../constants"
 import {
   BorrowFilterFields,
@@ -84,11 +86,19 @@ function BorrowMarkets(): ReactElement {
     setIsInfo(isInfo)
   }
 
-  const [fraxMarketData, loading] = useBorrowData(FRAX_MARKET_NAME)
+  const [nearMarketData, loading1] = useBorrowData(NEAR_MARKET_NAME)
+  const [stRoseMarketData, loading2] = useBorrowData(STROSE_MARKET_NAME)
+  const [ustMarketData, loading3] = useBorrowData(UST_MARKET_NAME)
+
+  const loading = loading1 && loading2 && loading3
 
   const marketsData = useMemo(() => {
-    return { [FRAX_MARKET_NAME]: fraxMarketData }
-  }, [fraxMarketData])
+    return {
+      [NEAR_MARKET_NAME]: nearMarketData,
+      [STROSE_MARKET_NAME]: stRoseMarketData,
+      [UST_MARKET_NAME]: ustMarketData,
+    }
+  }, [nearMarketData, stRoseMarketData, ustMarketData])
 
   const totalRUSDBorrowed = useMemo(() => {
     return +formatBNToString(
@@ -327,7 +337,7 @@ function BorrowMarkets(): ReactElement {
                       marketsData[borrowMarket.name].totalRUSDLeftToBorrow ||
                       Zero
                     }
-                    tvl={Zero}
+                    tvl={marketsData[borrowMarket.name].tvl || Zero}
                     interest={marketsData[borrowMarket.name].interest || Zero}
                     fee={marketsData[borrowMarket.name].liquidationFee || Zero}
                   />
@@ -403,6 +413,11 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
                   <Grid gridTemplateRows="auto" rowGap="10px">
                     {!loading &&
                       Object.values(marketsData)
+                        .filter(
+                          (a) =>
+                            a.borrowed.gt(Zero) ||
+                            a.collateralDeposited.gt(Zero),
+                        )
                         .sort((a, b) =>
                           a.positionHealth.gt(b.positionHealth) ? 1 : -1,
                         )

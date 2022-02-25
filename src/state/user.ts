@@ -28,6 +28,28 @@ export enum Deadlines {
   Custom = "CUSTOM",
 }
 
+export enum PoolSortFields {
+  NAME = "name",
+  BALANCE = "balance",
+  FARM_DEPOSIT = "farmDeposit",
+  TVL = "tvl",
+  VOLUME = "volume",
+}
+
+export enum PoolFilterFields {
+  NO_FILTER = "noFilter",
+  FARM_DEPOSIT = "farmDeposit",
+  BALANCE = "balance",
+}
+
+interface PoolPreferences {
+  visibleFields: {
+    [field in PoolSortFields]: number
+  }
+  filterField: PoolFilterFields
+  sortField: PoolSortFields
+}
+
 export enum FarmSortFields {
   NAME = "name",
   BALANCE = "balance",
@@ -91,6 +113,7 @@ interface UserState {
   transactionDeadlineCustom?: string
   farmPreferences: FarmPreferences
   borrowPreferences: BorrowPreferences
+  poolPreferences: PoolPreferences
 }
 
 export const initialState: UserState = {
@@ -126,6 +149,17 @@ export const initialState: UserState = {
     },
     filterField: BorrowFilterFields.NO_FILTER,
     sortField: BorrowSortFields.TVL,
+  },
+  poolPreferences: {
+    visibleFields: {
+      name: 1,
+      balance: 1,
+      volume: 1,
+      tvl: 1,
+      farmDeposit: 1,
+    },
+    filterField: PoolFilterFields.NO_FILTER,
+    sortField: PoolSortFields.TVL,
   },
 }
 
@@ -272,6 +306,36 @@ const userSlice = createSlice({
         },
       }
     },
+    updatePoolFilterPreferences(
+      state: UserState,
+      action: PayloadAction<PoolFilterFields>,
+    ): void {
+      state.poolPreferences = {
+        ...state.poolPreferences,
+        filterField: action.payload,
+      }
+    },
+    updatePoolSortPreferences(
+      state: UserState,
+      action: PayloadAction<PoolSortFields>,
+    ): void {
+      state.poolPreferences = {
+        ...state.poolPreferences,
+        sortField: action.payload,
+      }
+    },
+    updatePoolVisibleFieldPreferences(
+      state: UserState,
+      action: PayloadAction<{ field: PoolSortFields; value: number }>,
+    ): void {
+      state.poolPreferences = {
+        ...state.poolPreferences,
+        visibleFields: {
+          ...state.poolPreferences.visibleFields,
+          [action.payload.field]: action.payload.value,
+        },
+      }
+    },
     updatePriceFromOracle(
       state: UserState,
       action: PayloadAction<boolean>,
@@ -299,6 +363,9 @@ export const {
   updateBorrowSortPreferences,
   updateBorrowVisibleFieldPreferences,
   updatePriceFromOracle,
+  updatePoolSortPreferences,
+  updatePoolFilterPreferences,
+  updatePoolVisibleFieldPreferences,
 } = userSlice.actions
 
 export default userSlice.reducer

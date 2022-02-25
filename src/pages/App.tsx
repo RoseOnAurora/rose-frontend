@@ -18,15 +18,14 @@ import { useDispatch, useSelector } from "react-redux"
 import Borrow from "./Borrow"
 import BorrowMarkets from "./BorrowMarkets"
 import BottomMenu from "../components/BottomMenu"
-import Deposit from "./Deposit"
 import Farm from "./Farm"
 import Farms from "./Farms"
 import PendingSwapsProvider from "../providers/PendingSwapsProvider"
+import Pool from "./Pool"
 import Pools from "./Pools"
 import Stake from "./Stake"
 import Swap from "./Swap"
 import Web3ReactManager from "../components/Web3ReactManager"
-import Withdraw from "./Withdraw"
 import fetchFarmStats from "../utils/fetchFarmStats"
 import fetchGasPrices from "../utils/updateGasPrices"
 import fetchRosePriceHistory from "../utils/fetchRosePriceHistory"
@@ -74,17 +73,9 @@ export default function App(): ReactElement {
               {Object.values(POOLS_MAP).map(({ name, route }) => (
                 <Route
                   exact
-                  path={`/pools/${route}/deposit`}
-                  render={(props) => <Deposit {...props} poolName={name} />}
-                  key={`${name}-deposit`}
-                />
-              ))}
-              {Object.values(POOLS_MAP).map(({ name, route }) => (
-                <Route
-                  exact
-                  path={`/pools/${route}/withdraw`}
-                  render={(props) => <Withdraw {...props} poolName={name} />}
-                  key={`${name}-withdraw`}
+                  path={`/pools/${route}`}
+                  render={(props) => <Pool {...props} poolName={name} />}
+                  key={`${name}-pool`}
                 />
               ))}
               {Object.values(FARMS_MAP).map(({ name, route }) => (

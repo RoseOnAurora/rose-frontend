@@ -3,12 +3,17 @@
     "inputs": [
       {
         "internalType": "contract IBentoBoxV1",
-        "name": "bentoBox_",
+        "name": "vase_",
         "type": "address"
       },
       {
         "internalType": "contract IERC20",
         "name": "roseUsd_",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_feeTo",
         "type": "address"
       }
     ],
@@ -90,6 +95,44 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "borrowOpeningFee",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "LogBorrowOpeningFee",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "collateralizationRate",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "LogCollateralizationRate",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "rate",
         "type": "uint256"
       }
@@ -121,6 +164,44 @@
       }
     ],
     "name": "LogInterestPerSecond",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "liquidationMultiplier",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "LogLiquidationMultiplier",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "contract IOracle",
+        "name": "oracle",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "oracleData",
+        "type": "bytes"
+      }
+    ],
+    "name": "LogOracle",
     "type": "event"
   },
   {
@@ -218,43 +299,43 @@
     "type": "event"
   },
   {
-    "inputs": [],
-    "name": "BORROW_OPENING_FEE",
-    "outputs": [
+    "anonymous": false,
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "unwhitelisted",
+        "type": "address[]"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    "name": "Unwhitelisted",
+    "type": "event"
   },
   {
-    "inputs": [],
-    "name": "COLLATERIZATION_RATE",
-    "outputs": [
+    "anonymous": false,
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "indexed": true,
+        "internalType": "address",
+        "name": "newUserParamSetter",
+        "type": "address"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    "name": "UserParamSetterTransferred",
+    "type": "event"
   },
   {
-    "inputs": [],
-    "name": "LIQUIDATION_MULTIPLIER",
-    "outputs": [
+    "anonymous": false,
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "whitelisted",
+        "type": "address[]"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    "name": "Whitelisted",
+    "type": "event"
   },
   {
     "inputs": [],
@@ -276,11 +357,6 @@
         "internalType": "uint128",
         "name": "feesEarned",
         "type": "uint128"
-      },
-      {
-        "internalType": "uint64",
-        "name": "interestPerSecond",
-        "type": "uint64"
       }
     ],
     "stateMutability": "view",
@@ -310,16 +386,16 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "bentoBox",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "contract IBentoBoxV1",
-        "name": "",
-        "type": "address"
+        "internalType": "address[]",
+        "name": "newMembers",
+        "type": "address[]"
       }
     ],
-    "stateMutability": "view",
+    "name": "addWhitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -360,12 +436,47 @@
   },
   {
     "inputs": [],
-    "name": "collateral",
+    "name": "cloneInfo",
     "outputs": [
       {
         "internalType": "contract IERC20",
-        "name": "",
+        "name": "collateral",
         "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "isBorrowWhitelisted",
+        "type": "bool"
+      },
+      {
+        "internalType": "contract IOracle",
+        "name": "oracle",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "oracleData",
+        "type": "bytes"
+      },
+      {
+        "internalType": "uint256",
+        "name": "collateralizationRate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "liquidationMultiplier",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "borrowOpeningFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint64",
+        "name": "interestPerSecond",
+        "type": "uint64"
       }
     ],
     "stateMutability": "view",
@@ -434,6 +545,70 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getBorrowOpeningFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getCollateralizationRate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getInterestPerSecond",
+    "outputs": [
+      {
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getLiquidationMultiplier",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes",
         "name": "data",
         "type": "bytes"
@@ -477,59 +652,7 @@
     "name": "masterContract",
     "outputs": [
       {
-        "internalType": "contract Cauldron",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "oracle",
-    "outputs": [
-      {
-        "internalType": "contract IOracle",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "oracleData",
-    "outputs": [
-      {
-        "internalType": "bytes",
-        "name": "",
-        "type": "bytes"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "pendingOwner",
-    "outputs": [
-      {
-        "internalType": "address",
+        "internalType": "contract Garden",
         "name": "",
         "type": "address"
       }
@@ -571,6 +694,19 @@
   {
     "inputs": [
       {
+        "internalType": "address[]",
+        "name": "membersToRemove",
+        "type": "address[]"
+      }
+    ],
+    "name": "removeWhitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "to",
         "type": "address"
@@ -595,6 +731,29 @@
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "rolesData",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "pendingOwner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "userParamSetter",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -626,12 +785,71 @@
   {
     "inputs": [
       {
-        "internalType": "uint64",
-        "name": "newInterestPerSecond",
-        "type": "uint64"
+        "internalType": "uint256",
+        "name": "param",
+        "type": "uint256"
+      },
+      {
+        "internalType": "int8",
+        "name": "selector",
+        "type": "int8"
       }
     ],
-    "name": "setInterestPerSecond",
+    "name": "setGlobalParameter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IOracle",
+        "name": "newOracle",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "newOracleData",
+        "type": "bytes"
+      }
+    ],
+    "name": "setOracle",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newUserParamSetter",
+        "type": "address"
+      }
+    ],
+    "name": "setUserParamSetter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "param",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "int8",
+        "name": "selector",
+        "type": "int8"
+      }
+    ],
+    "name": "setUserParameter",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -716,6 +934,25 @@
         "type": "address"
       }
     ],
+    "name": "userBorrowOpeningFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "userBorrowPart",
     "outputs": [
       {
@@ -741,6 +978,38 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "userCollateralizationRate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "vase",
+    "outputs": [
+      {
+        "internalType": "contract IBentoBoxV1",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",

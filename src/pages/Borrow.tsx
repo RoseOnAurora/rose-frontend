@@ -54,7 +54,7 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
       parseStringToBigNumber(collateralAmount, 18, Zero).value,
     )
     if (totalCollateral.isZero()) return Zero
-    return borrowData.mcr
+    const maxBorrow = borrowData.mcr
       .sub(
         borrowData.borrowed
           .mul(BigNumber.from(10).pow(18))
@@ -64,8 +64,18 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
               .div(BigNumber.from(10).pow(18)),
           ),
       )
-      .mul(totalCollateral)
+      .mul(
+        totalCollateral
+          .mul(borrowData.priceOfCollateral)
+          .div(BigNumber.from(10).pow(18)),
+      )
       .div(BigNumber.from(10).pow(18))
+
+    const maxBorrowAdj = maxBorrow.sub(
+      maxBorrow.mul(borrowData.borrowFee).div(BigNumber.from(10).pow(18)),
+    )
+
+    return maxBorrowAdj.gt(parseUnits("0.01")) ? maxBorrowAdj : Zero
   }
 
   const calculateMaxWithdraw = (repayAmount: string): BigNumber => {
@@ -215,7 +225,7 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
     const borrowAmountBn = parseUnits(formattedBorrowAmount || "0", 18)
     const collateralAmountBn = parseUnits(formattedcollateralAmount || "0", 18)
 
-    const currentWithdrawUSD = collateralAmountBn
+    const currentCollateralUSD = collateralAmountBn
       .mul(borrowData.priceOfCollateral)
       .div(BigNumber.from(10).pow(18))
       .add(borrowData.collateralDepositedUSDPrice)
@@ -229,9 +239,9 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
             .add(borrowData.borrowed)
             .mul(BigNumber.from(10).pow(18))
             .div(
-              currentWithdrawUSD.isZero()
+              currentCollateralUSD.isZero()
                 ? parseUnits("1", 18)
-                : currentWithdrawUSD,
+                : currentCollateralUSD,
             ),
         )
 
@@ -374,6 +384,8 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
                   collateralTokenSymbol={collateralToken.symbol}
                   collateralTokenIcon={collateralToken.icon}
                   max={formatBNToString(borrowData.borrowed, 18)}
+                  maxRepayBn={borrowData.borrowed}
+                  maxCollateralBn={borrowData.collateralDeposited}
                   getMaxWithdraw={calculateMaxWithdraw}
                   collateralUSDPrice={
                     +formatBNToString(borrowData.priceOfCollateral, 18)

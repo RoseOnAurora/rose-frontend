@@ -5,17 +5,18 @@ import {
   TRANSACTION_TYPES,
 } from "../constants"
 import {
-  useBentoBoxContract,
-  useCauldronContract,
   useCollateralContract,
+  useGardenContract,
   useOracleContract,
+  useVaseContract,
 } from "./useContract"
 import { useEffect, useState } from "react"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { Cauldron } from "../../types/ethers-contracts/Cauldron"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
+import { Garden } from "../../types/ethers-contracts/Garden"
 import { Oracle } from "../../types/ethers-contracts/Oracle"
+import { Vase } from "../../types/ethers-contracts/Vase"
 import { parseUnits } from "ethers/lib/utils"
 import { useActiveWeb3React } from "."
 import { useSelector } from "react-redux"
@@ -36,6 +37,7 @@ export interface BorrowDataType {
   borrowedUSDPrice: BigNumber
   priceOfCollateral: BigNumber
   totalRUSDLeftToBorrow: BigNumber
+  tvl: BigNumber
 }
 
 type BorrowDataHookReturnType = [BorrowDataType, boolean]
@@ -44,7 +46,7 @@ const emptyBorrowData = {
   collateralTokenBalance: Zero,
   collateralDeposited: Zero,
   borrowed: Zero,
-  liquidationMultiplier: One,
+  liquidationMultiplier: parseUnits("1.05"),
   mcr: parseUnits("0.9", 18),
   borrowFee: parseUnits("0.01"),
   liquidationFee: parseUnits("0.05"),
@@ -55,21 +57,19 @@ const emptyBorrowData = {
   borrowedUSDPrice: Zero,
   priceOfCollateral: parseUnits("1", 18),
   totalRUSDLeftToBorrow: Zero,
+  tvl: Zero,
 } as BorrowDataType
 
 export default function useBorrowData(
   borrowMarket: BorrowMarketName,
 ): BorrowDataHookReturnType {
   const { account } = useActiveWeb3React()
-  const cauldronContract = useCauldronContract(borrowMarket) as Cauldron
+  const gardenContract = useGardenContract(borrowMarket) as Garden
   const collateralTokenContract = useCollateralContract(borrowMarket) as Erc20
   const oracleContract = useOracleContract(borrowMarket) as Oracle
-  const bentoBoxContract = useBentoBoxContract(borrowMarket)
+  const vaseContract = useVaseContract(borrowMarket) as Vase
   const { lastTransactionTimes } = useSelector(
     (state: AppState) => state.application,
-    (l, r) =>
-      l.lastTransactionTimes[TRANSACTION_TYPES.BORROW] ===
-      r.lastTransactionTimes[TRANSACTION_TYPES.BORROW],
   )
   const lastBorrowTime = lastTransactionTimes[TRANSACTION_TYPES.BORROW]
 
@@ -85,9 +85,9 @@ export default function useBorrowData(
     async function getBorrowData(): Promise<void> {
       if (
         !collateralTokenContract ||
-        !cauldronContract ||
+        !gardenContract ||
         !oracleContract ||
-        !bentoBoxContract
+        !vaseContract
       ) {
         setBorrowData([
           {
@@ -104,14 +104,22 @@ export default function useBorrowData(
       if (account && account != AddressZero && account != null) {
         try {
           const exchangeRate = await oracleContract.latestAnswer()
+          // exchange rate is e^6 precision
+          const exchangeRateAdj = exchangeRate.mul(BigNumber.from(10).pow(10))
           const USD_CONVERSION_BN = (factor: BigNumber) =>
-            factor.mul(exchangeRate).div(BigNumber.from(10).pow(18))
-          const liquidationMultiplier = await cauldronContract.LIQUIDATION_MULTIPLIER()
-          const mcr = await cauldronContract.COLLATERIZATION_RATE()
-          const borrowFee = await cauldronContract.BORROW_OPENING_FEE()
-          const totalRUSDLeft = await bentoBoxContract.balanceOf(
-            await cauldronContract.roseUsd(),
-            cauldronContract.address,
+            factor.mul(exchangeRateAdj).div(BigNumber.from(10).pow(18))
+
+          const liquidationMultiplier = await gardenContract.getLiquidationMultiplier()
+          const mcr = await gardenContract.getCollateralizationRate(account)
+          const borrowFee = await gardenContract.getBorrowOpeningFee(account)
+          const totalRUSDLeft = await vaseContract.balanceOf(
+            await gardenContract.roseUsd(),
+            gardenContract.address,
+          )
+
+          const tvl = await vaseContract.balanceOf(
+            collateralTokenContract.address,
+            gardenContract.address,
           )
 
           // cast to 18 precision to facilitate BN math
@@ -121,15 +129,17 @@ export default function useBorrowData(
             // liquidationMultiplier is e^5 precision
             BigNumber.from(10).pow(13),
           )
-          const accrueInfo = await cauldronContract.accrueInfo()
-          const interestPerYear = accrueInfo[2].mul(BigNumber.from("31557600"))
+          const interstPerSecond = await gardenContract.getInterestPerSecond()
+          const interestPerYear = interstPerSecond.mul(
+            BigNumber.from("31557600"),
+          )
           const collateralBalance = await collateralTokenContract.balanceOf(
             account,
           )
-          const collateralDeposited = await cauldronContract.userCollateralShare(
+          const collateralDeposited = await gardenContract.userCollateralShare(
             account,
           )
-          const borrowed = await cauldronContract.userBorrowPart(account)
+          const borrowed = await gardenContract.userBorrowPart(account)
 
           const borrowedAdj = borrowed.mul(
             BigNumber.from(10).pow(18 - BORROW_MARKET.borrowToken.decimals),
@@ -161,8 +171,15 @@ export default function useBorrowData(
                     : collateralDepositedUSDPrice,
                 ),
             )
-            .mul(collateralDepositedAdj)
+            .mul(
+              collateralDepositedAdj
+                .mul(exchangeRateAdj)
+                .div(BigNumber.from(10).pow(18)),
+            )
             .div(BigNumber.from(10).pow(18))
+          const rusdLeftToBorrowAdj = rusdLeftToBorrow.sub(
+            rusdLeftToBorrow.mul(borrowFeeAdj).div(BigNumber.from(10).pow(18)),
+          )
           setBorrowData((prevState) => [
             {
               ...prevState[0],
@@ -171,7 +188,9 @@ export default function useBorrowData(
               collateralDeposited: collateralDepositedAdj,
               collateralDepositedUSDPrice: collateralDepositedUSDPrice,
               borrowed: borrowedAdj,
-              rusdLeftToBorrow: rusdLeftToBorrow,
+              rusdLeftToBorrow: rusdLeftToBorrowAdj.gt(parseUnits("0.01"))
+                ? rusdLeftToBorrowAdj
+                : Zero,
               positionHealth: positionHealth,
               borrowedUSDPrice: borrowedUSDPrice,
               totalRUSDLeftToBorrow: totalRUSDLeft,
@@ -182,9 +201,8 @@ export default function useBorrowData(
               liquidationFee: liquidationMultiplierAdj.sub(
                 BigNumber.from("10").pow(18),
               ),
-              priceOfCollateral: exchangeRate.isZero()
-                ? parseUnits("1", 18)
-                : exchangeRate,
+              priceOfCollateral: exchangeRateAdj,
+              tvl: tvl,
             },
             false,
           ])
@@ -207,10 +225,10 @@ export default function useBorrowData(
     lastBorrowTime,
     borrowMarket,
     account,
-    cauldronContract,
+    gardenContract,
     collateralTokenContract,
     oracleContract,
-    bentoBoxContract,
+    vaseContract,
   ])
 
   return borrowData

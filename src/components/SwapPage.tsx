@@ -333,10 +333,10 @@ const SwapPage = (props: Props): ReactElement => {
           >
             {t("swap")}
           </Button>
+          <div className={classNames({ showError: !!error }, "error")}>
+            {error}
+          </div>
         </Center>
-        <div className={classNames({ showError: !!error }, "error")}>
-          {error}
-        </div>
         <Modal
           isOpen={!!currentModal}
           onClose={(): void => setCurrentModal(null)}

@@ -79,7 +79,7 @@ export default function fetchTokenPricesUSD(
             .then((body: RosePriceResponse[]) => {
               result = {
                 ...result,
-                stRose: +body[0].price_of_strose || 0,
+                stROSE: +body[0].price_of_strose || 0,
               }
               dispatch(updateTokensPricesUSD(result))
             })

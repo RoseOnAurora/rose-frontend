@@ -235,3 +235,13 @@ export const parseSignature = (signature: string): SignedSignatureRes => {
     v: parseInt(v, 16),
   }
 }
+
+export function calculatePctOfTotalShare(
+  tokenAmount: BigNumber,
+  totalTokenAmount: BigNumber,
+): BigNumber {
+  // returns the % of total tokens out of a whole
+  return tokenAmount
+    .mul(BigNumber.from(10).pow(18))
+    .div(totalTokenAmount.isZero() ? BigNumber.from("1") : totalTokenAmount)
+}

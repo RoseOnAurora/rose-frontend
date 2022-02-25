@@ -3,6 +3,8 @@ import {
   BorrowSortFields,
   FarmFilterFields,
   FarmSortFields,
+  PoolFilterFields,
+  PoolSortFields,
 } from "../state/user"
 import { injected, walletconnect } from "../connectors"
 
@@ -19,6 +21,7 @@ import fraxLogo from "../assets/icons/frax.svg"
 import lusdLogo from "../assets/icons/lusd.svg"
 import maiLogo from "../assets/icons/mai.svg"
 import metamaskIcon from "../assets/icons/metamask.svg"
+import nearLogo from "../assets/icons/near_icon.svg"
 import renbtcLogo from "../assets/icons/renbtc.svg"
 import roseAtust from "../assets/icons/rose-atust.svg"
 import roseBusdLogo from "../assets/icons/rose-busd.svg"
@@ -57,7 +60,7 @@ export const FRAX_METAPOOL_NAME = "Frax Pool"
 export const STAKED_ROSE_LP_POOL_NAME = "stRose Pool"
 export const UST_METAPOOL_NAME = "UST Pool"
 export const BUSD_METAPOOL_NAME = "BUSD Pool"
-export const MAI_METAPOOL_NAME = "Mai Pool"
+export const MAI_METAPOOL_NAME = "MAI Pool"
 
 // FARMS
 export const STABLES_FARM_NAME = "Stables Farm"
@@ -70,7 +73,9 @@ export const BUSD_METAPOOL_FARM_NAME = "BUSD Farm"
 export const MAI_METAPOOL_FARM_NAME = "MAI Farm"
 
 // BORROW MARKETS
-export const FRAX_MARKET_NAME = "FRAX"
+export const NEAR_MARKET_NAME = "NEAR"
+export const STROSE_MARKET_NAME = "stROSE"
+export const UST_MARKET_NAME = "UST"
 
 export type PoolName =
   | typeof BTC_POOL_NAME
@@ -101,7 +106,10 @@ export type FarmName =
   | typeof MAI_METAPOOL_FARM_NAME
 // | typeof SROSE_FARM_NAME
 
-export type BorrowMarketName = typeof FRAX_MARKET_NAME
+export type BorrowMarketName =
+  | typeof NEAR_MARKET_NAME
+  | typeof STROSE_MARKET_NAME
+  | typeof UST_MARKET_NAME
 
 export enum ChainId {
   MAINNET = 1,
@@ -1085,7 +1093,7 @@ export const SROSE_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
 export const SROSE = new Token(
   SROSE_CONTRACT_ADDRESSES,
   18,
-  "stRose",
+  "stROSE",
   "strose",
   "Staked Rose Tokens",
   sRoseLogo,
@@ -1129,8 +1137,8 @@ export const RUSD_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0xcF00D067684a1a69353B333dCc2aAD73e75D9701",
-  [ChainId.AURORA_MAINNET]: "0xcF00D067684a1a69353B333dCc2aAD73e75D9701", // TO-DO: update mainnet
+  [ChainId.AURORA_TESTNET]: "0xF8debFcc993B4d4722c59bee6c102d0f32BeAF01",
+  [ChainId.AURORA_MAINNET]: "0xF8debFcc993B4d4722c59bee6c102d0f32BeAF01", // TO-DO: update mainnet
 }
 
 export const RUSD = new Token(
@@ -1140,6 +1148,23 @@ export const RUSD = new Token(
   "rusd", // to-do: update
   "RoseUSD",
   roseLogo, // to-do: update
+)
+
+export const NEAR_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x8ac5eE52F70AE01dB914bE459D8B3d50126fd6aE",
+  [ChainId.AURORA_MAINNET]: "0x8ac5eE52F70AE01dB914bE459D8B3d50126fd6aE", // TO-DO: update mainnet
+}
+
+export const NEAR = new Token(
+  NEAR_CONTRACT_ADDRESSES,
+  18,
+  "NEAR",
+  "near", // to-do: update
+  "Near",
+  nearLogo, // to-do: update
 )
 
 export const ROSE_FARM_STABLES_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -1260,28 +1285,60 @@ export const MAI_METAPOOL_DEPOSIT_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "0x81B2DF6Da4E944B0CE5B3f62473D8637b65c631C",
 }
 
-export const FRAX_CAULDRON_ADDRESSES: { [chainId in ChainId]: string } = {
+export const NEAR_GARDEN_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x5C33C52b08ec2Ae9C7924CDe630BD52eD5538E76",
-  [ChainId.AURORA_MAINNET]: "0x5C33C52b08ec2Ae9C7924CDe630BD52eD5538E76", // update mainnet
+  [ChainId.AURORA_TESTNET]: "0x84effDCc7495ed930bD5BDd15457842028cd4335",
+  [ChainId.AURORA_MAINNET]: "0x84effDCc7495ed930bD5BDd15457842028cd4335", // update mainnet
 }
 
-export const BENTO_BOX_ADDRESSES: { [chainId in ChainId]: string } = {
+export const NEAR_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x3f9CCE2c3C7F64134FE42c3BC04332c88a50699e",
-  [ChainId.AURORA_MAINNET]: "0x3f9CCE2c3C7F64134FE42c3BC04332c88a50699e", // update mainnet
+  [ChainId.AURORA_TESTNET]: "0x15f5031f16d92BAc938cCBB2e2692B89e0D4Ee2c",
+  [ChainId.AURORA_MAINNET]: "0x15f5031f16d92BAc938cCBB2e2692B89e0D4Ee2c", // update mainnet
 }
 
-export const FRAX_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
+export const STROSE_GARDEN_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x0cFfD32E7199C9d4bb821cF5ec8fd1b0704E8D62",
-  [ChainId.AURORA_MAINNET]: "0x0cFfD32E7199C9d4bb821cF5ec8fd1b0704E8D62", // update mainnet
+  [ChainId.AURORA_TESTNET]: "0x9Da174b0441b912478B96faaE96ED387d9238b05",
+  [ChainId.AURORA_MAINNET]: "0x9Da174b0441b912478B96faaE96ED387d9238b05", // update mainnet
+}
+
+export const STROSE_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x14C80b2a1307f95deCbf414b1aC77BC852511367",
+  [ChainId.AURORA_MAINNET]: "0x14C80b2a1307f95deCbf414b1aC77BC852511367", // update mainnet
+}
+
+export const UST_GARDEN_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xD38Ff4caF7C481c564Ce70F571ab1cfFD2539aaE",
+  [ChainId.AURORA_MAINNET]: "0xD38Ff4caF7C481c564Ce70F571ab1cfFD2539aaE", // update mainnet
+}
+
+export const UST_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xd1D623Ef469a80Ce1F28b380AeBA639A7AFEfabF",
+  [ChainId.AURORA_MAINNET]: "0xd1D623Ef469a80Ce1F28b380AeBA639A7AFEfabF", // update mainnet
+}
+
+export const VASE_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xCF2E056d4a6B830d20f4E6e6F55669070Bd6de57",
+  [ChainId.AURORA_MAINNET]: "0xCF2E056d4a6B830d20f4E6e6F55669070Bd6de57", // update mainnet
 }
 
 export const D4_POOL_TOKENS = [ALUSD, FEI, FRAX, LUSD]
@@ -1414,7 +1471,7 @@ export const FARMS_MAP: FarmsMap = {
     name: STABLES_FARM_NAME,
     lpToken: STABLECOIN_SWAP_V2_TOKEN,
     addresses: ROSE_FARM_STABLES_ADDRESSES,
-    poolUrl: "../#/pools/stables/deposit",
+    poolUrl: "../#/pools/stables",
     route: "stables",
     isRose: true,
     poolName: STABLECOIN_POOL_V2_NAME,
@@ -1423,7 +1480,7 @@ export const FARMS_MAP: FarmsMap = {
     name: FRAX_METAPOOL_FARM_NAME,
     lpToken: FRAX_METAPOOL_LP_TOKEN,
     addresses: FRAX_METAPOOL_FARM_ADDRESSES,
-    poolUrl: "../#/pools/frax/deposit",
+    poolUrl: "../#/pools/frax",
     route: "frax",
     isRose: true,
     poolName: FRAX_METAPOOL_NAME,
@@ -1432,7 +1489,7 @@ export const FARMS_MAP: FarmsMap = {
     name: UST_METAPOOL_FARM_NAME,
     lpToken: UST_METAPOOL_LP_TOKEN,
     addresses: UST_METAPOOL_FARM_ADDRESSES,
-    poolUrl: "../#/pools/ust/deposit",
+    poolUrl: "../#/pools/ust",
     route: "ust",
     isRose: true,
     poolName: UST_METAPOOL_NAME,
@@ -1461,7 +1518,7 @@ export const FARMS_MAP: FarmsMap = {
     name: BUSD_METAPOOL_FARM_NAME,
     lpToken: BUSD_METAPOOL_LP_TOKEN,
     addresses: BUSD_FARM_ADDRESSES,
-    poolUrl: "../#/pools/busd/deposit",
+    poolUrl: "../#/pools/busd",
     route: "busd",
     isRose: true,
     poolName: BUSD_METAPOOL_NAME,
@@ -1470,7 +1527,7 @@ export const FARMS_MAP: FarmsMap = {
     name: MAI_METAPOOL_FARM_NAME,
     lpToken: MAI_METAPOOL_LP_TOKEN,
     addresses: MAI_FARM_ADDRESSES,
-    poolUrl: "../#/pools/mai/deposit",
+    poolUrl: "../#/pools/mai",
     route: "mai",
     isRose: true,
     poolName: MAI_METAPOOL_FARM_NAME,
@@ -1489,8 +1546,8 @@ export type BorrowMarket = {
   name: BorrowMarketName
   collateralToken: Token
   borrowToken: Token
-  cauldronAddresses: { [chainId in ChainId]: string }
-  bentoBoxAddresses: { [chainId in ChainId]: string }
+  gardenAddresses: { [chainId in ChainId]: string }
+  vaseAddresses: { [chainId in ChainId]: string }
   oracleAddresses: { [chainId in ChainId]: string }
   route: string
 }
@@ -1500,14 +1557,32 @@ export type BorrowMarketMap = {
 }
 
 export const BORROW_MARKET_MAP: BorrowMarketMap = {
-  [FRAX_MARKET_NAME]: {
-    name: FRAX_MARKET_NAME,
-    collateralToken: FRAX,
+  [NEAR_MARKET_NAME]: {
+    name: NEAR_MARKET_NAME,
+    collateralToken: NEAR,
     borrowToken: RUSD,
-    cauldronAddresses: FRAX_CAULDRON_ADDRESSES,
-    bentoBoxAddresses: BENTO_BOX_ADDRESSES,
-    oracleAddresses: FRAX_ORACLE_ADDRESSES,
-    route: "frax",
+    gardenAddresses: NEAR_GARDEN_ADDRESSES,
+    vaseAddresses: VASE_ADDRESSES,
+    oracleAddresses: NEAR_ORACLE_ADDRESSES,
+    route: "near",
+  },
+  [STROSE_MARKET_NAME]: {
+    name: STROSE_MARKET_NAME,
+    collateralToken: SROSE,
+    borrowToken: RUSD,
+    gardenAddresses: STROSE_GARDEN_ADDRESSES,
+    vaseAddresses: VASE_ADDRESSES,
+    oracleAddresses: STROSE_ORACLE_ADDRESSES,
+    route: "strose",
+  },
+  [UST_MARKET_NAME]: {
+    name: UST_MARKET_NAME,
+    collateralToken: UST,
+    borrowToken: RUSD,
+    gardenAddresses: UST_GARDEN_ADDRESSES,
+    vaseAddresses: VASE_ADDRESSES,
+    oracleAddresses: UST_ORACLE_ADDRESSES,
+    route: "ust",
   },
 }
 
@@ -1712,6 +1787,24 @@ export const BORROW_FILTER_FIELDS_TO_LABEL: {
   supply: "RUSD Left to Borrow",
   collateral: "Collateral Deposited",
   borrow: "Borrowed",
+}
+
+export const POOL_SORT_FIELDS_TO_LABEL: {
+  [sortField in PoolSortFields]: string
+} = {
+  name: "Name",
+  tvl: "TVL",
+  farmDeposit: "Farm Deposit",
+  balance: "Balance",
+  volume: "24h Volume",
+}
+
+export const POOL_FILTER_FIELDS_TO_LABEL: {
+  [filterField in PoolFilterFields]: string
+} = {
+  noFilter: "No Filter",
+  farmDeposit: "Farm Deposit",
+  balance: "Balance",
 }
 
 // kinda hacky, but will change once we update our chain IDs

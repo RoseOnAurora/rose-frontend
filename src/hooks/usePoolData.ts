@@ -13,7 +13,11 @@ import {
   MulticallContract,
   MulticallProvider,
 } from "../types/ethcall"
-import { formatBNToPercentString, getContract } from "../utils"
+import {
+  calculatePctOfTotalShare,
+  formatBNToPercentString,
+  getContract,
+} from "../utils"
 import { useEffect, useState } from "react"
 
 import { AppState } from "../state"
@@ -27,7 +31,8 @@ import { useActiveWeb3React } from "."
 import { usePoolContract } from "./useContract"
 import { useSelector } from "react-redux"
 
-const poolStatsApi = "https://raw.githubusercontent.com/RoseOnAurora/apr/master/pools.json"
+const poolStatsApi =
+  "https://raw.githubusercontent.com/RoseOnAurora/apr/master/pools.json"
 
 interface PoolStatsApiResponse {
   pool_name: string
@@ -130,7 +135,7 @@ export default function usePoolData(
         return
 
       // fetch pool stats, TODO: don't need to call for each pool, store somewhere else
-      let dailyVolume;
+      let dailyVolume
       let poolStats = await fetch(poolStatsApi)
         .then((res) => res.json())
         .then((body: PoolStatsApiResponse[]) => {
@@ -141,24 +146,13 @@ export default function usePoolData(
             }
           })
         })
-      let poolStat = poolStats.find( ({ pool_name }) => pool_name === poolName)
+      let poolStat = poolStats.find(({ pool_name }) => pool_name === poolName)
       if (typeof poolStat !== "undefined") {
-        dailyVolume = 
-          BigNumber.from(Math.round(parseFloat(poolStat.daily_volume))).mul(BigNumber.from(10).pow(18))
+        dailyVolume = BigNumber.from(
+          Math.round(parseFloat(poolStat.daily_volume)),
+        ).mul(BigNumber.from(10).pow(18))
       } else {
         dailyVolume = null
-      }
-
-      // TODO: move to utils
-      function calculatePctOfTotalShare(lpTokenAmount: BigNumber): BigNumber {
-        // returns the % of total lpTokens
-        return lpTokenAmount
-          .mul(BigNumber.from(10).pow(18))
-          .div(
-            totalLpTokenBalance.isZero()
-              ? BigNumber.from("1")
-              : totalLpTokenBalance,
-          )
       }
 
       const POOL = POOLS_MAP[poolName]
@@ -243,7 +237,10 @@ export default function usePoolData(
             .div(tokenBalancesSum)
 
       // calculate user share of pool
-      const userShare = calculatePctOfTotalShare(userLpTokenBalance)
+      const userShare = calculatePctOfTotalShare(
+        userLpTokenBalance,
+        totalLpTokenBalance,
+      )
       const userPoolTokenBalances = tokenBalances.map((balance) => {
         return userShare.mul(balance).div(BigNumber.from(10).pow(18))
       })

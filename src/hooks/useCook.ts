@@ -10,30 +10,31 @@ import { BytesLike, ethers } from "ethers"
 import { ContractReceipt, PayableOverrides } from "@ethersproject/contracts"
 import { getSigner, parseSignature } from "../utils"
 import {
-  useBentoBoxContract,
   useBorrowContract,
-  useCauldronContract,
   useCollateralContract,
+  useGardenContract,
+  useVaseContract,
 } from "./useContract"
 import { useDispatch, useSelector } from "react-redux"
-import { BentoBox } from "../../types/ethers-contracts/BentoBox"
-import { Cauldron } from "../../types/ethers-contracts/Cauldron"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
+import { Garden } from "../../types/ethers-contracts/Garden"
+import { Vase } from "../../types/ethers-contracts/Vase"
 import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
 
-enum CauldronActions {
+enum GardenActions {
   REPAY = 2,
   REMOVE_COLLATERAL = 4,
   BORROW = 5,
+  REPAY_SHARE = 6,
   REPAY_PART = 7,
   ADD_COLLATERAL = 10,
   UPDATE_EXCHANGE_RATE = 11,
-  BENTO_DEPOSIT = 20,
-  BENTO_WITHDRAW = 21,
-  BENTO_SET_APPROVAL = 24,
+  VASE_DEPOSIT = 20,
+  VASE_WITHDRAW = 21,
+  VASE_SET_APPROVAL = 24,
 }
 
 export enum CookAction {
@@ -50,6 +51,7 @@ interface CookArgsProps {
   collateralTokenAddress: string
   masterContractAddress: string
   updateOraclePrice: boolean
+  repayMax?: boolean
 }
 
 interface CookArgs {
@@ -67,10 +69,10 @@ export function useCook(
   cookAction: CookAction,
   onMessageSignatureTransactionStart?: () => void,
   onApprovalTransactionStart?: () => void,
-  onApprovalTransactionSuccess?: () => void,
+  repayMax?: boolean,
 ) => Promise<ContractReceipt | void> {
-  const cauldronContract = useCauldronContract(borrowMarket) as Cauldron
-  const bentoBoxContract = useBentoBoxContract(borrowMarket) as BentoBox
+  const gardenContract = useGardenContract(borrowMarket) as Garden
+  const vaseContract = useVaseContract(borrowMarket) as Vase
   const collateralTokenContract = useCollateralContract(borrowMarket) as Erc20
   const borrowTokenContract = useBorrowContract(borrowMarket) as Erc20
 
@@ -87,23 +89,24 @@ export function useCook(
     cookAction: CookAction,
     onMessageSignatureTransactionStart?: () => void,
     onApprovalTransactionStart?: () => void,
-    onApprovalTransactionSuccess?: () => void,
+    repayMax?: boolean,
   ): Promise<ContractReceipt | void> {
     // validation checks
     if (
       !account ||
       !chainId ||
       !library ||
-      !cauldronContract ||
-      !bentoBoxContract ||
-      !collateralTokenContract
+      !gardenContract ||
+      !vaseContract ||
+      !collateralTokenContract ||
+      !borrowTokenContract
     ) {
       return
     }
 
     try {
-      const masterContractAddress = await cauldronContract.masterContract()
-      const bentoBoxAddress = await cauldronContract.bentoBox()
+      const masterContractAddress = await gardenContract.masterContract()
+      const vaseAddress = await gardenContract.vase()
 
       const amountToDeposit = BigNumber.from(collateralAmount)
       const amountToBorrow = BigNumber.from(borrowAmount)
@@ -115,7 +118,7 @@ export function useCook(
         cookAction === CookAction.BORROW
           ? collateralTokenContract
           : borrowTokenContract,
-        bentoBoxAddress,
+        vaseAddress,
         account,
         cookAction === CookAction.BORROW ? amountToDeposit : amountToBorrow,
         infiniteApproval,
@@ -125,7 +128,6 @@ export function useCook(
             onApprovalTransactionStart?.()
             return undefined
           },
-          onTransactionSuccess: () => onApprovalTransactionSuccess?.(),
         },
       )
 
@@ -138,11 +140,11 @@ export function useCook(
         ? null
         : await requestSignature(
             chainId,
-            bentoBoxAddress,
-            "BentoBox V1",
-            "Give FULL access to funds in (and approved to) BentoBox?",
+            vaseAddress,
+            "Vase",
+            "Give FULL access to funds in (and approved to) Vase?",
             masterContractAddress,
-            bentoBoxContract,
+            vaseContract,
             account,
             library,
           )
@@ -157,6 +159,7 @@ export function useCook(
         collateralTokenAddress: collateralTokenContract.address,
         masterContractAddress: masterContractAddress,
         updateOraclePrice: priceFromOracle,
+        repayMax: repayMax,
       }
 
       const cookArgs =
@@ -164,7 +167,7 @@ export function useCook(
           ? getBorrowCookArgs({ ...cookArgProps })
           : repayCookArgs({ ...cookArgProps })
 
-      const tx = await cauldronContract.cook(
+      const tx = await gardenContract.cook(
         cookArgs.actions,
         cookArgs.values,
         cookArgs.datas,
@@ -205,7 +208,7 @@ const requestSignature = async (
   verifyingDomainName: string,
   messageToSign: string,
   masterContractAddress: string,
-  verifyingContract: BentoBox,
+  verifyingContract: Vase,
   account: string,
   library: ethers.providers.Web3Provider,
 ): Promise<SignedSignatureRes> => {
@@ -255,7 +258,7 @@ const getDefaultCookArgs = ({
 
   // APPROVALS
   if (parsedSignature) {
-    actions.push(CauldronActions.BENTO_SET_APPROVAL)
+    actions.push(GardenActions.VASE_SET_APPROVAL)
     values.push(0)
     datas.push(
       ethers.utils.defaultAbiCoder.encode(
@@ -274,7 +277,7 @@ const getDefaultCookArgs = ({
 
   // UPDATE EXCHANGE RATE
   if (updateOraclePrice) {
-    actions.push(CauldronActions.UPDATE_EXCHANGE_RATE)
+    actions.push(GardenActions.UPDATE_EXCHANGE_RATE)
     values.push(0)
     datas.push(
       ethers.utils.defaultAbiCoder.encode(
@@ -296,7 +299,7 @@ const getBorrowCookArgs = (props: CookArgsProps): CookArgs => {
 
   // BORROW
   if (!props.borrowAmount.isZero()) {
-    actions.push(CauldronActions.BORROW, CauldronActions.BENTO_WITHDRAW)
+    actions.push(GardenActions.BORROW, GardenActions.VASE_WITHDRAW)
     values.push(0, 0)
     datas.push(
       ethers.utils.defaultAbiCoder.encode(
@@ -305,14 +308,14 @@ const getBorrowCookArgs = (props: CookArgsProps): CookArgs => {
       ),
       ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "int256", "int256"],
-        [props.borrowTokenAddress, props.account, props.borrowAmount, 0],
+        [props.borrowTokenAddress, props.account, props.borrowAmount, "0x0"],
       ),
     )
   }
 
   // DEPOSIT COLLATERAL
   if (!props.collateralAmount.isZero()) {
-    actions.push(CauldronActions.BENTO_DEPOSIT, CauldronActions.ADD_COLLATERAL)
+    actions.push(GardenActions.VASE_DEPOSIT, GardenActions.ADD_COLLATERAL)
     values.push(0, 0)
     datas.push(
       ethers.utils.defaultAbiCoder.encode(
@@ -321,12 +324,12 @@ const getBorrowCookArgs = (props: CookArgsProps): CookArgs => {
           props.collateralTokenAddress,
           props.account,
           props.collateralAmount,
-          0,
+          "0",
         ],
       ),
       ethers.utils.defaultAbiCoder.encode(
         ["int256", "address", "bool"],
-        [props.collateralAmount, props.account, false],
+        ["-2", props.account, false],
       ),
     )
   }
@@ -342,17 +345,37 @@ const repayCookArgs = (props: CookArgsProps): CookArgs => {
   const { actions, values, datas } = getDefaultCookArgs(props)
 
   // REPAY
-  if (!props.borrowAmount.isZero()) {
+  if (props.repayMax) {
+    console.log("REPAY MAX")
     actions.push(
-      CauldronActions.BENTO_DEPOSIT,
-      CauldronActions.REPAY_PART,
-      CauldronActions.REPAY,
+      GardenActions.REPAY_SHARE,
+      GardenActions.VASE_DEPOSIT,
+      GardenActions.REPAY,
+    )
+    values.push(0, 0, 0)
+    datas.push(
+      ethers.utils.defaultAbiCoder.encode(["int256"], [props.collateralAmount]),
+      ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [props.borrowTokenAddress, props.account, "0x00", "-0x01"],
+      ),
+      ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        [props.borrowAmount, props.account, false],
+      ),
+    )
+  } else if (!props.borrowAmount.isZero()) {
+    console.log("REPAY PART")
+    actions.push(
+      GardenActions.VASE_DEPOSIT,
+      GardenActions.REPAY_PART,
+      GardenActions.REPAY,
     )
     values.push(0, 0, 0)
     datas.push(
       ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "int256", "int256"],
-        [props.borrowTokenAddress, props.account, props.borrowAmount, 0],
+        [props.borrowTokenAddress, props.account, props.borrowAmount, "0x0"],
       ),
       ethers.utils.defaultAbiCoder.encode(["int256"], ["-0x01"]),
       ethers.utils.defaultAbiCoder.encode(
@@ -364,10 +387,7 @@ const repayCookArgs = (props: CookArgsProps): CookArgs => {
 
   // WITHDRAW COLLATERAL
   if (!props.collateralAmount.isZero()) {
-    actions.push(
-      CauldronActions.REMOVE_COLLATERAL,
-      CauldronActions.BENTO_WITHDRAW,
-    )
+    actions.push(GardenActions.REMOVE_COLLATERAL, GardenActions.VASE_WITHDRAW)
     values.push(0, 0)
     datas.push(
       ethers.utils.defaultAbiCoder.encode(
@@ -379,7 +399,7 @@ const repayCookArgs = (props: CookArgsProps): CookArgs => {
         [
           props.collateralTokenAddress,
           props.account,
-          0,
+          "0x00",
           props.collateralAmount,
         ],
       ),

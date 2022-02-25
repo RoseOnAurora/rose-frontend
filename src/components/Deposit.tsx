@@ -9,7 +9,7 @@ import usePoolData, { PoolDataType } from "../hooks/usePoolData"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { Contract, ContractReceipt } from "@ethersproject/contracts"
-import DepositPage from "../components/DepositPage"
+import DepositPage from "./DepositPage"
 import FRAX_POOL_DEPOSIT from "../constants/abis/FraxPoolDeposit.json"
 import { TokenPricesUSD } from "../state/application"
 import { Zero } from "@ethersproject/constants"
@@ -99,7 +99,7 @@ function Deposit({ poolName }: Props): ReactElement | null {
       gasPriceSelected,
       gasCustom,
     ),
-    "gwei"
+    "gwei",
   )
   const [estDepositLPTokenAmount, setEstDepositLPTokenAmount] = useState(Zero)
   const [priceImpact, setPriceImpact] = useState(Zero)
@@ -250,7 +250,6 @@ function Deposit({ poolName }: Props): ReactElement | null {
       tokens={tokens}
       exceedsWallet={exceedsWallet}
       poolData={poolData}
-      myShareData={userShareData}
       transactionData={depositTransaction}
     />
   )

@@ -8,7 +8,6 @@ import {
   DAI,
   FARMS_MAP,
   FRAX,
-  // FRAX_STABLES_LP_FARM_NAME,
   FRAX_METAPOOL_NAME,
   FRAX_METAPOOL_FARM_NAME,
   MAI_METAPOOL_NAME,
@@ -23,7 +22,6 @@ import {
   ROSE_PAD_NLP_FARM_NAME,
   SROSE,
   SROSE_CONTRACT_ADDRESSES,
-  // SROSE_FARM_NAME,
   STABLECOIN_POOL_V2_NAME,
   STABLECOIN_SWAP_V2_TOKEN,
   STABLES_FARM_NAME,
@@ -44,11 +42,11 @@ import {
   BORROW_MARKET_MAP,
 } from "../constants"
 
-import BENTO_BOX_ABI from "../constants/abis/BentoBox.json"
-import { BentoBox } from "../../types/ethers-contracts/BentoBox"
+import VASE_ABI from "../constants/abis/Vase.json"
+import { Vase } from "../../types/ethers-contracts/Vase"
 import BRIDGE_CONTRACT_ABI from "../constants/abis/bridge.json"
 import { Bridge } from "../../types/ethers-contracts/Bridge"
-import CAULDRON_ABI from "../constants/abis/Cauldron.json"
+import GARDEN_ABI from "../constants/abis/Garden.json"
 import { Contract } from "@ethersproject/contracts"
 import ERC20_ABI from "../constants/abis/erc20.json"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
@@ -85,7 +83,7 @@ import { SynthetixNetworkToken } from "../../types/ethers-contracts/SynthetixNet
 import { getContract } from "../utils"
 import { useActiveWeb3React } from "./index"
 import { useMemo } from "react"
-import { Cauldron } from "../../types/ethers-contracts/Cauldron"
+import { Garden } from "../../types/ethers-contracts/Garden"
 
 // returns null on errors
 function useContract(
@@ -199,24 +197,24 @@ export function useStRoseContract(): StRose | null {
   return useContract(contractAddress, SROSE_ABI.abi) as StRose
 }
 
-export function useCauldronContract(
+export function useGardenContract(
   borrowMarket: BorrowMarketName,
-): Cauldron | null {
+): Garden | null {
   const { chainId } = useActiveWeb3React()
   const contractAddress = chainId
-    ? BORROW_MARKET_MAP[borrowMarket].cauldronAddresses[chainId]
+    ? BORROW_MARKET_MAP[borrowMarket].gardenAddresses[chainId]
     : undefined
-  return useContract(contractAddress, JSON.stringify(CAULDRON_ABI)) as Cauldron
+  return useContract(contractAddress, JSON.stringify(GARDEN_ABI)) as Garden
 }
 
-export function useBentoBoxContract(
+export function useVaseContract(
   borrowMarket: BorrowMarketName,
-): BentoBox | null {
+): Vase | null {
   const { chainId } = useActiveWeb3React()
   const contractAddress = chainId
-    ? BORROW_MARKET_MAP[borrowMarket].bentoBoxAddresses[chainId]
+    ? BORROW_MARKET_MAP[borrowMarket].vaseAddresses[chainId]
     : undefined
-  return useContract(contractAddress, JSON.stringify(BENTO_BOX_ABI)) as BentoBox
+  return useContract(contractAddress, JSON.stringify(VASE_ABI)) as Vase
 }
 
 export function useCollateralContract(

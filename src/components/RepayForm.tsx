@@ -40,6 +40,8 @@ interface Props {
   max: string
   collateralUSDPrice: number
   formDescription?: ReactNode
+  maxRepayBn: BigNumber
+  maxCollateralBn: BigNumber
   updateLiquidationPrice: (
     borrowAmount: string,
     collateralAmount: string,
@@ -62,6 +64,7 @@ interface Props {
     cookAction: CookAction,
     onMessageSignatureTransactionStart?: () => void,
     onApprovalTransactionStart?: () => void,
+    repayMax?: boolean,
   ) => Promise<ContractReceipt | void>
   handleWhileSubmitting?: {
     onMessageSignatureTransactionStart?: () => void
@@ -92,6 +95,8 @@ const RepayForm = (props: Props): ReactElement => {
     formDescription,
     collateralUSDPrice,
     handleWhileSubmitting,
+    maxRepayBn,
+    maxCollateralBn,
     updateLiquidationPrice,
     updatePositionHealth,
     getMaxWithdraw,
@@ -124,7 +129,6 @@ const RepayForm = (props: Props): ReactElement => {
             18,
           )
           const borrowValueSafe = parseStringToBigNumber(values?.borrow, 18)
-          console.log(values.borrow)
           let receipt: ContractReceipt | null = null
           try {
             receipt = (await handleSubmit(
@@ -133,6 +137,8 @@ const RepayForm = (props: Props): ReactElement => {
               CookAction.REPAY,
               handleWhileSubmitting?.onMessageSignatureTransactionStart,
               handleWhileSubmitting?.onApprovalTransactionStart,
+              borrowValueSafe.value.eq(maxRepayBn) &&
+                collateralValueSafe.value.eq(maxCollateralBn),
             )) as ContractReceipt
             handlePostSubmit?.(receipt, TransactionType.REPAY)
           } catch (e) {
