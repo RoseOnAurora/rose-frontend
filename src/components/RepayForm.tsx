@@ -358,6 +358,7 @@ const RepayForm = (props: Props): ReactElement => {
                 size="lg"
                 width="100%"
                 type="submit"
+                fontSize={{ base: "12px", sm: "16px" }}
                 disabled={
                   props.errors.borrow !== undefined ||
                   props.errors.collateral !== undefined ||

@@ -446,6 +446,7 @@ const BorrowForm = (props: Props): ReactElement => {
             >
               <Button
                 variant="primary"
+                fontSize={{ base: "12px", sm: "16px" }}
                 size="lg"
                 width="100%"
                 type="submit"

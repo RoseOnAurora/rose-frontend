@@ -114,7 +114,7 @@ export function useCook(
       const gasPrice = Zero // change this
 
       // approve
-      const alreadyApproved = await checkAndApproveTokenForTrade(
+      await checkAndApproveTokenForTrade(
         cookAction === CookAction.BORROW
           ? collateralTokenContract
           : borrowTokenContract,
@@ -131,12 +131,17 @@ export function useCook(
         },
       )
 
+      const masterContractApproved = await vaseContract.masterContractApproved(
+        masterContractAddress,
+        account,
+      )
+
       // signature request if not already approved
-      if (!alreadyApproved) {
+      if (!masterContractApproved) {
         onMessageSignatureTransactionStart?.()
       }
 
-      const parsedSignature = alreadyApproved
+      const parsedSignature = masterContractApproved
         ? null
         : await requestSignature(
             chainId,
