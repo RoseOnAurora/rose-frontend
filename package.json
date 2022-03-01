@@ -87,7 +87,7 @@
     "prettier": "^2.1.2",
     "react-is": "^17.0.1",
     "redux-devtools-extension": "^2.13.8",
-    "sass": "^1.32.5",
+    "sass": "^1.49.9",
     "start-server-and-test": "^1.12.1",
     "typechain": "^4.0.3",
     "typescript-plugin-css-modules": "^3.2.0"
