@@ -39,7 +39,9 @@ export default function Banner(props: BannerProps): ReactElement | null {
           >
             here to mint
           </a>{" "}
-          testnet UST, NEAR, and ROSE to try borrowing RUSD.
+          testnet UST, NEAR, and ROSE to try borrowing RUSD. To submit a bug
+          report or feature request, click <b>Provide Feedback</b> in the bottom
+          right corner (disable adblock if you don&apos;t see it).
         </AlertDescription>
       </Box>
       <CloseButton
