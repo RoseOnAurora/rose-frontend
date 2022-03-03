@@ -50,39 +50,37 @@ const OverviewInfo = ({ sections, infoType }: Props): ReactElement => {
         <Divider />
         {sections.map(({ title, items }, i) => {
           return (
-            <>
-              <GridItem key={i}>
-                <Flex>
-                  <Text mb="10px" fontWeight="600" fontSize="20px">
-                    {title}
-                  </Text>
-                  <IconButton
-                    onClick={() =>
-                      setHowTo((prev) => ({ ...prev, [i]: !howTo[i] }))
-                    }
-                    aria-label={howTo[i] ? "Collapse" : "Expand"}
-                    variant="outline"
-                    size="xs"
-                    marginLeft="5px"
-                    icon={<BsChevronExpand />}
-                    title={howTo[i] ? "Collapse" : "Expand"}
-                  />
-                </Flex>
-                <Collapse in={howTo[i] ? true : false} animateOpacity>
-                  <List color="var(--text-lighter)" spacing={3}>
-                    {items.map(({ icon, text }, j) => {
-                      return (
-                        <ListItem key={j}>
-                          <ListIcon as={icon} color="var(--text-primary)" />
-                          {text}
-                        </ListItem>
-                      )
-                    })}
-                  </List>
-                </Collapse>
-              </GridItem>
-              {i !== sections.length - 1 && <Divider />}
-            </>
+            <GridItem key={i}>
+              <Flex>
+                <Text mb="10px" fontWeight="600" fontSize="20px">
+                  {title}
+                </Text>
+                <IconButton
+                  onClick={() =>
+                    setHowTo((prev) => ({ ...prev, [i]: !howTo[i] }))
+                  }
+                  aria-label={howTo[i] ? "Collapse" : "Expand"}
+                  variant="outline"
+                  size="xs"
+                  marginLeft="5px"
+                  icon={<BsChevronExpand />}
+                  title={howTo[i] ? "Collapse" : "Expand"}
+                />
+              </Flex>
+              <Collapse in={howTo[i]} animateOpacity>
+                <List color="var(--text-lighter)" spacing={3}>
+                  {items.map(({ icon, text }, j) => {
+                    return (
+                      <ListItem key={j}>
+                        <ListIcon as={icon} color="var(--text-primary)" />
+                        {text}
+                      </ListItem>
+                    )
+                  })}
+                </List>
+              </Collapse>
+              {i !== sections.length - 1 && <Divider m="10px 0" />}
+            </GridItem>
           )
         })}
       </Grid>

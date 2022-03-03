@@ -5,7 +5,7 @@
 /* eslint @typescript-eslint/no-unsafe-return: 0 */
 /* eslint sort-imports: 0 */
 import { Contract, ContractReceipt } from "@ethersproject/contracts"
-import { POOLS_MAP, SWAP_TYPES, TRANSACTION_TYPES } from "../constants"
+import { ChainId, POOLS_MAP, SWAP_TYPES, TRANSACTION_TYPES } from "../constants"
 // import { notifyCustomError, notifyHandler } from "../utils/notifyHandler"
 
 import { AppState } from "../state"
@@ -15,7 +15,7 @@ import { Bridge } from "../../types/ethers-contracts/Bridge"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { GasPrices } from "../state/user"
 import { parseUnits } from "@ethersproject/units"
-// import { Zero } from "@ethersproject/constants"
+import { Zero } from "@ethersproject/constants"
 import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
@@ -80,7 +80,10 @@ export function useApproveAndSwap(): (
       } else {
         gasPrice = gasStandard
       }
-      gasPrice = parseUnits(gasPrice?.toString() || "45", "gwei")
+      gasPrice =
+        chainId === ChainId.AURORA_MAINNET
+          ? parseUnits(gasPrice?.toString() || "45", "gwei")
+          : Zero
       if (tokenContract == null) return
       let addressToApprove = ""
       if (state.swapType === SWAP_TYPES.DIRECT) {
@@ -163,10 +166,12 @@ export function useApproveAndSwap(): (
           state.from.symbol === "atUST" ||
           state.from.symbol === "abBUSD" ||
           state.from.symbol === "MAI" ||
+          state.from.symbol === "RUSD" ||
           state.to.symbol === "FRAX" ||
           state.to.symbol === "atUST" ||
           state.to.symbol === "abBUSD" ||
-          state.to.symbol === "MAI"
+          state.to.symbol === "MAI" ||
+          state.to.symbol === "RUSD"
         ) {
           const args = [
             state.from.tokenIndex,

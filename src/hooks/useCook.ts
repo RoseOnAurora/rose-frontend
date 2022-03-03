@@ -359,7 +359,7 @@ const repayCookArgs = (props: CookArgsProps): CookArgs => {
     )
     values.push(0, 0, 0)
     datas.push(
-      ethers.utils.defaultAbiCoder.encode(["int256"], [props.collateralAmount]),
+      ethers.utils.defaultAbiCoder.encode(["int256"], [props.borrowAmount]),
       ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "int256", "int256"],
         [props.borrowTokenAddress, props.account, "0x00", "-0x01"],

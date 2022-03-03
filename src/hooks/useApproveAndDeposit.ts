@@ -1,5 +1,11 @@
 /* eslint-disable */
-import { POOLS_MAP, PoolName, TRANSACTION_TYPES, Token } from "../constants"
+import {
+  POOLS_MAP,
+  PoolName,
+  TRANSACTION_TYPES,
+  Token,
+  ChainId,
+} from "../constants"
 import {
   useAllContracts,
   useLPTokenContract,
@@ -14,7 +20,7 @@ import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { FraxPoolDeposit } from "../../types/ethers-contracts/FraxPoolDeposit"
 import FRAX_POOL_DEPOSIT from "../constants/abis/FraxPoolDeposit.json"
 import { NumberInputState } from "../utils/numberInputState"
-// import { Zero } from "@ethersproject/constants"
+import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { getContract } from "../utils"
 import { parseUnits } from "@ethersproject/units"
@@ -93,7 +99,10 @@ export function useApproveAndDeposit(
       } else {
         gasPrice = gasStandard
       }
-      gasPrice = parseUnits(gasPrice?.toString() || "45", "gwei")
+      gasPrice =
+        chainId === ChainId.AURORA_MAINNET
+          ? parseUnits(gasPrice?.toString() || "45", "gwei")
+          : Zero
       const approveSingleToken = async (token: Token): Promise<void> => {
         const spendingValue = BigNumber.from(state[token.symbol].valueSafe)
         if (spendingValue.isZero()) return

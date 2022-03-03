@@ -55,7 +55,7 @@ function BorrowMarketsOverview(props: BorrowMarketsOverviewData): ReactElement {
       },
       tvl: {
         label: BORROW_SORT_FIELDS_TO_LABEL[BorrowSortFields.TVL],
-        valueRaw: tvl.gt(Zero) ? formatBNToShortString(tvl, 18) : "-",
+        valueRaw: tvl.gt(Zero) ? `$${formatBNToShortString(tvl, 18)}` : "-",
       },
       supply: {
         label: BORROW_SORT_FIELDS_TO_LABEL[BorrowSortFields.SUPPLY],

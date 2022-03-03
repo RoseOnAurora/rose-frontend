@@ -5,6 +5,7 @@ import {
   TRANSACTION_TYPES,
 } from "../constants"
 import {
+  useBorrowContract,
   useCollateralContract,
   useGardenContract,
   useOracleContract,
@@ -38,6 +39,7 @@ export interface BorrowDataType {
   priceOfCollateral: BigNumber
   totalRUSDLeftToBorrow: BigNumber
   tvl: BigNumber
+  rusdUserBalance: BigNumber
 }
 
 type BorrowDataHookReturnType = [BorrowDataType, boolean]
@@ -53,11 +55,12 @@ const emptyBorrowData = {
   rusdLeftToBorrow: Zero,
   interest: parseUnits("0.0249"),
   collateralDepositedUSDPrice: Zero,
-  positionHealth: parseUnits("1", 18),
+  positionHealth: Zero,
   borrowedUSDPrice: Zero,
   priceOfCollateral: parseUnits("1", 18),
   totalRUSDLeftToBorrow: Zero,
   tvl: Zero,
+  rusdUserBalance: Zero,
 } as BorrowDataType
 
 export default function useBorrowData(
@@ -68,6 +71,7 @@ export default function useBorrowData(
   const collateralTokenContract = useCollateralContract(borrowMarket) as Erc20
   const oracleContract = useOracleContract(borrowMarket) as Oracle
   const vaseContract = useVaseContract(borrowMarket) as Vase
+  const rusdContract = useBorrowContract(borrowMarket) as Erc20
   const { lastTransactionTimes } = useSelector(
     (state: AppState) => state.application,
   )
@@ -87,7 +91,8 @@ export default function useBorrowData(
         !collateralTokenContract ||
         !gardenContract ||
         !oracleContract ||
-        !vaseContract
+        !vaseContract ||
+        !rusdContract
       ) {
         setBorrowData([
           {
@@ -122,6 +127,10 @@ export default function useBorrowData(
             gardenContract.address,
           )
 
+          const tvlUsd = USD_CONVERSION_BN(tvl)
+
+          const rusdBalance = await rusdContract.balanceOf(account)
+
           // cast to 18 precision to facilitate BN math
           const mcrAdj = mcr.mul(BigNumber.from(10).pow(13)) // mcr is e^5 precision
           const borrowFeeAdj = borrowFee.mul(BigNumber.from(10).pow(13)) // borrowfee is e^5 precision
@@ -154,12 +163,11 @@ export default function useBorrowData(
             collateralDepositedAdj,
           )
           const positionHealth = collateralDepositedAdj.isZero()
-            ? parseUnits("1", 18)
-            : parseUnits("1", 18).sub(
-                borrowedAdj
-                  .mul(BigNumber.from(10).pow(18))
-                  .div(collateralDepositedUSDPrice),
-              )
+            ? BigNumber.from(0)
+            : borrowedAdj
+                .mul(BigNumber.from(10).pow(18))
+                .div(collateralDepositedUSDPrice)
+
           const borrowedUSDPrice = USD_CONVERSION_BN(borrowedAdj)
           const rusdLeftToBorrow = mcrAdj
             .sub(
@@ -188,9 +196,7 @@ export default function useBorrowData(
               collateralDeposited: collateralDepositedAdj,
               collateralDepositedUSDPrice: collateralDepositedUSDPrice,
               borrowed: borrowedAdj,
-              rusdLeftToBorrow: rusdLeftToBorrowAdj.gt(parseUnits("0.01"))
-                ? rusdLeftToBorrowAdj
-                : Zero,
+              rusdLeftToBorrow: rusdLeftToBorrowAdj,
               positionHealth: positionHealth,
               borrowedUSDPrice: borrowedUSDPrice,
               totalRUSDLeftToBorrow: totalRUSDLeft,
@@ -202,7 +208,8 @@ export default function useBorrowData(
                 BigNumber.from("10").pow(18),
               ),
               priceOfCollateral: exchangeRateAdj,
-              tvl: tvl,
+              tvl: tvlUsd,
+              rusdUserBalance: rusdBalance,
             },
             false,
           ])
@@ -229,6 +236,7 @@ export default function useBorrowData(
     collateralTokenContract,
     oracleContract,
     vaseContract,
+    rusdContract,
   ])
 
   return borrowData

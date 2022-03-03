@@ -12,11 +12,11 @@ const SafetyTag = ({ safetyScore }: Props): ReactElement => {
       borderRadius="full"
       variant="solid"
       colorScheme={
-        safetyScore <= 15 ? "red" : safetyScore > 50 ? "green" : "orange"
+        safetyScore >= 89 ? "red" : safetyScore <= 50 ? "green" : "orange"
       }
       fontSize={{ base: "11px", md: "14px" }}
     >
-      {safetyScore <= 15 ? "High" : safetyScore > 50 ? "Safe" : "Moderate"}
+      {safetyScore >= 89 ? "High" : safetyScore <= 50 ? "Safe" : "Moderate"}
     </Tag>
   )
 }

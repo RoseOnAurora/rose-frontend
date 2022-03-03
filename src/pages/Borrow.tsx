@@ -6,15 +6,23 @@ import {
   DrawerCloseButton,
   DrawerContent,
   DrawerFooter,
-  DrawerHeader,
   DrawerOverlay,
   Flex,
   IconButton,
+  Link,
   Progress,
   Text,
+  useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react"
-import { FaHandHoldingMedical, FaInfoCircle } from "react-icons/fa"
+import { BsCurrencyDollar, BsExclamationTriangle } from "react-icons/bs"
+import {
+  FaDivide,
+  FaGlassWhiskey,
+  FaHandHoldingMedical,
+  FaHandHoldingUsd,
+  FaInfoCircle,
+} from "react-icons/fa"
 import React, { ReactElement, useRef } from "react"
 import { commify, formatBNToPercentString, formatBNToString } from "../utils"
 import useChakraToast, { TransactionType } from "../hooks/useChakraToast"
@@ -24,6 +32,7 @@ import BlockExplorerLink from "../components/BlockExplorerLink"
 import BorrowForm from "../components/BorrowForm"
 import ComponentWrapper from "../components/wrappers/ComponentWrapper"
 import { ContractReceipt } from "ethers"
+import OverviewInfo from "../components/OverviewInfo"
 import PageWrapper from "../components/wrappers/PageWrapper"
 import RepayForm from "../components/RepayForm"
 import StakeDetails from "../components/StakeDetails"
@@ -49,14 +58,18 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
 
   const { borrowToken, collateralToken } = BORROW_MARKET_MAP[borrowName]
 
-  const calculateMaxBorrow = (collateralAmount: string): BigNumber => {
-    const totalCollateral = borrowData.collateralDeposited.add(
+  const calculateMaxBorrowHelper = (
+    collateralAmount: string,
+    totalBorrowed = Zero,
+    totalCollateralDeposited = Zero,
+  ): BigNumber => {
+    const totalCollateral = totalCollateralDeposited.add(
       parseStringToBigNumber(collateralAmount, 18, Zero).value,
     )
     if (totalCollateral.isZero()) return Zero
     const maxBorrow = borrowData.mcr
       .sub(
-        borrowData.borrowed
+        totalBorrowed
           .mul(BigNumber.from(10).pow(18))
           .div(
             totalCollateral
@@ -75,13 +88,22 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
       maxBorrow.mul(borrowData.borrowFee).div(BigNumber.from(10).pow(18)),
     )
 
-    return maxBorrowAdj.gt(parseUnits("0.01")) ? maxBorrowAdj : Zero
+    return maxBorrowAdj
+  }
+
+  const calculateMaxBorrow = (collateralAmount: string): BigNumber => {
+    return calculateMaxBorrowHelper(
+      collateralAmount,
+      borrowData.borrowed,
+      borrowData.collateralDeposited,
+    )
   }
 
   const calculateMaxWithdraw = (repayAmount: string): BigNumber => {
     const totalBorrowed = borrowData.borrowed.sub(
       parseUnits(repayAmount || "0"),
     )
+    if (totalBorrowed.isZero()) return borrowData.collateralDeposited
     return borrowData.collateralDepositedUSDPrice
       .sub(totalBorrowed.mul(BigNumber.from(10).pow(18)).div(borrowData.mcr))
       .mul(BigNumber.from(10).pow(18))
@@ -215,7 +237,7 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
   ): number => {
     const validateBorrow = validateAmount(borrowAmount)
     const validateCollateral = validateAmount(collateralAmount)
-    if (validateBorrow || validateCollateral) return 100
+    if (validateBorrow || validateCollateral) return 0
 
     const formattedBorrowAmount =
       borrowAmount && negate ? `-${borrowAmount}` : borrowAmount
@@ -233,17 +255,15 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
     const currentPositionHealth = collateralAmountBn
       .add(borrowData.collateralDepositedUSDPrice)
       .isZero()
-      ? parseUnits("1", 18)
-      : parseUnits("1", 18).sub(
-          borrowAmountBn
-            .add(borrowData.borrowed)
-            .mul(BigNumber.from(10).pow(18))
-            .div(
-              currentCollateralUSD.isZero()
-                ? parseUnits("1", 18)
-                : currentCollateralUSD,
-            ),
-        )
+      ? BigNumber.from(0)
+      : borrowAmountBn
+          .add(borrowData.borrowed)
+          .mul(BigNumber.from(10).pow(18))
+          .div(
+            currentCollateralUSD.isZero()
+              ? parseUnits("1", 18)
+              : currentCollateralUSD,
+          )
 
     return +formatBNToString(currentPositionHealth, 18) * 100
   }
@@ -330,6 +350,42 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
     )
   }
 
+  const HowToBorrowText = (): ReactElement => {
+    return (
+      <>
+        {`To borrow RUSD, you must deposit collateral first. This market accepts ${
+          collateralToken.name
+        } as collateral. You can have a total debt in RUSD up to ${formatBNToPercentString(
+          borrowData.mcr,
+          18,
+          0,
+        )} of the dollar value of collateral deposited.`}
+        <br />
+        <br />
+        {`For example, if you deposit 10 ${collateralToken.name}, (≈ $${
+          +formatBNToString(borrowData.priceOfCollateral, 18) * 10
+        }) you are allowed to borrow ${formatBNToString(
+          calculateMaxBorrowHelper("10"),
+          18,
+          5,
+        )}* RUSD.`}
+        <br />
+        <br />
+        {
+          "*Note: The amount of RUSD you will actually receive is less than what you borrow because the borrow fee is charged in RUSD and added to your total debt."
+        }
+      </>
+    )
+  }
+
+  const GlossaryItem = ({ title, text }: { title: string; text: string }) => {
+    return (
+      <>
+        <b>{title}</b>: {text}
+      </>
+    )
+  }
+
   return (
     <PageWrapper activeTab="borrow">
       <Drawer
@@ -337,13 +393,156 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
         placement="right"
         onClose={onClose}
         finalFocusRef={btnRef}
+        size="sm"
       >
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent
+          bg={useColorModeValue(
+            "linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9)",
+            "linear-gradient(to right, #141414, #200122, #791038)",
+          )}
+          p="50px 10px"
+        >
           <DrawerCloseButton />
-          <DrawerHeader>How TF do I Borrow?</DrawerHeader>
-          <DrawerBody>Put SOme helpful shit here</DrawerBody>
-          <DrawerFooter>Helpful footer shit</DrawerFooter>
+          <DrawerBody p="5px">
+            <OverviewInfo
+              infoType="Borrow"
+              sections={[
+                {
+                  title: "How to borrow RUSD",
+                  items: [
+                    {
+                      icon: FaHandHoldingUsd,
+                      text: <HowToBorrowText />,
+                    },
+                  ],
+                },
+                {
+                  title: "Balances",
+                  items: [
+                    {
+                      icon: BsCurrencyDollar,
+                      text: (
+                        <GlossaryItem
+                          title={`${collateralToken.symbol} Balance`}
+                          text={`The token amount of ${collateralToken.symbol} you have in your wallet.`}
+                        />
+                      ),
+                    },
+                    {
+                      icon: BsCurrencyDollar,
+                      text: (
+                        <GlossaryItem
+                          title="RUSD Balance"
+                          text="The token amount of RUSD you have in your wallet."
+                        />
+                      ),
+                    },
+                  ],
+                },
+                {
+                  title: "My Open Position",
+                  items: [
+                    {
+                      icon: BsCurrencyDollar,
+                      text: (
+                        <GlossaryItem
+                          title={`${collateralToken.symbol} Collateral Deposited`}
+                          text={`The token amount and dollar value of ${collateralToken.symbol} you have deposited into this market.`}
+                        />
+                      ),
+                    },
+                    {
+                      icon: FaHandHoldingUsd,
+                      text: (
+                        <GlossaryItem
+                          title="RUSD Borrowed"
+                          text="The token amount of RUSD you are currently borrowing in this market. Includes fees."
+                        />
+                      ),
+                    },
+                  ],
+                },
+                {
+                  title: "Glossary",
+                  items: [
+                    {
+                      icon: FaHandHoldingMedical,
+                      text: (
+                        <GlossaryItem
+                          title="Your Position Health"
+                          text="Your position health is represented as a percentage proportional to the maximum debt ratio. 90% and higher is at risk for liquidation and 0% is the healthiest your position can be. When you enter values in the input fields, the impact on position health will show as a result and is labeled by 'Updated Position Health'. It will also indicate your action as being 'Safe', 'Moderate', or 'High' in terms of risk."
+                        />
+                      ),
+                    },
+                    {
+                      icon: BsExclamationTriangle,
+                      text: (
+                        <GlossaryItem
+                          title="Liquidation Price"
+                          text="Estimate of the price at which your position will be flagged for liquidation. Repay RUSD and/or deposit collateral to lower this price."
+                        />
+                      ),
+                    },
+                    {
+                      icon: FaGlassWhiskey,
+                      text: (
+                        <GlossaryItem
+                          title="RUSD Left to Borrow"
+                          text="The amount of RUSD left for you to borrow. Increase this amount by repaying RUSD or by depositing more collateral."
+                        />
+                      ),
+                    },
+                    {
+                      icon: FaDivide,
+                      text: (
+                        <GlossaryItem
+                          title="Maximum Debt Ratio"
+                          text="Ratio representing the maximum debt you are allowed to carry in this market over the dollar value of collateral deposited."
+                        />
+                      ),
+                    },
+                    {
+                      icon: BsCurrencyDollar,
+                      text: (
+                        <GlossaryItem
+                          title="Liquidation Fee"
+                          text="This is the discount a liquidator gets when buying collateral flagged for liquidation."
+                        />
+                      ),
+                    },
+                    {
+                      icon: BsCurrencyDollar,
+                      text: (
+                        <GlossaryItem
+                          title="Borrow Fee"
+                          text="This is the fee applied to your RUSD Borrowed every time you borrow RUSD."
+                        />
+                      ),
+                    },
+                    {
+                      icon: BsCurrencyDollar,
+                      text: (
+                        <GlossaryItem
+                          title="Interest"
+                          text="interest rate per year (APR)."
+                        />
+                      ),
+                    },
+                  ],
+                },
+              ]}
+            />
+          </DrawerBody>
+          <DrawerFooter>
+            <Link
+              href="https://medium.com/@RoseOnAurora/rose-borrow-testnet-launch-a66f3f1de949"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Go to Full How-to Guide<sup>↗</sup>
+            </Link>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
       <ComponentWrapper
@@ -417,9 +616,9 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
                 <Box width={230}>
                   <Progress
                     colorScheme={
-                      positionHealth() <= 15
+                      positionHealth() >= 89
                         ? "red"
-                        : positionHealth() > 50
+                        : positionHealth() <= 50
                         ? "green"
                         : "orange"
                     }
@@ -456,6 +655,13 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
                     formatBNToString(borrowData.collateralTokenBalance, 18, 5),
                   ),
                 },
+                {
+                  tokenName: borrowToken.symbol,
+                  icon: borrowToken.icon,
+                  amount: commify(
+                    formatBNToString(borrowData.rusdUserBalance, 18, 5),
+                  ),
+                },
               ],
             }}
             stakedView={{
@@ -464,20 +670,20 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
                 {
                   tokenName: `${collateralToken.symbol} Collateral Deposited`,
                   icon: collateralToken.icon,
-                  amount: `${formatBNToString(
-                    borrowData.collateralDeposited,
-                    18,
-                    5,
-                  )} ($${formatBNToString(
-                    borrowData.collateralDepositedUSDPrice,
-                    18,
-                    2,
+                  amount: `${commify(
+                    formatBNToString(borrowData.collateralDeposited, 18, 5),
+                  )} ($${commify(
+                    formatBNToString(
+                      borrowData.collateralDepositedUSDPrice,
+                      18,
+                      2,
+                    ),
                   )})`,
                 },
                 {
                   tokenName: `${borrowToken.symbol} Borrowed`,
                   icon: borrowToken.icon,
-                  amount: formatBNToString(borrowData.borrowed, 18, 5),
+                  amount: commify(formatBNToString(borrowData.borrowed, 18, 5)),
                 },
               ],
             }}

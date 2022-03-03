@@ -23,13 +23,7 @@ const OverviewWrapper = ({ left, right, top }: Props): ReactElement => {
         {right}
       </GridItem>
       <GridItem rowSpan="auto" colSpan={1}>
-        <Stack
-          spacing="10px"
-          maxH={{ base: "400px", lg: "700px" }}
-          overflowY="auto"
-        >
-          {left}
-        </Stack>
+        <Stack spacing="10px">{left}</Stack>
       </GridItem>
     </Grid>
   )

@@ -61,6 +61,7 @@ export const STAKED_ROSE_LP_POOL_NAME = "stRose Pool"
 export const UST_METAPOOL_NAME = "UST Pool"
 export const BUSD_METAPOOL_NAME = "BUSD Pool"
 export const MAI_METAPOOL_NAME = "MAI Pool"
+export const RUSD_METAPOOL_NAME = "RUSD Pool"
 
 // FARMS
 export const STABLES_FARM_NAME = "Stables Farm"
@@ -95,6 +96,7 @@ export type PoolName =
   | typeof UST_METAPOOL_NAME
   | typeof BUSD_METAPOOL_NAME
   | typeof MAI_METAPOOL_NAME
+  | typeof RUSD_METAPOOL_NAME
 
 export type FarmName =
   | typeof STABLES_FARM_NAME
@@ -303,8 +305,16 @@ export const MAI_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x65a761136815B45A9d78d9781d22d47247B49D23", // need to add testnet
+  [ChainId.AURORA_TESTNET]: "0x65a761136815B45A9d78d9781d22d47247B49D23", // TO-DO: need to add testnet
   [ChainId.AURORA_MAINNET]: "0x65a761136815B45A9d78d9781d22d47247B49D23",
+}
+
+export const RUSD_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x9ADE30cdd031B35ABBC607496b99480805B579D4",
+  [ChainId.AURORA_MAINNET]: "0x9ADE30cdd031B35ABBC607496b99480805B579D4", // TO-DO: update mainnet
 }
 
 export const STAKED_ROSE_POOL_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -693,6 +703,25 @@ export const MAI_METAPOOL_LP_TOKEN = new Token(
   "tether", // tracking tether: cannot fetch coingecko for LPs
   "Rose MAI/Stables",
   roseMaiLogo,
+  false,
+  true,
+)
+
+export const RUSD_LP_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x6703fbE3DE7Bc184C138015116C4Cc44FdC059F3",
+  [ChainId.AURORA_MAINNET]: "0x6703fbE3DE7Bc184C138015116C4Cc44FdC059F3", // TO-DO: update mainnet
+}
+
+export const RUSD_LP_TOKEN = new Token(
+  RUSD_LP_CONTRACT_ADDRESSES,
+  18,
+  "RoseRUSDLP",
+  "tether", // tracking tether: cannot fetch coingecko for LPs
+  "Rose RUSD/Stables",
+  roseLogo,
   false,
   true,
 )
@@ -1145,7 +1174,7 @@ export const RUSD = new Token(
   RUSD_CONTRACT_ADDRESSES,
   18,
   "RUSD",
-  "rusd", // to-do: update
+  "tether", // to-do: update
   "RoseUSD",
   roseLogo, // to-do: update
 )
@@ -1271,7 +1300,7 @@ export const BUSD_METAPOOL_DEPOSIT_ADDRESSES: {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x1685506373B560906d9ef0053F0Bc6C38370B6F1", // note: missing testnet deployment
+  [ChainId.AURORA_TESTNET]: "0x1685506373B560906d9ef0053F0Bc6C38370B6F1", // TO-DO: missing testnet deployment
   [ChainId.AURORA_MAINNET]: "0x1685506373B560906d9ef0053F0Bc6C38370B6F1",
 }
 
@@ -1281,8 +1310,18 @@ export const MAI_METAPOOL_DEPOSIT_ADDRESSES: {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x81B2DF6Da4E944B0CE5B3f62473D8637b65c631C", // note: missing testnet deployment
+  [ChainId.AURORA_TESTNET]: "0x81B2DF6Da4E944B0CE5B3f62473D8637b65c631C", // TO-DO: missing testnet deployment
   [ChainId.AURORA_MAINNET]: "0x81B2DF6Da4E944B0CE5B3f62473D8637b65c631C",
+}
+
+export const RUSD_METAPOOL_DEPOSIT_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xA593Eabb3972A482b6Eee12D36c525963d8dDDe3",
+  [ChainId.AURORA_MAINNET]: "0xA593Eabb3972A482b6Eee12D36c525963d8dDDe3", // TO-DO: missing mainnet deployment
 }
 
 export const NEAR_GARDEN_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -1348,6 +1387,7 @@ export const STAKED_ROSE_POOL_TOKENS = [ROSE, SROSE]
 export const UST_METAPOOL_TOKENS = [UST, STABLECOIN_SWAP_V2_TOKEN]
 export const BUSD_METAPOOL_TOKENS = [BUSD, STABLECOIN_SWAP_V2_TOKEN]
 export const MAI_METAPOOL_TOKENS = [MAI, STABLECOIN_SWAP_V2_TOKEN]
+export const RUSD_METAPOOL_TOKENS = [RUSD, STABLECOIN_SWAP_V2_TOKEN]
 export const WCUSD_POOL_TOKENS = [WCUSD, ...STABLECOIN_POOL_TOKENS]
 export const WCUSD_UNDERLYING_POOL_TOKENS = [WCUSD, STABLECOIN_SWAP_V2_TOKEN]
 
@@ -1442,6 +1482,18 @@ export const POOLS_MAP: PoolsMap = {
     type: PoolTypes.USD,
     route: "mai",
     farmName: MAI_METAPOOL_FARM_NAME,
+  },
+  [RUSD_METAPOOL_NAME]: {
+    name: RUSD_METAPOOL_NAME,
+    addresses: RUSD_METAPOOL_ADDRESSES,
+    lpToken: RUSD_LP_TOKEN,
+    poolTokens: RUSD_METAPOOL_TOKENS,
+    underlyingPoolTokens: [RUSD, ...STABLECOIN_POOL_TOKENS],
+    underlyingPool: STABLECOIN_POOL_V2_NAME,
+    metaSwapAddresses: RUSD_METAPOOL_DEPOSIT_ADDRESSES,
+    isSynthetic: false,
+    type: PoolTypes.USD,
+    route: "rusd",
   },
   // [STAKED_ROSE_LP_POOL_NAME]: {
   //   name: STAKED_ROSE_LP_POOL_NAME,
@@ -1600,6 +1652,7 @@ export function isMetaPool(poolName = ""): boolean {
     UST_METAPOOL_NAME,
     BUSD_METAPOOL_NAME,
     MAI_METAPOOL_NAME,
+    RUSD_METAPOOL_NAME,
   ]).has(poolName)
 }
 

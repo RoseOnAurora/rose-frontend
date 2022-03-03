@@ -2,12 +2,12 @@
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
 /* eslint @typescript-eslint/no-explicit-any: 0 */
-import { FarmName, TRANSACTION_TYPES } from "../constants"
+import { ChainId, FarmName, TRANSACTION_TYPES } from "../constants"
 import { useFarmContract, useLPTokenContractForFarm } from "./useContract"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
-// import { Zero } from "@ethersproject/constants"
+import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
@@ -28,7 +28,7 @@ export function useApproveAndDepositFarm(
   const { gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,
   )
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   return async function approveAndStake(
     amount: string,
   ): Promise<ContractReceipt | void> {
@@ -46,7 +46,10 @@ export function useApproveAndDepositFarm(
       } else {
         gasPrice = gasStandard
       }
-      gasPrice = parseUnits(gasPrice?.toString() || "45", "gwei")
+      gasPrice =
+        chainId === ChainId.AURORA_MAINNET
+          ? parseUnits(gasPrice?.toString() || "45", "gwei")
+          : Zero
       const amountToStake = BigNumber.from(amount)
       await checkAndApproveTokenForTrade(
         lpTokenContract,

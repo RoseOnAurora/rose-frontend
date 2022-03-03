@@ -23,10 +23,12 @@ import {
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
+  DrawerFooter,
   DrawerOverlay,
   Flex,
   Grid,
   GridItem,
+  Link,
   Progress,
   Skeleton,
   Stack,
@@ -35,11 +37,15 @@ import {
   useDisclosure,
   useTimeout,
 } from "@chakra-ui/react"
+import { BsCurrencyDollar, BsSliders } from "react-icons/bs"
 import {
   FaFilter,
+  FaGlassWhiskey,
+  FaHandHoldingMedical,
   FaHandHoldingUsd,
   FaLayerGroup,
   FaSortAmountUp,
+  FaUserLock,
 } from "react-icons/fa"
 import React, { ReactElement, useMemo, useState } from "react"
 import useBorrowData, { BorrowDataType } from "../hooks/useBorrowData"
@@ -47,7 +53,6 @@ import { useDispatch, useSelector } from "react-redux"
 import { AnimatePresence } from "framer-motion"
 import AnimatingNumber from "../components/AnimateNumber"
 import BorrowMarketsOverview from "../components/BorrowMarketsOverview"
-import { BsSliders } from "react-icons/bs"
 import Dashboard from "../components/Dashboard"
 import FormattedComponentName from "../components/FormattedComponentName"
 import OverviewInfo from "../components/OverviewInfo"
@@ -79,7 +84,7 @@ function BorrowMarkets(): ReactElement {
     setIsInfo(false)
   }
 
-  useTimeout(() => setTimout(true), 5000)
+  useTimeout(() => setTimout(true), 10000)
 
   const onIconButtonClick = (isInfo: boolean): void => {
     onOpen()
@@ -90,7 +95,7 @@ function BorrowMarkets(): ReactElement {
   const [stRoseMarketData, loading2] = useBorrowData(STROSE_MARKET_NAME)
   const [ustMarketData, loading3] = useBorrowData(UST_MARKET_NAME)
 
-  const loading = loading1 && loading2 && loading3
+  const loading = loading1 || loading2 || loading3
 
   const marketsData = useMemo(() => {
     return {
@@ -166,9 +171,8 @@ function BorrowMarkets(): ReactElement {
       ),
     name: (a: BorrowMarket, b: BorrowMarket) =>
       a.name.localeCompare(b.name) > 1,
-    // fix tvl
     tvl: (a: BorrowMarket, b: BorrowMarket) =>
-      marketsData[a.name].borrowed.gt(marketsData[b.name].borrowed),
+      marketsData[a.name].tvl.gt(marketsData[b.name].tvl),
     interest: (a: BorrowMarket, b: BorrowMarket) =>
       marketsData[a.name].interest.gt(marketsData[b.name].interest),
     liquidationFee: (a: BorrowMarket, b: BorrowMarket) =>
@@ -177,6 +181,14 @@ function BorrowMarkets(): ReactElement {
       marketsData[a.name].collateralDepositedUSDPrice.gt(
         marketsData[b.name].collateralDepositedUSDPrice,
       ),
+  }
+
+  const GlossaryItem = ({ title, text }: { title: string; text: string }) => {
+    return (
+      <>
+        <b>{title}</b>: {text}
+      </>
+    )
   }
 
   return (
@@ -243,7 +255,71 @@ function BorrowMarkets(): ReactElement {
                   },
                   {
                     title: "Glossary",
-                    items: [],
+                    items: [
+                      {
+                        icon: FaUserLock,
+                        text: (
+                          <GlossaryItem
+                            title="TVL"
+                            text="The dollar value of total collateral deposited in this market."
+                          />
+                        ),
+                      },
+                      {
+                        icon: FaGlassWhiskey,
+                        text: (
+                          <GlossaryItem
+                            title="RUSD Left to Borrow"
+                            text="total RUSD left in this market for users to borrow."
+                          />
+                        ),
+                      },
+                      {
+                        icon: BsCurrencyDollar,
+                        text: (
+                          <GlossaryItem
+                            title="Interest"
+                            text="interest rate per year (APR)."
+                          />
+                        ),
+                      },
+                      {
+                        icon: BsCurrencyDollar,
+                        text: (
+                          <GlossaryItem
+                            title="Liquidation Fee"
+                            text="This is the discount a liquidator gets when buying collateral flagged for liquidation."
+                          />
+                        ),
+                      },
+                      {
+                        icon: FaHandHoldingUsd,
+                        text: (
+                          <GlossaryItem
+                            title="Your RUSD Borrowed"
+                            text="The amount of RUSD you are borrowing per market."
+                          />
+                        ),
+                      },
+                      {
+                        icon: BsCurrencyDollar,
+                        text: (
+                          <GlossaryItem
+                            title="Your Collateral Deposited"
+                            text="The dollar value of collateral you have deposited per market."
+                          />
+                        ),
+                      },
+                      {
+                        icon: FaHandHoldingMedical,
+                        text: (
+                          <GlossaryItem
+                            title="Your Position Health"
+                            text="Your position health is represented as a percentage proportional to the maximum debt ratio. 90% and higher is at risk for liquidation and 0% is the healthiest your position can be."
+                          />
+                        ),
+                      },
+                    ],
                   },
                 ]}
               />
@@ -258,6 +334,17 @@ function BorrowMarkets(): ReactElement {
               />
             )}
           </DrawerBody>
+          {isInfo && (
+            <DrawerFooter>
+              <Link
+                href="https://medium.com/@RoseOnAurora/rose-borrow-testnet-launch-a66f3f1de949"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Go to Full How-to Guide<sup>↗</sup>
+              </Link>
+            </DrawerFooter>
+          )}
         </DrawerContent>
       </Drawer>
       <OverviewWrapper
@@ -419,7 +506,7 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
                             a.collateralDeposited.gt(Zero),
                         )
                         .sort((a, b) =>
-                          a.positionHealth.gt(b.positionHealth) ? 1 : -1,
+                          a.positionHealth.gt(b.positionHealth) ? -1 : 1,
                         )
                         .map((marketData, index) => {
                           const positionHealth =
@@ -429,12 +516,12 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
                             0,
                           )}%`
                           const colorScheme =
-                            positionHealth <= 15
+                            positionHealth >= 89
                               ? {
                                   bar: "red",
                                   text: positionTextColorHigh,
                                 }
-                              : positionHealth > 50
+                              : positionHealth <= 50
                               ? {
                                   bar: "green",
                                   text: positionTextColorSafe,

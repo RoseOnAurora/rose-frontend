@@ -40,6 +40,8 @@ import {
   MAI_METAPOOL_FARM_NAME,
   BorrowMarketName,
   BORROW_MARKET_MAP,
+  RUSD_METAPOOL_NAME,
+  RUSD,
 } from "../constants"
 
 import VASE_ABI from "../constants/abis/Vase.json"
@@ -208,9 +210,7 @@ export function useGardenContract(
   return useContract(contractAddress, JSON.stringify(GARDEN_ABI)) as Garden
 }
 
-export function useVaseContract(
-  borrowMarket: BorrowMarketName,
-): Vase | null {
+export function useVaseContract(borrowMarket: BorrowMarketName): Vase | null {
   const { chainId } = useActiveWeb3React()
   const contractAddress = chainId
     ? BORROW_MARKET_MAP[borrowMarket].vaseAddresses[chainId]
@@ -356,6 +356,13 @@ export function usePoolContract(poolName?: PoolName): Contract | null {
             library,
             account ?? undefined,
           ) as FraxMetaPool
+        case RUSD_METAPOOL_NAME:
+          return getContract(
+            pool.addresses[chainId],
+            JSON.stringify(FRAX_META_POOL_ABI),
+            library,
+            account ?? undefined,
+          ) as FraxMetaPool
         default:
           return null
       }
@@ -481,6 +488,13 @@ export function useLPTokenContract(
             library,
             account ?? undefined,
           ) as RoseFraxLP
+        case RUSD_METAPOOL_NAME:
+          return getContract(
+            pool.lpToken.addresses[chainId],
+            JSON.stringify(ROSE_FRAX_LP_ABI),
+            library,
+            account ?? undefined,
+          ) as RoseFraxLP
         default:
           return null
       }
@@ -583,6 +597,7 @@ export function useAllContracts(): AllContractsObject | null {
   const ustContract = useTokenContract(UST) as Erc20
   const busdContract = useTokenContract(BUSD) as Erc20
   const maiContract = useTokenContract(MAI) as Erc20
+  const rusdContract = useTokenContract(RUSD) as Erc20
 
   return useMemo(() => {
     if (
@@ -597,6 +612,7 @@ export function useAllContracts(): AllContractsObject | null {
         fraxContract,
         busdContract,
         maiContract,
+        rusdContract,
       ].some(Boolean)
     )
       return null
@@ -611,6 +627,7 @@ export function useAllContracts(): AllContractsObject | null {
       [UST.symbol]: ustContract,
       [BUSD.symbol]: busdContract,
       [MAI.symbol]: maiContract,
+      [RUSD.symbol]: rusdContract,
     }
   }, [
     daiContract,
@@ -622,6 +639,8 @@ export function useAllContracts(): AllContractsObject | null {
     stroseContract,
     ustContract,
     busdContract,
+    maiContract,
+    rusdContract,
   ])
 }
 
