@@ -19,8 +19,8 @@ import { useDispatch, useSelector } from "react-redux"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { Garden } from "../../types/ethers-contracts/Garden"
 import { Vase } from "../../types/ethers-contracts/Vase"
-import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
+import { formatGasToString } from "../utils/gas"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
 
@@ -79,8 +79,14 @@ export function useCook(
   const { library, account, chainId } = useActiveWeb3React()
   const dispatch = useDispatch<AppDispatch>()
 
-  const { infiniteApproval, priceFromOracle } = useSelector(
-    (state: AppState) => state.user,
+  const {
+    infiniteApproval,
+    priceFromOracle,
+    gasPriceSelected,
+    gasCustom,
+  } = useSelector((state: AppState) => state.user)
+  const { gasStandard, gasFast, gasInstant } = useSelector(
+    (state: AppState) => state.application,
   )
 
   return async function cook(
@@ -111,7 +117,14 @@ export function useCook(
       const amountToDeposit = BigNumber.from(collateralAmount)
       const amountToBorrow = BigNumber.from(borrowAmount)
 
-      const gasPrice = Zero // change this
+      const gasPrice = ethers.utils.parseUnits(
+        formatGasToString(
+          { gasStandard, gasFast, gasInstant },
+          gasPriceSelected,
+          gasCustom,
+        ),
+        "gwei",
+      )
 
       // approve
       await checkAndApproveTokenForTrade(
