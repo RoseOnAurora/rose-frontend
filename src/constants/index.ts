@@ -77,6 +77,7 @@ export const MAI_METAPOOL_FARM_NAME = "MAI Farm"
 export const NEAR_MARKET_NAME = "NEAR"
 export const STROSE_MARKET_NAME = "stROSE"
 export const UST_MARKET_NAME = "UST"
+export const NEAR_WL_PROXIMITY_MARKET_NAME = "NEAR / Proximity (WL)"
 
 export type PoolName =
   | typeof BTC_POOL_NAME
@@ -112,6 +113,7 @@ export type BorrowMarketName =
   | typeof NEAR_MARKET_NAME
   | typeof STROSE_MARKET_NAME
   | typeof UST_MARKET_NAME
+  | typeof NEAR_WL_PROXIMITY_MARKET_NAME
 
 export enum ChainId {
   MAINNET = 1,
@@ -1166,8 +1168,8 @@ export const RUSD_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0xF8debFcc993B4d4722c59bee6c102d0f32BeAF01",
-  [ChainId.AURORA_MAINNET]: "0xF8debFcc993B4d4722c59bee6c102d0f32BeAF01", // TO-DO: update mainnet
+  [ChainId.AURORA_TESTNET]: "0x444C98b60Fa3F8A74335EC8893b2f9CE5c83b1df",
+  [ChainId.AURORA_MAINNET]: "0x444C98b60Fa3F8A74335EC8893b2f9CE5c83b1df", // TO-DO: update mainnet
 }
 
 export const RUSD = new Token(
@@ -1328,56 +1330,66 @@ export const NEAR_GARDEN_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x84effDCc7495ed930bD5BDd15457842028cd4335",
-  [ChainId.AURORA_MAINNET]: "0x84effDCc7495ed930bD5BDd15457842028cd4335", // update mainnet
+  [ChainId.AURORA_TESTNET]: "0x39F354E404931F5B988Aaed0A280738ABe8bf1Ed",
+  [ChainId.AURORA_MAINNET]: "0x39F354E404931F5B988Aaed0A280738ABe8bf1Ed", // update mainnet
 }
 
 export const NEAR_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x15f5031f16d92BAc938cCBB2e2692B89e0D4Ee2c",
-  [ChainId.AURORA_MAINNET]: "0x15f5031f16d92BAc938cCBB2e2692B89e0D4Ee2c", // update mainnet
+  [ChainId.AURORA_TESTNET]: "0x0B680dbDCC07166CE5201E75FC5A20a650F5a3F2",
+  [ChainId.AURORA_MAINNET]: "0x0B680dbDCC07166CE5201E75FC5A20a650F5a3F2", // update mainnet
 }
 
 export const STROSE_GARDEN_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x9Da174b0441b912478B96faaE96ED387d9238b05",
-  [ChainId.AURORA_MAINNET]: "0x9Da174b0441b912478B96faaE96ED387d9238b05", // update mainnet
+  [ChainId.AURORA_TESTNET]: "0xFfD696703f28753CE1F24bB35B9f7Ae4d966F9f0",
+  [ChainId.AURORA_MAINNET]: "0xFfD696703f28753CE1F24bB35B9f7Ae4d966F9f0", // update mainnet
 }
 
 export const STROSE_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0x14C80b2a1307f95deCbf414b1aC77BC852511367",
-  [ChainId.AURORA_MAINNET]: "0x14C80b2a1307f95deCbf414b1aC77BC852511367", // update mainnet
+  [ChainId.AURORA_TESTNET]: "0x0B9A63E27f61Af06D5DbE9bAaF3F9fF2467fBbf4",
+  [ChainId.AURORA_MAINNET]: "0x0B9A63E27f61Af06D5DbE9bAaF3F9fF2467fBbf4", // update mainnet
 }
 
 export const UST_GARDEN_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0xD38Ff4caF7C481c564Ce70F571ab1cfFD2539aaE",
-  [ChainId.AURORA_MAINNET]: "0xD38Ff4caF7C481c564Ce70F571ab1cfFD2539aaE", // update mainnet
+  [ChainId.AURORA_TESTNET]: "0x49fBA8f51F7174c4628D5bb1C1874df08C67B14d",
+  [ChainId.AURORA_MAINNET]: "0x49fBA8f51F7174c4628D5bb1C1874df08C67B14d", // update mainnet
+}
+
+export const NEAR_WL_PROXIMITY_GARDEN_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xA94B88eceF32c6601b62c2C285fB65A8250B1409",
+  [ChainId.AURORA_MAINNET]: "0xA94B88eceF32c6601b62c2C285fB65A8250B1409", // update mainnet
 }
 
 export const UST_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0xd1D623Ef469a80Ce1F28b380AeBA639A7AFEfabF",
-  [ChainId.AURORA_MAINNET]: "0xd1D623Ef469a80Ce1F28b380AeBA639A7AFEfabF", // update mainnet
+  [ChainId.AURORA_TESTNET]: "0x2DDDDb9C47A6Bd5697CD047278a69606cCA61E6E",
+  [ChainId.AURORA_MAINNET]: "0x2DDDDb9C47A6Bd5697CD047278a69606cCA61E6E", // update mainnet
 }
 
 export const VASE_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "0xCF2E056d4a6B830d20f4E6e6F55669070Bd6de57",
-  [ChainId.AURORA_MAINNET]: "0xCF2E056d4a6B830d20f4E6e6F55669070Bd6de57", // update mainnet
+  [ChainId.AURORA_TESTNET]: "0x6DFA09af86Ec9EB4185898ee9841A51682b5d384",
+  [ChainId.AURORA_MAINNET]: "0x6DFA09af86Ec9EB4185898ee9841A51682b5d384", // update mainnet
 }
 
 export const D4_POOL_TOKENS = [ALUSD, FEI, FRAX, LUSD]
@@ -1635,6 +1647,15 @@ export const BORROW_MARKET_MAP: BorrowMarketMap = {
     vaseAddresses: VASE_ADDRESSES,
     oracleAddresses: UST_ORACLE_ADDRESSES,
     route: "ust",
+  },
+  [NEAR_WL_PROXIMITY_MARKET_NAME]: {
+    name: NEAR_WL_PROXIMITY_MARKET_NAME,
+    collateralToken: NEAR,
+    borrowToken: RUSD,
+    gardenAddresses: NEAR_WL_PROXIMITY_GARDEN_ADDRESSES,
+    vaseAddresses: VASE_ADDRESSES,
+    oracleAddresses: NEAR_ORACLE_ADDRESSES,
+    route: "near-wl-proximity",
   },
 }
 

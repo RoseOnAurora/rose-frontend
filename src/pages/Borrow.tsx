@@ -712,7 +712,7 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
               },
               {
                 statLabel: "Borrow Fee",
-                statValue: formatBNToPercentString(borrowData.borrowFee, 18, 0),
+                statValue: formatBNToPercentString(borrowData.borrowFee, 18, 1),
               },
               {
                 statLabel: "Interest",

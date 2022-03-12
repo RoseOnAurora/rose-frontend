@@ -115,8 +115,8 @@ export default function useBorrowData(
             factor.mul(exchangeRateAdj).div(BigNumber.from(10).pow(18))
 
           const liquidationMultiplier = await gardenContract.getLiquidationMultiplier()
-          const mcr = await gardenContract.getCollateralizationRate(account)
-          const borrowFee = await gardenContract.getBorrowOpeningFee(account)
+          const mcr = await gardenContract.getCollateralizationRate()
+          const borrowFee = await gardenContract.getBorrowOpeningFee()
           const totalRUSDLeft = await vaseContract.balanceOf(
             await gardenContract.roseUsd(),
             gardenContract.address,

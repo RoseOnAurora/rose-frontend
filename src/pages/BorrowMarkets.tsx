@@ -7,6 +7,7 @@ import {
   BorrowMarketName,
   DashboardItems,
   NEAR_MARKET_NAME,
+  NEAR_WL_PROXIMITY_MARKET_NAME,
   STROSE_MARKET_NAME,
   UST_MARKET_NAME,
 } from "../constants"
@@ -94,16 +95,25 @@ function BorrowMarkets(): ReactElement {
   const [nearMarketData, loading1] = useBorrowData(NEAR_MARKET_NAME)
   const [stRoseMarketData, loading2] = useBorrowData(STROSE_MARKET_NAME)
   const [ustMarketData, loading3] = useBorrowData(UST_MARKET_NAME)
+  const [nearWlProximityMarketData, loading4] = useBorrowData(
+    NEAR_WL_PROXIMITY_MARKET_NAME,
+  )
 
-  const loading = loading1 || loading2 || loading3
+  const loading = loading1 || loading2 || loading3 || loading4
 
   const marketsData = useMemo(() => {
     return {
       [NEAR_MARKET_NAME]: nearMarketData,
       [STROSE_MARKET_NAME]: stRoseMarketData,
       [UST_MARKET_NAME]: ustMarketData,
+      [NEAR_WL_PROXIMITY_MARKET_NAME]: nearWlProximityMarketData,
     }
-  }, [nearMarketData, stRoseMarketData, ustMarketData])
+  }, [
+    nearMarketData,
+    stRoseMarketData,
+    ustMarketData,
+    nearWlProximityMarketData,
+  ])
 
   const totalRUSDBorrowed = useMemo(() => {
     return +formatBNToString(
@@ -400,6 +410,8 @@ function BorrowMarkets(): ReactElement {
         left={
           <AnimatePresence>
             {Object.values(BORROW_MARKET_MAP)
+              // hide whitelisted markets (TODO clean this up later)
+              .filter(({ name }) => name !== NEAR_WL_PROXIMITY_MARKET_NAME)
               .filter((borrowMarket) =>
                 FILTER_FUNCTIONS[filterByField](borrowMarket),
               )
