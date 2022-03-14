@@ -1,12 +1,8 @@
-/* eslint-disable */
+/* eslint @typescript-eslint/no-unsafe-assignment: 0 */
+/* eslint @typescript-eslint/no-unsafe-call: 0 */
+/* eslint @typescript-eslint/no-explicit-any: 0 */
 import { AddressZero, Zero } from "@ethersproject/constants"
-import {
-  ChainId,
-  // STABLECOIN_POOL_V2_NAME,
-  POOLS_MAP,
-  PoolName,
-  TRANSACTION_TYPES,
-} from "../constants"
+import { ChainId, POOLS_MAP, PoolName, TRANSACTION_TYPES } from "../constants"
 import { Contract, Provider } from "ethcall"
 import {
   MulticallCall,
@@ -136,7 +132,7 @@ export default function usePoolData(
 
       // fetch pool stats, TODO: don't need to call for each pool, store somewhere else
       let dailyVolume
-      let poolStats = await fetch(poolStatsApi)
+      const poolStats = await fetch(poolStatsApi)
         .then((res) => res.json())
         .then((body: PoolStatsApiResponse[]) => {
           return body.map((b) => {
@@ -146,7 +142,7 @@ export default function usePoolData(
             }
           })
         })
-      let poolStat = poolStats.find(({ pool_name }) => pool_name === poolName)
+      const poolStat = poolStats.find(({ pool_name }) => pool_name === poolName)
       if (typeof poolStat !== "undefined") {
         dailyVolume = BigNumber.from(
           Math.round(parseFloat(poolStat.daily_volume)),

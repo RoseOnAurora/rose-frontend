@@ -6,8 +6,11 @@ import {
 } from "../constants"
 import React, { ReactElement } from "react"
 import { commify, formatBNToPercentString, formatBNToString } from "../utils"
+import useChakraToast, { TransactionType } from "../hooks/useChakraToast"
 import BackButton from "../components/BackButton"
+import BlockExplorerLink from "../components/BlockExplorerLink"
 import ComponentWrapper from "../components/wrappers/ComponentWrapper"
+import { ContractReceipt } from "@ethersproject/contracts"
 import Deposit from "../components/Deposit"
 import { FaChartPie } from "react-icons/fa"
 import { Flex } from "@chakra-ui/react"
@@ -25,6 +28,7 @@ interface Props {
 
 const Pool = ({ poolName }: Props): ReactElement => {
   const { t } = useTranslation()
+  const toast = useChakraToast()
   const [poolData, userShareData] = usePoolData(poolName)
 
   const formattedShareTokens =
@@ -48,6 +52,37 @@ const Pool = ({ poolName }: Props): ReactElement => {
       }
     }) || []
 
+  const postTransaction = (
+    receipt: ContractReceipt | null,
+    transactionType: TransactionType,
+    error?: { code: number; message: string },
+  ): void => {
+    const description = receipt?.transactionHash ? (
+      <BlockExplorerLink
+        txnType={transactionType}
+        txnHash={receipt?.transactionHash}
+        status={receipt?.status ? "Succeeded" : "Failed"}
+      />
+    ) : null
+    if (receipt?.status) {
+      toast.transactionSuccess({
+        txnType: transactionType,
+        description: description,
+      })
+    } else {
+      toast.transactionFailed({
+        txnType: transactionType,
+        error,
+        description: description,
+      })
+    }
+  }
+
+  const preTransaction = (txnType: TransactionType) =>
+    toast.transactionPending({
+      txnType,
+    })
+
   return (
     <PageWrapper activeTab="pools">
       <ComponentWrapper
@@ -57,11 +92,23 @@ const Pool = ({ poolName }: Props): ReactElement => {
             tabsProps={{ variant: "primary" }}
             tab1={{
               name: t("addLiquidity"),
-              content: <Deposit poolName={poolName} />,
+              content: (
+                <Deposit
+                  poolName={poolName}
+                  handlePreSubmit={preTransaction}
+                  handlePostSubmit={postTransaction}
+                />
+              ),
             }}
             tab2={{
               name: t("removeLiquidity"),
-              content: <Withdraw poolName={poolName} />,
+              content: (
+                <Withdraw
+                  poolName={poolName}
+                  handlePreSubmit={preTransaction}
+                  handlePostSubmit={postTransaction}
+                />
+              ),
             }}
           />
         }

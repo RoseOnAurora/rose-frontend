@@ -7,6 +7,7 @@ import { POOLS_MAP, PoolName } from "../constants"
 import { useCallback, useMemo, useState } from "react"
 
 import { BigNumber } from "@ethersproject/bignumber"
+import { Contract } from "@ethersproject/contracts"
 import { debounce } from "lodash"
 import { parseUnits } from "@ethersproject/units"
 import { useActiveWeb3React } from "."
@@ -41,7 +42,7 @@ export default function useWithdrawFormState(
   poolName: PoolName,
 ): [WithdrawFormState, (action: WithdrawFormAction) => void] {
   const POOL = POOLS_MAP[poolName]
-  const poolContract = usePoolContract(poolName)
+  const poolContract = usePoolContract(poolName) as Contract
   const [, userShareData] = usePoolData(poolName)
   const { account } = useActiveWeb3React()
   const tokenInputStateCreators: {

@@ -8,7 +8,6 @@ import { Web3ReactProvider, createWeb3ReactRoot } from "@web3-react/core"
 
 import App from "./pages/App"
 import { NetworkContextName } from "./constants"
-/* eslint-disable */
 import { Provider } from "react-redux"
 import React from "react"
 import ReactDOM from "react-dom"

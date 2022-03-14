@@ -1,4 +1,4 @@
-import { Input, InputGroup, InputRightElement } from "@chakra-ui/react"
+import { Input, InputGroup, InputRightElement, Tooltip } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import {
   updateInfiniteApproval,
@@ -12,7 +12,6 @@ import { AppState } from "../state/index"
 import CheckboxInput from "./CheckboxInput"
 import { PayloadAction } from "@reduxjs/toolkit"
 import { Slippages } from "../state/user"
-import ToolTip from "./ToolTip"
 import classNames from "classnames"
 import styles from "./AdvancedOptions.module.scss"
 import { useTranslation } from "react-i18next"
@@ -34,9 +33,13 @@ export default function AdvancedOptions(): ReactElement {
               dispatch(updateInfiniteApproval(!infiniteApproval))
             }
           />
-          <ToolTip content={t("infiniteApprovalTooltip")}>
+          <Tooltip
+            bgColor="#cc3a59"
+            closeOnClick={false}
+            label={t("infiniteApprovalTooltip")}
+          >
             <span className={styles.label}>{t("infiniteApproval")}</span>
-          </ToolTip>
+          </Tooltip>
         </div>
       </div>
       <div className={styles.parameter}>

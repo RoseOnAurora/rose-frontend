@@ -1,11 +1,16 @@
-/* eslint-disable */
+/* eslint @typescript-eslint/no-unsafe-assignment: 0 */
+/* eslint @typescript-eslint/no-unsafe-call: 0 */
+/* eslint @typescript-eslint/no-unsafe-member-access: 0 */
+/* eslint @typescript-eslint/no-unsafe-return: 0 */
+/* eslint @typescript-eslint/no-explicit-any: 0 */
 import {
+  ChainId,
   POOLS_MAP,
   PoolName,
   TRANSACTION_TYPES,
   Token,
-  ChainId,
 } from "../constants"
+import { Contract, ContractReceipt } from "@ethersproject/contracts"
 import {
   useAllContracts,
   useLPTokenContract,
@@ -15,11 +20,11 @@ import { useDispatch, useSelector } from "react-redux"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { ContractReceipt } from "@ethersproject/contracts"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import { FraxPoolDeposit } from "../../types/ethers-contracts/FraxPoolDeposit"
-import FRAX_POOL_DEPOSIT from "../constants/abis/FraxPoolDeposit.json"
+import { GasPrices } from "../state/user"
 import { NumberInputState } from "../utils/numberInputState"
+import ROSE_META_POOL_DEPOSIT from "../constants/abis/RoseMetaPoolDeposit.json"
+import { RoseMetaPoolDeposit } from "../../types/ethers-contracts/RoseMetaPoolDeposit"
 import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { getContract } from "../utils"
@@ -28,7 +33,6 @@ import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
 import { useMemo } from "react"
-import { GasPrices } from "../state/user"
 
 interface ApproveAndDepositStateArgument {
   [tokenSymbol: string]: NumberInputState
@@ -41,8 +45,7 @@ export function useApproveAndDeposit(
   shouldDepositWrapped?: boolean,
 ) => Promise<ContractReceipt | void> {
   const dispatch = useDispatch()
-  // const swapContract = useSwapContract(poolName)
-  const poolContract = usePoolContract(poolName)
+  const poolContract = usePoolContract(poolName) as Contract
   const lpTokenContract = useLPTokenContract(poolName)
   const tokenContracts = useAllContracts()
   const { account, chainId, library } = useActiveWeb3React()
@@ -61,10 +64,10 @@ export function useApproveAndDeposit(
     if (POOL.metaSwapAddresses && chainId && library) {
       return getContract(
         POOL.metaSwapAddresses?.[chainId],
-        JSON.stringify(FRAX_POOL_DEPOSIT),
+        JSON.stringify(ROSE_META_POOL_DEPOSIT),
         library,
         account ?? undefined,
-      ) as FraxPoolDeposit
+      ) as RoseMetaPoolDeposit
     }
     return null
   }, [chainId, library, POOL.metaSwapAddresses, account])
@@ -86,7 +89,7 @@ export function useApproveAndDeposit(
         ? (POOL.underlyingPoolTokens as Token[])
         : POOL.poolTokens
       const effectiveSwapContract = shouldDepositWrapped
-        ? (metaSwapContract as FraxPoolDeposit)
+        ? (metaSwapContract as RoseMetaPoolDeposit)
         : poolContract
 
       let gasPrice: any

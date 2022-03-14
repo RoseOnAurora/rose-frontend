@@ -179,7 +179,7 @@ const Farm = ({ farmName }: Props): ReactElement => {
                   }}
                   PopoverBodyContent={
                     <FarmRewardsPopoverContent
-                      totalRewardsAmount={totalRewards || "0"}
+                      totalRewardsAmount={rewardsEarned || "0"}
                       roseRewardsAmount={roseRewards}
                       dualRewards={dualRewardsPopover}
                       claim={getReward}

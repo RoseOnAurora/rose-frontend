@@ -4,12 +4,12 @@
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-return: 0 */
 import { ChainId, POOLS_MAP, PoolName, TRANSACTION_TYPES } from "../constants"
+import { Contract, ContractReceipt } from "@ethersproject/contracts"
 import { addSlippage, subtractSlippage } from "../utils/slippage"
 import { formatUnits, parseUnits } from "@ethersproject/units"
 import { useLPTokenContract, usePoolContract } from "./useContract"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { ContractReceipt } from "@ethersproject/contracts"
 import { GasPrices } from "../state/user"
 import { NumberInputState } from "../utils/numberInputState"
 import { Zero } from "@ethersproject/constants"
@@ -29,7 +29,7 @@ export function useApproveAndWithdraw(
   poolName: PoolName,
 ): (state: ApproveAndWithdrawStateArgument) => Promise<ContractReceipt | void> {
   const dispatch = useDispatch()
-  const poolContract = usePoolContract(poolName)
+  const poolContract = usePoolContract(poolName) as Contract
   const { account, chainId } = useActiveWeb3React()
   const { gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,

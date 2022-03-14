@@ -20,7 +20,6 @@ import BorrowMarkets from "./BorrowMarkets"
 import BottomMenu from "../components/BottomMenu"
 import Farm from "./Farm"
 import Farms from "./Farms"
-import PendingSwapsProvider from "../providers/PendingSwapsProvider"
 import Pool from "./Pool"
 import Pools from "./Pools"
 import Stake from "./Stake"
@@ -50,55 +49,53 @@ export default function App(): ReactElement {
     <Suspense fallback={null}>
       <Web3ReactManager>
         <GasAndTokenPrices>
-          <PendingSwapsProvider>
-            <Banner
-              variant="solid"
-              color="black"
-              bg={bannerBg}
-              bannerTitle="Borrowing RUSD on testnet is now out!"
-              // bannerMessage=""
-              status="info"
-              position="sticky"
-              top="0"
-              zIndex="3"
-              border="none"
-              boxShadow="2px 2px 12px rgba(68, 64, 64, 0.14)"
-            />
-            <Switch>
-              <Route exact path="/" component={Swap} />
-              <Route exact path="/pools" component={Pools} />
-              <Route exact path="/farms" component={Farms} />
-              <Route exact path="/stake" component={Stake} />
-              <Route exact path="/borrow" component={BorrowMarkets} />
-              {Object.values(POOLS_MAP).map(({ name, route }) => (
-                <Route
-                  exact
-                  path={`/pools/${route}`}
-                  render={(props) => <Pool {...props} poolName={name} />}
-                  key={`${name}-pool`}
-                />
-              ))}
-              {Object.values(FARMS_MAP).map(({ name, route }) => (
-                <Route
-                  exact
-                  path={`/farms/${route}`}
-                  render={(props) => <Farm {...props} farmName={name} />}
-                  key={`${name}-farm`}
-                ></Route>
-              ))}
-              {Object.entries(BORROW_MARKET_MAP).map(([key, { route }]) => (
-                <Route
-                  exact
-                  path={`/borrow/${route}`}
-                  render={(props) => (
-                    <Borrow {...props} borrowName={key as BorrowMarketName} />
-                  )}
-                  key={`${key}-borrow`}
-                ></Route>
-              ))}
-            </Switch>
-            <BottomMenu />
-          </PendingSwapsProvider>
+          <Banner
+            variant="solid"
+            color="black"
+            bg={bannerBg}
+            bannerTitle="Borrowing RUSD on testnet is now out!"
+            // bannerMessage=""
+            status="info"
+            position="sticky"
+            top="0"
+            zIndex="3"
+            border="none"
+            boxShadow="2px 2px 12px rgba(68, 64, 64, 0.14)"
+          />
+          <Switch>
+            <Route exact path="/" component={Swap} />
+            <Route exact path="/pools" component={Pools} />
+            <Route exact path="/farms" component={Farms} />
+            <Route exact path="/stake" component={Stake} />
+            <Route exact path="/borrow" component={BorrowMarkets} />
+            {Object.values(POOLS_MAP).map(({ name, route }) => (
+              <Route
+                exact
+                path={`/pools/${route}`}
+                render={(props) => <Pool {...props} poolName={name} />}
+                key={`${name}-pool`}
+              />
+            ))}
+            {Object.values(FARMS_MAP).map(({ name, route }) => (
+              <Route
+                exact
+                path={`/farms/${route}`}
+                render={(props) => <Farm {...props} farmName={name} />}
+                key={`${name}-farm`}
+              ></Route>
+            ))}
+            {Object.entries(BORROW_MARKET_MAP).map(([key, { route }]) => (
+              <Route
+                exact
+                path={`/borrow/${route}`}
+                render={(props) => (
+                  <Borrow {...props} borrowName={key as BorrowMarketName} />
+                )}
+                key={`${key}-borrow`}
+              ></Route>
+            ))}
+          </Switch>
+          <BottomMenu />
         </GasAndTokenPrices>
       </Web3ReactManager>
     </Suspense>

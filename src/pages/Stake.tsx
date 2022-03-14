@@ -113,7 +113,9 @@ const Stake = (): ReactElement => {
                   token={"stROSE"}
                   tokenIcon={ROSE_TOKENS_MAP.stRose.icon}
                   isLoading={false}
-                  formTitle={<StakePageTitle title={`${t("stake")} ROSE`} />}
+                  formTitle={
+                    <StakePageTitle title={`${t("unstake")} stROSE`} />
+                  }
                   formDescription={t("stakingInfo")}
                   submitButtonLabel={t("unstake")}
                   usdPrice={+(priceOfRose || 0) * +(priceRatio || 0)}

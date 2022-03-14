@@ -46,7 +46,7 @@ interface ToastFunctions {
 
 export default function useChakraToast(): ToastFunctions {
   const toast = useToast({
-    position: "bottom-right",
+    position: "top",
     isClosable: true,
     variant: "solid",
   })

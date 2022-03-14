@@ -1,39 +1,76 @@
-/* eslint-disable */
+/* eslint @typescript-eslint/no-unsafe-assignment: 0 */
+/* eslint @typescript-eslint/no-unsafe-call: 0 */
+/* eslint @typescript-eslint/no-unsafe-member-access: 0 */
+/* eslint @typescript-eslint/no-unsafe-return: 0 */
+/* eslint @typescript-eslint/no-explicit-any: 0 */
+import "./DepositPage.scss"
+import { Box, Button, Center, Switch } from "@chakra-ui/react"
+import { Contract, ContractReceipt } from "@ethersproject/contracts"
 import { DepositTransaction, TransactionItem } from "../interfaces/transactions"
-import { POOLS_MAP, PoolName, Token, isMetaPool } from "../constants"
+import {
+  FRAX_STABLES_LP_POOL_NAME,
+  POOLS_MAP,
+  PoolName,
+  Token,
+  UST_METAPOOL_NAME,
+  isMetaPool,
+} from "../constants"
 import React, { ReactElement, useEffect, useMemo, useState } from "react"
 import { TokensStateType, useTokenFormState } from "../hooks/useTokenFormState"
-import { formatBNToString, getContract, shiftBNDecimals } from "../utils"
+import {
+  formatBNToPercentString,
+  formatBNToString,
+  getContract,
+  shiftBNDecimals,
+} from "../utils"
 import usePoolData, { PoolDataType } from "../hooks/usePoolData"
-
+import AdvancedOptions from "./AdvancedOptions"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { Contract, ContractReceipt } from "@ethersproject/contracts"
-import DepositPage from "./DepositPage"
-import FRAX_POOL_DEPOSIT from "../constants/abis/FraxPoolDeposit.json"
+import { BsSliders } from "react-icons/bs"
+import { IconButtonPopover } from "./Popover"
+import Modal from "./Modal"
+import ROSE_META_POOL_DEPOSIT from "../constants/abis/RoseMetaPoolDeposit.json"
+import ReviewDeposit from "./ReviewDeposit"
+import TokenInput from "./TokenInput"
 import { TokenPricesUSD } from "../state/application"
+import { TransactionType } from "../hooks/useChakraToast"
 import { Zero } from "@ethersproject/constants"
 import { calculatePriceImpact } from "../utils/priceImpact"
 import { ethers } from "ethers"
 import { formatGasToString } from "../utils/gas"
+import { logEvent } from "../utils/googleAnalytics"
 import { parseUnits } from "@ethersproject/units"
 import { useActiveWeb3React } from "../hooks"
 import { useApproveAndDeposit } from "../hooks/useApproveAndDeposit"
 import { usePoolContract } from "../hooks/useContract"
 import { usePoolTokenBalances } from "../state/wallet/hooks"
 import { useSelector } from "react-redux"
+import { useTranslation } from "react-i18next"
 
 interface Props {
   poolName: PoolName
+  handlePreSubmit?: (txnType: TransactionType) => void
+  handlePostSubmit?: (
+    receipt: ContractReceipt | null,
+    transactionType: TransactionType,
+    error?: { code: number; message: string },
+  ) => void
 }
 
-function Deposit({ poolName }: Props): ReactElement | null {
-  const POOL = POOLS_MAP[poolName]
+function Deposit({
+  poolName,
+  handlePreSubmit,
+  handlePostSubmit,
+}: Props): ReactElement | null {
   const { account, library, chainId } = useActiveWeb3React()
   const approveAndDeposit = useApproveAndDeposit(poolName)
   const [poolData, userShareData] = usePoolData(poolName)
-  // const swapContract = useSwapContract(poolName)
-  const poolContract = usePoolContract(poolName)
+  const poolContract = usePoolContract(poolName) as Contract
+  const { t } = useTranslation()
+
+  const POOL = POOLS_MAP[poolName]
+
   const allTokens = useMemo(() => {
     return Array.from(
       new Set(POOL.poolTokens.concat(POOL.underlyingPoolTokens || [])),
@@ -41,6 +78,8 @@ function Deposit({ poolName }: Props): ReactElement | null {
   }, [POOL.poolTokens, POOL.underlyingPoolTokens])
   const [tokenFormState, updateTokenFormState] = useTokenFormState(allTokens)
   const [shouldDepositWrapped, setShouldDepositWrapped] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+
   useEffect(() => {
     // empty out previous token state when switchng between wrapped and unwrapped
     if (shouldDepositWrapped) {
@@ -108,10 +147,10 @@ function Deposit({ poolName }: Props): ReactElement | null {
     if (isMetaSwap && chainId && library) {
       return getContract(
         POOL.metaSwapAddresses?.[chainId] as string,
-        JSON.stringify(FRAX_POOL_DEPOSIT),
+        JSON.stringify(ROSE_META_POOL_DEPOSIT),
         library,
         account ?? undefined,
-      ) as Contract
+      )
     }
     return null
   }, [isMetaSwap, chainId, library, POOL.metaSwapAddresses, account])
@@ -227,6 +266,7 @@ function Deposit({ poolName }: Props): ReactElement | null {
   function updateTokenFormValue(symbol: string, value: string): void {
     updateTokenFormState({ [symbol]: value })
   }
+
   const depositTransaction = buildTransactionData(
     tokenFormState,
     poolData,
@@ -238,20 +278,159 @@ function Deposit({ poolName }: Props): ReactElement | null {
     newTokenPricesUSD,
   )
 
+  const validDepositAmount =
+    depositTransaction.to.totalAmount.gt(0) && !exceedsWallet
+  const shouldDisplayWrappedOption = isMetaPool(poolData?.name)
+
   return (
-    <DepositPage
-      onConfirmTransaction={onConfirmTransaction}
-      onChangeTokenInputValue={updateTokenFormValue}
-      onToggleDepositWrapped={() =>
-        setShouldDepositWrapped((prevState) => !prevState)
-      }
-      shouldDepositWrapped={shouldDepositWrapped}
-      title={poolName}
-      tokens={tokens}
-      exceedsWallet={exceedsWallet}
-      poolData={poolData}
-      transactionData={depositTransaction}
-    />
+    <Box>
+      <Modal isOpen={isOpen} onClose={(): void => setIsOpen(false)}>
+        <ReviewDeposit
+          transactionData={depositTransaction}
+          onClose={(): void => setIsOpen(false)}
+          onConfirm={async () => {
+            setIsOpen(false)
+            logEvent("deposit", (poolData && { pool: poolData?.name }) || {})
+            handlePreSubmit?.(TransactionType.DEPOSIT)
+            try {
+              const receipt = (await onConfirmTransaction?.()) as ContractReceipt
+              handlePostSubmit?.(receipt, TransactionType.DEPOSIT)
+            } catch (e) {
+              const error = e as { code: number; message: string }
+              handlePostSubmit?.(null, TransactionType.DEPOSIT, {
+                code: error.code,
+                message: error.message,
+              })
+            }
+          }}
+        />
+      </Modal>
+      <div className="form">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+          }}
+        >
+          <h3>{t("addLiquidity")}</h3>
+          <IconButtonPopover
+            IconButtonProps={{
+              "aria-label": "Configure Settings",
+              variant: "outline",
+              size: "lg",
+              icon: <BsSliders size="25px" />,
+              title: "Configure Settings",
+            }}
+            PopoverBodyContent={<AdvancedOptions />}
+          />
+        </div>
+        {exceedsWallet ? (
+          <div className="error">{t("depositBalanceExceeded")}</div>
+        ) : null}
+        {/* disable deposit wrapped button until gas limit is raised on aurora */}
+        {shouldDisplayWrappedOption && (
+          <div className="wrappedDeposit">
+            <Switch
+              colorScheme="red"
+              onChange={() =>
+                setShouldDepositWrapped((prevState) => !prevState)
+              }
+              isChecked={shouldDepositWrapped}
+            />
+            <span>
+              <small>{t("depositWrapped")}</small>
+            </span>
+          </div>
+        )}
+        {tokens.map((token, index) => (
+          <div key={index}>
+            <TokenInput
+              {...token}
+              disabled={poolData?.isPaused}
+              onChange={(value): void =>
+                updateTokenFormValue(token.symbol, value)
+              }
+            />
+            {index === tokens.length - 1 ? (
+              ""
+            ) : (
+              <div className="formSpace"></div>
+            )}
+          </div>
+        ))}
+        <div className="transactionInfo">
+          <div className="transactionInfoItem">
+            {depositTransaction.priceImpact.gte(0) ? (
+              <span className="bonus">{`${t("bonus")}: `}</span>
+            ) : (
+              <span className="slippage">{t("priceImpact")}</span>
+            )}
+            <span
+              className={
+                "value " +
+                (depositTransaction.priceImpact.gte(0) ? "bonus" : "slippage")
+              }
+            >
+              {" "}
+              {formatBNToPercentString(depositTransaction.priceImpact, 18, 4)}
+            </span>
+          </div>
+        </div>
+      </div>
+      {shouldDisplayWrappedOption && (
+        <div className="options">
+          <p className="wrappedInfo">
+            Deposit to the <a href="/#/pools/stables">Stables Pool</a> to get
+            RoseStablesLP.{" "}
+            {poolData?.name === UST_METAPOOL_NAME && (
+              <>
+                Get atUST by bridging UST from Terra on{" "}
+                <a
+                  href="https://app.allbridge.io/bridge?from=TRA&to=AURO&asset=UST"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ textDecoration: "underline", margin: 0 }}
+                >
+                  Allbridge.
+                </a>
+              </>
+            )}
+          </p>
+        </div>
+      )}
+      {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
+        <div className="options">
+          <p className="wrappedInfo">
+            This pool is outdated. Please{" "}
+            <a href="/#/pools/frax-stableslp">
+              go here to withdraw any liquidity
+            </a>{" "}
+            from this pool and{" "}
+            <a href="/#/pools/frax">use the new Frax pool instead.</a>
+          </p>
+        </div>
+      )}
+      <div className="options" style={{ height: "100%" }}>
+        <Center width="100%">
+          <Button
+            variant="primary"
+            size="lg"
+            width="100%"
+            onClick={(): void => {
+              setIsOpen(true)
+            }}
+            disabled={!validDepositAmount || poolData?.isPaused}
+          >
+            {t("deposit")}
+          </Button>
+        </Center>
+        <div className="approvalMessage">
+          Note: The &quot;Approve&quot; transaction is only needed the first
+          time; subsequent actions will not require approval.
+        </div>
+      </div>
+    </Box>
   )
 }
 

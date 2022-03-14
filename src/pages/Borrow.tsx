@@ -582,7 +582,12 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
                   borrowTokenIcon={borrowToken.icon}
                   collateralTokenSymbol={collateralToken.symbol}
                   collateralTokenIcon={collateralToken.icon}
-                  max={formatBNToString(borrowData.borrowed, 18)}
+                  max={formatBNToString(
+                    borrowData.borrowed.gt(borrowData.rusdUserBalance)
+                      ? borrowData.rusdUserBalance
+                      : borrowData.borrowed,
+                    18,
+                  )}
                   maxRepayBn={borrowData.borrowed}
                   maxCollateralBn={borrowData.collateralDeposited}
                   getMaxWithdraw={calculateMaxWithdraw}

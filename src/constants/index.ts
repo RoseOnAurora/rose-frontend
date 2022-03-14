@@ -10,11 +10,12 @@ import { injected, walletconnect } from "../connectors"
 
 import { AbstractConnector } from "@web3-react/abstract-connector"
 import { BigNumber } from "@ethersproject/bignumber"
+import { RoseMetaPool } from "../../types/ethers-contracts/RoseMetaPool"
+import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
 import alethLogo from "../assets/icons/aleth.svg"
 import alusdLogo from "../assets/icons/alusd.svg"
 import atustLogo from "../assets/icons/atust.svg"
 import busdLogo from "../assets/icons/busd.svg"
-// import coinbasewalletIcon from "../assets/icons/coinbasewallet.svg"
 import daiLogo from "../assets/icons/dai.svg"
 import feiLogo from "../assets/icons/fei.svg"
 import fraxLogo from "../assets/icons/frax.svg"
@@ -1891,6 +1892,9 @@ export const SUPPORTED_CHAINS: {
     rpc: "https://testnet.aurora.dev",
   },
 }
+
+// Rose Pool Type
+export type RosePool = RoseStablesPool | RoseMetaPool
 
 // "SADDLE" in bytes32 form
 export const SYNTH_TRACKING_ID =

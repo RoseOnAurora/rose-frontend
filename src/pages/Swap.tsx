@@ -6,11 +6,11 @@ import {
   PoolName,
   SWAP_TYPES,
   TOKENS_MAP,
+  isMetaPool,
 } from "../constants"
 import React, {
   ReactElement,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -36,7 +36,6 @@ import {
 import { AppState } from "../state/index"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
-import { PendingSwapsContext } from "../providers/PendingSwapsProvider"
 import SwapPage from "../components/SwapPage"
 import { Zero } from "@ethersproject/constants"
 import { calculateGasEstimate } from "../utils/gasEstimate"
@@ -107,7 +106,6 @@ function Swap(): ReactElement {
   const bridgeContract = useBridgeContract()
   const snxEchangeRatesContract = useSynthetixExchangeRatesContract()
   const calculateSwapPairs = useCalculateSwapPairs()
-  const pendingSwapData = useContext(PendingSwapsContext)
   const { tokenPricesUSD, gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,
   )
@@ -265,18 +263,9 @@ function Swap(): ReactElement {
         formStateArg.swapType === SWAP_TYPES.DIRECT &&
         swapContract != null
       ) {
-        // TO-DO: Clean this up
         if (
-          formStateArg.from.symbol === "FRAX" ||
-          formStateArg.from.symbol === "atUST" ||
-          formStateArg.from.symbol === "abBUSD" ||
-          formStateArg.from.symbol === "MAI" ||
-          formStateArg.from.symbol === "RUSD" ||
-          formStateArg.to.symbol === "FRAX" ||
-          formStateArg.to.symbol === "atUST" ||
-          formStateArg.to.symbol === "abBUSD" ||
-          formStateArg.to.symbol === "MAI" ||
-          formStateArg.to.symbol === "RUSD"
+          isMetaPool(formState.from.poolName) ||
+          isMetaPool(formState.to.poolName)
         ) {
           amountToReceive = await swapContract.get_dy_underlying(
             formStateArg.from.tokenIndex,
@@ -563,7 +552,6 @@ function Swap(): ReactElement {
 
   return (
     <SwapPage
-      pendingSwaps={pendingSwapData}
       tokenOptions={tokenOptions}
       exchangeRateInfo={{
         pair: `${formState.from.symbol}/${formState.to.symbol}`,
