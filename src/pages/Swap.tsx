@@ -41,8 +41,8 @@ import { Zero } from "@ethersproject/constants"
 import { calculateGasEstimate } from "../utils/gasEstimate"
 import { calculatePriceImpact } from "../utils/priceImpact"
 import { debounce } from "lodash"
-import { ethers } from "ethers"
-import { formatGasToString } from "../utils/gas"
+// import { ethers } from "ethers"
+// import { formatGasToString } from "../utils/gas"
 import { useActiveWeb3React } from "../hooks"
 import { useApproveAndSwap } from "../hooks/useApproveAndSwap"
 import { usePoolTokenBalances } from "../state/wallet/hooks"
@@ -106,12 +106,7 @@ function Swap(): ReactElement {
   const bridgeContract = useBridgeContract()
   const snxEchangeRatesContract = useSynthetixExchangeRatesContract()
   const calculateSwapPairs = useCalculateSwapPairs()
-  const { tokenPricesUSD, gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
-  )
-  const { gasPriceSelected, gasCustom } = useSelector(
-    (state: AppState) => state.user,
-  )
+  const { tokenPricesUSD } = useSelector((state: AppState) => state.application)
 
   const [formState, setFormState] = useState<FormState>(EMPTY_FORM_STATE)
   const [prevFormState, setPrevFormState] = useState<FormState>(
@@ -531,14 +526,7 @@ function Swap(): ReactElement {
     return receipt
   }
 
-  const gasPrice = ethers.utils.parseUnits(
-    formatGasToString(
-      { gasStandard, gasFast, gasInstant },
-      gasPriceSelected,
-      gasCustom,
-    ),
-    "gwei",
-  )
+  const gasPrice = Zero
   const gasAmount = calculateGasEstimate(formState.swapType).mul(gasPrice) // units of gas * GWEI/Unit of gas
 
   const txnGasCost = {
