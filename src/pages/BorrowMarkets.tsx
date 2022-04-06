@@ -6,10 +6,12 @@ import {
   BorrowMarket,
   BorrowMarketName,
   DashboardItems,
-  NEAR_MARKET_NAME,
-  NEAR_WL_PROXIMITY_MARKET_NAME,
-  STROSE_MARKET_NAME,
+  USDC_MARKET_NAME,
+  USDT_MARKET_NAME,
   UST_MARKET_NAME,
+  wBTC_MARKET_NAME,
+  wETH_MARKET_NAME,
+  wNEAR_MARKET_NAME,
 } from "../constants"
 import {
   BorrowFilterFields,
@@ -49,6 +51,7 @@ import {
   FaUserLock,
 } from "react-icons/fa"
 import React, { ReactElement, useMemo, useState } from "react"
+import { calculatePositionHealthColor, formatBNToString } from "../utils"
 import useBorrowData, { BorrowDataType } from "../hooks/useBorrowData"
 import { useDispatch, useSelector } from "react-redux"
 import { AnimatePresence } from "framer-motion"
@@ -64,7 +67,6 @@ import PageWrapper from "../components/wrappers/PageWrapper"
 import StakeDetails from "../components/StakeDetails"
 import { Zero } from "@ethersproject/constants"
 import { commify } from "@ethersproject/units"
-import { formatBNToString } from "../utils"
 
 function BorrowMarkets(): ReactElement {
   const dispatch = useDispatch<AppDispatch>()
@@ -92,27 +94,32 @@ function BorrowMarkets(): ReactElement {
     setIsInfo(isInfo)
   }
 
-  const [nearMarketData, loading1] = useBorrowData(NEAR_MARKET_NAME)
-  const [stRoseMarketData, loading2] = useBorrowData(STROSE_MARKET_NAME)
+  const [wNearMarketData, loading1] = useBorrowData(wNEAR_MARKET_NAME)
+  const [usdcMarketData, loading2] = useBorrowData(USDC_MARKET_NAME)
   const [ustMarketData, loading3] = useBorrowData(UST_MARKET_NAME)
-  const [nearWlProximityMarketData, loading4] = useBorrowData(
-    NEAR_WL_PROXIMITY_MARKET_NAME,
-  )
+  const [usdtMarketData, loading4] = useBorrowData(USDT_MARKET_NAME)
+  const [wEthMarketData, loading5] = useBorrowData(wETH_MARKET_NAME)
+  const [wBtcMarketData, loading6] = useBorrowData(wBTC_MARKET_NAME)
 
-  const loading = loading1 || loading2 || loading3 || loading4
+  const loading =
+    loading1 || loading2 || loading3 || loading4 || loading5 || loading6
 
   const marketsData = useMemo(() => {
     return {
-      [NEAR_MARKET_NAME]: nearMarketData,
-      [STROSE_MARKET_NAME]: stRoseMarketData,
+      [wNEAR_MARKET_NAME]: wNearMarketData,
+      [USDC_MARKET_NAME]: usdcMarketData,
       [UST_MARKET_NAME]: ustMarketData,
-      [NEAR_WL_PROXIMITY_MARKET_NAME]: nearWlProximityMarketData,
+      [USDT_MARKET_NAME]: usdtMarketData,
+      [wETH_MARKET_NAME]: wEthMarketData,
+      [wBTC_MARKET_NAME]: wBtcMarketData,
     }
   }, [
-    nearMarketData,
-    stRoseMarketData,
+    wNearMarketData,
+    usdcMarketData,
     ustMarketData,
-    nearWlProximityMarketData,
+    usdtMarketData,
+    wEthMarketData,
+    wBtcMarketData,
   ])
 
   const totalRUSDBorrowed = useMemo(() => {
@@ -325,7 +332,7 @@ function BorrowMarkets(): ReactElement {
                         text: (
                           <GlossaryItem
                             title="Your Position Health"
-                            text="Your position health is represented as a percentage proportional to the maximum debt ratio. 90% and higher is at risk for liquidation and 0% is the healthiest your position can be."
+                            text="Your position health is represented as a percentage proportional to the maximum debt ratio. Typically, 80-90% and higher is at risk for liquidation and 0% is the healthiest your position can be."
                           />
                         ),
                       },
@@ -410,8 +417,6 @@ function BorrowMarkets(): ReactElement {
         left={
           <AnimatePresence>
             {Object.values(BORROW_MARKET_MAP)
-              // hide whitelisted markets (TODO clean this up later)
-              .filter(({ name }) => name !== NEAR_WL_PROXIMITY_MARKET_NAME)
               .filter((borrowMarket) =>
                 FILTER_FUNCTIONS[filterByField](borrowMarket),
               )
@@ -521,27 +526,25 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
                           a.positionHealth.gt(b.positionHealth) ? -1 : 1,
                         )
                         .map((marketData, index) => {
+                          // calculate position health, format it and add colors
                           const positionHealth =
                             +formatBNToString(marketData.positionHealth, 18) *
                             100
                           const positionHealthFormatted = `${positionHealth.toFixed(
                             0,
                           )}%`
-                          const colorScheme =
-                            positionHealth >= 89
-                              ? {
-                                  bar: "red",
-                                  text: positionTextColorHigh,
-                                }
-                              : positionHealth <= 50
-                              ? {
-                                  bar: "green",
-                                  text: positionTextColorSafe,
-                                }
-                              : {
-                                  bar: "orange",
-                                  text: positionTextColorMod,
-                                }
+                          const textColor = calculatePositionHealthColor(
+                            positionHealth,
+                            BORROW_MARKET_MAP[marketData.marketName].isStable,
+                          )
+                          const barColor =
+                            textColor === "red"
+                              ? positionTextColorHigh
+                              : textColor === "green"
+                              ? positionTextColorSafe
+                              : positionTextColorMod
+
+                          // return sorted grid items
                           return (
                             <GridItem key={index}>
                               <Flex
@@ -559,13 +562,13 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
                                         .collateralToken.icon
                                     }
                                   />
-                                  <Text color={colorScheme.text}>
+                                  <Text color={textColor}>
                                     {positionHealthFormatted}
                                   </Text>
                                 </Stack>
                                 <Box width={150}>
                                   <Progress
-                                    colorScheme={colorScheme.bar}
+                                    colorScheme={barColor}
                                     title={positionHealthFormatted}
                                     height="30px"
                                     value={positionHealth}

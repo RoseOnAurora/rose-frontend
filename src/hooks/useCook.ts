@@ -189,6 +189,9 @@ export function useCook(
         cookArgs.actions,
         cookArgs.values,
         cookArgs.datas,
+        {
+          gasPrice,
+        },
       )
 
       // complete
@@ -209,7 +212,7 @@ export function useCook(
 }
 
 /**
- * Create a JsonRpcSigner signature request for BentoBox
+ * Create a JsonRpcSigner signature request for Rose Garden
  * @param chainId ChainId
  * @param verifyingContractAddress string
  * @param verifyingDomainName string
@@ -364,7 +367,6 @@ const repayCookArgs = (props: CookArgsProps): CookArgs => {
 
   // REPAY
   if (props.repayMax) {
-    console.log("REPAY MAX")
     actions.push(
       GardenActions.REPAY_SHARE,
       GardenActions.VASE_DEPOSIT,
@@ -383,7 +385,6 @@ const repayCookArgs = (props: CookArgsProps): CookArgs => {
       ),
     )
   } else if (!props.borrowAmount.isZero()) {
-    console.log("REPAY PART")
     actions.push(
       GardenActions.VASE_DEPOSIT,
       GardenActions.REPAY_PART,

@@ -5,7 +5,6 @@ import { AppDispatch, AppState } from "../state"
 import {
   BLOCK_TIME,
   BORROW_MARKET_MAP,
-  BorrowMarketName,
   FARMS_MAP,
   POOLS_MAP,
 } from "../constants"
@@ -13,11 +12,9 @@ import React, { ReactElement, Suspense, useCallback, useEffect } from "react"
 import { Route, Switch } from "react-router-dom"
 import { isChainSupportedByNotify, notify } from "../utils/notifyHandler"
 import { useDispatch, useSelector } from "react-redux"
-
-import Banner from "../components/Banner"
 import Borrow from "./Borrow"
+import BorrowCountdownLanding from "../components/BorrowCountdownLanding"
 import BorrowMarkets from "./BorrowMarkets"
-import BottomMenu from "../components/BottomMenu"
 import Farm from "./Farm"
 import Farms from "./Farms"
 import Pool from "./Pool"
@@ -32,12 +29,17 @@ import fetchStakeStats from "../utils/fetchStakeStats"
 import fetchSwapStats from "../utils/getSwapStats"
 import fetchTokenPricesUSD from "../utils/updateTokenPrices"
 import { useActiveWeb3React } from "../hooks"
+import useCountDown from "react-countdown-hook"
 import usePoller from "../hooks/usePoller"
 
 export default function App(): ReactElement {
   const { chainId } = useActiveWeb3React()
   const { userDarkMode } = useSelector((state: AppState) => state.user)
-  const bannerBg = userDarkMode ? "#d2f1e4" : "#a2d2ff"
+  const [timeLeft, actions] = useCountDown(Date.now() + 1000 - Date.now(), 1000)
+  // new Date(1649136437000).getTime() - Date.now()
+  useEffect(() => {
+    actions.start()
+  }, [actions])
 
   useEffect(() => {
     notify?.config({
@@ -45,29 +47,27 @@ export default function App(): ReactElement {
       darkMode: userDarkMode,
     })
   }, [chainId, userDarkMode])
+
   return (
     <Suspense fallback={null}>
       <Web3ReactManager>
         <GasAndTokenPrices>
-          <Banner
-            variant="solid"
-            color="black"
-            bg={bannerBg}
-            bannerTitle="Borrowing RUSD on testnet is now out!"
-            // bannerMessage=""
-            status="info"
-            position="sticky"
-            top="0"
-            zIndex="3"
-            border="none"
-            boxShadow="2px 2px 12px rgba(68, 64, 64, 0.14)"
-          />
           <Switch>
             <Route exact path="/" component={Swap} />
             <Route exact path="/pools" component={Pools} />
             <Route exact path="/farms" component={Farms} />
             <Route exact path="/stake" component={Stake} />
-            <Route exact path="/borrow" component={BorrowMarkets} />
+            <Route
+              exact
+              path="/borrow"
+              render={() =>
+                timeLeft ? (
+                  <BorrowCountdownLanding timeLeft={timeLeft} />
+                ) : (
+                  <BorrowMarkets />
+                )
+              }
+            />
             {Object.values(POOLS_MAP).map(({ name, route }) => (
               <Route
                 exact
@@ -82,20 +82,29 @@ export default function App(): ReactElement {
                 path={`/farms/${route}`}
                 render={(props) => <Farm {...props} farmName={name} />}
                 key={`${name}-farm`}
-              ></Route>
+              />
             ))}
-            {Object.entries(BORROW_MARKET_MAP).map(([key, { route }]) => (
-              <Route
-                exact
-                path={`/borrow/${route}`}
-                render={(props) => (
-                  <Borrow {...props} borrowName={key as BorrowMarketName} />
-                )}
-                key={`${key}-borrow`}
-              ></Route>
-            ))}
+            {Object.values(BORROW_MARKET_MAP).map(
+              ({ name, route, isStable }) => (
+                <Route
+                  exact
+                  path={`/borrow/${route}`}
+                  render={(props) =>
+                    timeLeft ? (
+                      <BorrowCountdownLanding timeLeft={timeLeft} />
+                    ) : (
+                      <Borrow
+                        {...props}
+                        borrowName={name}
+                        isStable={isStable}
+                      />
+                    )
+                  }
+                  key={`${name}-borrow`}
+                />
+              ),
+            )}
           </Switch>
-          <BottomMenu />
         </GasAndTokenPrices>
       </Web3ReactManager>
     </Suspense>

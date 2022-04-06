@@ -40,15 +40,6 @@ const useTokenBalancesHelper = (
 
       const tokens = Object.values(tokenMap)
       const balanceCalls = tokens
-        // TO-DO: REMOVE THIS. temp fix for testnet usage
-        .filter(
-          (token) =>
-            (chainId === ChainId.AURORA_TESTNET &&
-              !["MAI", "RoseMAILP", "RoseBUSDLP", "abBUSD"].includes(
-                token.symbol,
-              )) ||
-            chainId === ChainId.AURORA_MAINNET,
-        )
         .map((t) => {
           return new Contract(
             t.addresses[chainId],
@@ -60,23 +51,13 @@ const useTokenBalancesHelper = (
         const balances = await ethcallProvider.all(balanceCalls, "latest")
         const ethBalance = await library.getBalance(account)
         setBalances(
-          tokens
-            // TO-DO: REMOVE THIS. temp fix for testnet usage
-            .filter(
-              (token) =>
-                (chainId === ChainId.AURORA_TESTNET &&
-                  !["MAI", "RoseMAILP", "RoseBUSDLP", "abBUSD"].includes(
-                    token.symbol,
-                  )) ||
-                chainId === ChainId.AURORA_MAINNET,
-            )
-            .reduce(
-              (acc, t, i) => ({
-                ...acc,
-                [t.symbol]: balances[i],
-              }),
-              { ETH: ethBalance },
-            ),
+          tokens.reduce(
+            (acc, t, i) => ({
+              ...acc,
+              [t.symbol]: balances[i],
+            }),
+            { ETH: ethBalance },
+          ),
         )
       } catch (e) {
         console.error(e)

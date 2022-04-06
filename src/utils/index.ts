@@ -245,3 +245,16 @@ export function calculatePctOfTotalShare(
     .mul(BigNumber.from(10).pow(18))
     .div(totalTokenAmount.isZero() ? BigNumber.from("1") : totalTokenAmount)
 }
+
+export function calculatePositionHealthColor(
+  positionHealth: number,
+  isStable?: boolean,
+): "red" | "green" | "orange" {
+  const [lo, hi] = isStable ? [60, 85] : [40, 80]
+
+  return positionHealth >= hi
+    ? "red"
+    : positionHealth <= lo
+    ? "green"
+    : "orange"
+}

@@ -32,13 +32,18 @@ import { formatBNToString } from "../utils"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import { useTranslation } from "react-i18next"
 
+export interface RepayFormTokenDetails {
+  symbol: string
+  icon: string
+  decimals: number
+}
+
 interface Props {
-  borrowTokenSymbol: string
-  borrowTokenIcon: string
-  collateralTokenSymbol: string
-  collateralTokenIcon: string
+  borrowToken: RepayFormTokenDetails
+  collateralToken: RepayFormTokenDetails
   max: string
   collateralUSDPrice: number
+  isStable?: boolean
   formDescription?: ReactNode
   maxRepayBn: BigNumber
   maxCollateralBn: BigNumber
@@ -87,13 +92,12 @@ interface Props {
 
 const RepayForm = (props: Props): ReactElement => {
   const {
-    borrowTokenSymbol,
-    borrowTokenIcon,
-    collateralTokenSymbol,
-    collateralTokenIcon,
+    borrowToken,
+    collateralToken,
     max,
     formDescription,
     collateralUSDPrice,
+    isStable,
     handleWhileSubmitting,
     maxRepayBn,
     maxCollateralBn,
@@ -115,7 +119,7 @@ const RepayForm = (props: Props): ReactElement => {
       formDescription={formDescription}
       formTitle={
         <FormTitle
-          title={`Repay ${borrowTokenSymbol}`}
+          title={`Repay ${borrowToken.symbol}`}
           popoverOptions={<BorrowAdvancedOptions />}
         />
       }
@@ -126,9 +130,12 @@ const RepayForm = (props: Props): ReactElement => {
           handlePreSubmit?.(TransactionType.REPAY)
           const collateralValueSafe = parseStringToBigNumber(
             values?.collateral,
-            18,
+            collateralToken.decimals,
           )
-          const borrowValueSafe = parseStringToBigNumber(values?.borrow, 18)
+          const borrowValueSafe = parseStringToBigNumber(
+            values?.borrow,
+            borrowToken.decimals,
+          )
           let receipt: ContractReceipt | null = null
           try {
             receipt = (await handleSubmit(
@@ -226,6 +233,7 @@ const RepayForm = (props: Props): ReactElement => {
                           props.values.collateral,
                           true,
                         )}
+                        isStable={isStable}
                       />
                     </HStack>
                   </Flex>
@@ -236,7 +244,7 @@ const RepayForm = (props: Props): ReactElement => {
                       fontSize="2em"
                       marginLeft="5px"
                     >
-                      <img src={borrowTokenIcon} alt="tokenIcon" />
+                      <img src={borrowToken.icon} alt="tokenIcon" />
                     </InputLeftElement>
                     <Input
                       {...field}
@@ -270,9 +278,9 @@ const RepayForm = (props: Props): ReactElement => {
                     <FormHelperText mt="15px" fontSize="sm" as="p">
                       {+props.values.borrow !== 0 &&
                         `You are about to repay ≈
-                      ${(+props.values.borrow).toFixed(
-                        2,
-                      )} ${borrowTokenSymbol}.`}
+                      ${(+props.values.borrow).toFixed(2)} ${
+                          borrowToken.symbol
+                        }.`}
                     </FormHelperText>
                   )}
                 </FormControl>
@@ -297,7 +305,7 @@ const RepayForm = (props: Props): ReactElement => {
                       fontSize="2em"
                       marginLeft="5px"
                     >
-                      <img src={collateralTokenIcon} alt="tokenIcon" />
+                      <img src={collateralToken.icon} alt="tokenIcon" />
                     </InputLeftElement>
                     <Input
                       {...field}
@@ -337,7 +345,7 @@ const RepayForm = (props: Props): ReactElement => {
                       $${(
                         collateralUSDPrice * +props.values?.collateral
                       ).toFixed(2)}
-                      ${collateralTokenSymbol} as collateral.`}
+                      ${collateralToken.symbol} as collateral.`}
                     </FormHelperText>
                   )}
                 </FormControl>

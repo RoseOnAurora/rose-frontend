@@ -45,6 +45,7 @@ import { useTranslation } from "react-i18next"
 export interface BorrowFormTokenDetails {
   symbol: string
   icon: string
+  decimals: number
 }
 
 interface Props {
@@ -53,6 +54,7 @@ interface Props {
   max: string
   collateralUSDPrice: number
   formDescription?: ReactNode
+  isStable?: boolean
   updateLiquidationPrice: (
     borrowAmount: string,
     collateralAmount: string,
@@ -101,6 +103,7 @@ const BorrowForm = (props: Props): ReactElement => {
     formDescription,
     collateralUSDPrice,
     handleWhileSubmitting,
+    isStable,
     updateLiquidationPrice,
     updatePositionHealth,
     getMaxBorrow,
@@ -132,9 +135,12 @@ const BorrowForm = (props: Props): ReactElement => {
           handlePreSubmit?.(TransactionType.BORROW)
           const collateralValueSafe = parseStringToBigNumber(
             values?.collateral,
-            18,
+            collateralToken.decimals,
           )
-          const borrowValueSafe = parseStringToBigNumber(values?.borrow, 18)
+          const borrowValueSafe = parseStringToBigNumber(
+            values?.borrow,
+            borrowToken.decimals,
+          )
           let receipt: ContractReceipt | null = null
           try {
             receipt = (await handleSubmit(
@@ -302,6 +308,7 @@ const BorrowForm = (props: Props): ReactElement => {
                           props.values.borrow,
                           props.values.collateral,
                         )}
+                        isStable={isStable}
                       />
                     </HStack>
                   </Flex>

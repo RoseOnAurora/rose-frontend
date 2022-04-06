@@ -18,7 +18,6 @@ import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { Garden } from "../../types/ethers-contracts/Garden"
 import { Oracle } from "../../types/ethers-contracts/Oracle"
 import { Vase } from "../../types/ethers-contracts/Vase"
-import { parseUnits } from "ethers/lib/utils"
 import { useActiveWeb3React } from "."
 import { useSelector } from "react-redux"
 
@@ -40,6 +39,7 @@ export interface BorrowDataType {
   totalRUSDLeftToBorrow: BigNumber
   tvl: BigNumber
   rusdUserBalance: BigNumber
+  feesOwed: BigNumber
 }
 
 type BorrowDataHookReturnType = [BorrowDataType, boolean]
@@ -48,19 +48,20 @@ const emptyBorrowData = {
   collateralTokenBalance: Zero,
   collateralDeposited: Zero,
   borrowed: Zero,
-  liquidationMultiplier: parseUnits("1.05"),
-  mcr: parseUnits("0.9", 18),
-  borrowFee: parseUnits("0.01"),
-  liquidationFee: parseUnits("0.05"),
+  liquidationMultiplier: Zero,
+  mcr: Zero,
+  borrowFee: Zero,
+  liquidationFee: Zero,
   rusdLeftToBorrow: Zero,
-  interest: parseUnits("0.0249"),
+  interest: Zero,
   collateralDepositedUSDPrice: Zero,
   positionHealth: Zero,
   borrowedUSDPrice: Zero,
-  priceOfCollateral: parseUnits("1", 18),
+  priceOfCollateral: Zero,
   totalRUSDLeftToBorrow: Zero,
   tvl: Zero,
   rusdUserBalance: Zero,
+  feesOwed: Zero,
 } as BorrowDataType
 
 export default function useBorrowData(
@@ -108,40 +109,28 @@ export default function useBorrowData(
 
       if (account && account != AddressZero && account != null) {
         try {
+          // borrow data
+          const fees = await gardenContract.accrueInfo()
+          const [
+            ,
+            ,
+            ,
+            ,
+            mcr,
+            liquidationMultiplier,
+            borrowFee,
+            interstPerSecond,
+          ] = await gardenContract.cloneInfo()
           const exchangeRate = await oracleContract.latestAnswer()
-          // exchange rate is e^6 precision
-          const exchangeRateAdj = exchangeRate.mul(BigNumber.from(10).pow(10))
-          const USD_CONVERSION_BN = (factor: BigNumber) =>
-            factor.mul(exchangeRateAdj).div(BigNumber.from(10).pow(18))
-
-          const liquidationMultiplier = await gardenContract.getLiquidationMultiplier()
-          const mcr = await gardenContract.getCollateralizationRate()
-          const borrowFee = await gardenContract.getBorrowOpeningFee()
           const totalRUSDLeft = await vaseContract.balanceOf(
             await gardenContract.roseUsd(),
             gardenContract.address,
           )
-
           const tvl = await vaseContract.balanceOf(
             collateralTokenContract.address,
             gardenContract.address,
           )
-
-          const tvlUsd = USD_CONVERSION_BN(tvl)
-
           const rusdBalance = await rusdContract.balanceOf(account)
-
-          // cast to 18 precision to facilitate BN math
-          const mcrAdj = mcr.mul(BigNumber.from(10).pow(13)) // mcr is e^5 precision
-          const borrowFeeAdj = borrowFee.mul(BigNumber.from(10).pow(13)) // borrowfee is e^5 precision
-          const liquidationMultiplierAdj = liquidationMultiplier.mul(
-            // liquidationMultiplier is e^5 precision
-            BigNumber.from(10).pow(13),
-          )
-          const interstPerSecond = await gardenContract.getInterestPerSecond()
-          const interestPerYear = interstPerSecond.mul(
-            BigNumber.from("31557600"),
-          )
           const collateralBalance = await collateralTokenContract.balanceOf(
             account,
           )
@@ -150,15 +139,41 @@ export default function useBorrowData(
           )
           const borrowed = await gardenContract.userBorrowPart(account)
 
-          const borrowedAdj = borrowed.mul(
-            BigNumber.from(10).pow(18 - BORROW_MARKET.borrowToken.decimals),
+          // cast to 18 precision to facilitate BN math
+          const exchangeRateAdj = exchangeRate.mul(BigNumber.from(10).pow(10)) // exchange rate is e^8 precision
+
+          // usd conversion using exchange rate
+          const USD_CONVERSION_BN = (factor: BigNumber) =>
+            factor.mul(exchangeRateAdj).div(BigNumber.from(10).pow(18))
+
+          // token conversions
+          const borrowTokenConversion = BigNumber.from(10).pow(
+            Math.abs(18 - BORROW_MARKET.borrowToken.decimals),
           )
-          const collateralDepositedAdj = collateralDeposited.mul(
-            BigNumber.from(10).pow(18 - BORROW_MARKET.collateralToken.decimals),
+          const collateralTokenConversion = BigNumber.from(10).pow(
+            Math.abs(18 - BORROW_MARKET.collateralToken.decimals),
           )
-          const collateralBalanceAdj = collateralBalance.mul(
-            BigNumber.from(10).pow(18 - BORROW_MARKET.collateralToken.decimals),
+          const tvlUsd = USD_CONVERSION_BN(tvl)
+          const mcrAdj = mcr.mul(BigNumber.from(10).pow(13)) // mcr is e^5 precision
+          const borrowFeeAdj = borrowFee.mul(BigNumber.from(10).pow(13)) // borrowfee is e^5 precision
+          const liquidationMultiplierAdj = liquidationMultiplier.mul(
+            BigNumber.from(10).pow(13),
+          ) // liquidationMultiplier is e^5 precision
+
+          // interest per year using 31557600 sec in a year
+          const interestPerYear = interstPerSecond.mul(
+            BigNumber.from("31557600"),
           )
+          const borrowedAdj = borrowed.mul(borrowTokenConversion)
+          const collateralDepositedAdj =
+            BORROW_MARKET.collateralToken.decimals > 18
+              ? collateralDeposited.div(collateralTokenConversion)
+              : collateralDeposited.mul(collateralTokenConversion)
+          const collateralBalanceAdj =
+            BORROW_MARKET.collateralToken.decimals > 18
+              ? collateralBalance.div(collateralTokenConversion)
+              : collateralBalance.mul(collateralTokenConversion)
+
           const collateralDepositedUSDPrice = USD_CONVERSION_BN(
             collateralDepositedAdj,
           )
@@ -188,6 +203,8 @@ export default function useBorrowData(
           const rusdLeftToBorrowAdj = rusdLeftToBorrow.sub(
             rusdLeftToBorrow.mul(borrowFeeAdj).div(BigNumber.from(10).pow(18)),
           )
+
+          // set borrow data state
           setBorrowData((prevState) => [
             {
               ...prevState[0],
@@ -204,12 +221,13 @@ export default function useBorrowData(
               interest: interestPerYear,
               mcr: mcrAdj,
               borrowFee: borrowFeeAdj,
-              liquidationFee: liquidationMultiplierAdj.sub(
-                BigNumber.from("10").pow(18),
-              ),
+              liquidationFee: liquidationMultiplierAdj
+                .sub(BigNumber.from("10").pow(18))
+                .abs(),
               priceOfCollateral: exchangeRateAdj,
               tvl: tvlUsd,
               rusdUserBalance: rusdBalance,
+              feesOwed: fees[1], // [1] is feesEarned in garden (i.e. fees owed)
             },
             false,
           ])

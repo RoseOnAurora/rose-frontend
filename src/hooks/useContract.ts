@@ -306,6 +306,6 @@ export function useAllContracts(): AllContractsObject | null {
 }
 
 export function useTestnetMinterContract(): Contract | null {
-  const contractAddress = "0xb007167714e2940013EC3bb551584130B7497E22"
+  const contractAddress = "0x2cecd376F19218e9964970d0986ceD32c151BA5a"
   return useContract(contractAddress, MULTIMINTER_ABI) as Contract
 }

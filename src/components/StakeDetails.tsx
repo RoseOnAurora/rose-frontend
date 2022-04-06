@@ -34,6 +34,7 @@ interface StakedDetailsView {
     tokenName: string
     amount: string
     icon: string
+    collapseContent?: ReactNode
   }[]
   title?: string
 }
@@ -50,6 +51,7 @@ const StakeBalanceView = ({
   items,
   title,
 }: StakedDetailsView): ReactElement => {
+  const { isOpen, onToggle } = useDisclosure()
   return (
     <Box
       bg="var(--secondary-background)"
@@ -64,7 +66,7 @@ const StakeBalanceView = ({
       </Flex>
       {items.length ? (
         <Grid gridTemplateRows="auto" rowGap="15px" m="8px 0">
-          {items.map(({ icon, tokenName, amount }, index) => {
+          {items.map(({ icon, tokenName, amount, collapseContent }, index) => {
             return (
               <GridItem key={index}>
                 <Grid
@@ -90,9 +92,25 @@ const StakeBalanceView = ({
                     <Box>
                       <StatGroup>
                         <Stat>
-                          <StatLabel color="var(--text-lighter)">
-                            {tokenName}
-                          </StatLabel>
+                          <Flex alignItems="center">
+                            <StatLabel color="var(--text-lighter)">
+                              {tokenName}
+                            </StatLabel>
+                            {collapseContent && (
+                              <IconButton
+                                onClick={onToggle}
+                                aria-label="Expand"
+                                variant="outline"
+                                size="xs"
+                                marginLeft="5px"
+                                icon={<BsChevronExpand />}
+                                title="Expand"
+                              />
+                            )}
+                          </Flex>
+                          <Collapse in={isOpen} animateOpacity>
+                            {collapseContent}
+                          </Collapse>
                           <StatNumber fontSize="18px">{amount}</StatNumber>
                         </Stat>
                       </StatGroup>

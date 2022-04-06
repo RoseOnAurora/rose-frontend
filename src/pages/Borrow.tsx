@@ -23,8 +23,14 @@ import {
   FaHandHoldingUsd,
   FaInfoCircle,
 } from "react-icons/fa"
+import { One, Zero } from "@ethersproject/constants"
 import React, { ReactElement, useRef } from "react"
-import { commify, formatBNToPercentString, formatBNToString } from "../utils"
+import {
+  calculatePositionHealthColor,
+  commify,
+  formatBNToPercentString,
+  formatBNToString,
+} from "../utils"
 import useChakraToast, { TransactionType } from "../hooks/useChakraToast"
 import BackButton from "../components/BackButton"
 import { BigNumber } from "@ethersproject/bignumber"
@@ -37,7 +43,6 @@ import PageWrapper from "../components/wrappers/PageWrapper"
 import RepayForm from "../components/RepayForm"
 import StakeDetails from "../components/StakeDetails"
 import TabsWrapper from "../components/wrappers/TabsWrapper"
-import { Zero } from "@ethersproject/constants"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import { parseUnits } from "@ethersproject/units"
 import useBorrowData from "../hooks/useBorrowData"
@@ -46,15 +51,22 @@ import { useTranslation } from "react-i18next"
 
 interface Props {
   borrowName: BorrowMarketName
+  isStable?: boolean
 }
 
-const Borrow = ({ borrowName }: Props): ReactElement => {
+const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   const { t } = useTranslation()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [borrowData] = useBorrowData(borrowName)
   const btnRef = useRef<HTMLButtonElement>(null)
   const toast = useChakraToast()
   const cook = useCook(borrowName)
+
+  const drawerBg = useColorModeValue(
+    "linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9)",
+    "linear-gradient(to right, #141414, #200122, #791038)",
+  )
+  const borrowCollapseTextColor = useColorModeValue("#555555", "#bbbbbb")
 
   const { borrowToken, collateralToken } = BORROW_MARKET_MAP[borrowName]
 
@@ -66,16 +78,15 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
     const totalCollateral = totalCollateralDeposited.add(
       parseStringToBigNumber(collateralAmount, 18, Zero).value,
     )
+    const totalCollateralUSD = totalCollateral
+      .mul(borrowData.priceOfCollateral)
+      .div(BigNumber.from(10).pow(18))
     if (totalCollateral.isZero()) return Zero
     const maxBorrow = borrowData.mcr
       .sub(
         totalBorrowed
           .mul(BigNumber.from(10).pow(18))
-          .div(
-            totalCollateral
-              .mul(borrowData.priceOfCollateral)
-              .div(BigNumber.from(10).pow(18)),
-          ),
+          .div(totalCollateralUSD.isZero() ? One : totalCollateralUSD),
       )
       .mul(
         totalCollateral
@@ -386,6 +397,8 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
     )
   }
 
+  const mcrFormatted = formatBNToPercentString(borrowData.mcr, 18, 0)
+
   return (
     <PageWrapper activeTab="borrow">
       <Drawer
@@ -396,13 +409,7 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
         size="sm"
       >
         <DrawerOverlay />
-        <DrawerContent
-          bg={useColorModeValue(
-            "linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9)",
-            "linear-gradient(to right, #141414, #200122, #791038)",
-          )}
-          p="50px 10px"
-        >
+        <DrawerContent bg={drawerBg} p="50px 10px">
           <DrawerCloseButton />
           <DrawerBody p="5px">
             <OverviewInfo
@@ -448,7 +455,7 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
                       text: (
                         <GlossaryItem
                           title={`${collateralToken.symbol} Collateral Deposited`}
-                          text={`The token amount and dollar value of ${collateralToken.symbol} you have deposited into this market.`}
+                          text={`The token amount/dollar value of ${collateralToken.symbol} you have deposited into this market.`}
                         />
                       ),
                     },
@@ -456,8 +463,8 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
                       icon: FaHandHoldingUsd,
                       text: (
                         <GlossaryItem
-                          title="RUSD Borrowed"
-                          text="The token amount of RUSD you are currently borrowing in this market. Includes fees."
+                          title="Total RUSD Debt"
+                          text="The token amount of RUSD you currently owe in this market. Includes fees. The breakdown shows you exactly how much in fees you owe and what amount you are actually borrowing. Note that this will most likely not equal the total RUSD token amount you have in your wallet."
                         />
                       ),
                     },
@@ -471,7 +478,7 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
                       text: (
                         <GlossaryItem
                           title="Your Position Health"
-                          text="Your position health is represented as a percentage proportional to the maximum debt ratio. 90% and higher is at risk for liquidation and 0% is the healthiest your position can be. When you enter values in the input fields, the impact on position health will show as a result and is labeled by 'Updated Position Health'. It will also indicate your action as being 'Safe', 'Moderate', or 'High' in terms of risk."
+                          text={`Your position health is represented as a percentage proportional to the maximum debt ratio. ${mcrFormatted} and higher is at risk for liquidation and 0% is the healthiest your position can be. When you enter values in the input fields, the impact on position health will show as a result and is labeled by 'Updated Position Health'. It will also indicate your action as being 'Safe', 'Moderate', or 'High' in terms of risk.`}
                         />
                       ),
                     },
@@ -556,6 +563,7 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
                 <BorrowForm
                   borrowToken={borrowToken}
                   collateralToken={collateralToken}
+                  isStable={isStable}
                   max={formatBNToString(borrowData.collateralTokenBalance, 18)}
                   collateralUSDPrice={
                     +formatBNToString(borrowData.priceOfCollateral, 18)
@@ -578,10 +586,9 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
               name: t("Repay"),
               content: (
                 <RepayForm
-                  borrowTokenSymbol={borrowToken.symbol}
-                  borrowTokenIcon={borrowToken.icon}
-                  collateralTokenSymbol={collateralToken.symbol}
-                  collateralTokenIcon={collateralToken.icon}
+                  borrowToken={borrowToken}
+                  collateralToken={collateralToken}
+                  isStable={isStable}
                   max={formatBNToString(
                     borrowData.borrowed.gt(borrowData.rusdUserBalance)
                       ? borrowData.rusdUserBalance
@@ -620,13 +627,10 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
                 />
                 <Box width={230}>
                   <Progress
-                    colorScheme={
-                      positionHealth() >= 89
-                        ? "red"
-                        : positionHealth() <= 50
-                        ? "green"
-                        : "orange"
-                    }
+                    colorScheme={calculatePositionHealthColor(
+                      positionHealth(),
+                      isStable,
+                    )}
                     height="30px"
                     value={positionHealth()}
                     title={`${positionHealth().toFixed(0)}%`}
@@ -686,9 +690,35 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
                   )})`,
                 },
                 {
-                  tokenName: `${borrowToken.symbol} Borrowed`,
+                  tokenName: `Total ${borrowToken.symbol} Debt`,
                   icon: borrowToken.icon,
                   amount: commify(formatBNToString(borrowData.borrowed, 18, 5)),
+                  collapseContent: (
+                    <Box my="5px" color={borrowCollapseTextColor}>
+                      <Flex justifyContent="space-between" alignItems="center">
+                        <Text fontSize="13px">Borrowed:</Text>
+                        <Box>
+                          {commify(
+                            formatBNToString(
+                              borrowData.borrowed
+                                .sub(borrowData.feesOwed)
+                                .abs(),
+                              18,
+                              5,
+                            ),
+                          )}
+                        </Box>
+                      </Flex>
+                      <Flex justifyContent="space-between" alignItems="center">
+                        <Text fontSize="13px">Unpaid Fees in RUSD:</Text>
+                        <Box>
+                          {commify(
+                            formatBNToString(borrowData.feesOwed, 18, 5),
+                          )}
+                        </Box>
+                      </Flex>
+                    </Box>
+                  ),
                 },
               ],
             }}
@@ -705,14 +735,14 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
               },
               {
                 statLabel: "Maximum Debt Ratio",
-                statValue: formatBNToPercentString(borrowData.mcr, 18, 0),
+                statValue: mcrFormatted,
               },
               {
                 statLabel: "Liquidation Fee",
                 statValue: formatBNToPercentString(
                   borrowData.liquidationFee,
                   18,
-                  0,
+                  2,
                 ),
               },
               {
@@ -721,7 +751,7 @@ const Borrow = ({ borrowName }: Props): ReactElement => {
               },
               {
                 statLabel: "Interest",
-                statValue: formatBNToPercentString(borrowData.interest, 18),
+                statValue: formatBNToPercentString(borrowData.interest, 18, 2),
               },
             ]}
           />

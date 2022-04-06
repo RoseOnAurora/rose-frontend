@@ -61,7 +61,7 @@ function NumberColumn({ digit, delta }) {
   )
 }
 
-export default function AnimatingNumber({ value, precision = 2 }) {
+export default function AnimatingNumber({ value, precision = 2, fontSize = "30px" }) {
   const numArray = formatForDisplay(value, precision)
   const previousNumber = usePrevious(value)
 
@@ -70,7 +70,7 @@ export default function AnimatingNumber({ value, precision = 2 }) {
   if (value < previousNumber) delta = "decrease"
 
   return (
-    <motion.div layout className="ticker-view">
+    <motion.div layout className="ticker-view" style={{ fontSize }}>
       {numArray.map((number, index) =>
         number === "." ? (
           <DecimalColumn key={index} />
