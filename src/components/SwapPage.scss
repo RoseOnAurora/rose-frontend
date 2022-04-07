@@ -6,7 +6,7 @@ div.swapPage {
   background: var(--background-main);
   color: var(--text);
   font-size: 16px;
-  padding-bottom: 80px;
+  padding-bottom: 300px;
 
   h3.swapTitle {
     font-weight: 700;
@@ -231,6 +231,8 @@ div.swapPage {
   .submitButtonWrapper {
     background: var(--secondary-background);
     border-radius: 10px;
+    margin-top: 10px;
     padding: 10px;
+    flex-wrap: wrap;
   }
 }

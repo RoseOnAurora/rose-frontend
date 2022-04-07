@@ -1,28 +1,27 @@
-/* eslint sort-imports: 0 */
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
 /* eslint @typescript-eslint/no-explicit-any: 0 */
+import { ChainId, TRANSACTION_TYPES } from "../constants"
+import { useDispatch, useSelector } from "react-redux"
 import { useRoseContract, useStRoseContract } from "./useContract"
+import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import { StRose } from "../../types/ethers-contracts/StRose"
-import { TRANSACTION_TYPES } from "../constants"
-// import { Zero } from "@ethersproject/constants"
-import { AppState } from "../state"
 import { GasPrices } from "../state/user"
+import { StRose } from "../../types/ethers-contracts/StRose"
+import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
+import { parseUnits } from "ethers/lib/utils"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
-import { useDispatch, useSelector } from "react-redux"
-import { parseUnits } from "ethers/lib/utils"
 
 export function useApproveAndStake(): (
   amount: string,
 ) => Promise<ContractReceipt | void> {
   const roseContract = useRoseContract() as Erc20
   const stRoseContract = useStRoseContract() as StRose
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { gasPriceSelected, gasCustom } = useSelector(
     (state: AppState) => state.user,
   )
@@ -32,6 +31,7 @@ export function useApproveAndStake(): (
   const dispatch = useDispatch()
   return async function approveAndStake(
     amount: string,
+    onApprovalTransactionStart?: () => void,
   ): Promise<ContractReceipt | void> {
     try {
       if (!account) throw new Error("Wallet must be connected")
@@ -56,11 +56,11 @@ export function useApproveAndStake(): (
         account,
         amountToStake,
         true,
-        gasPrice,
+        chainId === ChainId.AURORA_TESTNET ? Zero : gasPrice,
         {
-          onTransactionError: (error) => {
-            console.error(error)
-            throw new Error("Your transaction could not be completed")
+          onTransactionStart: () => {
+            onApprovalTransactionStart?.()
+            return undefined
           },
         },
       )
@@ -73,7 +73,8 @@ export function useApproveAndStake(): (
       )
       return receipt
     } catch (e) {
-      console.error(e)
+      const error = e as { code: number; message: string }
+      throw error
     }
   }
 }

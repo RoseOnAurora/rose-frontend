@@ -4,9 +4,18 @@
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-return: 0 */
 /* eslint sort-imports: 0 */
-import { Contract, ContractReceipt } from "@ethersproject/contracts"
-import { POOLS_MAP, SWAP_TYPES, TRANSACTION_TYPES } from "../constants"
-// import { notifyCustomError, notifyHandler } from "../utils/notifyHandler"
+import {
+  Contract,
+  ContractReceipt,
+  ContractTransaction,
+} from "@ethersproject/contracts"
+import {
+  ChainId,
+  isMetaPool,
+  POOLS_MAP,
+  SWAP_TYPES,
+  TRANSACTION_TYPES,
+} from "../constants"
 
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
@@ -15,7 +24,7 @@ import { Bridge } from "../../types/ethers-contracts/Bridge"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { GasPrices } from "../state/user"
 import { parseUnits } from "@ethersproject/units"
-// import { Zero } from "@ethersproject/constants"
+import { Zero } from "@ethersproject/constants"
 import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
@@ -80,7 +89,10 @@ export function useApproveAndSwap(): (
       } else {
         gasPrice = gasStandard
       }
-      gasPrice = parseUnits(gasPrice?.toString() || "45", "gwei")
+      gasPrice =
+        chainId === ChainId.AURORA_MAINNET
+          ? parseUnits(gasPrice?.toString() || "45", "gwei")
+          : Zero
       if (tokenContract == null) return
       let addressToApprove = ""
       if (state.swapType === SWAP_TYPES.DIRECT) {
@@ -95,13 +107,8 @@ export function useApproveAndSwap(): (
         state.from.amount,
         infiniteApproval,
         gasPrice,
-        {
-          onTransactionError: () => {
-            throw new Error("Your transaction could not be completed")
-          },
-        },
       )
-      let swapTransaction
+      let swapTransaction: ContractTransaction
       if (state.swapType === SWAP_TYPES.TOKEN_TO_TOKEN) {
         const originPool = POOLS_MAP[state.from.poolName]
         const destinationPool = POOLS_MAP[state.to.poolName]
@@ -157,17 +164,7 @@ export function useApproveAndSwap(): (
           ...args,
         )
       } else if (state.swapType === SWAP_TYPES.DIRECT) {
-        // TO-DO: Clean this up
-        if (
-          state.from.symbol === "FRAX" ||
-          state.from.symbol === "atUST" ||
-          state.from.symbol === "abBUSD" ||
-          state.from.symbol === "MAI" ||
-          state.to.symbol === "FRAX" ||
-          state.to.symbol === "atUST" ||
-          state.to.symbol === "abBUSD" ||
-          state.to.symbol === "MAI"
-        ) {
+        if (isMetaPool(state.from.poolName) || isMetaPool(state.to.poolName)) {
           const args = [
             state.from.tokenIndex,
             state.to.tokenIndex,
@@ -203,7 +200,8 @@ export function useApproveAndSwap(): (
       )
       return await swapTransaction?.wait()
     } catch (e) {
-      console.error(e)
+      const error = e as { code: number; message: string }
+      throw error
     }
   }
 }

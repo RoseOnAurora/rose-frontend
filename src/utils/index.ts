@@ -1,5 +1,11 @@
 import { AddressZero, Zero } from "@ethersproject/constants"
-import { ChainId, PoolTypes, TOKENS_MAP, Token } from "../constants"
+import {
+  ChainId,
+  PoolTypes,
+  SignedSignatureRes,
+  TOKENS_MAP,
+  Token,
+} from "../constants"
 import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers"
 import { formatUnits, parseUnits } from "@ethersproject/units"
 
@@ -211,4 +217,44 @@ export const toHex = (num: number): string => {
 export const imageIconToUrl = (tokenIconPath: string): string => {
   const host = window.location.origin
   return `${host}/${tokenIconPath}`
+}
+
+/**
+ * Parse a signature response from JsonRpcSigner
+ * @param signature string
+ * @returns SignedSignatureRes
+ */
+export const parseSignature = (signature: string): SignedSignatureRes => {
+  const parsedSignature = signature.substring(2)
+  const r = parsedSignature.substring(0, 64)
+  const s = parsedSignature.substring(64, 128)
+  const v = parsedSignature.substring(128, 130)
+  return {
+    r: "0x" + r,
+    s: "0x" + s,
+    v: parseInt(v, 16),
+  }
+}
+
+export function calculatePctOfTotalShare(
+  tokenAmount: BigNumber,
+  totalTokenAmount: BigNumber,
+): BigNumber {
+  // returns the % of total tokens out of a whole
+  return tokenAmount
+    .mul(BigNumber.from(10).pow(18))
+    .div(totalTokenAmount.isZero() ? BigNumber.from("1") : totalTokenAmount)
+}
+
+export function calculatePositionHealthColor(
+  positionHealth: number,
+  isStable?: boolean,
+): "red" | "green" | "orange" {
+  const [lo, hi] = isStable ? [60, 85] : [40, 80]
+
+  return positionHealth >= hi
+    ? "red"
+    : positionHealth <= lo
+    ? "green"
+    : "orange"
 }

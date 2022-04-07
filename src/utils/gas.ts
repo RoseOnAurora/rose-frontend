@@ -44,6 +44,6 @@ export function formatGasToString(
   if (typeof gasPricesGwei.gasStandard === "number") {
     return gasPricesGwei.gasStandard.toString();
   } else {
-    return "0.1";
+    return "0.3";
   }
 }

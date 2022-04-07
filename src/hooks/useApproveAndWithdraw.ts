@@ -3,16 +3,16 @@
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-return: 0 */
-import { POOLS_MAP, PoolName, TRANSACTION_TYPES } from "../constants"
+import { ChainId, POOLS_MAP, PoolName, TRANSACTION_TYPES } from "../constants"
+import { Contract, ContractReceipt } from "@ethersproject/contracts"
 import { addSlippage, subtractSlippage } from "../utils/slippage"
 import { formatUnits, parseUnits } from "@ethersproject/units"
 import { useLPTokenContract, usePoolContract } from "./useContract"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { ContractReceipt } from "@ethersproject/contracts"
 import { GasPrices } from "../state/user"
 import { NumberInputState } from "../utils/numberInputState"
-// import { Zero } from "@ethersproject/constants"
+import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
@@ -29,8 +29,8 @@ export function useApproveAndWithdraw(
   poolName: PoolName,
 ): (state: ApproveAndWithdrawStateArgument) => Promise<ContractReceipt | void> {
   const dispatch = useDispatch()
-  const poolContract = usePoolContract(poolName)
-  const { account } = useActiveWeb3React()
+  const poolContract = usePoolContract(poolName) as Contract
+  const { account, chainId } = useActiveWeb3React()
   const { gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,
   )
@@ -63,7 +63,10 @@ export function useApproveAndWithdraw(
       } else {
         gasPrice = gasFast
       }
-      gasPrice = parseUnits(gasPrice?.toString() || "45", "gwei")
+      gasPrice =
+        chainId === ChainId.AURORA_MAINNET
+          ? parseUnits(gasPrice?.toString() || "45", "gwei")
+          : Zero
       const allowanceAmount =
         state.withdrawType === "IMBALANCE"
           ? addSlippage(

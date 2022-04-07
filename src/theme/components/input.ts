@@ -15,9 +15,9 @@ const variantPrimary = (
       borderColor: hasErrorColor,
       borderRadius: "10px",
       px: 0,
-      bg: darkMode ? "rgb(28, 29, 33)" : "rgb(240, 231, 234)",
+      bg: darkMode ? "rgb(28, 29, 33)" : "rgb(248, 248, 248)",
       _hover: {
-        bg: darkMode ? "rgb(31, 32, 36)" : "rgb(244, 235, 239)",
+        bg: darkMode ? "rgb(31, 32, 36)" : "rgb(245, 245, 245)",
       },
       _readOnly: {
         boxShadow: "none !important",

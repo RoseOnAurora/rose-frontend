@@ -16,7 +16,7 @@ const Dashboard = ({
       <Box
         background="var(--background-element)"
         borderRadius="10px"
-        p="15px"
+        p="10px"
         boxShadow="var(--shadow)"
       >
         <Box
@@ -35,10 +35,10 @@ const Dashboard = ({
       <Box
         background="var(--background-element)"
         borderRadius="10px"
-        p="15px"
+        p="10px"
         boxShadow="var(--shadow)"
       >
-        <Stack spacing="15px">{dashboardContent}</Stack>
+        {dashboardContent}
       </Box>
     </Stack>
   )

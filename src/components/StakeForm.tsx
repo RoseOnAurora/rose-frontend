@@ -4,6 +4,7 @@
 /* eslint @typescript-eslint/no-unsafe-assignment: 0 */
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 import {
+  Box,
   Button,
   FormControl,
   FormErrorMessage,
@@ -11,34 +12,40 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  Stack,
   Text,
 } from "@chakra-ui/react"
 import { Field, FieldAttributes, Form, Formik } from "formik"
 import React, { ReactElement, ReactNode } from "react"
-import { AppState } from "../state"
+import useChakraToast, { TransactionType } from "../hooks/useChakraToast"
+import { BigNumber } from "@ethersproject/bignumber"
+import BlockExplorerLink from "./BlockExplorerLink"
 import { ContractReceipt } from "@ethersproject/contracts"
+import FormWrapper from "./wrappers/FormWrapper"
+import { Zero } from "@ethersproject/constants"
+import { formatBNToString } from "../utils"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
-import styles from "./StakeForm.module.scss"
-import { useSelector } from "react-redux"
 import { useTranslation } from "react-i18next"
 
 interface Props {
   fieldName: string
   token: string
   tokenIcon: string
-  max: string
+  max: BigNumber
   isLoading: boolean
   submitButtonLabel: string
+  formTitle: ReactNode
   formDescription?: ReactNode
-  handleSubmit: (amount: string) => Promise<ContractReceipt | void>
-  validator: (amount: string) => string | undefined
-  handlePreSubmit?: () => void
-  handlePostSubmit?: (receipt: ContractReceipt | null) => void
+  txnType: TransactionType
+  usdPrice?: number
+  handleSubmit: (
+    amount: string,
+    onApprovalTransactionStart?: () => void,
+  ) => Promise<ContractReceipt | void>
   handleInputChanged?: (value: string) => void
 }
+
 function StakeForm(props: Props): ReactElement {
-  const { t } = useTranslation()
-  const { userDarkMode } = useSelector((state: AppState) => state.user)
   const {
     fieldName,
     token,
@@ -46,25 +53,79 @@ function StakeForm(props: Props): ReactElement {
     max,
     isLoading,
     submitButtonLabel,
+    formTitle,
     formDescription,
+    txnType,
+    usdPrice,
     handleSubmit,
     handleInputChanged,
-    handlePreSubmit,
-    handlePostSubmit,
-    validator,
   } = props
+
+  const { t } = useTranslation()
+  const toast = useChakraToast()
+
+  const validator = (amount: string): string | undefined => {
+    const { value, isFallback } = parseStringToBigNumber(amount, 18, Zero)
+
+    if (!amount) return
+
+    if (isFallback) {
+      return t("Invalid number.")
+    }
+
+    if (value.gt(max)) return t("insufficientBalance")
+  }
+
+  const handlePostSubmit = (
+    receipt: ContractReceipt | null,
+    transactionType: TransactionType,
+    error?: { code: number; message: string },
+  ): void => {
+    const description = receipt?.transactionHash ? (
+      <BlockExplorerLink
+        txnType={transactionType}
+        txnHash={receipt.transactionHash}
+        status={receipt?.status ? "Succeeded" : "Failed"}
+      />
+    ) : null
+    if (receipt?.status) {
+      toast.transactionSuccess({
+        txnType: transactionType,
+        description: description,
+      })
+    } else {
+      toast.transactionFailed({
+        txnType: transactionType,
+        error,
+        description: description,
+      })
+    }
+  }
+
   return (
-    <div className={styles.inputContainer}>
+    <FormWrapper formTitle={formTitle} formDescription={formDescription}>
       <Formik
         initialValues={{ [fieldName]: "" }}
         onSubmit={async (values, actions) => {
-          handlePreSubmit?.()
+          toast.transactionPending({
+            txnType,
+          })
           const valueSafe = parseStringToBigNumber(values?.[fieldName], 18)
+          let receipt: ContractReceipt | null = null
+          try {
+            receipt = (await handleSubmit(
+              valueSafe.value.toString(),
+              toast.approvalRequired,
+            )) as ContractReceipt
+            handlePostSubmit?.(receipt, txnType)
+          } catch (e) {
+            const error = e as { code: number; message: string }
+            handlePostSubmit?.(receipt, txnType, {
+              code: error.code,
+              message: error.message,
+            })
+          }
           actions.resetForm({ values: { [fieldName]: "" } })
-          const receipt = (await handleSubmit(
-            valueSafe.value.toString(),
-          )) as ContractReceipt
-          handlePostSubmit?.(receipt)
         }}
       >
         {(props) => (
@@ -73,15 +134,9 @@ function StakeForm(props: Props): ReactElement {
               {({ field, form }: FieldAttributes<any>) => (
                 <FormControl
                   padding="10px"
-                  bgColor={
-                    userDarkMode
-                      ? "rgba(28, 29, 33, 0.4)"
-                      : "rgba(245, 239, 239, 0.6)"
-                  }
+                  bgColor="var(--secondary-background)"
                   borderRadius="10px"
-                  isInvalid={
-                    form.errors?.[fieldName] && form.touched?.[fieldName]
-                  }
+                  isInvalid={form.errors?.[fieldName]}
                 >
                   <InputGroup>
                     <InputLeftElement
@@ -111,18 +166,22 @@ function StakeForm(props: Props): ReactElement {
                         variant="light"
                         size="sm"
                         onClick={() => {
-                          handleInputChanged?.(max)
+                          const maxAsString = formatBNToString(max, 18)
+                          handleInputChanged?.(maxAsString)
                           props.setFieldTouched(fieldName, true)
-                          props.setFieldValue(fieldName, max)
+                          props.setFieldValue(fieldName, maxAsString)
                         }}
                       >
                         {t("max")}
                       </Button>
                     </InputRightElement>
                   </InputGroup>
-                  {props.isValid && props.dirty ? (
+                  {props.isValid && +props.values?.[fieldName] !== 0 ? (
                     <Text mt="5px" fontSize="sm" as="p">
-                      You are about to {fieldName} ≈{+props.values?.[fieldName]}{" "}
+                      You are about to {fieldName} ≈{" "}
+                      {`$${(
+                        (usdPrice || 1) * +props.values?.[fieldName]
+                      ).toFixed(2)}`}{" "}
                       {token} {"Token"}
                     </Text>
                   ) : (
@@ -133,34 +192,41 @@ function StakeForm(props: Props): ReactElement {
                 </FormControl>
               )}
             </Field>
-            {formDescription && (
-              <div className={styles.stakeInfoContainer}>
-                <div className={styles.infoMessage}>
-                  <span>{formDescription}</span>
-                </div>
-              </div>
-            )}
-
-            <div className={styles.submitButton}>
+            <Stack
+              mt="20px"
+              spacing="5px"
+              bg="var(--secondary-background)"
+              border="1px solid var(--outline)"
+              borderRadius="10px"
+              padding="15px"
+            >
               <Button
                 variant="primary"
                 isLoading={isLoading}
                 size="lg"
                 width="100%"
                 type="submit"
-                disabled={!props.isValid || !props.dirty}
+                disabled={!props.isValid || +props.values?.[fieldName] === 0}
               >
                 {props.isValid ? submitButtonLabel : props.errors?.[fieldName]}
               </Button>
-              <div className={styles.approvalMessage}>
-                Note: The &quot;Approve&quot; transaction is only needed the
-                first time; subsequent actions will not require approval.
-              </div>
-            </div>
+              <Box p="15px">
+                <Text
+                  as="p"
+                  p="20px 0 10px"
+                  textAlign="center"
+                  color="var(--text-lighter)"
+                  fontSize="14px"
+                >
+                  Note: The &quot;Approve&quot; transaction is only needed the
+                  first time; subsequent actions will not require approval.
+                </Text>
+              </Box>
+            </Stack>
           </Form>
         )}
       </Formik>
-    </div>
+    </FormWrapper>
   )
 }
 

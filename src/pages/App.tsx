@@ -2,23 +2,26 @@ import "../styles/global.scss"
 import "./NotifyStyle.scss"
 
 import { AppDispatch, AppState } from "../state"
-import { BLOCK_TIME, FARMS_MAP, POOLS_MAP } from "../constants"
+import {
+  BLOCK_TIME,
+  BORROW_MARKET_MAP,
+  FARMS_MAP,
+  POOLS_MAP,
+} from "../constants"
 import React, { ReactElement, Suspense, useCallback, useEffect } from "react"
 import { Route, Switch } from "react-router-dom"
 import { isChainSupportedByNotify, notify } from "../utils/notifyHandler"
 import { useDispatch, useSelector } from "react-redux"
-
-// import Banner from "../components/Banner"
-import BottomMenu from "../components/BottomMenu"
-import Deposit from "./Deposit"
+import Borrow from "./Borrow"
+import BorrowCountdownLanding from "../components/BorrowCountdownLanding"
+import BorrowMarkets from "./BorrowMarkets"
 import Farm from "./Farm"
 import Farms from "./Farms"
-import PendingSwapsProvider from "../providers/PendingSwapsProvider"
+import Pool from "./Pool"
 import Pools from "./Pools"
 import Stake from "./Stake"
 import Swap from "./Swap"
 import Web3ReactManager from "../components/Web3ReactManager"
-import Withdraw from "./Withdraw"
 import fetchFarmStats from "../utils/fetchFarmStats"
 import fetchGasPrices from "../utils/updateGasPrices"
 import fetchRosePriceHistory from "../utils/fetchRosePriceHistory"
@@ -26,12 +29,19 @@ import fetchStakeStats from "../utils/fetchStakeStats"
 import fetchSwapStats from "../utils/getSwapStats"
 import fetchTokenPricesUSD from "../utils/updateTokenPrices"
 import { useActiveWeb3React } from "../hooks"
+import useCountDown from "react-countdown-hook"
 import usePoller from "../hooks/usePoller"
 
 export default function App(): ReactElement {
   const { chainId } = useActiveWeb3React()
   const { userDarkMode } = useSelector((state: AppState) => state.user)
-  // const bannerBg = userDarkMode ? "#d2f1e4" : "#a2d2ff"
+  const [timeLeft, actions] = useCountDown(
+    new Date(1649343600000).getTime() - Date.now(),
+    1000,
+  )
+  useEffect(() => {
+    actions.start()
+  }, [actions])
 
   useEffect(() => {
     notify?.config({
@@ -39,56 +49,64 @@ export default function App(): ReactElement {
       darkMode: userDarkMode,
     })
   }, [chainId, userDarkMode])
+
   return (
     <Suspense fallback={null}>
       <Web3ReactManager>
         <GasAndTokenPrices>
-          <PendingSwapsProvider>
-            {/* <Banner
-              variant="solid"
-              color="black"
-              bg={bannerBg}
-              bannerTitle=""
-              bannerMessage=""
-              status="info"
-              position="sticky"
-              top="0"
-              zIndex="3"
-              border="none"
-              boxShadow="2px 2px 12px rgba(68, 64, 64, 0.14)"
-            /> */}
-            <Switch>
-              <Route exact path="/" component={Swap} />
-              <Route exact path="/pools" component={Pools} />
-              <Route exact path="/farms" component={Farms} />
-              <Route exact path="/stake" component={Stake} />
-              {Object.values(POOLS_MAP).map(({ name, route }) => (
+          <Switch>
+            <Route exact path="/" component={Swap} />
+            <Route exact path="/pools" component={Pools} />
+            <Route exact path="/farms" component={Farms} />
+            <Route exact path="/stake" component={Stake} />
+            <Route
+              exact
+              path="/borrow"
+              render={() =>
+                timeLeft ? (
+                  <BorrowCountdownLanding timeLeft={timeLeft} />
+                ) : (
+                  <BorrowMarkets />
+                )
+              }
+            />
+            {Object.values(POOLS_MAP).map(({ name, route }) => (
+              <Route
+                exact
+                path={`/pools/${route}`}
+                render={(props) => <Pool {...props} poolName={name} />}
+                key={`${name}-pool`}
+              />
+            ))}
+            {Object.values(FARMS_MAP).map(({ name, route }) => (
+              <Route
+                exact
+                path={`/farms/${route}`}
+                render={(props) => <Farm {...props} farmName={name} />}
+                key={`${name}-farm`}
+              />
+            ))}
+            {Object.values(BORROW_MARKET_MAP).map(
+              ({ name, route, isStable }) => (
                 <Route
                   exact
-                  path={`/pools/${route}/deposit`}
-                  render={(props) => <Deposit {...props} poolName={name} />}
-                  key={`${name}-deposit`}
+                  path={`/borrow/${route}`}
+                  render={(props) =>
+                    timeLeft ? (
+                      <BorrowCountdownLanding timeLeft={timeLeft} />
+                    ) : (
+                      <Borrow
+                        {...props}
+                        borrowName={name}
+                        isStable={isStable}
+                      />
+                    )
+                  }
+                  key={`${name}-borrow`}
                 />
-              ))}
-              {Object.values(POOLS_MAP).map(({ name, route }) => (
-                <Route
-                  exact
-                  path={`/pools/${route}/withdraw`}
-                  render={(props) => <Withdraw {...props} poolName={name} />}
-                  key={`${name}-withdraw`}
-                />
-              ))}
-              {Object.values(FARMS_MAP).map(({ name, route }) => (
-                <Route
-                  exact
-                  path={`/farms/${route}`}
-                  render={(props) => <Farm {...props} farmName={name} />}
-                  key={`${name}-farm`}
-                ></Route>
-              ))}
-            </Switch>
-            <BottomMenu />
-          </PendingSwapsProvider>
+              ),
+            )}
+          </Switch>
         </GasAndTokenPrices>
       </Web3ReactManager>
     </Suspense>

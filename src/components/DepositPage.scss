@@ -1,219 +1,142 @@
 @import "../styles/theme.scss";
 @import "../styles/viewports";
 
-div.deposit {
-  min-height: 100vh;
-  background: var(--background-main);
+.form {
+  width: 100%;
+  border: 1px solid var(--outline);
+  background: var(--secondary-background);
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.form h3 {
+  font-family: $font-family-title;
+  font-size: 30px;
+  margin-top: 0;
+  margin-bottom: 25px;
+  font-weight: $bold;
   color: var(--text);
-  padding-bottom: 80px;
-
-  .content {
-    max-width: 995px;
-    margin: 0 auto;
-    width: 100%;
-    margin-top: 40px;
-    display: grid;
-    grid-template-columns: 54% 42%;
-    grid-template-rows: auto;
-    row-gap: 10px;
-    column-gap: 10px;
-    grid-template-areas: 
-      "leftBlock rightBlock"
-      "footer footer";
-    justify-content: center;
-
-    @include breakpoint(md) {
-      padding-left: 4px;
-      padding-right: 4px;
-      flex-wrap: wrap;
-      display: flex;
-    }
-
-    .goBack {
-      grid-area: footer;
-      @include breakpoint(md) {
-        order: 2;
-      }
-    }
-
-    .infoPanels {
-      grid-area: rightBlock;
-      background: var(--background-element);
-      border: 1px solid var(--outline);
-      box-shadow: var(--shadow);
-      border-radius: 10px;
-      padding: 10px;
-      gap: 10px;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      @include breakpoint(md) {
-        width: 100%;
-        order: 2;
-      }
-    }
-
-    .left {
-      grid-area: leftBlock;
-      background: var(--background-element);
-      border: 1px solid var(--outline);
-      box-shadow: var(--shadow);
-      border-radius: 10px;
-      padding: 10px;
-      gap: 10px;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      @include breakpoint(md) {
-        width: 100%;
-        order: 1;
-      }
-
-      .options {
-        background: var(--secondary-background);
-        border-radius: 10px;
-        padding: 10px;
-      }
-    }
-
-    .form {
-      width: 100%;
-      border: 1px solid var(--outline);
-      background: var(--secondary-background);
-      border-radius: 10px;
-      padding: 15px;
-    }
-
-    .form h3 {
-      font-family: $font-family-title;
-      font-size: 30px;
-      margin-top: 0;
-      margin-bottom: 25px;
-      font-weight: $bold;
-      color: var(--text);
-      text-align: start;
-      @include breakpoint(md) {
-        font-size: 25px;
-      }
-    }
-
-    .infoPanels .divider {
-      width: 100%;
-      height: 1px;
-      background: $divider-red;
-      margin: 16px 0;
-    }
+  text-align: start;
+  @include breakpoint(md) {
+    font-size: 25px;
   }
+}
 
-  .wrappedInfo {
-    text-align: center;
-    padding: 10px;
-    a {
-      margin-left: 0;
-      text-decoration: underline;
-    }
+.options {
+  background: var(--secondary-background);
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.wrappedInfo {
+  text-align: center;
+  padding: 10px;
+  a {
+    margin-left: 0;
+    text-decoration: underline;
   }
+}
 
-  div.wrappedDeposit {
+div.wrappedDeposit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  > span {
+    margin-left: 8px;
+  }
+}
+
+div.transactionInfo {
+  margin-top: 25px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .transactionInfoItem {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-    > span {
-      margin-left: 8px;
-    }
+    gap: 5px;
+  }
+  span.value {
+    color: var(--text-darker);
+    font-weight: $bold;
   }
 
-  div.transactionInfo {
-    margin-top: 25px;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    .transactionInfoItem {
-      display: flex;
-      gap: 5px;
-    }
-    span.value {
-      color: var(--text-darker);
-      font-weight: $bold;
-    }
-
-    span.bonus {
-      color: var(--text-selected);
-    }
-
-    span.slippage {
-      color: $error;
-    }
-
-    a {
-      color: var(--text-selected);
-    }
+  span.bonus {
+    color: var(--text-selected);
   }
 
-  .error {
-    width: 100%;
+  span.slippage {
     color: $error;
-    font-weight: $normal;
-    text-align: center;
-    margin: 8px;
   }
 
-  .formSpace {
-    width: 100%;
-    height: 16px;
+  a {
+    color: var(--text-selected);
+  }
+}
+
+.error {
+  width: 100%;
+  color: $error;
+  font-weight: $normal;
+  text-align: center;
+  margin: 8px;
+}
+
+.formSpace {
+  width: 100%;
+  height: 16px;
+}
+
+.approvalMessage {
+  padding: 20px 10px;
+  text-align: center;
+  color: var(--text-lighter);
+  font-size: 14px;
+  @include breakpoint(sm) {
+    font-size: 12px;
+  }
+}
+
+.tokenList {
+  margin-bottom: 20px;
+  margin-top: -20px;
+  display: flex;
+  flex-wrap: wrap;
+  background: var(--secondary-background);
+  padding: 15px;
+  border-radius: 10px;
+
+  img {
+    vertical-align: text-bottom;
+    height: 24px;
+    width: 24px;
+    margin-right: 8px;
   }
 
-  .approvalMessage {
-    padding: 20px 10px;
-    text-align: center;
-    color: var(--text-lighter);
+  .token {
+    margin-top: 24px;
+
+    &:nth-child(odd) {
+      width: 51%;
+    }
+  }
+
+  span.tokenPercent {
+    margin-left: 16px;
+    font-weight: $medium;
+  }
+
+  span.tokenValue {
+    display: block;
+    margin-top: 8px;
     font-size: 14px;
-    @include breakpoint(sm) {
-      font-size: 12px;
-    }
   }
 
-  .tokenList {
-    margin-bottom: 20px;
-    margin-top: -20px;
-    display: flex;
-    flex-wrap: wrap;
-    background: var(--secondary-background);
-    padding: 15px;
-    border-radius: 10px;
-
-    img {
-      vertical-align: text-bottom;
-      height: 24px;
-      width: 24px;
-      margin-right: 8px;
-    }
-
-    .token {
-      margin-top: 24px;
-
-      &:nth-child(odd) {
-        width: 51%;
-      }
-    }
-
-    span.tokenPercent {
-      margin-left: 16px;
-      font-weight: $medium;
-    }
-
-    span.tokenValue {
-      display: block;
-      margin-top: 8px;
-      font-size: 14px;
-    }
-
-    .bold {
-      white-space: nowrap;
-      font-weight: $bold;
-      font-size: 17px;
-    }
+  .bold {
+    white-space: nowrap;
+    font-weight: $bold;
+    font-size: 17px;
   }
 }

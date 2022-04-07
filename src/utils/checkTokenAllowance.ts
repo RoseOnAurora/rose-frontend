@@ -1,10 +1,9 @@
 import { BigNumber } from "@ethersproject/bignumber"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import { RoseFraxLP } from "../../types/ethers-contracts/RoseFraxLP"
-import { RoseStablesLP } from "../../types/ethers-contracts/RoseStablesLP"
+import { LpTokenUnguarded } from "../../types/ethers-contracts/LpTokenUnguarded"
 
 export default async function checkTokenAllowance(
-  srcTokenContract: Erc20 | RoseStablesLP | RoseFraxLP | null,
+  srcTokenContract: Erc20 | LpTokenUnguarded | null,
   swapAddress: string,
   spenderAddress: string,
   spendingValue: BigNumber,

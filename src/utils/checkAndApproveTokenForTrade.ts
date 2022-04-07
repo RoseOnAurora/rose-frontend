@@ -2,8 +2,8 @@ import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "ethers"
 import { ContractTransaction } from "@ethersproject/contracts"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
+import { LpTokenUnguarded } from "../../types/ethers-contracts/LpTokenUnguarded"
 import { MaxUint256 } from "@ethersproject/constants"
-import { RoseStablesLP } from "../../types/ethers-contracts/RoseStablesLP"
 import { Zero } from "@ethersproject/constants"
 
 /**
@@ -19,7 +19,7 @@ import { Zero } from "@ethersproject/constants"
  * @return {Promise<void>}
  */
 export default async function checkAndApproveTokenForTrade(
-  srcTokenContract: Erc20 | RoseStablesLP,
+  srcTokenContract: Erc20 | LpTokenUnguarded,
   swapAddress: string,
   spenderAddress: string,
   spendingValue: BigNumber, // max is MaxUint256
@@ -29,12 +29,12 @@ export default async function checkAndApproveTokenForTrade(
     onTransactionStart?: (
       transaction?: ContractTransaction,
     ) => (() => void) | undefined
-    onTransactionSuccess?: (transaction: ContractReceipt) => () => void
+    onTransactionSuccess?: (transaction: ContractReceipt) => void
     onTransactionError?: (error: Error | string) => () => void
   } = {},
-): Promise<void> {
-  if (srcTokenContract == null) return
-  if (spendingValue.eq(0)) return
+): Promise<boolean> {
+  if (srcTokenContract == null) return false
+  if (spendingValue.eq(0)) return true
   const tokenName = await srcTokenContract.name()
   const existingAllowance = await srcTokenContract.allowance(
     spenderAddress,
@@ -46,7 +46,7 @@ export default async function checkAndApproveTokenForTrade(
     `Existing ${tokenName} Allowance: ${existingAllowance.toString()}`,
   )
   console.log(`Spending ${spendingValue.toString()} ${tokenName}`)
-  if (existingAllowance.gte(spendingValue)) return
+  if (existingAllowance.gte(spendingValue)) return true
   console.log(`need to approve`)
   async function approve(amount: BigNumber): Promise<void> {
     try {
@@ -72,4 +72,5 @@ export default async function checkAndApproveTokenForTrade(
   }
   await approve(infiniteApproval ? MaxUint256 : spendingValue)
   console.debug(`Approving ${tokenName} spend of ${spendingValue.toString()}`)
+  return false
 }

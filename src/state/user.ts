@@ -28,6 +28,28 @@ export enum Deadlines {
   Custom = "CUSTOM",
 }
 
+export enum PoolSortFields {
+  NAME = "name",
+  BALANCE = "balance",
+  FARM_DEPOSIT = "farmDeposit",
+  TVL = "tvl",
+  VOLUME = "volume",
+}
+
+export enum PoolFilterFields {
+  NO_FILTER = "noFilter",
+  FARM_DEPOSIT = "farmDeposit",
+  BALANCE = "balance",
+}
+
+interface PoolPreferences {
+  visibleFields: {
+    [field in PoolSortFields]: number
+  }
+  filterField: PoolFilterFields
+  sortField: PoolSortFields
+}
+
 export enum FarmSortFields {
   NAME = "name",
   BALANCE = "balance",
@@ -52,6 +74,31 @@ interface FarmPreferences {
   sortField: FarmSortFields
 }
 
+export enum BorrowSortFields {
+  NAME = "name",
+  BORROW = "borrow",
+  COLLATERAL = "collateral",
+  TVL = "tvl",
+  SUPPLY = "supply",
+  INTEREST = "interest",
+  LIQUIDATION_FEE = "liquidationFee",
+}
+
+export enum BorrowFilterFields {
+  BORROW = "borrow",
+  SUPPLY = "supply",
+  COLLATERAL = "collateral",
+  NO_FILTER = "noFilter",
+}
+
+interface BorrowPreferences {
+  visibleFields: {
+    [field in BorrowSortFields]: number
+  }
+  filterField: BorrowFilterFields
+  sortField: BorrowSortFields
+}
+
 interface UserState {
   userSwapAdvancedMode: boolean
   userPoolAdvancedMode: boolean
@@ -61,9 +108,12 @@ interface UserState {
   slippageCustom?: NumberInputState
   slippageSelected: Slippages
   infiniteApproval: boolean
+  priceFromOracle: boolean
   transactionDeadlineSelected: Deadlines
   transactionDeadlineCustom?: string
   farmPreferences: FarmPreferences
+  borrowPreferences: BorrowPreferences
+  poolPreferences: PoolPreferences
 }
 
 export const initialState: UserState = {
@@ -73,6 +123,7 @@ export const initialState: UserState = {
   gasPriceSelected: GasPrices.Standard,
   slippageSelected: Slippages.OneTenth,
   infiniteApproval: false,
+  priceFromOracle: false,
   transactionDeadlineSelected: Deadlines.Twenty,
   farmPreferences: {
     visibleFields: {
@@ -85,6 +136,30 @@ export const initialState: UserState = {
     },
     filterField: FarmFilterFields.NO_FILTER,
     sortField: FarmSortFields.APR,
+  },
+  borrowPreferences: {
+    visibleFields: {
+      name: 1,
+      borrow: 1,
+      collateral: -1,
+      tvl: 1,
+      supply: 1,
+      interest: 1,
+      liquidationFee: 1,
+    },
+    filterField: BorrowFilterFields.NO_FILTER,
+    sortField: BorrowSortFields.TVL,
+  },
+  poolPreferences: {
+    visibleFields: {
+      name: 1,
+      balance: 1,
+      volume: 1,
+      tvl: 1,
+      farmDeposit: 1,
+    },
+    filterField: PoolFilterFields.NO_FILTER,
+    sortField: PoolSortFields.TVL,
   },
 }
 
@@ -201,6 +276,72 @@ const userSlice = createSlice({
         },
       }
     },
+    updateBorrowFilterPreferences(
+      state: UserState,
+      action: PayloadAction<BorrowFilterFields>,
+    ): void {
+      state.borrowPreferences = {
+        ...state.borrowPreferences,
+        filterField: action.payload,
+      }
+    },
+    updateBorrowSortPreferences(
+      state: UserState,
+      action: PayloadAction<BorrowSortFields>,
+    ): void {
+      state.borrowPreferences = {
+        ...state.borrowPreferences,
+        sortField: action.payload,
+      }
+    },
+    updateBorrowVisibleFieldPreferences(
+      state: UserState,
+      action: PayloadAction<{ field: BorrowSortFields; value: number }>,
+    ): void {
+      state.borrowPreferences = {
+        ...state.borrowPreferences,
+        visibleFields: {
+          ...state.borrowPreferences.visibleFields,
+          [action.payload.field]: action.payload.value,
+        },
+      }
+    },
+    updatePoolFilterPreferences(
+      state: UserState,
+      action: PayloadAction<PoolFilterFields>,
+    ): void {
+      state.poolPreferences = {
+        ...state.poolPreferences,
+        filterField: action.payload,
+      }
+    },
+    updatePoolSortPreferences(
+      state: UserState,
+      action: PayloadAction<PoolSortFields>,
+    ): void {
+      state.poolPreferences = {
+        ...state.poolPreferences,
+        sortField: action.payload,
+      }
+    },
+    updatePoolVisibleFieldPreferences(
+      state: UserState,
+      action: PayloadAction<{ field: PoolSortFields; value: number }>,
+    ): void {
+      state.poolPreferences = {
+        ...state.poolPreferences,
+        visibleFields: {
+          ...state.poolPreferences.visibleFields,
+          [action.payload.field]: action.payload.value,
+        },
+      }
+    },
+    updatePriceFromOracle(
+      state: UserState,
+      action: PayloadAction<boolean>,
+    ): void {
+      state.priceFromOracle = action.payload
+    },
   },
 })
 
@@ -218,6 +359,13 @@ export const {
   updateFarmFilterPreferences,
   updateFarmSortPreferences,
   updateFarmVisibleFieldPreferences,
+  updateBorrowFilterPreferences,
+  updateBorrowSortPreferences,
+  updateBorrowVisibleFieldPreferences,
+  updatePriceFromOracle,
+  updatePoolSortPreferences,
+  updatePoolFilterPreferences,
+  updatePoolVisibleFieldPreferences,
 } = userSlice.actions
 
 export default userSlice.reducer

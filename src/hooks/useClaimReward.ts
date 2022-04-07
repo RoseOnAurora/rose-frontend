@@ -16,7 +16,8 @@ export default function useClaimReward(
       const tx = await farmContract.getReward()
       return await tx.wait()
     } catch (e) {
-      console.error(e)
+      const error = e as { code: number; message: string }
+      throw error
     }
   }
 }

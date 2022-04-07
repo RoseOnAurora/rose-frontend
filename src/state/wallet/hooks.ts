@@ -47,17 +47,21 @@ const useTokenBalancesHelper = (
           ) as MulticallContract<Erc20>
         })
         .map((c) => c.balanceOf(account))
-      const balances = await ethcallProvider.all(balanceCalls, "latest")
-      const ethBalance = await library.getBalance(account)
-      setBalances(
-        tokens.reduce(
-          (acc, t, i) => ({
-            ...acc,
-            [t.symbol]: balances[i],
-          }),
-          { ETH: ethBalance },
-        ),
-      )
+      try {
+        const balances = await ethcallProvider.all(balanceCalls, "latest")
+        const ethBalance = await library.getBalance(account)
+        setBalances(
+          tokens.reduce(
+            (acc, t, i) => ({
+              ...acc,
+              [t.symbol]: balances[i],
+            }),
+            { ETH: ethBalance },
+          ),
+        )
+      } catch (e) {
+        console.error(e)
+      }
     }
     if (account) {
       void pollBalances()

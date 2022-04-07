@@ -6,11 +6,11 @@ import {
   PoolName,
   SWAP_TYPES,
   TOKENS_MAP,
+  isMetaPool,
 } from "../constants"
 import React, {
   ReactElement,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -36,14 +36,13 @@ import {
 import { AppState } from "../state/index"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
-import { PendingSwapsContext } from "../providers/PendingSwapsProvider"
 import SwapPage from "../components/SwapPage"
 import { Zero } from "@ethersproject/constants"
 import { calculateGasEstimate } from "../utils/gasEstimate"
 import { calculatePriceImpact } from "../utils/priceImpact"
 import { debounce } from "lodash"
-import { ethers } from "ethers"
-import { formatGasToString } from "../utils/gas"
+// import { ethers } from "ethers"
+// import { formatGasToString } from "../utils/gas"
 import { useActiveWeb3React } from "../hooks"
 import { useApproveAndSwap } from "../hooks/useApproveAndSwap"
 import { usePoolTokenBalances } from "../state/wallet/hooks"
@@ -107,13 +106,7 @@ function Swap(): ReactElement {
   const bridgeContract = useBridgeContract()
   const snxEchangeRatesContract = useSynthetixExchangeRatesContract()
   const calculateSwapPairs = useCalculateSwapPairs()
-  const pendingSwapData = useContext(PendingSwapsContext)
-  const { tokenPricesUSD, gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
-  )
-  const { gasPriceSelected, gasCustom } = useSelector(
-    (state: AppState) => state.user,
-  )
+  const { tokenPricesUSD } = useSelector((state: AppState) => state.application)
 
   const [formState, setFormState] = useState<FormState>(EMPTY_FORM_STATE)
   const [prevFormState, setPrevFormState] = useState<FormState>(
@@ -265,16 +258,9 @@ function Swap(): ReactElement {
         formStateArg.swapType === SWAP_TYPES.DIRECT &&
         swapContract != null
       ) {
-        // TO-DO: Clean this up
         if (
-          formStateArg.from.symbol === "FRAX" ||
-          formStateArg.from.symbol === "atUST" ||
-          formStateArg.from.symbol === "abBUSD" ||
-          formStateArg.from.symbol === "MAI" ||
-          formStateArg.to.symbol === "FRAX" ||
-          formStateArg.to.symbol === "atUST" ||
-          formStateArg.to.symbol === "abBUSD" ||
-          formStateArg.to.symbol === "MAI"
+          isMetaPool(formState.from.poolName) ||
+          isMetaPool(formState.to.poolName)
         ) {
           amountToReceive = await swapContract.get_dy_underlying(
             formStateArg.from.tokenIndex,
@@ -540,14 +526,7 @@ function Swap(): ReactElement {
     return receipt
   }
 
-  const gasPrice = ethers.utils.parseUnits(
-    formatGasToString(
-      { gasStandard, gasFast, gasInstant },
-      gasPriceSelected,
-      gasCustom,
-    ),
-    "gwei",
-  )
+  const gasPrice = Zero
   const gasAmount = calculateGasEstimate(formState.swapType).mul(gasPrice) // units of gas * GWEI/Unit of gas
 
   const txnGasCost = {
@@ -561,7 +540,6 @@ function Swap(): ReactElement {
 
   return (
     <SwapPage
-      pendingSwaps={pendingSwapData}
       tokenOptions={tokenOptions}
       exchangeRateInfo={{
         pair: `${formState.from.symbol}/${formState.to.symbol}`,
