@@ -144,8 +144,10 @@ const RepayForm = (props: Props): ReactElement => {
               CookAction.REPAY,
               handleWhileSubmitting?.onMessageSignatureTransactionStart,
               handleWhileSubmitting?.onApprovalTransactionStart,
-              borrowValueSafe.value.eq(maxRepayBn) &&
-                collateralValueSafe.value.eq(maxCollateralBn),
+              parseStringToBigNumber(values?.borrow, 18).value.eq(maxRepayBn) &&
+                parseStringToBigNumber(values?.collateral, 18).value.eq(
+                  maxCollateralBn,
+                ),
             )) as ContractReceipt
             handlePostSubmit?.(receipt, TransactionType.REPAY)
           } catch (e) {

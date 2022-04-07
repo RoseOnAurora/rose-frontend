@@ -12,7 +12,7 @@ import {
   POOL_SORT_FIELDS_TO_LABEL,
   Pool,
   PoolName,
-  RUSD_METAPOOL_NAME,
+  // RUSD_METAPOOL_NAME,
   STABLECOIN_POOL_V2_NAME,
   UST_METAPOOL_NAME,
 } from "../constants"
@@ -93,9 +93,9 @@ function Pools(): ReactElement | null {
   const [maiMetaPoolData, maiMetaPoolUserShareData] = usePoolData(
     MAI_METAPOOL_NAME,
   )
-  const [rusdMetaPoolData, rusdMetaPoolUserShareData] = usePoolData(
-    RUSD_METAPOOL_NAME,
-  )
+  // const [rusdMetaPoolData, rusdMetaPoolUserShareData] = usePoolData(
+  //   RUSD_METAPOOL_NAME,
+  // )
 
   const [sortDirection, setSortDirection] = useState(1)
   const [sortByField, setSortByField] = useState(poolPreferences.sortField)
@@ -149,7 +149,7 @@ function Pools(): ReactElement | null {
     fraxMetaPoolData,
     ustMetaPoolData,
     busdMetaPoolData,
-    rusdMetaPoolData,
+    // rusdMetaPoolData,
   ]
 
   const allUserShareData: (UserShareType | null)[] = [
@@ -158,7 +158,7 @@ function Pools(): ReactElement | null {
     fraxMetaPoolUserShareData,
     ustMetaPoolUserShareData,
     busdMetaPoolUserShareData,
-    rusdMetaPoolUserShareData,
+    // rusdMetaPoolUserShareData,
   ]
 
   const formattedLpTokenBalances = allUserShareData
@@ -240,12 +240,12 @@ function Pools(): ReactElement | null {
           tvl: maiMetaPoolData?.reserve || Zero,
           volume: maiMetaPoolData?.volume || Zero,
         }
-      case RUSD_METAPOOL_NAME:
-        return {
-          balance: rusdMetaPoolUserShareData?.lpTokenBalance || Zero,
-          tvl: rusdMetaPoolData?.reserve || Zero,
-          volume: rusdMetaPoolData?.volume || Zero,
-        }
+      // case RUSD_METAPOOL_NAME:
+      //   return {
+      //     balance: rusdMetaPoolUserShareData?.lpTokenBalance || Zero,
+      //     tvl: rusdMetaPoolData?.reserve || Zero,
+      //     volume: rusdMetaPoolData?.volume || Zero,
+      //   }
       default:
         return {
           balance: usdV2UserShareData?.lpTokenBalance || Zero,

@@ -533,14 +533,14 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
                           const positionHealthFormatted = `${positionHealth.toFixed(
                             0,
                           )}%`
-                          const textColor = calculatePositionHealthColor(
+                          const barColor = calculatePositionHealthColor(
                             positionHealth,
                             BORROW_MARKET_MAP[marketData.marketName].isStable,
                           )
-                          const barColor =
-                            textColor === "red"
+                          const textColor =
+                            barColor === "red"
                               ? positionTextColorHigh
-                              : textColor === "green"
+                              : barColor === "green"
                               ? positionTextColorSafe
                               : positionTextColorMod
 

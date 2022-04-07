@@ -189,16 +189,10 @@ export function useCook(
         cookArgs.actions,
         cookArgs.values,
         cookArgs.datas,
-        {
-          gasPrice,
-        },
       )
 
       // complete
       const receipt = await tx.wait()
-      dispatch(
-        updateLastTransactionTimes({ [TRANSACTION_TYPES.BORROW]: Date.now() }),
-      )
       dispatch(
         updateLastTransactionTimes({ [TRANSACTION_TYPES.BORROW]: Date.now() }),
       )

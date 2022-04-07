@@ -73,6 +73,7 @@ export const ROSE_FRAX_NLP_FARM_NAME = "ROSE/FRAX PLP Farm"
 export const SROSE_FARM_NAME = "stRose Farm"
 export const BUSD_METAPOOL_FARM_NAME = "BUSD Farm"
 export const MAI_METAPOOL_FARM_NAME = "MAI Farm"
+export const RUSD_METAPOOL_FARM_NAME = "RUSD Farm"
 
 // BORROW MARKETS
 export const wNEAR_MARKET_NAME = "wNEAR"
@@ -102,7 +103,7 @@ export type PoolName =
   | typeof UST_METAPOOL_NAME
   | typeof BUSD_METAPOOL_NAME
   | typeof MAI_METAPOOL_NAME
-  | typeof RUSD_METAPOOL_NAME
+// | typeof RUSD_METAPOOL_NAME
 
 export type FarmName =
   | typeof STABLES_FARM_NAME
@@ -112,7 +113,7 @@ export type FarmName =
   | typeof ROSE_FRAX_NLP_FARM_NAME
   | typeof BUSD_METAPOOL_FARM_NAME
   | typeof MAI_METAPOOL_FARM_NAME
-// | typeof SROSE_FARM_NAME
+// | typeof RUSD_METAPOOL_FARM_NAME
 
 export type BorrowMarketName =
   | typeof wNEAR_MARKET_NAME
@@ -1300,6 +1301,16 @@ export const MAI_FARM_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "0x226991aADeEfDe03bF557eF067da95fc613aBfFc",
 }
 
+export const RUSD_FARM_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x9286d58C1c8d434Be809221923Cf4575f7A4d058", // note: missing testnet deployment
+  [ChainId.AURORA_MAINNET]: "0x9286d58C1c8d434Be809221923Cf4575f7A4d058",
+}
+
 export const FRAX_METAPOOL_DEPOSIT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
@@ -1602,26 +1613,18 @@ export const POOLS_MAP: PoolsMap = {
     route: "mai",
     farmName: MAI_METAPOOL_FARM_NAME,
   },
-  [RUSD_METAPOOL_NAME]: {
-    name: RUSD_METAPOOL_NAME,
-    addresses: RUSD_METAPOOL_ADDRESSES,
-    lpToken: RUSD_LP_TOKEN,
-    poolTokens: RUSD_METAPOOL_TOKENS,
-    underlyingPoolTokens: [RUSD, ...STABLECOIN_POOL_TOKENS],
-    underlyingPool: STABLECOIN_POOL_V2_NAME,
-    metaSwapAddresses: RUSD_METAPOOL_DEPOSIT_ADDRESSES,
-    isSynthetic: false,
-    type: PoolTypes.USD,
-    route: "rusd",
-  },
-  // [STAKED_ROSE_LP_POOL_NAME]: {
-  //   name: STAKED_ROSE_LP_POOL_NAME,
-  //   addresses: STAKED_ROSE_POOL_ADDRESSES,
-  //   lpToken: SROSE_LP_TOKEN,
-  //   poolTokens: STAKED_ROSE_POOL_TOKENS,
+  // [RUSD_METAPOOL_NAME]: {
+  //   name: RUSD_METAPOOL_NAME,
+  //   addresses: RUSD_METAPOOL_ADDRESSES,
+  //   lpToken: RUSD_LP_TOKEN,
+  //   poolTokens: RUSD_METAPOOL_TOKENS,
+  //   underlyingPoolTokens: [RUSD, ...STABLECOIN_POOL_TOKENS],
+  //   underlyingPool: STABLECOIN_POOL_V2_NAME,
+  //   metaSwapAddresses: RUSD_METAPOOL_DEPOSIT_ADDRESSES,
   //   isSynthetic: false,
   //   type: PoolTypes.USD,
-  //   route: "stakedrose",
+  //   route: "rusd",
+  //   farmName: RUSD_METAPOOL_FARM_NAME,
   // },
 }
 
@@ -1703,13 +1706,14 @@ export const FARMS_MAP: FarmsMap = {
     isRose: true,
     poolName: MAI_METAPOOL_FARM_NAME,
   },
-  // [SROSE_FARM_NAME]: {
-  //   name: SROSE_FARM_NAME,
-  //   lpToken: SROSE_LP_TOKEN,
-  //   addresses: SROSE_FARM_ADDRESSES,
-  //   route: "stakedrose",
+  // [RUSD_METAPOOL_FARM_NAME]: {
+  //   name: RUSD_METAPOOL_FARM_NAME,
+  //   lpToken: RUSD_LP_TOKEN,
+  //   addresses: RUSD_FARM_ADDRESSES,
+  //   poolUrl: "../#/pools/rusd",
+  //   route: "rusd",
   //   isRose: true,
-  //   poolName: "stRose Pool",
+  //   poolName: RUSD_METAPOOL_NAME,
   // },
 }
 
@@ -1752,7 +1756,7 @@ export const BORROW_MARKET_MAP: BorrowMarketMap = {
     name: USDC_MARKET_NAME,
     collateralToken: USDC,
     borrowToken: RUSD,
-    gardenAddresses: UST_GARDEN_ADDRESSES,
+    gardenAddresses: USDC_GARDEN_ADDRESSES,
     vaseAddresses: VASE_ADDRESSES,
     oracleAddresses: USDC_ORACLE_ADDRESSES,
     route: "usdc",
@@ -1802,7 +1806,7 @@ export function isMetaPool(poolName = ""): boolean {
     UST_METAPOOL_NAME,
     BUSD_METAPOOL_NAME,
     MAI_METAPOOL_NAME,
-    RUSD_METAPOOL_NAME,
+    // RUSD_METAPOOL_NAME,
   ]).has(poolName)
 }
 
