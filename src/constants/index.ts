@@ -103,7 +103,7 @@ export type PoolName =
   | typeof UST_METAPOOL_NAME
   | typeof BUSD_METAPOOL_NAME
   | typeof MAI_METAPOOL_NAME
-// | typeof RUSD_METAPOOL_NAME
+  | typeof RUSD_METAPOOL_NAME
 
 export type FarmName =
   | typeof STABLES_FARM_NAME
@@ -113,7 +113,7 @@ export type FarmName =
   | typeof ROSE_FRAX_NLP_FARM_NAME
   | typeof BUSD_METAPOOL_FARM_NAME
   | typeof MAI_METAPOOL_FARM_NAME
-// | typeof RUSD_METAPOOL_FARM_NAME
+  | typeof RUSD_METAPOOL_FARM_NAME
 
 export type BorrowMarketName =
   | typeof NEAR_MARKET_NAME
@@ -1588,19 +1588,19 @@ export const POOLS_MAP: PoolsMap = {
     route: "mai",
     farmName: MAI_METAPOOL_FARM_NAME,
   },
-  // [RUSD_METAPOOL_NAME]: {
-  //   name: RUSD_METAPOOL_NAME,
-  //   addresses: RUSD_METAPOOL_ADDRESSES,
-  //   lpToken: RUSD_LP_TOKEN,
-  //   poolTokens: RUSD_METAPOOL_TOKENS,
-  //   underlyingPoolTokens: [RUSD, ...STABLECOIN_POOL_TOKENS],
-  //   underlyingPool: STABLECOIN_POOL_V2_NAME,
-  //   metaSwapAddresses: RUSD_METAPOOL_DEPOSIT_ADDRESSES,
-  //   isSynthetic: false,
-  //   type: PoolTypes.USD,
-  //   route: "rusd",
-  //   farmName: RUSD_METAPOOL_FARM_NAME,
-  // },
+  [RUSD_METAPOOL_NAME]: {
+    name: RUSD_METAPOOL_NAME,
+    addresses: RUSD_METAPOOL_ADDRESSES,
+    lpToken: RUSD_LP_TOKEN,
+    poolTokens: RUSD_METAPOOL_TOKENS,
+    underlyingPoolTokens: [RUSD, ...STABLECOIN_POOL_TOKENS],
+    underlyingPool: STABLECOIN_POOL_V2_NAME,
+    metaSwapAddresses: RUSD_METAPOOL_DEPOSIT_ADDRESSES,
+    isSynthetic: false,
+    type: PoolTypes.USD,
+    route: "rusd",
+    farmName: RUSD_METAPOOL_FARM_NAME,
+  },
 }
 
 export type Farm = {
@@ -1681,15 +1681,15 @@ export const FARMS_MAP: FarmsMap = {
     isRose: true,
     poolName: MAI_METAPOOL_FARM_NAME,
   },
-  // [RUSD_METAPOOL_FARM_NAME]: {
-  //   name: RUSD_METAPOOL_FARM_NAME,
-  //   lpToken: RUSD_LP_TOKEN,
-  //   addresses: RUSD_FARM_ADDRESSES,
-  //   poolUrl: "../#/pools/rusd",
-  //   route: "rusd",
-  //   isRose: true,
-  //   poolName: RUSD_METAPOOL_NAME,
-  // },
+  [RUSD_METAPOOL_FARM_NAME]: {
+    name: RUSD_METAPOOL_FARM_NAME,
+    lpToken: RUSD_LP_TOKEN,
+    addresses: RUSD_FARM_ADDRESSES,
+    poolUrl: "../#/pools/rusd",
+    route: "rusd",
+    isRose: true,
+    poolName: RUSD_METAPOOL_NAME,
+  },
 }
 
 export type BorrowMarket = {
