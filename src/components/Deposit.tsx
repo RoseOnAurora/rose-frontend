@@ -3,8 +3,9 @@
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-return: 0 */
 /* eslint @typescript-eslint/no-explicit-any: 0 */
+/* eslint @typescript-eslint/no-unused-vars: 0 */
 import "./DepositPage.scss"
-import { Box, Button, Center, Switch } from "@chakra-ui/react"
+import { Box, Button, Center } from "@chakra-ui/react"
 import { Contract, ContractReceipt } from "@ethersproject/contracts"
 import { DepositTransaction, TransactionItem } from "../interfaces/transactions"
 import {
@@ -329,7 +330,7 @@ function Deposit({
           <div className="error">{t("depositBalanceExceeded")}</div>
         ) : null}
         {/* disable deposit wrapped button until gas limit is raised on aurora */}
-        {shouldDisplayWrappedOption && (
+        {/* {shouldDisplayWrappedOption && (
           <div className="wrappedDeposit">
             <Switch
               colorScheme="red"
@@ -342,7 +343,7 @@ function Deposit({
               <small>{t("depositWrapped")}</small>
             </span>
           </div>
-        )}
+        )} */}
         {tokens.map((token, index) => (
           <div key={index}>
             <TokenInput
