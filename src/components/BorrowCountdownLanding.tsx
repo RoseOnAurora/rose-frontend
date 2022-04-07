@@ -1,4 +1,4 @@
-import { Box, Flex, Stack, Text } from "@chakra-ui/react"
+import { Box, Button, Flex, Stack, Text } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import { getFormattedShortTime, msToHMS } from "../utils/dateTime"
 import AnimateNumber from "./AnimateNumber"
@@ -29,7 +29,7 @@ const BorrowCountdownLanding = ({ timeLeft }: Props): ReactElement => {
             fontWeight={700}
           >
             <Text>Borrow launching at</Text>
-            <Text>{getFormattedShortTime(1649343600)} PST</Text>
+            <Text>{getFormattedShortTime(1649343600)}</Text>
           </Flex>
           {timeLeft >= 60000 ? (
             <Text
@@ -45,6 +45,15 @@ const BorrowCountdownLanding = ({ timeLeft }: Props): ReactElement => {
               <AnimateNumber precision={0} value={seconds} fontSize="90px" />
             </Flex>
           )}
+          <Button
+            variant="outline"
+            as="a"
+            target="_blank"
+            rel="noreferrer"
+            href="https://medium.com/@RoseOnAurora/prepare-for-launch-rose-borrow-baf9c4852849"
+          >
+            Prepare for Launch
+          </Button>
         </Stack>
       </Box>
       {/* hacky box to cover the spline watermark... oh well */}
