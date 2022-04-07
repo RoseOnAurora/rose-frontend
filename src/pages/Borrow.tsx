@@ -66,7 +66,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
     "linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9)",
     "linear-gradient(to right, #141414, #200122, #791038)",
   )
-  const borrowCollapseTextColor = useColorModeValue("#555555", "#bbbbbb")
+  // const borrowCollapseTextColor = useColorModeValue("#555555", "#bbbbbb")
 
   const { borrowToken, collateralToken } = BORROW_MARKET_MAP[borrowName]
 
@@ -696,32 +696,32 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
                   tokenName: `Total ${borrowToken.symbol} Debt`,
                   icon: borrowToken.icon,
                   amount: commify(formatBNToString(borrowData.borrowed, 18, 5)),
-                  collapseContent: (
-                    <Box my="5px" color={borrowCollapseTextColor}>
-                      <Flex justifyContent="space-between" alignItems="center">
-                        <Text fontSize="13px">Borrowed:</Text>
-                        <Box>
-                          {commify(
-                            formatBNToString(
-                              borrowData.borrowed
-                                .sub(borrowData.feesOwed)
-                                .abs(),
-                              18,
-                              5,
-                            ),
-                          )}
-                        </Box>
-                      </Flex>
-                      <Flex justifyContent="space-between" alignItems="center">
-                        <Text fontSize="13px">Unpaid Fees in RUSD:</Text>
-                        <Box>
-                          {commify(
-                            formatBNToString(borrowData.feesOwed, 18, 5),
-                          )}
-                        </Box>
-                      </Flex>
-                    </Box>
-                  ),
+                  // collapseContent: (
+                  //   <Box my="5px" color={borrowCollapseTextColor}>
+                  //     <Flex justifyContent="space-between" alignItems="center">
+                  //       <Text fontSize="13px">Borrowed:</Text>
+                  //       <Box>
+                  //         {commify(
+                  //           formatBNToString(
+                  //             borrowData.borrowed
+                  //               .sub(borrowData.feesOwed)
+                  //               .abs(),
+                  //             18,
+                  //             5,
+                  //           ),
+                  //         )}
+                  //       </Box>
+                  //     </Flex>
+                  //     <Flex justifyContent="space-between" alignItems="center">
+                  //       <Text fontSize="13px">Unpaid Fees in RUSD:</Text>
+                  //       <Box>
+                  //         {commify(
+                  //           formatBNToString(borrowData.feesOwed, 18, 5),
+                  //         )}
+                  //       </Box>
+                  //     </Flex>
+                  //   </Box>
+                  // ),
                 },
               ],
             }}
