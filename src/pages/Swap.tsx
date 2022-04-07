@@ -409,7 +409,7 @@ function Swap(): ReactElement {
               : prevState.from.value,
           valueUSD: calculatePrice(
             prevState.from.value,
-            tokenPricesUSD?.[symbol],
+            tokenPricesUSD?.[prevState.from.symbol],
           ),
           poolName: activeSwapPair?.from.poolName,
           tokenIndex: activeSwapPair?.from.tokenIndex,
