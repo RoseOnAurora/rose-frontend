@@ -6,12 +6,12 @@ import {
   BorrowMarket,
   BorrowMarketName,
   DashboardItems,
+  NEAR_MARKET_NAME,
   USDC_MARKET_NAME,
   USDT_MARKET_NAME,
   UST_MARKET_NAME,
   wBTC_MARKET_NAME,
   wETH_MARKET_NAME,
-  wNEAR_MARKET_NAME,
 } from "../constants"
 import {
   BorrowFilterFields,
@@ -49,6 +49,7 @@ import {
   FaLayerGroup,
   FaSortAmountUp,
   FaUserLock,
+  FaWallet,
 } from "react-icons/fa"
 import React, { ReactElement, useMemo, useState } from "react"
 import { calculatePositionHealthColor, formatBNToString } from "../utils"
@@ -56,6 +57,7 @@ import useBorrowData, { BorrowDataType } from "../hooks/useBorrowData"
 import { useDispatch, useSelector } from "react-redux"
 import { AnimatePresence } from "framer-motion"
 import AnimatingNumber from "../components/AnimateNumber"
+import { BigNumber } from "@ethersproject/bignumber"
 import BorrowMarketsOverview from "../components/BorrowMarketsOverview"
 import Dashboard from "../components/Dashboard"
 import FormattedComponentName from "../components/FormattedComponentName"
@@ -94,7 +96,7 @@ function BorrowMarkets(): ReactElement {
     setIsInfo(isInfo)
   }
 
-  const [wNearMarketData, loading1] = useBorrowData(wNEAR_MARKET_NAME)
+  const [nearMarketData, loading1] = useBorrowData(NEAR_MARKET_NAME)
   const [usdcMarketData, loading2] = useBorrowData(USDC_MARKET_NAME)
   const [ustMarketData, loading3] = useBorrowData(UST_MARKET_NAME)
   const [usdtMarketData, loading4] = useBorrowData(USDT_MARKET_NAME)
@@ -106,7 +108,7 @@ function BorrowMarkets(): ReactElement {
 
   const marketsData = useMemo(() => {
     return {
-      [wNEAR_MARKET_NAME]: wNearMarketData,
+      [NEAR_MARKET_NAME]: nearMarketData,
       [USDC_MARKET_NAME]: usdcMarketData,
       [UST_MARKET_NAME]: ustMarketData,
       [USDT_MARKET_NAME]: usdtMarketData,
@@ -114,7 +116,7 @@ function BorrowMarkets(): ReactElement {
       [wBTC_MARKET_NAME]: wBtcMarketData,
     }
   }, [
-    wNearMarketData,
+    nearMarketData,
     usdcMarketData,
     ustMarketData,
     usdtMarketData,
@@ -161,6 +163,16 @@ function BorrowMarkets(): ReactElement {
           )}`,
         }
       })
+  }, [marketsData])
+
+  const totalTvl = useMemo(() => {
+    return Object.values(marketsData)
+      ?.map(({ tvl }) => {
+        return tvl
+      })
+      .reduce((sum, tvl) => {
+        return sum.add(tvl)
+      }, Zero)
   }, [marketsData])
 
   const FILTER_FUNCTIONS: {
@@ -343,9 +355,11 @@ function BorrowMarkets(): ReactElement {
             ) : (
               <BorrowDashboard
                 totalRUSDBorrowed={totalRUSDBorrowed}
+                rusdBalance={nearMarketData.rusdUserBalance}
                 marketsData={marketsData}
                 rusdBorrowedFormatted={rusdBorrowedFormatted}
                 collateralDepositedUSD={collateralDepositedUSD}
+                totalTvl={totalTvl}
                 loading={loading}
                 timeout={timeout}
               />
@@ -454,9 +468,11 @@ function BorrowMarkets(): ReactElement {
         right={
           <BorrowDashboard
             totalRUSDBorrowed={totalRUSDBorrowed}
+            rusdBalance={nearMarketData.rusdUserBalance}
             marketsData={marketsData}
             rusdBorrowedFormatted={rusdBorrowedFormatted}
             collateralDepositedUSD={collateralDepositedUSD}
+            totalTvl={totalTvl}
             loading={loading}
             timeout={timeout}
           />
@@ -468,9 +484,11 @@ function BorrowMarkets(): ReactElement {
 
 interface BorrowDashboardProps {
   totalRUSDBorrowed: number
+  rusdBalance: BigNumber
   marketsData: { [borrowMarket in BorrowMarketName]: BorrowDataType }
   rusdBorrowedFormatted: DashboardItems[]
   collateralDepositedUSD: DashboardItems[]
+  totalTvl: BigNumber
   loading: boolean
   timeout: boolean
 }
@@ -478,9 +496,11 @@ interface BorrowDashboardProps {
 const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
   const {
     totalRUSDBorrowed,
+    rusdBalance,
     marketsData,
     rusdBorrowedFormatted,
     collateralDepositedUSD,
+    totalTvl,
     loading,
     timeout,
   } = props
@@ -493,17 +513,60 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
       dashboardContent={
         <StakeDetails
           extraStakeDetailChild={
-            <Flex justifyContent="space-between" alignItems="center">
-              <FaHandHoldingUsd
-                color="#cc3a59"
-                size="35px"
-                title="Total RUSD Borrowed"
-              />
-              <AnimatingNumber
-                value={totalRUSDBorrowed}
-                precision={totalRUSDBorrowed > 0 ? 3 : 1}
-              />
-            </Flex>
+            <Grid
+              gridTemplateRows="repeat(3, 1fr)"
+              gridTemplateColumns="repeat(2, 1fr)"
+              columnGap="20px"
+              alignItems="center"
+            >
+              <GridItem rowStart={1} rowSpan={1} justifySelf="center">
+                <Text
+                  textAlign="center"
+                  fontSize="16px"
+                  color="var(--text-lighter)"
+                >
+                  Your Total RUSD Borrowed
+                </Text>
+              </GridItem>
+              <GridItem rowStart={2} rowSpan={1} justifySelf="center">
+                <Box mb="10px">
+                  <FaHandHoldingUsd
+                    color="#cc3a59"
+                    size="40px"
+                    title="Total RUSD Borrowed"
+                  />
+                </Box>
+              </GridItem>
+              <GridItem rowStart={3} rowSpan={1} justifySelf="center">
+                <AnimatingNumber
+                  value={totalRUSDBorrowed}
+                  precision={totalRUSDBorrowed > 0 ? 3 : 1}
+                />
+              </GridItem>
+              <GridItem rowStart={1} rowSpan={1} justifySelf="center">
+                <Text
+                  textAlign="center"
+                  fontSize="16px"
+                  color="var(--text-lighter)"
+                >
+                  Your RUSD Balance
+                </Text>
+              </GridItem>
+              <GridItem rowStart={2} rowSpan={1} justifySelf="center">
+                <Box mb="10px">
+                  <FaWallet
+                    color="#cc3a59"
+                    size="40px"
+                    title="RUSD Balance in your Wallet"
+                  />
+                </Box>
+              </GridItem>
+              <GridItem rowStart={3} rowSpan={1} justifySelf="center">
+                <Text textAlign="center" fontSize="30px" fontWeight={700}>
+                  {commify(formatBNToString(rusdBalance, 18, 2))}
+                </Text>
+              </GridItem>
+            </Grid>
           }
           bottom={
             <Grid gridTemplateRows="auto" rowGap="25px">
@@ -596,6 +659,12 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
             title: "Your Collateral Deposited",
             items: collateralDepositedUSD,
           }}
+          stats={[
+            {
+              statLabel: "Total Borrow TVL",
+              statValue: `$${commify(formatBNToString(totalTvl, 18, 2))}`,
+            },
+          ]}
         />
       }
     />

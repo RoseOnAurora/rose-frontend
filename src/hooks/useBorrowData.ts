@@ -109,7 +109,7 @@ export default function useBorrowData(
 
       if (account && account != AddressZero && account != null) {
         try {
-          // borrow data
+          // raw borrow data
           const fees = await gardenContract.accrueInfo()
           const [
             ,
@@ -153,7 +153,6 @@ export default function useBorrowData(
           const collateralTokenConversion = BigNumber.from(10).pow(
             Math.abs(18 - BORROW_MARKET.collateralToken.decimals),
           )
-          const tvlUsd = USD_CONVERSION_BN(tvl)
           const mcrAdj = mcr.mul(BigNumber.from(10).pow(13)) // mcr is e^5 precision
           const borrowFeeAdj = borrowFee.mul(BigNumber.from(10).pow(13)) // borrowfee is e^5 precision
           const liquidationMultiplierAdj = liquidationMultiplier.mul(
@@ -165,6 +164,8 @@ export default function useBorrowData(
             BigNumber.from("31557600"),
           )
           const borrowedAdj = borrowed.mul(borrowTokenConversion)
+
+          // handle case with > 18 decimals
           const collateralDepositedAdj =
             BORROW_MARKET.collateralToken.decimals > 18
               ? collateralDeposited.div(collateralTokenConversion)
@@ -173,17 +174,27 @@ export default function useBorrowData(
             BORROW_MARKET.collateralToken.decimals > 18
               ? collateralBalance.div(collateralTokenConversion)
               : collateralBalance.mul(collateralTokenConversion)
+          const tvlAdj =
+            BORROW_MARKET.collateralToken.decimals > 18
+              ? tvl.div(collateralTokenConversion)
+              : tvl.mul(collateralTokenConversion)
 
+          // get USD conversions
+          const tvlUsd = USD_CONVERSION_BN(tvlAdj)
           const collateralDepositedUSDPrice = USD_CONVERSION_BN(
             collateralDepositedAdj,
           )
+          const borrowedUSDPrice = USD_CONVERSION_BN(borrowedAdj)
+
+          // compute position health as fx of borrow/collateral
           const positionHealth = collateralDepositedAdj.isZero()
             ? BigNumber.from(0)
             : borrowedAdj
                 .mul(BigNumber.from(10).pow(18))
                 .div(collateralDepositedUSDPrice)
 
-          const borrowedUSDPrice = USD_CONVERSION_BN(borrowedAdj)
+          // compute rusd left for user as fx of mcr and collateral deposited
+          // and adjust it
           const rusdLeftToBorrow = mcrAdj
             .sub(
               borrowed
