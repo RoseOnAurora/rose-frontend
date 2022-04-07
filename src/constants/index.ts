@@ -1781,7 +1781,7 @@ export function isMetaPool(poolName = ""): boolean {
     UST_METAPOOL_NAME,
     BUSD_METAPOOL_NAME,
     MAI_METAPOOL_NAME,
-    // RUSD_METAPOOL_NAME,
+    RUSD_METAPOOL_NAME,
   ]).has(poolName)
 }
 
