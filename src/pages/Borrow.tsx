@@ -373,10 +373,13 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
         )} of the dollar value of collateral deposited.`}
         <br />
         <br />
-        {`For example, if you deposit 10 ${collateralToken.name}, (≈ $${
-          +formatBNToString(borrowData.priceOfCollateral, 18) * 10
-        }) you are allowed to borrow ${formatBNToString(
-          calculateMaxBorrowHelper("10"),
+        {`For example, if you deposit 1 ${
+          collateralToken.name
+        }, (≈ $${+formatBNToString(
+          borrowData.priceOfCollateral,
+          18,
+        )}) you are allowed to borrow ${formatBNToString(
+          calculateMaxBorrowHelper("1"),
           18,
           5,
         )}* RUSD.`}

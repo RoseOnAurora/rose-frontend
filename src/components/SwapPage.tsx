@@ -11,6 +11,7 @@ import AdvancedOptions from "./AdvancedOptions"
 import { AppState } from "../state/index"
 import { BigNumber } from "@ethersproject/bignumber"
 import BlockExplorerLink from "./BlockExplorerLink"
+import BottomMenu from "./BottomMenu"
 import { BsSliders } from "react-icons/bs"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { IconButtonPopover } from "./Popover"
@@ -322,6 +323,7 @@ const SwapPage = (props: Props): ReactElement => {
           />
         </Modal>
       </div>
+      <BottomMenu />
     </div>
   )
 }

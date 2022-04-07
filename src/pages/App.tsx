@@ -35,10 +35,7 @@ import usePoller from "../hooks/usePoller"
 export default function App(): ReactElement {
   const { chainId } = useActiveWeb3React()
   const { userDarkMode } = useSelector((state: AppState) => state.user)
-  const [timeLeft, actions] = useCountDown(
-    new Date(1649343600000).getTime() - Date.now(),
-    1000,
-  )
+  const [timeLeft, actions] = useCountDown(1649343600000 - Date.now(), 1000)
   useEffect(() => {
     actions.start()
   }, [actions])
