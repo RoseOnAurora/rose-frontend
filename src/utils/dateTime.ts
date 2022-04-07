@@ -16,7 +16,7 @@ export function msToHMS(ms: number): [string, string, string] {
   // 1- Convert to seconds:
   let seconds = ms / 1000
   // 2- Extract hours:
-  const hours = (seconds / 3600).toFixed(0) // 3,600 seconds in 1 hour
+  const hours = Math.floor(seconds / 3600).toFixed(0) // 3,600 seconds in 1 hour
   seconds = seconds % 3600 // seconds remaining after extracting hours
   // 3- Extract minutes:
   const minutes = (seconds / 60).toFixed(0) // 60 seconds in 1 minute
