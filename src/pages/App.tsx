@@ -13,7 +13,6 @@ import { Route, Switch } from "react-router-dom"
 import { isChainSupportedByNotify, notify } from "../utils/notifyHandler"
 import { useDispatch, useSelector } from "react-redux"
 import Borrow from "./Borrow"
-import BorrowCountdownLanding from "../components/BorrowCountdownLanding"
 import BorrowMarkets from "./BorrowMarkets"
 import Farm from "./Farm"
 import Farms from "./Farms"
@@ -29,16 +28,11 @@ import fetchStakeStats from "../utils/fetchStakeStats"
 import fetchSwapStats from "../utils/getSwapStats"
 import fetchTokenPricesUSD from "../utils/updateTokenPrices"
 import { useActiveWeb3React } from "../hooks"
-import useCountDown from "react-countdown-hook"
 import usePoller from "../hooks/usePoller"
 
 export default function App(): ReactElement {
   const { chainId } = useActiveWeb3React()
   const { userDarkMode } = useSelector((state: AppState) => state.user)
-  const [timeLeft, actions] = useCountDown(1649343600000 - Date.now(), 1000)
-  useEffect(() => {
-    actions.start()
-  }, [actions])
 
   useEffect(() => {
     notify?.config({
@@ -56,17 +50,7 @@ export default function App(): ReactElement {
             <Route exact path="/pools" component={Pools} />
             <Route exact path="/farms" component={Farms} />
             <Route exact path="/stake" component={Stake} />
-            <Route
-              exact
-              path="/borrow"
-              render={() =>
-                timeLeft ? (
-                  <BorrowCountdownLanding timeLeft={timeLeft} />
-                ) : (
-                  <BorrowMarkets />
-                )
-              }
-            />
+            <Route exact path="/borrow" component={BorrowMarkets} />
             {Object.values(POOLS_MAP).map(({ name, route }) => (
               <Route
                 exact
@@ -88,17 +72,9 @@ export default function App(): ReactElement {
                 <Route
                   exact
                   path={`/borrow/${route}`}
-                  render={(props) =>
-                    timeLeft ? (
-                      <BorrowCountdownLanding timeLeft={timeLeft} />
-                    ) : (
-                      <Borrow
-                        {...props}
-                        borrowName={name}
-                        isStable={isStable}
-                      />
-                    )
-                  }
+                  render={(props) => (
+                    <Borrow {...props} borrowName={name} isStable={isStable} />
+                  )}
                   key={`${name}-borrow`}
                 />
               ),
