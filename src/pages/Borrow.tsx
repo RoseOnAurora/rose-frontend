@@ -125,7 +125,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
     borrowAmount: string,
     collateralAmount: string,
   ): string | undefined => {
-    const generalValidation = validateAmount(borrowAmount)
+    const generalValidation = validateAmount(borrowAmount, borrowToken.decimals)
     if (validateDepositCollateral(collateralAmount)) {
       return "Collateral field has errors."
     }
@@ -145,7 +145,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   }
 
   const validateDepositCollateral = (amount: string): string | undefined => {
-    const generalValidation = validateAmount(amount)
+    const generalValidation = validateAmount(amount, collateralToken.decimals)
     if (generalValidation || amount === "") {
       return generalValidation || undefined
     }
@@ -155,7 +155,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   }
 
   const validateRepay = (borrowAmount: string): string | undefined => {
-    const generalValidation = validateAmount(borrowAmount)
+    const generalValidation = validateAmount(borrowAmount, borrowToken.decimals)
     if (generalValidation || borrowAmount === "") {
       return generalValidation || undefined
     }
@@ -168,7 +168,10 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
     borrowAmount: string,
     collateralAmount: string,
   ): string | undefined => {
-    const generalValidation = validateAmount(collateralAmount)
+    const generalValidation = validateAmount(
+      collateralAmount,
+      collateralToken.decimals,
+    )
     if (validateRepay(borrowAmount)) {
       return "Repay field has errors."
     }
@@ -186,9 +189,12 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
     }
   }
 
-  const validateAmount = (amount: string): string | null => {
-    const decimalRegex = /^[0-9]\d*(\.\d{1,18})?$/
-    if (amount && !decimalRegex.exec(amount)) {
+  const validateAmount = (amount: string, decimals: number): string | null => {
+    if (
+      amount &&
+      parseStringToBigNumber(amount, decimals > 18 ? 18 : decimals, Zero)
+        .isFallback
+    ) {
       return t("Invalid number.")
     }
     return null
@@ -229,8 +235,11 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
     collateralAmount: string,
     negate = false,
   ): string => {
-    const validateBorrow = validateAmount(borrowAmount)
-    const validateCollateral = validateAmount(collateralAmount)
+    const validateBorrow = validateAmount(borrowAmount, borrowToken.decimals)
+    const validateCollateral = validateAmount(
+      collateralAmount,
+      collateralToken.decimals,
+    )
     if (validateBorrow || validateCollateral) return "$xx.xxx"
     const formattedBorrowAmount =
       borrowAmount && negate ? `-${borrowAmount}` : borrowAmount
@@ -246,8 +255,11 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
     collateralAmount: string,
     negate = false,
   ): number => {
-    const validateBorrow = validateAmount(borrowAmount)
-    const validateCollateral = validateAmount(collateralAmount)
+    const validateBorrow = validateAmount(borrowAmount, borrowToken.decimals)
+    const validateCollateral = validateAmount(
+      collateralAmount,
+      collateralToken.decimals,
+    )
     if (validateBorrow || validateCollateral) return 0
 
     const formattedBorrowAmount =
