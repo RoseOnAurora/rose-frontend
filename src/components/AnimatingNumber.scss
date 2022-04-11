@@ -9,6 +9,7 @@
   font-weight: $bold;
   color: var(--text-title);
   letter-spacing: -1px;
+  font-size: 26px;
   @include breakpoint(lg) {
     font-size: 24px;
   }

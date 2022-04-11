@@ -415,7 +415,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   const mcrFormatted = formatBNToPercentString(borrowData.mcr, 18, 0)
 
   return (
-    <PageWrapper activeTab="borrow">
+    <PageWrapper activeTab="borrow" maxW="1195px">
       <Drawer
         isOpen={isOpen}
         placement="right"

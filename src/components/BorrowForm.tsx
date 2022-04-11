@@ -12,7 +12,6 @@ import {
   FormErrorMessage,
   FormHelperText,
   FormLabel,
-  HStack,
   Input,
   InputGroup,
   InputLeftElement,
@@ -197,7 +196,7 @@ const BorrowForm = (props: Props): ReactElement => {
                   borderRadius="10px"
                   isInvalid={form.errors?.collateral}
                 >
-                  <FormLabel fontWeight={700} htmlFor="amount">
+                  <FormLabel fontSize="18px" fontWeight={700} htmlFor="amount">
                     Deposit Collateral
                   </FormLabel>
                   <InputGroup mt="25px">
@@ -254,63 +253,90 @@ const BorrowForm = (props: Props): ReactElement => {
             <Field name="borrow">
               {({ field, form }: FieldAttributes<any>) => (
                 <FormControl
-                  padding="10px"
+                  padding="15px"
                   mt="15px"
                   bgColor="var(--secondary-background)"
                   borderRadius="10px"
+                  whiteSpace="nowrap"
                   isInvalid={form.errors?.borrow}
                 >
                   <Flex
                     justifyContent="space-between"
                     alignItems="baseline"
+                    gridColumnGap="25px"
                     flexWrap={{ base: "wrap", md: "nowrap" }}
                   >
-                    <FormLabel fontWeight={700} htmlFor="amount">
+                    <FormLabel
+                      fontSize="18px"
+                      fontWeight={700}
+                      htmlFor="amount"
+                    >
                       Borrow RUSD
                     </FormLabel>
-                    <HStack spacing="20px" alignItems="center">
-                      <Stack spacing="5px">
-                        <Flex>
-                          <Text
-                            color="var(--text-lighter)"
-                            fontSize={{ base: "14px", lg: "16px" }}
-                          >
-                            Updated Liquidation Price:&nbsp;
-                          </Text>
-                          <Text fontWeight={700}>
-                            {!form.errors.borrow && !form.errors.collateral
-                              ? updateLiquidationPrice(
-                                  props.values.borrow,
-                                  props.values.collateral,
-                                )
-                              : "$xx.xxx"}
-                          </Text>
-                        </Flex>
-                        <Flex>
-                          <Text
-                            color="var(--text-lighter)"
-                            fontSize={{ base: "14px", lg: "16px" }}
-                          >
-                            Updated Position Health:&nbsp;
-                          </Text>
-                          <Text fontWeight={700}>
-                            {!form.errors.borrow && !form.errors.collateral
-                              ? `${updatePositionHealth(
-                                  props.values.borrow,
-                                  props.values.collateral,
-                                ).toFixed(0)}%`
-                              : "xx%"}
-                          </Text>
-                        </Flex>
-                      </Stack>
-                      <SafetyTag
-                        safetyScore={updatePositionHealth(
-                          props.values.borrow,
-                          props.values.collateral,
-                        )}
-                        isStable={isStable}
-                      />
-                    </HStack>
+                    <Stack spacing="10px" w="100%">
+                      <Flex
+                        gridGap="10px"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <Text
+                          color="var(--text-lighter)"
+                          fontSize={{ base: "13px", lg: "16px" }}
+                        >
+                          Expected Liquidation Price:
+                        </Text>
+                        <Text fontWeight={700} justifySelf="end">
+                          {!form.errors.borrow && !form.errors.collateral
+                            ? updateLiquidationPrice(
+                                props.values.borrow,
+                                props.values.collateral,
+                              )
+                            : "$xx.xxx"}
+                        </Text>
+                      </Flex>
+                      <Flex
+                        gridGap="10px"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <Text
+                          color="var(--text-lighter)"
+                          fontSize={{ base: "13px", lg: "16px" }}
+                        >
+                          Expected Position Health:
+                        </Text>
+                        <Text fontWeight={700} justifySelf="end">
+                          {!form.errors.borrow && !form.errors.collateral
+                            ? `${updatePositionHealth(
+                                props.values.borrow,
+                                props.values.collateral,
+                              ).toFixed(0)}%`
+                            : "xx%"}
+                        </Text>
+                      </Flex>
+
+                      <Flex
+                        gridGap="10px"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <Text
+                          color="var(--text-lighter)"
+                          fontSize={{ base: "13px", lg: "16px" }}
+                        >
+                          Expected Risk:
+                        </Text>
+                        <Box justifySelf="end">
+                          <SafetyTag
+                            safetyScore={updatePositionHealth(
+                              props.values.borrow,
+                              props.values.collateral,
+                            )}
+                            isStable={isStable}
+                          />
+                        </Box>
+                      </Flex>
+                    </Stack>
                   </Flex>
                   <Box p="10px">
                     <Slider
