@@ -77,7 +77,7 @@ const StakeBalanceView = ({
             return (
               <GridItem key={index}>
                 <Grid
-                  gridTemplateColumns="70px 100%"
+                  gridTemplateColumns="70px auto"
                   gridTemplateRows="auto"
                   alignItems="center"
                   columnGap="5px"
