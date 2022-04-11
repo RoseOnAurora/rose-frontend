@@ -42,7 +42,7 @@ const BorrowCountdownLanding = ({ timeLeft }: Props): ReactElement => {
             </Text>
           ) : (
             <Flex justifyContent="center" alignItems="center">
-              <AnimateNumber precision={0} value={seconds} fontSize="90px" />
+              <AnimateNumber precision={0} value={seconds} />
             </Flex>
           )}
           <Button

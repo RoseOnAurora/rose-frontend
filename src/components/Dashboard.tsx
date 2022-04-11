@@ -25,7 +25,7 @@ const Dashboard = ({
           borderRadius="10px"
         >
           <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="35px" fontWeight="700">
+            <Text fontSize="35px" fontWeight="700" as="h2">
               {dashboardName}
             </Text>
             <FaLayerGroup color="#cc3a59" size="45px" title="Dashboard" />

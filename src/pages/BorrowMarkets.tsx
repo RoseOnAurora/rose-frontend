@@ -221,7 +221,7 @@ function BorrowMarkets(): ReactElement {
   }
 
   return (
-    <PageWrapper activeTab="borrow" maxW="1550px">
+    <PageWrapper activeTab="borrow" maxW="1650px">
       <Drawer
         isOpen={isOpen}
         placement="right"
@@ -379,6 +379,7 @@ function BorrowMarkets(): ReactElement {
         </DrawerContent>
       </Drawer>
       <OverviewWrapper
+        templateColumns="60% 37%"
         top={
           <OverviewInputFieldsWrapper
             sortDirection={sortDirection}
@@ -513,60 +514,81 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
       dashboardContent={
         <StakeDetails
           extraStakeDetailChild={
-            <Grid
-              gridTemplateRows="repeat(3, 1fr)"
-              gridTemplateColumns="repeat(2, 1fr)"
-              columnGap="20px"
-              alignItems="center"
+            <Flex
+              justifyContent="space-between"
+              alignItems="baseline"
+              gridGap="15px"
+              flexDirection={{ base: "column", xl: "row" }}
             >
-              <GridItem rowStart={1} rowSpan={1} justifySelf="center">
-                <Text
-                  textAlign="center"
-                  fontSize="16px"
-                  color="var(--text-lighter)"
-                >
-                  Your Total RUSD Borrowed
-                </Text>
-              </GridItem>
-              <GridItem rowStart={2} rowSpan={1} justifySelf="center">
-                <Box mb="10px">
+              <Stack
+                spacing="30px"
+                w="100%"
+                alignItems="center"
+                bg="var(--secondary-background)"
+                justifyContent="baseline"
+                p="20px"
+                borderRadius="15px"
+                boxShadow="0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)"
+              >
+                <Stack spacing="10px" alignItems="center">
+                  <Text
+                    textAlign="center"
+                    fontSize="16px"
+                    as="h3"
+                    color="var(--text-lighter)"
+                    fontWeight={600}
+                  >
+                    Your Total RUSD Borrowed
+                  </Text>
                   <FaHandHoldingUsd
                     color="#cc3a59"
                     size="40px"
                     title="Total RUSD Borrowed"
                   />
+                </Stack>
+                <Box justifySelf="center" alignSelf="center">
+                  <AnimatingNumber
+                    value={totalRUSDBorrowed}
+                    precision={totalRUSDBorrowed > 0 ? 3 : 1}
+                  />
                 </Box>
-              </GridItem>
-              <GridItem rowStart={3} rowSpan={1} justifySelf="center">
-                <AnimatingNumber
-                  value={totalRUSDBorrowed}
-                  precision={totalRUSDBorrowed > 0 ? 3 : 1}
-                />
-              </GridItem>
-              <GridItem rowStart={1} rowSpan={1} justifySelf="center">
-                <Text
-                  textAlign="center"
-                  fontSize="16px"
-                  color="var(--text-lighter)"
-                >
-                  Your RUSD Balance
-                </Text>
-              </GridItem>
-              <GridItem rowStart={2} rowSpan={1} justifySelf="center">
-                <Box mb="10px">
+              </Stack>
+              <Stack
+                spacing="30px"
+                alignItems="center"
+                w="100%"
+                bg="var(--secondary-background)"
+                justifyContent="baseline"
+                p="20px"
+                borderRadius="15px"
+                boxShadow="0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)"
+              >
+                <Stack spacing="10px" alignItems="center">
+                  <Text
+                    textAlign="center"
+                    fontSize="16px"
+                    as="h3"
+                    color="var(--text-lighter)"
+                    fontWeight={600}
+                  >
+                    Your Total RUSD Balance
+                  </Text>
                   <FaWallet
                     color="#cc3a59"
                     size="40px"
                     title="RUSD Balance in your Wallet"
                   />
+                </Stack>
+                <Box justifySelf="center" alignSelf="center">
+                  <AnimatingNumber
+                    value={+commify(formatBNToString(rusdBalance, 18, 2))}
+                    precision={
+                      +commify(formatBNToString(rusdBalance, 18, 2)) > 0 ? 3 : 1
+                    }
+                  />
                 </Box>
-              </GridItem>
-              <GridItem rowStart={3} rowSpan={1} justifySelf="center">
-                <Text textAlign="center" fontSize="30px" fontWeight={700}>
-                  {commify(formatBNToString(rusdBalance, 18, 2))}
-                </Text>
-              </GridItem>
-            </Grid>
+              </Stack>
+            </Flex>
           }
           bottom={
             <Grid gridTemplateRows="auto" rowGap="25px">

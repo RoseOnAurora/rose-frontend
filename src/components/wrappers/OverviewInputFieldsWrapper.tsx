@@ -62,11 +62,11 @@ const OverviewInputFieldsWrapper = ({
     <Flex
       gridGap="15px"
       justifyContent="space-between"
-      alignItems={{ base: "baseline", lg: "center" }}
+      alignItems={{ base: "baseline", xl: "center" }}
     >
       <Stack
-        spacing={{ base: "10px", lg: "15px" }}
-        direction={{ base: "column", lg: "row" }}
+        spacing={{ base: "10px", xl: "15px" }}
+        direction={{ base: "column", xl: "row" }}
       >
         <HStack spacing="5px">
           <Box {...defaultBoxProps}>
@@ -138,7 +138,7 @@ const OverviewInputFieldsWrapper = ({
       <Stack
         spacing="5px"
         alignItems="center"
-        direction={{ base: "column", lg: "row" }}
+        direction={{ base: "column", xl: "row" }}
       >
         <Box {...defaultBoxProps}>
           <IconButtonPopover
@@ -162,7 +162,7 @@ const OverviewInputFieldsWrapper = ({
             onClick={() => onIconClick(true)}
           />
         </Box>
-        <Box {...defaultBoxProps} display={{ base: "flex", lg: "none" }}>
+        <Box {...defaultBoxProps} display={{ base: "flex", xl: "none" }}>
           <IconButton
             _focus={{ boxShadow: "none" }}
             aria-label="dashboard"

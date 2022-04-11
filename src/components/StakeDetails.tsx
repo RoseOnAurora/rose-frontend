@@ -58,6 +58,7 @@ const StakeBalanceView = ({
       p="15px"
       border="1px solid var(--outline)"
       borderRadius="10px"
+      wordBreak="break-word"
     >
       <Flex justifyContent="space-between" alignItems="center" m="8px 0">
         <Text fontSize="25px" fontWeight={700} lineHeight="30px">
@@ -65,12 +66,18 @@ const StakeBalanceView = ({
         </Text>
       </Flex>
       {items.length ? (
-        <Grid gridTemplateRows="auto" rowGap="15px" m="8px 0">
+        <Grid
+          autoFlow={{ base: "none", lg: "row" }}
+          templateColumns={{ base: "repeat(1, 1fr)", lg: "repeat(2, 1fr)" }}
+          rowGap="15px"
+          m="15px 0"
+          alignItems="center"
+        >
           {items.map(({ icon, tokenName, amount, collapseContent }, index) => {
             return (
               <GridItem key={index}>
                 <Grid
-                  gridTemplateColumns="70px auto"
+                  gridTemplateColumns="70px 100%"
                   gridTemplateRows="auto"
                   alignItems="center"
                   columnGap="5px"
@@ -93,7 +100,13 @@ const StakeBalanceView = ({
                       <StatGroup>
                         <Stat>
                           <Flex alignItems="center">
-                            <StatLabel color="var(--text-lighter)">
+                            <StatLabel
+                              fontSize={{
+                                base: "12px",
+                                lg: "13px",
+                              }}
+                              color="var(--text-lighter)"
+                            >
                               {tokenName}
                             </StatLabel>
                             {collapseContent && (
@@ -111,7 +124,15 @@ const StakeBalanceView = ({
                           <Collapse in={isOpen} animateOpacity>
                             {collapseContent}
                           </Collapse>
-                          <StatNumber fontSize="18px">{amount}</StatNumber>
+                          <StatNumber
+                            fontSize={{
+                              base: "14px",
+                              lg: "15px",
+                              xl: "16px",
+                            }}
+                          >
+                            {amount}
+                          </StatNumber>
                         </Stat>
                       </StatGroup>
                     </Box>
@@ -137,7 +158,15 @@ const StakeStatLabel = (props: StakeStatLabel): ReactElement => {
   if (statTooltip) {
     return (
       <Tooltip bgColor="#cc3a59" closeOnClick={false} label={statTooltip}>
-        <Text cursor="help" borderBottom="1px dotted var(--text)">
+        <Text
+          fontSize={{
+            base: "14px",
+            lg: "15px",
+            xl: "16px",
+          }}
+          cursor="help"
+          borderBottom="1px dotted var(--text)"
+        >
           {statLabel}
         </Text>
       </Tooltip>
@@ -145,7 +174,15 @@ const StakeStatLabel = (props: StakeStatLabel): ReactElement => {
   } else if (statPopOver) {
     return (
       <Flex alignItems="center">
-        <Text>{statLabel}</Text>
+        <Text
+          fontSize={{
+            base: "14px",
+            lg: "15px",
+            xl: "16px",
+          }}
+        >
+          {statLabel}
+        </Text>
         <IconButton
           onClick={onClick}
           aria-label="Expand"
@@ -158,7 +195,17 @@ const StakeStatLabel = (props: StakeStatLabel): ReactElement => {
       </Flex>
     )
   } else {
-    return <Text>{statLabel}</Text>
+    return (
+      <Text
+        fontSize={{
+          base: "14px",
+          lg: "15px",
+          xl: "16px",
+        }}
+      >
+        {statLabel}
+      </Text>
+    )
   }
 }
 const StakeDetails = (props: Props): ReactElement => {
@@ -172,7 +219,7 @@ const StakeDetails = (props: Props): ReactElement => {
   } = props
   const { isOpen, onToggle } = useDisclosure()
   return (
-    <Grid gridGap="10px">
+    <Grid rowGap="10px" templateColumns="repeat(1, 100%)">
       {extraStakeDetailChild && (
         <GridItem>
           {loading === true ? (
@@ -236,7 +283,16 @@ const StakeDetails = (props: Props): ReactElement => {
                             statPopOver={statPopOver}
                             onClick={onToggle}
                           />
-                          <Text fontWeight="600">{statValue}</Text>
+                          <Text
+                            fontSize={{
+                              base: "15px",
+                              lg: "16px",
+                              xl: "17px",
+                            }}
+                            fontWeight="600"
+                          >
+                            {statValue}
+                          </Text>
                         </Flex>
                         {statPopOver && (
                           <Collapse in={isOpen} animateOpacity>
