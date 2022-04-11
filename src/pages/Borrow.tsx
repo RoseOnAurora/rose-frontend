@@ -579,7 +579,11 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
                   borrowToken={borrowToken}
                   collateralToken={collateralToken}
                   isStable={isStable}
-                  max={formatBNToString(borrowData.collateralTokenBalance, 18)}
+                  max={formatBNToString(
+                    borrowData.collateralTokenBalance,
+                    18,
+                    collateralToken.decimals,
+                  )}
                   collateralUSDPrice={
                     +formatBNToString(borrowData.priceOfCollateral, 18)
                   }

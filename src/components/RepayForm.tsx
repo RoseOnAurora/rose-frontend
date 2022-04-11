@@ -354,6 +354,9 @@ const RepayForm = (props: Props): ReactElement => {
                           const withdrawMax = formatBNToString(
                             getMaxWithdraw(props.values.borrow),
                             18,
+                            collateralToken.decimals > 18
+                              ? 18
+                              : collateralToken.decimals,
                           )
                           props.setFieldTouched("collateral", true)
                           props.setFieldValue("collateral", withdrawMax)
