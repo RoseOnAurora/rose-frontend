@@ -58,7 +58,6 @@ const StakeBalanceView = ({
       p="15px"
       border="1px solid var(--outline)"
       borderRadius="10px"
-      wordBreak="break-word"
     >
       <Flex justifyContent="space-between" alignItems="center" m="8px 0">
         <Text fontSize="25px" fontWeight={700} lineHeight="30px">
