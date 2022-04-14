@@ -16,7 +16,7 @@ const OverviewWrapper = ({
 }: Props): ReactElement => {
   return (
     <Grid
-      templateColumns={{ base: "100%", xl: templateColumns || "63% 34%" }}
+      templateColumns={{ base: "100%", xl: templateColumns || "60% 37%" }}
       templateRows="auto"
       columnGap={{ base: "0", xl: "30px" }}
       rowGap="20px"

@@ -6,7 +6,7 @@ import TopMenu from "../TopMenu"
 const PageWrapper = ({
   children,
   activeTab,
-  maxW = "1095px",
+  maxW = "1195px",
 }: React.PropsWithChildren<unknown> & {
   activeTab: string
   maxW?: string

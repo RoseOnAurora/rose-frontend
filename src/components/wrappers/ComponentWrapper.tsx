@@ -23,7 +23,7 @@ const ComponentWrapper = ({
   }
   return (
     <Grid
-      gridTemplateColumns="55% 41%"
+      gridTemplateColumns="52% 44%"
       gridTemplateRows="auto"
       gap="10px"
       justifyContent="center"

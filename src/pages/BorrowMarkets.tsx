@@ -379,7 +379,6 @@ function BorrowMarkets(): ReactElement {
         </DrawerContent>
       </Drawer>
       <OverviewWrapper
-        templateColumns="60% 37%"
         top={
           <OverviewInputFieldsWrapper
             sortDirection={sortDirection}
