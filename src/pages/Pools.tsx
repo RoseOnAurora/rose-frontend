@@ -255,7 +255,7 @@ function Pools(): ReactElement | null {
     }
   }
   return (
-    <PageWrapper activeTab="pools" maxW="1550px">
+    <PageWrapper activeTab="pools" maxW="1650px">
       <Drawer
         isOpen={isOpen}
         placement="right"

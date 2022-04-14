@@ -257,7 +257,6 @@ const BorrowForm = (props: Props): ReactElement => {
                   mt="15px"
                   bgColor="var(--secondary-background)"
                   borderRadius="10px"
-                  whiteSpace="nowrap"
                   isInvalid={form.errors?.borrow}
                 >
                   <Flex
@@ -270,6 +269,7 @@ const BorrowForm = (props: Props): ReactElement => {
                       fontSize="18px"
                       fontWeight={700}
                       htmlFor="amount"
+                      whiteSpace="nowrap"
                     >
                       Borrow RUSD
                     </FormLabel>
