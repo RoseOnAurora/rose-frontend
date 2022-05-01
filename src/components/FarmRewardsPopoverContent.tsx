@@ -5,6 +5,7 @@ import BlockExplorerLink from "./BlockExplorerLink"
 import { ContractReceipt } from "ethers"
 import roseIcon from "../assets/icons/rose.svg"
 import terraLunaIcon from "../assets/icons/terra-luna-logo.svg"
+import { useActiveWeb3React } from "../hooks"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -27,11 +28,13 @@ const ToastDescription = ({
   status: number
   txnHash?: string
 }): ReactElement | null => {
+  const { chainId } = useActiveWeb3React()
   return txnHash ? (
     <BlockExplorerLink
       txnType={txnType}
       txnHash={txnHash}
       status={status ? "Succeeded" : "Failed"}
+      chainId={chainId}
     />
   ) : null
 }

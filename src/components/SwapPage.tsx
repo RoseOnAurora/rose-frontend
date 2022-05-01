@@ -74,7 +74,7 @@ const SwapPage = (props: Props): ReactElement => {
   } = props
 
   const { t } = useTranslation()
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const toast = useChakraToast()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -93,6 +93,7 @@ const SwapPage = (props: Props): ReactElement => {
         txnType={transactionType}
         txnHash={receipt?.transactionHash}
         status={receipt?.status ? "Succeeded" : "Failed"}
+        chainId={chainId}
       />
     ) : null
     if (receipt?.status) {
@@ -101,7 +102,6 @@ const SwapPage = (props: Props): ReactElement => {
         description: description,
       })
     } else {
-      console.log(error)
       toast.transactionFailed({
         txnType: transactionType,
         error,

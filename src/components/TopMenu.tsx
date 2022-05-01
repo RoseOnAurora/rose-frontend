@@ -19,6 +19,7 @@ import {
 } from "react-icons/bs"
 import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons"
 import {
+  FaBook,
   FaChartPie,
   FaDiscord,
   FaGift,
@@ -166,6 +167,9 @@ function TopMenu({ activeTab }: Props): ReactElement {
                   >
                     Discord↗
                   </MenuItem>
+                </MenuGroup>
+                <MenuDivider />
+                <MenuGroup title="Documentation">
                   <MenuItem
                     icon={<FaGithub />}
                     href="https://github.com/RoseOnAurora"
@@ -175,6 +179,16 @@ function TopMenu({ activeTab }: Props): ReactElement {
                     rel="noreferrer"
                   >
                     Github↗
+                  </MenuItem>
+                  <MenuItem
+                    icon={<FaBook />}
+                    href="https://docs.rose.fi"
+                    as="a"
+                    margin="0"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Gitbook Docs↗
                   </MenuItem>
                 </MenuGroup>
               </MenuList>
