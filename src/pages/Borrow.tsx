@@ -45,6 +45,7 @@ import StakeDetails from "../components/StakeDetails"
 import TabsWrapper from "../components/wrappers/TabsWrapper"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import { parseUnits } from "@ethersproject/units"
+import { useActiveWeb3React } from "../hooks"
 import useBorrowData from "../hooks/useBorrowData"
 import { useCook } from "../hooks/useCook"
 import { useTranslation } from "react-i18next"
@@ -61,6 +62,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   const btnRef = useRef<HTMLButtonElement>(null)
   const toast = useChakraToast()
   const cook = useCook(borrowName)
+  const { chainId } = useActiveWeb3React()
 
   const drawerBg = useColorModeValue(
     "linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9)",
@@ -99,7 +101,9 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
       maxBorrow.mul(borrowData.borrowFee).div(BigNumber.from(10).pow(18)),
     )
 
-    return maxBorrowAdj
+    return maxBorrowAdj.gt(borrowData.totalRUSDLeftToBorrow)
+      ? borrowData.totalRUSDLeftToBorrow
+      : maxBorrowAdj
   }
 
   const calculateMaxBorrow = (collateralAmount: string): BigNumber => {
@@ -305,6 +309,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
         txnType={transactionType}
         txnHash={receipt?.transactionHash}
         status={receipt?.status ? "Succeeded" : "Failed"}
+        chainId={chainId}
       />
     ) : null
     if (receipt?.status) {

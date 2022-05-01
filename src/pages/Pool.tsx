@@ -19,6 +19,7 @@ import StakeDetails from "../components/StakeDetails"
 import TabsWrapper from "../components/wrappers/TabsWrapper"
 import Withdraw from "../components/Withdraw"
 import { Zero } from "@ethersproject/constants"
+import { useActiveWeb3React } from "../hooks"
 import usePoolData from "../hooks/usePoolData"
 import { useTranslation } from "react-i18next"
 
@@ -29,6 +30,7 @@ interface Props {
 const Pool = ({ poolName }: Props): ReactElement => {
   const { t } = useTranslation()
   const toast = useChakraToast()
+  const { chainId } = useActiveWeb3React()
   const [poolData, userShareData] = usePoolData(poolName)
 
   const formattedShareTokens =
@@ -62,6 +64,7 @@ const Pool = ({ poolName }: Props): ReactElement => {
         txnType={transactionType}
         txnHash={receipt?.transactionHash}
         status={receipt?.status ? "Succeeded" : "Failed"}
+        chainId={chainId}
       />
     ) : null
     if (receipt?.status) {

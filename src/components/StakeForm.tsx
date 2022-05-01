@@ -25,6 +25,7 @@ import FormWrapper from "./wrappers/FormWrapper"
 import { Zero } from "@ethersproject/constants"
 import { formatBNToString } from "../utils"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
+import { useActiveWeb3React } from "../hooks"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -63,6 +64,7 @@ function StakeForm(props: Props): ReactElement {
 
   const { t } = useTranslation()
   const toast = useChakraToast()
+  const { chainId } = useActiveWeb3React()
 
   const validator = (amount: string): string | undefined => {
     const { value, isFallback } = parseStringToBigNumber(amount, 18, Zero)
@@ -86,6 +88,7 @@ function StakeForm(props: Props): ReactElement {
         txnType={transactionType}
         txnHash={receipt.transactionHash}
         status={receipt?.status ? "Succeeded" : "Failed"}
+        chainId={chainId}
       />
     ) : null
     if (receipt?.status) {

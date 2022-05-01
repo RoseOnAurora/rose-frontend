@@ -20,7 +20,7 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react"
-import { ROSE, SROSE, TRANSACTION_TYPES } from "../constants"
+import { ROSE, RUSD, SROSE, TRANSACTION_TYPES } from "../constants"
 import React, { ReactElement, useState } from "react"
 import { AppState } from "../state"
 import { BsClock } from "react-icons/bs"
@@ -36,6 +36,7 @@ export default function RosePriceButton(): ReactElement {
   const { priceOfRose } = { ...stakeStats }
   const addRoseToken = useAddTokenToMetamask(ROSE)
   const addStRoseToken = useAddTokenToMetamask(SROSE)
+  const addRusdToken = useAddTokenToMetamask(RUSD)
   const [timeUnit, setTimeUnit] = useState("hour")
   const priceChartLastUpdate = Math.round(
     (Date.now() - lastTransactionTimes[TRANSACTION_TYPES.ROSE_PRICE]) /
@@ -419,6 +420,18 @@ export default function RosePriceButton(): ReactElement {
               onClick={async () => await addStRoseToken()}
             >
               stROSE
+            </MenuItem>
+            <MenuItem
+              icon={
+                <Icon viewBox="0 0 180 150">
+                  <text fontSize="180px" y="89%">
+                    🌹
+                  </text>
+                </Icon>
+              }
+              onClick={async () => await addRusdToken()}
+            >
+              RUSD
             </MenuItem>
           </MenuGroup>
         </MenuList>

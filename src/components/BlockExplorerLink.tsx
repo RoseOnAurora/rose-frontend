@@ -3,22 +3,26 @@ import { Trans, useTranslation } from "react-i18next"
 import { ChainId } from "../constants"
 import { TransactionType } from "../hooks/useChakraToast"
 import { getEtherscanLink } from "../utils/getEtherscanLink"
-import { useActiveWeb3React } from "../hooks"
 
 interface Props {
   txnType: TransactionType
   txnHash: string
   status: "Failed" | "Succeeded"
+  chainId: ChainId | undefined
 }
 
 const BlockExplorerLink = ({
   txnType,
   txnHash,
   status,
+  chainId,
 }: Props): ReactElement => {
   const { t } = useTranslation()
-  const { chainId } = useActiveWeb3React()
-  const network = chainId === ChainId.AURORA_MAINNET ? "mainnet" : "testnet"
+  const network =
+    chainId === ChainId.AURORA_MAINNET || chainId === undefined
+      ? "mainnet"
+      : "testnet"
+
   return (
     <Trans i18nKey="txComplete" t={t}>
       {{ tx: txnType }}

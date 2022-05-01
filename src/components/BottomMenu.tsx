@@ -1,6 +1,12 @@
-import { FaDiscord, FaGithub, FaTelegram, FaTwitter } from "react-icons/fa"
+import { BsMedium, BsThreeDotsVertical } from "react-icons/bs"
+import {
+  FaBook,
+  FaDiscord,
+  FaGithub,
+  FaTelegram,
+  FaTwitter,
+} from "react-icons/fa"
 import React, { ReactElement } from "react"
-import { BsMedium } from "react-icons/bs"
 import styles from "./BottomMenu.module.scss"
 
 function BottomMenu(): ReactElement | null {
@@ -12,31 +18,36 @@ function BottomMenu(): ReactElement | null {
           target="_blank"
           rel="noreferrer"
         >
-          <FaTwitter fontSize="25px" />
+          <FaTwitter title="Twitter" fontSize="25px" />
         </a>
         <a
           href="https://medium.com/@roseonaurora"
           target="_blank"
           rel="noreferrer"
         >
-          <BsMedium fontSize="25px" />
+          <BsMedium title="Medium" fontSize="25px" />
         </a>
         <a href="https://t.me/RoseOnAurora" target="_blank" rel="noreferrer">
-          <FaTelegram fontSize="25px" />
+          <FaTelegram title="Telegram" fontSize="25px" />
         </a>
         <a
           href="https://discord.gg/dG6mWH4rHj"
           target="_blank"
           rel="noreferrer"
         >
-          <FaDiscord fontSize="25px" />
+          <FaDiscord title="Discord" fontSize="25px" />
         </a>
+        <BsThreeDotsVertical style={{ marginLeft: "10px" }} />
         <a
           href="https://github.com/RoseOnAurora"
           target="_blank"
           rel="noreferrer"
+          style={{ marginLeft: "10px" }}
         >
-          <FaGithub fontSize="25px" />
+          <FaGithub title="Github" fontSize="25px" />
+        </a>
+        <a href="https://docs.rose.fi" target="_blank" rel="noreferrer">
+          <FaBook title="Docs" fontSize="22px" />
         </a>
       </div>
     </div>
