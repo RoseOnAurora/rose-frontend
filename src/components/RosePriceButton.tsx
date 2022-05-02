@@ -73,7 +73,7 @@ export default function RosePriceButton(): ReactElement {
           {priceOfRose ? `$${Number(priceOfRose).toFixed(2)}` : "-"}
         </MenuButton>
         <MenuList bg={useColorModeValue("#fff", "rgb(28, 29, 33)")}>
-          <Box p="10px" textAlign="center" height="100%">
+          <Box p="5px" textAlign="center" height="100%">
             {formattedPriceData ? (
               <>
                 <RadioGroup value={timeUnit} onChange={setTimeUnit}>
@@ -87,7 +87,7 @@ export default function RosePriceButton(): ReactElement {
                     </Radio>
                   </Stack>
                 </RadioGroup>
-                <Box height="12.5rem">
+                <Box height="10.5rem">
                   <LineChart
                     chart={{
                       datasets: {
@@ -101,7 +101,7 @@ export default function RosePriceButton(): ReactElement {
                     }}
                   />
                 </Box>
-                <Flex justifyContent="space-between" p="10px" mt="5px">
+                <Flex justifyContent="space-between" p="10px" mt="2px">
                   <StatGroup>
                     <Stat>
                       <StatNumber fontSize="16px">
@@ -304,6 +304,7 @@ export default function RosePriceButton(): ReactElement {
               margin="0"
               target="_blank"
               rel="noreferrer"
+              fontSize="13px"
             >
               Buy ROSE
             </MenuItem>
@@ -326,6 +327,7 @@ export default function RosePriceButton(): ReactElement {
               margin="0"
               target="_blank"
               rel="noreferrer"
+              fontSize="13px"
             >
               DexScreener
             </MenuItem>
@@ -389,6 +391,7 @@ export default function RosePriceButton(): ReactElement {
               margin="0"
               target="_blank"
               rel="noreferrer"
+              fontSize="13px"
             >
               CoinGecko
             </MenuItem>
@@ -406,6 +409,7 @@ export default function RosePriceButton(): ReactElement {
                   </text>
                 </Icon>
               }
+              fontSize="13px"
             >
               ROSE
             </MenuItem>
@@ -418,6 +422,7 @@ export default function RosePriceButton(): ReactElement {
                 </Icon>
               }
               onClick={async () => await addStRoseToken()}
+              fontSize="13px"
             >
               stROSE
             </MenuItem>
@@ -430,6 +435,7 @@ export default function RosePriceButton(): ReactElement {
                 </Icon>
               }
               onClick={async () => await addRusdToken()}
+              fontSize="13px"
             >
               RUSD
             </MenuItem>
