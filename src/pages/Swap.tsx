@@ -4,6 +4,7 @@ import {
   IS_VIRTUAL_SWAP_ACTIVE,
   POOLS_MAP,
   PoolName,
+  RUSD,
   SWAP_TYPES,
   TOKENS_MAP,
   isMetaPool,
@@ -579,6 +580,10 @@ const sortTokenOptions = (a: TokenOption, b: TokenOption) => {
   // if either is invalid, put the valid one first
   if (a.swapType === SWAP_TYPES.INVALID || b.swapType === SWAP_TYPES.INVALID) {
     return a.swapType === SWAP_TYPES.INVALID ? 1 : -1
+  }
+  // prioritize RUSD irrespective of user token balances
+  if (a.symbol === RUSD.symbol || b.symbol === RUSD.symbol) {
+    return a.symbol === RUSD.symbol ? -1 : 1
   }
   if (a.valueUSD.eq(b.valueUSD)) {
     const amountA = shiftBNDecimals(a.amount, 18 - a.decimals)
