@@ -1,4 +1,7 @@
 import {
+  AU_POOL_NAME,
+  AU_USDC,
+  AU_USDT,
   BORROW_MARKET_MAP,
   BRIDGE_CONTRACT_ADDRESSES,
   BUSD,
@@ -40,6 +43,7 @@ import MIGRATOR_USD_CONTRACT_ABI from "../constants/abis/swapMigratorUSD.json"
 import MULTIMINTER_ABI from "../constants/abis/multiminter.json"
 import ORACLE_ABI from "../constants/abis/Oracle.json"
 import { Oracle } from "../../types/ethers-contracts/Oracle"
+import ROSE_AU_POOL_ABI from "../constants/abis/RoseAuPool.json"
 import ROSE_META_POOL_ABI from "../constants/abis/RoseMetaPool.json"
 import ROSE_STABLES_FARM_ABI from "../constants/abis/RoseStablesFarm.json"
 import ROSE_STABLES_POOL_ABI from "../constants/abis/RoseStablesPool.json"
@@ -208,12 +212,17 @@ export function usePoolContract(poolName?: PoolName): RosePool | null {
   const { chainId } = useActiveWeb3React()
   const contractAddress =
     chainId && poolName ? POOLS_MAP[poolName].addresses[chainId] : undefined
-  return useContract(
-    contractAddress,
-    JSON.stringify(
-      isMetaPool(poolName) ? ROSE_META_POOL_ABI : ROSE_STABLES_POOL_ABI,
-    ),
-  ) as RosePool
+
+  let abi
+  if (poolName === AU_POOL_NAME) {
+    abi = ROSE_AU_POOL_ABI
+  } else if (isMetaPool(poolName)) {
+    abi = ROSE_META_POOL_ABI
+  } else {
+    abi = ROSE_STABLES_POOL_ABI
+  }
+
+  return useContract(contractAddress, JSON.stringify(abi)) as RosePool
 }
 
 export function useLPTokenContract(
@@ -259,6 +268,8 @@ export function useAllContracts(): AllContractsObject | null {
   const busdContract = useTokenContract(BUSD) as Erc20
   const maiContract = useTokenContract(MAI) as Erc20
   const rusdContract = useTokenContract(RUSD) as Erc20
+  const auUsdcContract = useTokenContract(AU_USDC) as Erc20
+  const auUsdtContract = useTokenContract(AU_USDT) as Erc20
 
   return useMemo(() => {
     if (
@@ -274,6 +285,8 @@ export function useAllContracts(): AllContractsObject | null {
         busdContract,
         maiContract,
         rusdContract,
+        auUsdcContract,
+        auUsdtContract,
       ].some(Boolean)
     )
       return null
@@ -289,6 +302,8 @@ export function useAllContracts(): AllContractsObject | null {
       [BUSD.symbol]: busdContract,
       [MAI.symbol]: maiContract,
       [RUSD.symbol]: rusdContract,
+      [AU_USDC.symbol]: auUsdcContract,
+      [AU_USDT.symbol]: auUsdtContract,
     }
   }, [
     daiContract,
@@ -302,6 +317,8 @@ export function useAllContracts(): AllContractsObject | null {
     busdContract,
     maiContract,
     rusdContract,
+    auUsdcContract,
+    auUsdtContract,
   ])
 }
 

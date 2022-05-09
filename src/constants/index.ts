@@ -63,6 +63,7 @@ export const UST_METAPOOL_NAME = "UST Pool"
 export const BUSD_METAPOOL_NAME = "BUSD Pool"
 export const MAI_METAPOOL_NAME = "MAI Pool"
 export const RUSD_METAPOOL_NAME = "RUSD Pool"
+export const AU_POOL_NAME = "auUSDC/auUSDT Pool"
 
 // FARMS
 export const STABLES_FARM_NAME = "Stables Farm"
@@ -104,6 +105,7 @@ export type PoolName =
   | typeof BUSD_METAPOOL_NAME
   | typeof MAI_METAPOOL_NAME
   | typeof RUSD_METAPOOL_NAME
+  | typeof AU_POOL_NAME
 
 export type FarmName =
   | typeof STABLES_FARM_NAME
@@ -325,6 +327,14 @@ export const RUSD_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x9ADE30cdd031B35ABBC607496b99480805B579D4",
   [ChainId.AURORA_MAINNET]: "0x79B0a67a4045A7a8DC04b17456F4fe15339cBA34",
+}
+
+export const AU_POOL_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "", // no testnet
+  [ChainId.AURORA_MAINNET]: "0x46Ff9bA71cF33bdc88679d39b01A5b9a209E26A6",
 }
 
 export const STAKED_ROSE_POOL_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -563,6 +573,16 @@ export const MAI_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES: {
   [ChainId.AURORA_MAINNET]: "0xA7ae42224Bf48eCeFc5f838C230EE339E5fd8e62",
 }
 
+export const AU_POOL_LP_TOKEN_CONTRACT_ADDRESSES: {
+  [chainId in ChainId]: string
+} = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x6987d10A2418bBbf42a2fED010ACDADe502158C9", // note: missing testnet deployment
+  [ChainId.AURORA_MAINNET]: "0x6987d10A2418bBbf42a2fED010ACDADe502158C9",
+}
+
 export const SUSD_SWAP_TOKEN = new Token(
   SUSD_SWAP_TOKEN_CONTRACT_ADDRESSES,
   18,
@@ -713,6 +733,17 @@ export const MAI_METAPOOL_LP_TOKEN = new Token(
   "tether", // tracking tether: cannot fetch coingecko for LPs
   "Rose MAI/Stables",
   roseMaiLogo,
+  false,
+  true,
+)
+
+export const AU_POOL_LP_TOKEN = new Token(
+  AU_POOL_LP_TOKEN_CONTRACT_ADDRESSES,
+  18,
+  "RoseAUPoolLP",
+  "tether", // tracking tether: cannot fetch coingecko for LPs
+  "Rose/AU Pool LP",
+  roseLogo,
   false,
   true,
 )
@@ -1206,6 +1237,40 @@ export const NEAR = new Token(
   nearLogo, // to-do: update
 )
 
+export const AU_USDC_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0x4f0d864b1ABf4B701799a0b30b57A22dFEB5917b", // no testnet
+  [ChainId.AURORA_MAINNET]: "0x4f0d864b1ABf4B701799a0b30b57A22dFEB5917b",
+}
+
+export const AU_USDT_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.ROPSTEN]: "",
+  [ChainId.HARDHAT]: "",
+  [ChainId.AURORA_TESTNET]: "0xaD5A2437Ff55ed7A8Cad3b797b3eC7c5a19B1c54", // no testnet
+  [ChainId.AURORA_MAINNET]: "0xaD5A2437Ff55ed7A8Cad3b797b3eC7c5a19B1c54",
+}
+
+export const AU_USDC = new Token(
+  AU_USDC_CONTRACT_ADDRESSES,
+  6,
+  "auUSDC",
+  "auusdc",
+  "auUSDC",
+  usdcLogo,
+)
+
+export const AU_USDT = new Token(
+  AU_USDT_CONTRACT_ADDRESSES,
+  6,
+  "auUSDT",
+  "auusdt",
+  "auUSDT",
+  usdtLogo,
+)
+
 export const ROSE_FARM_STABLES_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "",
   [ChainId.ROPSTEN]: "",
@@ -1493,6 +1558,7 @@ export const UST_METAPOOL_TOKENS = [UST, STABLECOIN_SWAP_V2_TOKEN]
 export const BUSD_METAPOOL_TOKENS = [BUSD, STABLECOIN_SWAP_V2_TOKEN]
 export const MAI_METAPOOL_TOKENS = [MAI, STABLECOIN_SWAP_V2_TOKEN]
 export const RUSD_METAPOOL_TOKENS = [RUSD, STABLECOIN_SWAP_V2_TOKEN]
+export const AU_POOL_TOKENS = [AU_USDC, AU_USDT]
 export const WCUSD_POOL_TOKENS = [WCUSD, ...STABLECOIN_POOL_TOKENS]
 export const WCUSD_UNDERLYING_POOL_TOKENS = [WCUSD, STABLECOIN_SWAP_V2_TOKEN]
 
@@ -1600,6 +1666,18 @@ export const POOLS_MAP: PoolsMap = {
     type: PoolTypes.USD,
     route: "rusd",
     farmName: RUSD_METAPOOL_FARM_NAME,
+  },
+  [AU_POOL_NAME]: {
+    name: AU_POOL_NAME,
+    addresses: AU_POOL_ADDRESSES,
+    lpToken: AU_POOL_LP_TOKEN,
+    poolTokens: AU_POOL_TOKENS,
+    // underlyingPoolTokens: [AU, ...STABLECOIN_POOL_TOKENS],
+    underlyingPool: STABLECOIN_POOL_V2_NAME,
+    isSynthetic: false,
+    type: PoolTypes.USD,
+    route: "au",
+    // farmName: AU_POOL_FARM_NAME,
   },
 }
 

@@ -1,5 +1,5 @@
-import { AppDispatch, AppState } from "../state"
 import {
+  AU_POOL_NAME,
   BUSD_METAPOOL_NAME,
   DashboardItems,
   FARMS_MAP,
@@ -16,6 +16,7 @@ import {
   STABLECOIN_POOL_V2_NAME,
   UST_METAPOOL_NAME,
 } from "../constants"
+import { AppDispatch, AppState } from "../state"
 import {
   Drawer,
   DrawerBody,
@@ -96,6 +97,7 @@ function Pools(): ReactElement | null {
   const [rusdMetaPoolData, rusdMetaPoolUserShareData] = usePoolData(
     RUSD_METAPOOL_NAME,
   )
+  const [auPoolData, auUserShareData] = usePoolData(AU_POOL_NAME)
 
   const [sortDirection, setSortDirection] = useState(1)
   const [sortByField, setSortByField] = useState(poolPreferences.sortField)
@@ -245,6 +247,12 @@ function Pools(): ReactElement | null {
           balance: rusdMetaPoolUserShareData?.lpTokenBalance || Zero,
           tvl: rusdMetaPoolData?.reserve || Zero,
           volume: rusdMetaPoolData?.volume || Zero,
+        }
+      case AU_POOL_NAME:
+        return {
+          balance: auUserShareData?.lpTokenBalance || Zero,
+          tvl: auPoolData?.reserve || Zero,
+          volume: auPoolData?.volume || Zero,
         }
       default:
         return {
