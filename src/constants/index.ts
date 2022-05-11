@@ -1373,7 +1373,7 @@ export const UST_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.ROPSTEN]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x2DDDDb9C47A6Bd5697CD047278a69606cCA61E6E",
-  [ChainId.AURORA_MAINNET]: "0x2DDDDb9C47A6Bd5697CD047278a69606cCA61E6E", // update mainnet
+  [ChainId.AURORA_MAINNET]: "0xAF5B0A58703A21995C918E7631731700442226FC",
 }
 
 export const NEAR_WL_PROXIMITY_GARDEN_ADDRESSES: {
@@ -1723,7 +1723,7 @@ export const BORROW_MARKET_MAP: BorrowMarketMap = {
     borrowToken: RUSD,
     gardenAddresses: UST_GARDEN_ADDRESSES,
     vaseAddresses: VASE_ADDRESSES,
-    oracleAddresses: USDC_ORACLE_ADDRESSES,
+    oracleAddresses: UST_ORACLE_ADDRESSES,
     route: "ust",
     isStable: true,
   },
