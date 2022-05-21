@@ -491,6 +491,7 @@ function buildTransactionData(
         .mul(BigNumber.from(10).pow(18))
         .div(estDepositLPTokenAmount.add(poolData?.totalLocked))
     : BigNumber.from(10).pow(18)
+  // TO-DO: fix gas price calculation
   // const gasAmount = calculateGasEstimate("addLiquidity").mul(gasPrice) // units of gas * GWEI/Unit of gas
   const gasAmount = BigNumber.from(0)
 
