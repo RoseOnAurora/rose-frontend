@@ -35,10 +35,7 @@ import ReviewWithdraw from "./ReviewWithdraw"
 import TokenInput from "./TokenInput"
 import { TransactionType } from "../hooks/useChakraToast"
 import { Zero } from "@ethersproject/constants"
-import { calculateGasEstimate } from "../utils/gasEstimate"
 import { calculatePriceImpact } from "../utils/priceImpact"
-import { ethers } from "ethers"
-import { formatGasToString } from "../utils/gas"
 import { formatSlippageToString } from "../utils/slippage"
 import { logEvent } from "../utils/googleAnalytics"
 import { useActiveWeb3React } from "../hooks"
@@ -87,15 +84,10 @@ function Withdraw({
   const [withdrawFormState, updateWithdrawFormState] = useWithdrawFormState(
     poolName,
   )
-  const {
-    slippageCustom,
-    slippageSelected,
-    gasPriceSelected,
-    gasCustom,
-  } = useSelector((state: AppState) => state.user)
-  const { tokenPricesUSD, gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
+  const { slippageCustom, slippageSelected, gasPriceSelected } = useSelector(
+    (state: AppState) => state.user,
   )
+  const { tokenPricesUSD } = useSelector((state: AppState) => state.application)
   const approveAndWithdraw = useApproveAndWithdraw(poolName)
   const poolContract = usePoolContract(poolName) as Contract
   const { account } = useActiveWeb3React()
@@ -197,18 +189,20 @@ function Withdraw({
       })),
     [withdrawFormState, POOL.poolTokens, userShareData?.tokens],
   )
+  // TO-DO: fix gas price calculation
   // const gasPrice = Zero
-  const gasPrice = ethers.utils.parseUnits(
-    formatGasToString(
-      { gasStandard, gasFast, gasInstant },
-      gasPriceSelected,
-      gasCustom,
-    ),
-    "gwei",
-  )
-  const gasAmount = calculateGasEstimate("removeLiquidityImbalance").mul(
-    gasPrice,
-  ) // units of gas * GWEI/Unit of gas
+  // const gasPrice = ethers.utils.parseUnits(
+  //   formatGasToString(
+  //     { gasStandard, gasFast, gasInstant },
+  //     gasPriceSelected,
+  //     gasCustom,
+  //   ),
+  //   "gwei",
+  // )
+  // const gasAmount = calculateGasEstimate("removeLiquidityImbalance").mul(
+  //   gasPrice,
+  // ) // units of gas * GWEI/Unit of gas
+  const gasAmount = BigNumber.from(0)
 
   const txnGasCost = {
     amount: gasAmount,
