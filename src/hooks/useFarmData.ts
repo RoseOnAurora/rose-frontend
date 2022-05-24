@@ -29,9 +29,8 @@ export default function useFarmData(
   const lastDepositTime = lastTransactionTimes[TRANSACTION_TYPES.DEPOSIT]
   const lastWithdrawTime = lastTransactionTimes[TRANSACTION_TYPES.WITHDRAW]
 
-  const [farmData, setFarmData] = useState<FarmDataHookReturnType>(
-    emptyFarmData,
-  )
+  const [farmData, setFarmData] =
+    useState<FarmDataHookReturnType>(emptyFarmData)
 
   useEffect(() => {
     async function getFarmData(): Promise<void> {

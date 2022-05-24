@@ -26,10 +26,9 @@ import {
   UST,
   isMetaPool,
 } from "../constants"
-
+import { Contract, ContractInterface } from "@ethersproject/contracts"
 import BRIDGE_CONTRACT_ABI from "../constants/abis/bridge.json"
 import { Bridge } from "../../types/ethers-contracts/Bridge"
-import { Contract } from "@ethersproject/contracts"
 import ERC20_ABI from "../constants/abis/erc20.json"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import GARDEN_ABI from "../constants/abis/Garden.json"
@@ -61,7 +60,7 @@ import { useMemo } from "react"
 // returns null on errors
 function useContract(
   address: string | undefined,
-  ABI: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+  ABI: ContractInterface,
   withSignerIfPossible = true,
 ): Contract | null {
   const { library, account } = useActiveWeb3React()

@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react"
 import copy from "copy-to-clipboard"
 
+/** TO-DO: remove this in favor of chakras hook */
 export default function useCopyClipboard(
   timeout = 500,
 ): [boolean, (toCopy: string) => void] {
   const [isCopied, setIsCopied] = useState(false)
-  const staticCopy = useCallback((text) => {
+  const staticCopy = useCallback((text: string) => {
     const didCopy = copy(text)
     setIsCopied(didCopy)
   }, [])

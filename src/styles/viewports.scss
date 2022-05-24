@@ -27,7 +27,7 @@ $screen-xl-max: 1400px;
     @media only screen and (max-width: $screen-xl-max) {
       @content;
     }
-  } 
+  }
 }
 
 /*

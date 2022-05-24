@@ -100,7 +100,7 @@ function BorrowMarketsOverview(props: BorrowMarketsOverviewData): ReactElement {
     <AnimatedComponentCard
       name={marketName}
       fields={fields}
-      route={`borrow/${borrowRoute}`}
+      route={borrowRoute}
       borderRadius="10px"
       p="15px"
       background="var(--background-element)"

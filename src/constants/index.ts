@@ -1610,7 +1610,7 @@ export type Farm = {
   route: string
   isRose: boolean
   poolName: string
-  poolUrl?: string
+  poolUrl: string
 }
 export type FarmsMap = {
   [farmName in FarmName]: Farm
@@ -1620,7 +1620,7 @@ export const FARMS_MAP: FarmsMap = {
     name: STABLES_FARM_NAME,
     lpToken: STABLECOIN_SWAP_V2_TOKEN,
     addresses: ROSE_FARM_STABLES_ADDRESSES,
-    poolUrl: "../#/pools/stables",
+    poolUrl: "stables",
     route: "stables",
     isRose: true,
     poolName: STABLECOIN_POOL_V2_NAME,
@@ -1629,7 +1629,7 @@ export const FARMS_MAP: FarmsMap = {
     name: FRAX_METAPOOL_FARM_NAME,
     lpToken: FRAX_METAPOOL_LP_TOKEN,
     addresses: FRAX_METAPOOL_FARM_ADDRESSES,
-    poolUrl: "../#/pools/frax",
+    poolUrl: "frax",
     route: "frax",
     isRose: true,
     poolName: FRAX_METAPOOL_NAME,
@@ -1638,7 +1638,7 @@ export const FARMS_MAP: FarmsMap = {
     name: UST_METAPOOL_FARM_NAME,
     lpToken: UST_METAPOOL_LP_TOKEN,
     addresses: UST_METAPOOL_FARM_ADDRESSES,
-    poolUrl: "../#/pools/ust",
+    poolUrl: "ust",
     route: "ust",
     isRose: true,
     poolName: UST_METAPOOL_NAME,
@@ -1667,7 +1667,7 @@ export const FARMS_MAP: FarmsMap = {
     name: BUSD_METAPOOL_FARM_NAME,
     lpToken: BUSD_METAPOOL_LP_TOKEN,
     addresses: BUSD_FARM_ADDRESSES,
-    poolUrl: "../#/pools/busd",
+    poolUrl: "busd",
     route: "busd",
     isRose: true,
     poolName: BUSD_METAPOOL_NAME,
@@ -1676,7 +1676,7 @@ export const FARMS_MAP: FarmsMap = {
     name: MAI_METAPOOL_FARM_NAME,
     lpToken: MAI_METAPOOL_LP_TOKEN,
     addresses: MAI_FARM_ADDRESSES,
-    poolUrl: "../#/pools/mai",
+    poolUrl: "mai",
     route: "mai",
     isRose: true,
     poolName: MAI_METAPOOL_FARM_NAME,
@@ -1685,7 +1685,7 @@ export const FARMS_MAP: FarmsMap = {
     name: RUSD_METAPOOL_FARM_NAME,
     lpToken: RUSD_LP_TOKEN,
     addresses: RUSD_FARM_ADDRESSES,
-    poolUrl: "../#/pools/rusd",
+    poolUrl: "rusd",
     route: "rusd",
     isRose: true,
     poolName: RUSD_METAPOOL_NAME,
@@ -1906,11 +1906,6 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     connector: walletconnect,
     isMobile: true,
   },
-  // WALLET_LINK: {
-  //   name: "Coinbase Wallet",
-  //   icon: coinbasewalletIcon,
-  //   connector: walletlink,
-  // },
 }
 
 export interface ChainInfo {

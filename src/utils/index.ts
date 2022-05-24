@@ -29,7 +29,7 @@ export function getSigner(
   library: Web3Provider,
   account: string,
 ): JsonRpcSigner {
-  return library.getSigner(account).connectUnchecked()
+  return library.getSigner(account)
 }
 
 // account is optional

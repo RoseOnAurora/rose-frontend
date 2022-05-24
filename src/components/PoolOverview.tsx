@@ -22,15 +22,8 @@ interface Props {
 }
 
 const PoolOverview = (props: Props): ReactElement => {
-  const {
-    poolRoute,
-    poolName,
-    poolIcon,
-    balance,
-    tvl,
-    volume,
-    farmDeposit,
-  } = props
+  const { poolRoute, poolName, poolIcon, balance, tvl, volume, farmDeposit } =
+    props
 
   const { t } = useTranslation()
 
@@ -90,7 +83,7 @@ const PoolOverview = (props: Props): ReactElement => {
     <AnimatedComponentCard
       name={formattedData.name.valueRaw}
       fields={fields}
-      route={`pools/${poolRoute}`}
+      route={poolRoute}
       borderRadius="10px"
       p="15px"
       background="var(--background-element)"

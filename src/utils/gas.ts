@@ -42,8 +42,8 @@ export function formatGasToString(
 ): string {
   // return gasBNFromState(gasPricesGwei, gasSelected, gasCustom).toString()
   if (typeof gasPricesGwei.gasStandard === "number") {
-    return gasPricesGwei.gasStandard.toString();
+    return gasPricesGwei.gasStandard.toString()
   } else {
-    return "0.03";
+    return "0.03"
   }
 }

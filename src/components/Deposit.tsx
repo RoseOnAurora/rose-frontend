@@ -30,6 +30,7 @@ import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { BsSliders } from "react-icons/bs"
 import { IconButtonPopover } from "./Popover"
+import { Link } from "react-router-dom"
 import Modal from "./Modal"
 import ROSE_META_POOL_DEPOSIT from "../constants/abis/RoseMetaPoolDeposit.json"
 import ReviewDeposit from "./ReviewDeposit"
@@ -235,9 +236,8 @@ function Deposit({
   ])
 
   // A represention of tokens used for UI
-  const tokens = (shouldDepositWrapped
-    ? POOL.underlyingPoolTokens || []
-    : POOL.poolTokens
+  const tokens = (
+    shouldDepositWrapped ? POOL.underlyingPoolTokens || [] : POOL.poolTokens
   ).map(({ symbol, name, icon, decimals }) => ({
     symbol,
     name,
@@ -294,7 +294,8 @@ function Deposit({
             logEvent("deposit", (poolData && { pool: poolData?.name }) || {})
             handlePreSubmit?.(TransactionType.DEPOSIT)
             try {
-              const receipt = (await onConfirmTransaction?.()) as ContractReceipt
+              const receipt =
+                (await onConfirmTransaction?.()) as ContractReceipt
               handlePostSubmit?.(receipt, TransactionType.DEPOSIT)
             } catch (e) {
               const error = e as { code: number; message: string }
@@ -382,7 +383,7 @@ function Deposit({
       {shouldDisplayWrappedOption && (
         <div className="options">
           <p className="wrappedInfo">
-            Deposit to the <a href="/#/pools/stables">Stables Pool</a> to get
+            Deposit to the <a href="/pools/stables">Stables Pool</a> to get
             RoseStablesLP.{" "}
             {poolData?.name === UST_METAPOOL_NAME && (
               <>

@@ -3,7 +3,6 @@ import { BaseProvider, getDefaultProvider } from "@ethersproject/providers"
 import { InjectedConnector } from "@web3-react/injected-connector"
 import { NetworkConnector } from "@web3-react/network-connector"
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector"
-// import { WalletLinkConnector } from "@web3-react/walletlink-connector"
 
 const NETWORK_URL =
   process.env.REACT_APP_NETWORK_URL ?? "https://mainnet.aurora.dev"
@@ -18,9 +17,6 @@ export const network = new NetworkConnector({
 let networkLibrary: BaseProvider | undefined
 export function getNetworkLibrary(): BaseProvider {
   const provider = getDefaultProvider(NETWORK_URL)
-  if (NETWORK_URL) {
-    // console.log(`Connecting to network URL: ${NETWORK_URL}`)
-  }
   return (networkLibrary = networkLibrary ?? provider)
 }
 
@@ -34,10 +30,4 @@ export const walletconnect = new WalletConnectConnector({
   rpc: { [NETWORK_CHAIN_ID]: NETWORK_URL },
   bridge: "https://bridge.walletconnect.org",
   qrcode: true,
-  // pollingInterval: POLLING_INTERVAL / 12000
 })
-
-// export const walletlink = new WalletLinkConnector({
-//   url: NETWORK_URL,
-//   appName: "Rose",
-// })

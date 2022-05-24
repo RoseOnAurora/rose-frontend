@@ -1,7 +1,6 @@
-import { Box, Flex, Text, useColorModeValue } from "@chakra-ui/react"
+import { Box, Flex, Link, Text, useColorModeValue } from "@chakra-ui/react"
 import { FARMS_MAP, FarmName } from "../constants"
 import React, { ReactElement } from "react"
-import { Trans, useTranslation } from "react-i18next"
 import { commify, formatBNToShortString, formatBNToString } from "../utils"
 import {
   useFarmContract,
@@ -16,6 +15,7 @@ import { FaGift } from "react-icons/fa"
 import FarmRewardsPopoverContent from "../components/FarmRewardsPopoverContent"
 import { IconButtonPopover } from "../components/Popover"
 import PageWrapper from "../components/wrappers/PageWrapper"
+import { Link as ReactLink } from "react-router-dom"
 import StakeDetails from "../components/StakeDetails"
 import StakeForm from "../components/StakeForm"
 import TabsWrapper from "../components/wrappers/TabsWrapper"
@@ -29,6 +29,7 @@ import useEarnedRewards from "../hooks/useEarnedRewards"
 import useFarmData from "../hooks/useFarmData"
 import useFarmExit from "../hooks/useFarmExit"
 import { useSelector } from "react-redux"
+import { useTranslation } from "react-i18next"
 import { useWithdrawFarm } from "../hooks/useWithdrawFarm"
 
 interface Props {
@@ -46,11 +47,8 @@ const Farm = ({ farmName }: Props): ReactElement => {
   const withdraw = useWithdrawFarm(farmName)
   const farmContract = useFarmContract(farmName)
   const lpTokenContract = useLPTokenContractForFarm(farmName)
-  const [
-    approved,
-    loading,
-    checkLpTokenApproved,
-  ] = useCheckTokenRequiresApproval(lpTokenContract, farmContract)
+  const [approved, loading, checkLpTokenApproved] =
+    useCheckTokenRequiresApproval(lpTokenContract, farmContract)
 
   const formattedBalance = commify(
     formatBNToString(farmData?.lpTokenBalance || Zero, 18, 5),
@@ -82,25 +80,31 @@ const Farm = ({ farmName }: Props): ReactElement => {
 
   const FormDescription = (): ReactElement => {
     return isRose ? (
-      <Trans t={t} i18nKey="farmDescription">
-        {{ tokenName: lpToken.name }}
-        <a href={poolUrl} style={{ margin: 0, fontWeight: "bold" }}>
-          {{ poolName: poolName }}
-        </a>
-      </Trans>
+      <>
+        Add liquidity to the the{" "}
+        <Link
+          as={ReactLink}
+          to={`/pools/${poolUrl}`}
+          style={{ margin: 0, fontWeight: "bold" }}
+        >
+          {poolName}
+        </Link>{" "}
+        to get {lpToken.name}
+      </>
     ) : (
-      <Trans t={t} i18nKey="farmDescription">
-        {{ tokenName: lpToken.name }}
-        <a
+      <>
+        Add liquidity to the the{" "}
+        <Link
           href={poolUrl}
           target="_blank"
           rel="noreferrer"
           style={{ margin: 0, fontWeight: "bold" }}
         >
-          {{ poolName: poolName }}
-          <sup>{{ externalUrlArrow: "↗" }}</sup>
-        </a>
-      </Trans>
+          {poolName}
+          <sup>↗</sup>
+        </Link>{" "}
+        to get {lpToken.name}
+      </>
     )
   }
 

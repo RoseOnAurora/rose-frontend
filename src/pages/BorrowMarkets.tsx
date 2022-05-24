@@ -247,8 +247,7 @@ function BorrowMarkets(): ReactElement {
                     items: [
                       {
                         icon: FaHandHoldingUsd,
-                        text:
-                          "Click on one of the borrow markets cards to add collateral to borrow RUSD. The name of the market indicates which token(s) are accepted as collateral.",
+                        text: "Click on one of the borrow markets cards to add collateral to borrow RUSD. The name of the market indicates which token(s) are accepted as collateral.",
                       },
                     ],
                   },
@@ -257,8 +256,7 @@ function BorrowMarkets(): ReactElement {
                     items: [
                       {
                         icon: FaLayerGroup,
-                        text:
-                          "View your total borrowed & collateralized positions across all markets all in one view!",
+                        text: "View your total borrowed & collateralized positions across all markets all in one view!",
                       },
                     ],
                   },
@@ -267,18 +265,15 @@ function BorrowMarkets(): ReactElement {
                     items: [
                       {
                         icon: FaSortAmountUp,
-                        text:
-                          "Sort by any of the borrow market card fields like TVL, Interest & Name.",
+                        text: "Sort by any of the borrow market card fields like TVL, Interest & Name.",
                       },
                       {
                         icon: FaFilter,
-                        text:
-                          "Filter by your Borrowed Balances and collateralized positions.",
+                        text: "Filter by your Borrowed Balances and collateralized positions.",
                       },
                       {
                         icon: BsSliders,
-                        text:
-                          "Configure your preferences on this page like default sorting behavior. We will save this info for you and apply it each time you visit the page!",
+                        text: "Configure your preferences on this page like default sorting behavior. We will save this info for you and apply it each time you visit the page!",
                       },
                     ],
                   },
@@ -430,39 +425,41 @@ function BorrowMarkets(): ReactElement {
         }
         left={
           <AnimatePresence>
-            {Object.values(BORROW_MARKET_MAP)
-              .filter((borrowMarket) =>
-                FILTER_FUNCTIONS[filterByField](borrowMarket),
-              )
-              .sort((a, b) => {
-                return SORT_FUNCTIONS[sortByField](a, b)
-                  ? sortDirection * -1
-                  : sortDirection
-              })
-              .map((borrowMarket, index) => {
-                return timeout || !loading ? (
-                  <BorrowMarketsOverview
-                    key={borrowMarket.name}
-                    marketName={borrowMarket.name}
-                    borrowRoute={borrowMarket.route}
-                    tokenIcon={borrowMarket.collateralToken.icon}
-                    borrowed={marketsData[borrowMarket.name].borrowed || Zero}
-                    position={
-                      marketsData[borrowMarket.name]
-                        .collateralDepositedUSDPrice || Zero
-                    }
-                    rusdLeftToBorrow={
-                      marketsData[borrowMarket.name].totalRUSDLeftToBorrow ||
-                      Zero
-                    }
-                    tvl={marketsData[borrowMarket.name].tvl || Zero}
-                    interest={marketsData[borrowMarket.name].interest || Zero}
-                    fee={marketsData[borrowMarket.name].liquidationFee || Zero}
-                  />
-                ) : (
-                  <Skeleton key={index} height="100px" borderRadius="10px" />
-                )
-              })}
+            {timeout || !loading
+              ? Object.values(BORROW_MARKET_MAP)
+                  .filter((borrowMarket) =>
+                    FILTER_FUNCTIONS[filterByField](borrowMarket),
+                  )
+                  .sort((a, b) => {
+                    return SORT_FUNCTIONS[sortByField](a, b)
+                      ? sortDirection * -1
+                      : sortDirection
+                  })
+                  .map((borrowMarket) => (
+                    <BorrowMarketsOverview
+                      key={borrowMarket.name}
+                      marketName={borrowMarket.name}
+                      borrowRoute={borrowMarket.route}
+                      tokenIcon={borrowMarket.collateralToken.icon}
+                      borrowed={marketsData[borrowMarket.name].borrowed || Zero}
+                      position={
+                        marketsData[borrowMarket.name]
+                          .collateralDepositedUSDPrice || Zero
+                      }
+                      rusdLeftToBorrow={
+                        marketsData[borrowMarket.name].totalRUSDLeftToBorrow ||
+                        Zero
+                      }
+                      tvl={marketsData[borrowMarket.name].tvl || Zero}
+                      interest={marketsData[borrowMarket.name].interest || Zero}
+                      fee={
+                        marketsData[borrowMarket.name].liquidationFee || Zero
+                      }
+                    />
+                  ))
+              : Object.keys(BORROW_MARKET_MAP).map((key) => (
+                  <Skeleton key={key} height="100px" borderRadius="10px" />
+                ))}
           </AnimatePresence>
         }
         right={
