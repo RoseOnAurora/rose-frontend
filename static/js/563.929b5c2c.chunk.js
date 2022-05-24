@@ -1,0 +1,1 @@
+(self.webpackChunkrose_frontend=self.webpackChunkrose_frontend||[]).push([[563],{6563:function(){}}]);
