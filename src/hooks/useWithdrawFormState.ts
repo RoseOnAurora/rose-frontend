@@ -110,10 +110,8 @@ export default function useWithdrawFormState(
       let nextState: WithdrawFormState | Record<string, unknown>
       if (state.withdrawType === IMBALANCE) {
         try {
-          const inputCalculatedLPTokenAmount = await poolContract.calc_token_amount(
-            txnAmounts,
-            false,
-          )
+          const inputCalculatedLPTokenAmount =
+            await poolContract.calc_token_amount(txnAmounts, false)
           nextState = inputCalculatedLPTokenAmount.gt(
             effectiveUserLPTokenBalance,
           )
@@ -188,10 +186,8 @@ export default function useWithdrawFormState(
             }
           } else {
             // This branch addresses a user manually inputting a value for one token
-            const inputCalculatedLPTokenAmount = await poolContract.calc_token_amount(
-              txnAmounts,
-              false,
-            )
+            const inputCalculatedLPTokenAmount =
+              await poolContract.calc_token_amount(txnAmounts, false)
             nextState = inputCalculatedLPTokenAmount.gt(
               effectiveUserLPTokenBalance,
             )
@@ -231,15 +227,12 @@ export default function useWithdrawFormState(
       setFormState((prevState) => {
         let nextState: WithdrawFormState | Record<string, unknown> = {}
         if (action.fieldName === "tokenInputs") {
-          const {
-            tokenSymbol: tokenSymbolInput = "",
-            value: valueInput,
-          } = action
+          const { tokenSymbol: tokenSymbolInput = "", value: valueInput } =
+            action
           const newTokenInputs = {
             ...prevState.tokenInputs,
-            [tokenSymbolInput]: tokenInputStateCreators[tokenSymbolInput](
-              valueInput,
-            ),
+            [tokenSymbolInput]:
+              tokenInputStateCreators[tokenSymbolInput](valueInput),
           }
           const activeInputTokens = POOL.poolTokens.filter(
             ({ symbol }) => +newTokenInputs[symbol].valueRaw !== 0,

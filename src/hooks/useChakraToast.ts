@@ -11,6 +11,7 @@ export enum TransactionType {
   REWARDS = "Claim Rewards",
   EXIT = "Withdraw & Claim Rewards",
   SWAP = "Swap",
+  SIGNATURE = "Signature",
 }
 
 enum TransactionErrors {
@@ -36,10 +37,11 @@ interface ToastFailedFunctionProps extends ToastFunctionProps {
   description?: ReactNode
 }
 
-interface ToastFunctions {
+export interface ToastFunctions {
   transactionPending: (props: ToastFunctionProps) => void
   approvalRequired: () => void
   signatureRequired: () => void
+  autoSignHardwareWallet: () => void
   transactionSuccess: (props: ToastSuccessFunctionProps) => void
   transactionFailed: (props: ToastFailedFunctionProps) => void
 }
@@ -70,6 +72,15 @@ export default function useChakraToast(): ToastFunctions {
     toast({
       title: "Message Signature Required",
       description: "Complete message signature in your wallet.",
+    })
+  }
+
+  const autoSignHardwareWallet = (): void => {
+    toast({
+      title: "Hardware wallet detected.",
+      status: "warning",
+      description:
+        "Please confirm the set master contract approval call in your wallet.",
     })
   }
 
@@ -145,5 +156,6 @@ export default function useChakraToast(): ToastFunctions {
     signatureRequired,
     transactionSuccess,
     transactionFailed,
+    autoSignHardwareWallet,
   }
 }

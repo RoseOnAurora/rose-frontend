@@ -173,9 +173,11 @@ export function useApproveAndSwap(): (
             { gasPrice },
           ] as const
           console.debug("exchange_underlying - direct", args)
-          swapTransaction = await (state.poolContract as NonNullable<
-            typeof state.poolContract // we already check for nonnull above
-          >).exchange_underlying(...args)
+          swapTransaction = await (
+            state.poolContract as NonNullable<
+              typeof state.poolContract // we already check for nonnull above
+            >
+          ).exchange_underlying(...args)
         } else {
           const args = [
             state.from.tokenIndex,
@@ -185,9 +187,11 @@ export function useApproveAndSwap(): (
             { gasPrice },
           ] as const
           console.debug("exchange - direct", args)
-          swapTransaction = await (state.poolContract as NonNullable<
-            typeof state.poolContract // we already check for nonnull above
-          >).exchange(...args)
+          swapTransaction = await (
+            state.poolContract as NonNullable<
+              typeof state.poolContract // we already check for nonnull above
+            >
+          ).exchange(...args)
         }
       } else {
         throw new Error("Invalid Swap Type, or contract not loaded")

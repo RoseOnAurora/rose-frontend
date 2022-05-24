@@ -1,7 +1,7 @@
 import AnimatedComponentCard, { Field } from "./ComponentCard"
 import {
-  Box,
   Flex,
+  Image,
   Stack,
   Stat,
   StatGroup,
@@ -83,18 +83,23 @@ const RewardsField = ({
 }): ReactElement => (
   <Stack mt="2px">
     <Flex alignItems="center">
-      <Box width="12px" mr="2px">
-        <img alt="icon" src={roseIcon} width="100%" />
-      </Box>
+      <Flex width="12px" mr="2px">
+        <Image alt="icon" src={roseIcon} width="100%" objectFit="cover" />
+      </Flex>
       <Text fontSize={{ base: "13px", md: "16px" }}>
         {formattedRoseRewards}
       </Text>
     </Flex>
     {dualRewardTokenName && formattedDualRewards && (
       <Flex alignItems="center">
-        <Box width="12px" mr="2px">
-          <img alt="icon" src={terraLunaIcon} width="100%" />
-        </Box>
+        <Flex width="12px" mr="2px">
+          <Image
+            alt="icon"
+            src={terraLunaIcon}
+            width="100%"
+            objectFit="cover"
+          />
+        </Flex>
         <Text fontSize={{ base: "13px", md: "16px" }}>
           {formattedDualRewards}
         </Text>
@@ -207,7 +212,7 @@ function FarmsOverview(props: FarmOverviewData): ReactElement {
     <AnimatedComponentCard
       name={formattedData.name.valueRaw}
       fields={fields}
-      route={`farms/${farmRoute}`}
+      route={farmRoute}
       borderRadius="10px"
       p="15px"
       background="var(--background-element)"

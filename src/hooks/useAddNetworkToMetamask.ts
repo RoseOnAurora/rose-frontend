@@ -1,5 +1,5 @@
-// TODO: create types
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
+/* eslint @typescript-eslint/no-explicit-any: 0 */
 import { SUPPORTED_CHAINS, SupportedChains } from "../constants"
 import { toHex } from "../utils"
 import { useCallback } from "react"
@@ -21,7 +21,6 @@ export default function useAddNetworkToMetamask(): (
               },
             ],
           })
-          // eslint-disable-next-line
         } catch (error: any) {
           // This error code indicates that the chain has not been added to MetaMask.
           if (error.code === 4902) {

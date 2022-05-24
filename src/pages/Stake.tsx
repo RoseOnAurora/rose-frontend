@@ -1,6 +1,4 @@
-import { FaLock, FaUnlock } from "react-icons/fa"
-import { Flex, Text, Tooltip } from "@chakra-ui/react"
-import React, { ReactElement, useEffect, useMemo, useState } from "react"
+import React, { ReactElement, useMemo } from "react"
 import { commify, formatBNToShortString, formatBNToString } from "../utils"
 import { useRoseContract, useStRoseContract } from "../hooks/useContract"
 import { AppState } from "../state"
@@ -13,14 +11,13 @@ import { StRose } from "../../types/ethers-contracts/StRose"
 import StakeDetails from "../components/StakeDetails"
 import StakeForm from "../components/StakeForm"
 import StakePageTitle from "../components/StakePageTitle"
+import StakingCountdown from "../components/StakingCountdown"
 import TabsWrapper from "../components/wrappers/TabsWrapper"
 import { TransactionType } from "../hooks/useChakraToast"
 import { Zero } from "@ethersproject/constants"
 import { useApproveAndStake } from "../hooks/useApproveAndStake"
 import { useApproveAndUnstake } from "../hooks/useApproveAndUnstake"
 import { useCheckTokenRequiresApproval } from "../hooks/useCheckTokenRequiresApproval"
-import useCountDown from "react-countdown-hook"
-import useLastStakedTime from "../hooks/useLastStakedTime"
 import { useRoseTokenBalances } from "../state/wallet/hooks"
 import { useSelector } from "react-redux"
 import { useTranslation } from "react-i18next"
@@ -42,8 +39,6 @@ const Stake = (): ReactElement => {
     stRoseContract,
   )
   const { stakeStats } = useSelector((state: AppState) => state.application)
-  const [diff, setDiff] = useState(0)
-  const lastStaked = useLastStakedTime()
 
   const { priceRatio, tvl, totalRoseStaked, priceOfRose, apr } = {
     ...stakeStats,
@@ -63,18 +58,6 @@ const Stake = (): ReactElement => {
       staked: stRoseToken.amount,
     }
   }, [tokenBalances])
-
-  useEffect(() => {
-    const d = new Date(lastStaked ? +lastStaked * 1000 : 0)
-    d.setDate(d.getDate() + 1)
-    setDiff((Date.now() - d.getTime()) * -1)
-  }, [lastStaked])
-
-  const [timeLeft, actions] = useCountDown(diff, 1000)
-
-  useEffect(() => {
-    actions.start(diff)
-  }, [actions, diff, lastStaked])
 
   return (
     <PageWrapper activeTab="stake">
@@ -129,40 +112,7 @@ const Stake = (): ReactElement => {
         }
         right={
           <StakeDetails
-            extraStakeDetailChild={
-              <Flex justifyContent="space-between" alignItems="center">
-                {timeLeft && timeLeft > 0 ? (
-                  <FaLock
-                    size="25px"
-                    color="#cc3a59"
-                    title="Your stROSE is locked."
-                  />
-                ) : (
-                  <FaUnlock
-                    size="25px"
-                    color="#4BB543"
-                    title="Your stROSE is unlocked."
-                  />
-                )}
-                <Tooltip
-                  bgColor="#cc3a59"
-                  closeOnClick={false}
-                  label="This is an estimate of time remaining until you can unstake. Refresh the page for better accuracy."
-                >
-                  <Text
-                    fontSize="25px"
-                    fontWeight={700}
-                    color="var(--text-title)"
-                    borderBottom="1px dotted var(--text)"
-                    cursor="help"
-                  >
-                    {new Date((timeLeft / 1000) * 1000)
-                      .toISOString()
-                      .substr(11, 8)}
-                  </Text>
-                </Tooltip>
-              </Flex>
-            }
+            extraStakeDetailChild={<StakingCountdown />}
             balanceView={{
               title: t("balance"),
               items: [

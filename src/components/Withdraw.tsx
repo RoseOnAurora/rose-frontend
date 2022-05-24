@@ -81,9 +81,8 @@ function Withdraw({
 }: Props): ReactElement {
   const { t } = useTranslation()
   const [poolData, userShareData] = usePoolData(poolName)
-  const [withdrawFormState, updateWithdrawFormState] = useWithdrawFormState(
-    poolName,
-  )
+  const [withdrawFormState, updateWithdrawFormState] =
+    useWithdrawFormState(poolName)
   const { slippageCustom, slippageSelected, gasPriceSelected } = useSelector(
     (state: AppState) => state.user,
   )
@@ -156,11 +155,8 @@ function Withdraw({
     POOL.poolTokens,
   ])
   async function onConfirmTransaction(): Promise<ContractReceipt | void> {
-    const {
-      withdrawType,
-      tokenInputs,
-      lpTokenAmountToSpend,
-    } = withdrawFormState
+    const { withdrawType, tokenInputs, lpTokenAmountToSpend } =
+      withdrawFormState
     const receipt = await approveAndWithdraw({
       tokenFormState: tokenInputs,
       withdrawType,
@@ -260,7 +256,8 @@ function Withdraw({
             logEvent("withdraw", (poolData && { pool: poolData?.name }) || {})
             handlePreSubmit?.(TransactionType.WITHDRAW)
             try {
-              const receipt = (await onConfirmTransaction?.()) as ContractReceipt
+              const receipt =
+                (await onConfirmTransaction?.()) as ContractReceipt
               handlePostSubmit?.(receipt, TransactionType.WITHDRAW)
             } catch (e) {
               const error = e as { code: number; message: string }

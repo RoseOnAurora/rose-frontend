@@ -186,18 +186,15 @@ function Farms(): ReactElement {
                     items: [
                       {
                         icon: FaChartPie,
-                        text:
-                          "Add liquidity to one of our pools and receive LP tokens in exchange.",
+                        text: "Add liquidity to one of our pools and receive LP tokens in exchange.",
                       },
                       {
                         icon: FaReceipt,
-                        text:
-                          "Click on any of the farm cards to deposit your LP tokens and earn rewards!",
+                        text: "Click on any of the farm cards to deposit your LP tokens and earn rewards!",
                       },
                       {
                         icon: FaGift,
-                        text:
-                          "Withdraw your LP tokens and claim rewards at any time.",
+                        text: "Withdraw your LP tokens and claim rewards at any time.",
                       },
                     ],
                   },
@@ -206,8 +203,7 @@ function Farms(): ReactElement {
                     items: [
                       {
                         icon: FaLayerGroup,
-                        text:
-                          "View your total rewards, LP token balances, & Farm Deposits across all farms all in one view!",
+                        text: "View your total rewards, LP token balances, & Farm Deposits across all farms all in one view!",
                       },
                     ],
                   },
@@ -216,18 +212,15 @@ function Farms(): ReactElement {
                     items: [
                       {
                         icon: FaSortAmountUp,
-                        text:
-                          "Sort by any of the farm card fields like TVL, APR & Name.",
+                        text: "Sort by any of the farm card fields like TVL, APR & Name.",
                       },
                       {
                         icon: FaFilter,
-                        text:
-                          "Filter by your Farm Deposits, LP Token Balances and Farms with Dual Rewards.",
+                        text: "Filter by your Farm Deposits, LP Token Balances and Farms with Dual Rewards.",
                       },
                       {
                         icon: BsSliders,
-                        text:
-                          "Configure your preferences on this page like default sorting behavior. We will save this info for you and apply it each time you visit the page!",
+                        text: "Configure your preferences on this page like default sorting behavior. We will save this info for you and apply it each time you visit the page!",
                       },
                     ],
                   },
@@ -353,45 +346,48 @@ function Farms(): ReactElement {
         }
         left={
           <AnimatePresence>
-            {Object.values(FARMS_MAP)
-              .filter((farm) => FILTER_FUNCTIONS[filterByField](farm))
-              .sort((a, b) => {
-                return SORT_FUNCTIONS[sortByField](a, b)
-                  ? sortDirection * -1
-                  : sortDirection
-              })
-              .map((farm, index) =>
-                (farmStats &&
+            {(farmStats &&
+              Object.values(FARMS_MAP).every(
+                (farm) =>
                   lpTokenBalances?.[farm.lpToken.symbol] &&
                   farmDeposits?.[farm.name] &&
-                  allRewards?.[farm.name]) ||
-                timeout ? (
-                  <FarmsOverview
-                    key={farm.name}
-                    farmName={farm.name}
-                    lpTokenIcon={farm.lpToken.icon}
-                    farmRoute={farm.route}
-                    balance={lpTokenBalances?.[farm.lpToken.symbol] || Zero}
-                    deposited={farmDeposits?.[farm.name] || Zero}
-                    tvl={farmStats?.[farm.name]?.tvl}
-                    apr={{
-                      roseApr: farmStats?.[farm.name]?.apr,
-                      dualRewardApr: farmStats?.[farm.name]?.dualReward.apr,
-                      dualRewardTokenName:
-                        farmStats?.[farm.name]?.dualReward.token,
-                    }}
-                    rewards={{
-                      rose: allRewards?.[farm.name] || Zero,
-                      dual:
-                        farm.name === UST_METAPOOL_FARM_NAME
-                          ? allRewards?.["dualReward"] || Zero
-                          : Zero,
-                    }}
-                  />
-                ) : (
-                  <Skeleton key={index} height="100px" borderRadius="10px" />
-                ),
-              )}
+                  allRewards?.[farm.name],
+              )) ||
+            timeout
+              ? Object.values(FARMS_MAP)
+                  .filter((farm) => FILTER_FUNCTIONS[filterByField](farm))
+                  .sort((a, b) => {
+                    return SORT_FUNCTIONS[sortByField](a, b)
+                      ? sortDirection * -1
+                      : sortDirection
+                  })
+                  .map((farm) => (
+                    <FarmsOverview
+                      key={farm.name}
+                      farmName={farm.name}
+                      lpTokenIcon={farm.lpToken.icon}
+                      farmRoute={farm.route}
+                      balance={lpTokenBalances?.[farm.lpToken.symbol] || Zero}
+                      deposited={farmDeposits?.[farm.name] || Zero}
+                      tvl={farmStats?.[farm.name]?.tvl}
+                      apr={{
+                        roseApr: farmStats?.[farm.name]?.apr,
+                        dualRewardApr: farmStats?.[farm.name]?.dualReward.apr,
+                        dualRewardTokenName:
+                          farmStats?.[farm.name]?.dualReward.token,
+                      }}
+                      rewards={{
+                        rose: allRewards?.[farm.name] || Zero,
+                        dual:
+                          farm.name === UST_METAPOOL_FARM_NAME
+                            ? allRewards?.["dualReward"] || Zero
+                            : Zero,
+                      }}
+                    />
+                  ))
+              : Object.keys(FARMS_MAP).map((key) => (
+                  <Skeleton key={key} height="100px" borderRadius="10px" />
+                ))}
           </AnimatePresence>
         }
         right={

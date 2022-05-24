@@ -79,7 +79,11 @@ body.dark {
   --background: linear-gradient(to right, #141414, #200122, #791038);
   --background-lightgrey: #{$black80};
   --background-element: linear-gradient(195deg, #141414, #000);
-  --background-element-hover: linear-gradient(195deg, rgb(25, 25, 25), rgb(4, 4, 4));
+  --background-element-hover: linear-gradient(
+    195deg,
+    rgb(25, 25, 25),
+    rgb(4, 4, 4)
+  );
   --background-main: linear-gradient(to right, #141414, #200122, #791038);
   --background-logo: linear-gradient(to right, #f7819a, #ebd9c2, #e9d9e4);
   --secondary-button: #{$primary-darker};

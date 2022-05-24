@@ -56,13 +56,13 @@ interface Props {
 }
 
 const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
-  const { t } = useTranslation()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [borrowData] = useBorrowData(borrowName)
   const btnRef = useRef<HTMLButtonElement>(null)
   const toast = useChakraToast()
   const cook = useCook(borrowName)
   const { chainId } = useActiveWeb3React()
+  const { t } = useTranslation()
 
   const drawerBg = useColorModeValue(
     "linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9)",

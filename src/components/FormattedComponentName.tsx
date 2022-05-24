@@ -1,4 +1,4 @@
-import { Box, Flex, Text } from "@chakra-ui/react"
+import { Flex, Image, Text } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 
 interface Props {
@@ -11,7 +11,7 @@ const FormattedComponentName = ({ name, icon }: Props): ReactElement => (
     <Text fontWeight="600" fontSize={{ base: "13px", md: "16px" }}>
       {name}
     </Text>
-    <Box
+    <Flex
       width={
         /rose-/.exec(icon || "")
           ? { base: "30px", md: "50px" }
@@ -20,8 +20,8 @@ const FormattedComponentName = ({ name, icon }: Props): ReactElement => (
           : { base: "15px", md: "30px" }
       }
     >
-      <img alt="icon" src={icon} width="100%" />
-    </Box>
+      <Image alt="icon" src={icon} w="100%" objectFit="cover" />
+    </Flex>
   </Flex>
 )
 

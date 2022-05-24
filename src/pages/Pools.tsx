@@ -66,6 +66,7 @@ import PageWrapper from "../components/wrappers/PageWrapper"
 import PoolOverview from "../components/PoolOverview"
 import StakeDetails from "../components/StakeDetails"
 import { Zero } from "@ethersproject/constants"
+import _ from "lodash"
 import { commify } from "@ethersproject/units"
 import stablesPoolIcon from "../assets/icons/dai-usdt-usdc.png"
 import { useMultiCallFarmDeposits } from "../hooks/useMultiCallFarmDeposits"
@@ -81,21 +82,16 @@ function Pools(): ReactElement | null {
   const [fraxStablesPoolData, fraxStablesUserShareData] = usePoolData(
     FRAX_STABLES_LP_POOL_NAME,
   )
-  const [fraxMetaPoolData, fraxMetaPoolUserShareData] = usePoolData(
-    FRAX_METAPOOL_NAME,
-  )
-  const [ustMetaPoolData, ustMetaPoolUserShareData] = usePoolData(
-    UST_METAPOOL_NAME,
-  )
-  const [busdMetaPoolData, busdMetaPoolUserShareData] = usePoolData(
-    BUSD_METAPOOL_NAME,
-  )
-  const [maiMetaPoolData, maiMetaPoolUserShareData] = usePoolData(
-    MAI_METAPOOL_NAME,
-  )
-  const [rusdMetaPoolData, rusdMetaPoolUserShareData] = usePoolData(
-    RUSD_METAPOOL_NAME,
-  )
+  const [fraxMetaPoolData, fraxMetaPoolUserShareData] =
+    usePoolData(FRAX_METAPOOL_NAME)
+  const [ustMetaPoolData, ustMetaPoolUserShareData] =
+    usePoolData(UST_METAPOOL_NAME)
+  const [busdMetaPoolData, busdMetaPoolUserShareData] =
+    usePoolData(BUSD_METAPOOL_NAME)
+  const [maiMetaPoolData, maiMetaPoolUserShareData] =
+    usePoolData(MAI_METAPOOL_NAME)
+  const [rusdMetaPoolData, rusdMetaPoolUserShareData] =
+    usePoolData(RUSD_METAPOOL_NAME)
 
   const [sortDirection, setSortDirection] = useState(1)
   const [sortByField, setSortByField] = useState(poolPreferences.sortField)
@@ -281,18 +277,15 @@ function Pools(): ReactElement | null {
                     items: [
                       {
                         icon: FaChartPie,
-                        text:
-                          "Add liquidity to one of our pools by clicking on one of the pool cards. Currently, we support StablePools and MetaPools.",
+                        text: "Add liquidity to one of our pools by clicking on one of the pool cards. Currently, we support StablePools and MetaPools.",
                       },
                       {
                         icon: FaReceipt,
-                        text:
-                          "Deposit one or more of the tokens that the pool accepts. For example, the Stables Pool accepts DAI, USDT, & USDC as liquidity.",
+                        text: "Deposit one or more of the tokens that the pool accepts. For example, the Stables Pool accepts DAI, USDT, & USDC as liquidity.",
                       },
                       {
                         icon: FaGift,
-                        text:
-                          "You will earn trading fees proportional to your share of the pool, and can be claimed by withdrawing your liquidity.",
+                        text: "You will earn trading fees proportional to your share of the pool, and can be claimed by withdrawing your liquidity.",
                       },
                     ],
                   },
@@ -301,13 +294,11 @@ function Pools(): ReactElement | null {
                     items: [
                       {
                         icon: FaLayerGroup,
-                        text:
-                          "View your total share, LP token balances, & Farm Deposits across all pools all in one view!",
+                        text: "View your total share, LP token balances, & Farm Deposits across all pools all in one view!",
                       },
                       {
                         icon: FaInfoCircle,
-                        text:
-                          "Note that your pool deposit is represented by your current LP token balance. Farm deposits represent the LP tokens you have deposited on the pool's farm.",
+                        text: "Note that your pool deposit is represented by your current LP token balance. Farm deposits represent the LP tokens you have deposited on the pool's farm.",
                       },
                     ],
                   },
@@ -316,18 +307,15 @@ function Pools(): ReactElement | null {
                     items: [
                       {
                         icon: FaSortAmountUp,
-                        text:
-                          " Sort by any of the pool card fields like TVL, Volume, & Name.",
+                        text: " Sort by any of the pool card fields like TVL, Volume, & Name.",
                       },
                       {
                         icon: FaFilter,
-                        text:
-                          "Filter by your LP Token Balances and pool deposits that you are farming.",
+                        text: "Filter by your LP Token Balances and pool deposits that you are farming.",
                       },
                       {
                         icon: BsSliders,
-                        text:
-                          "Configure your preferences on this page like default sorting behavior. We will save this info for you and apply it each time you visit the page!",
+                        text: "Configure your preferences on this page like default sorting behavior. We will save this info for you and apply it each time you visit the page!",
                       },
                     ],
                   },
@@ -336,13 +324,11 @@ function Pools(): ReactElement | null {
                     items: [
                       {
                         icon: FaChartPie,
-                        text:
-                          "When you add liquidity, you will receive LP tokens in exchange. With these LP tokens, you can then deposit them into the pool's corresponding farm.",
+                        text: "When you add liquidity, you will receive LP tokens in exchange. With these LP tokens, you can then deposit them into the pool's corresponding farm.",
                       },
                       {
                         icon: FaGift,
-                        text:
-                          "For example, after depositing liquidity into the Stables Pool, you can take those LP tokens and deposit them into the Stables Farm. By doing so, you can earn rewards in ROSE!",
+                        text: "For example, after depositing liquidity into the Stables Pool, you can take those LP tokens and deposit them into the Stables Farm. By doing so, you can earn rewards in ROSE!",
                       },
                       {
                         icon: FaGift,
@@ -370,8 +356,7 @@ function Pools(): ReactElement | null {
                     items: [
                       {
                         icon: FaChartPie,
-                        text:
-                          "Metapools contain one token to trade with another underlying Base pool. Adding the single asset to the metapool does not dilute the liquidity of the underlying base pool.",
+                        text: "Metapools contain one token to trade with another underlying Base pool. Adding the single asset to the metapool does not dilute the liquidity of the underlying base pool.",
                       },
                     ],
                   },
@@ -442,7 +427,7 @@ function Pools(): ReactElement | null {
         }
         left={
           <AnimatePresence>
-            {allUserShareData.every((item) => item !== null) || timeout
+            {allUserShareData.every((item) => item) || timeout
               ? Object.values(POOLS_MAP)
                   // temporarily hide Frax pool while keeping its page enabled
                   .filter(({ name }) => name !== FRAX_STABLES_LP_POOL_NAME)
@@ -466,9 +451,13 @@ function Pools(): ReactElement | null {
                       {...getPoolData(pool.name)}
                     />
                   ))
-              : Object.keys(POOLS_MAP).map((key) => (
-                  <Skeleton key={key} height="100px" borderRadius="10px" />
-                ))}
+              : // omit the frax pool for now while its filtered above to prevent UI flicker on
+                // uneven initial elements
+                Object.keys(_.omit(POOLS_MAP, "Frax Pool (outdated)")).map(
+                  (key) => (
+                    <Skeleton key={key} height="100px" borderRadius="10px" />
+                  ),
+                )}
           </AnimatePresence>
         }
         right={

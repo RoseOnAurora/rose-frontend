@@ -42,8 +42,6 @@ import { Zero } from "@ethersproject/constants"
 import { calculateGasEstimate } from "../utils/gasEstimate"
 import { calculatePriceImpact } from "../utils/priceImpact"
 import { debounce } from "lodash"
-// import { ethers } from "ethers"
-// import { formatGasToString } from "../utils/gas"
 import { useActiveWeb3React } from "../hooks"
 import { useApproveAndSwap } from "../hooks/useApproveAndSwap"
 import { usePoolTokenBalances } from "../state/wallet/hooks"
@@ -110,9 +108,8 @@ function Swap(): ReactElement {
   const { tokenPricesUSD } = useSelector((state: AppState) => state.application)
 
   const [formState, setFormState] = useState<FormState>(EMPTY_FORM_STATE)
-  const [prevFormState, setPrevFormState] = useState<FormState>(
-    EMPTY_FORM_STATE,
-  )
+  const [prevFormState, setPrevFormState] =
+    useState<FormState>(EMPTY_FORM_STATE)
 
   const swapContract = usePoolContract(
     formState.to.poolName as PoolName | undefined,
@@ -216,15 +213,13 @@ function Swap(): ReactElement {
       ) {
         const originPool = POOLS_MAP[formStateArg.from.poolName]
         const destinationPool = POOLS_MAP[formStateArg.to.poolName]
-        const [
-          amountOutSynth,
-          amountOutToken,
-        ] = await bridgeContract.calcTokenToToken(
-          [originPool.addresses[chainId], destinationPool.addresses[chainId]],
-          formStateArg.from.tokenIndex,
-          formStateArg.to.tokenIndex,
-          amountToGive,
-        )
+        const [amountOutSynth, amountOutToken] =
+          await bridgeContract.calcTokenToToken(
+            [originPool.addresses[chainId], destinationPool.addresses[chainId]],
+            formStateArg.from.tokenIndex,
+            formStateArg.to.tokenIndex,
+            amountToGive,
+          )
         amountToReceive = amountOutToken
         amountMediumSynth = amountOutSynth
       } else if (
@@ -232,15 +227,13 @@ function Swap(): ReactElement {
         bridgeContract != null
       ) {
         const destinationPool = POOLS_MAP[formStateArg.to.poolName]
-        const [
-          amountOutSynth,
-          amountOutToken,
-        ] = await bridgeContract.calcSynthToToken(
-          destinationPool.addresses[chainId],
-          utils.formatBytes32String(formStateArg.from.symbol),
-          formStateArg.to.tokenIndex,
-          amountToGive,
-        )
+        const [amountOutSynth, amountOutToken] =
+          await bridgeContract.calcSynthToToken(
+            destinationPool.addresses[chainId],
+            utils.formatBytes32String(formStateArg.from.symbol),
+            formStateArg.to.tokenIndex,
+            amountToGive,
+          )
         amountToReceive = amountOutToken
         amountMediumSynth = amountOutSynth
       } else if (

@@ -74,7 +74,7 @@ const AnimatedComponentCard = memo(
         initial={
           prevNameRef.current === name
             ? { opacity: 1, scale: 1 }
-            : { opacity: 0, scale: 0 }
+            : { opacity: 0, scale: 0.85 }
         }
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}

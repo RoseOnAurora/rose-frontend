@@ -37,17 +37,23 @@ interface TokenTransferTxn extends Transaction {
 const blockTxnsUri = (
   accountAddress: string,
   startTimestamp: string,
-  networkId: string,
-) =>
-  `https://explorer.${networkId}.aurora.dev/api?module=account&action=txlist&address=${accountAddress}&starttimestamp=${startTimestamp}`
+  network: string,
+) => {
+  return network === "testnet"
+    ? `https://api-testnet.aurorascan.dev/api?module=account&action=txlist&address=${accountAddress}&starttimestamp=${startTimestamp}`
+    : `https://api.aurorascan.dev/api?module=account&action=txlist&address=${accountAddress}&starttimestamp=${startTimestamp}`
+}
 
 const tokenTransferTxnsUri = (
   startBlock: string,
   contractAddress: string,
   accountAddress: string,
-  networkId: string,
-) =>
-  `https://explorer.${networkId}.aurora.dev/api?module=account&action=tokentx&address=${accountAddress}&contractaddress=${contractAddress}&startblock=${startBlock}`
+  network: string,
+) => {
+  return network === "testnet"
+    ? `https://api-testnet.aurorascan.dev/api?module=account&action=tokentx&address=${accountAddress}&contractaddress=${contractAddress}&startblock=${startBlock}`
+    : `https://api.aurorascan.dev/api?module=account&action=tokentx&address=${accountAddress}&contractaddress=${contractAddress}&startblock=${startBlock}`
+}
 
 const fetchBlockTxns = async (
   accountAddress: string,

@@ -1,4 +1,6 @@
 /* eslint @typescript-eslint/no-non-null-assertion: 0 */
+/* eslint @typescript-eslint/no-unsafe-member-access: 0 */
+/* eslint @typescript-eslint/no-unsafe-call: 0 */
 import {
   POOLS_MAP,
   Pool,

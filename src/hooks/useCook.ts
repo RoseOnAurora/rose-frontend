@@ -15,6 +15,10 @@ import {
   useGardenContract,
   useVaseContract,
 } from "./useContract"
+import useChakraToast, {
+  ToastFunctions,
+  TransactionType,
+} from "./useChakraToast"
 import { useDispatch, useSelector } from "react-redux"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { Garden } from "../../types/ethers-contracts/Garden"
@@ -79,15 +83,14 @@ export function useCook(
   const { library, account, chainId } = useActiveWeb3React()
   const dispatch = useDispatch<AppDispatch>()
 
-  const {
-    infiniteApproval,
-    priceFromOracle,
-    gasPriceSelected,
-    gasCustom,
-  } = useSelector((state: AppState) => state.user)
+  const { infiniteApproval, priceFromOracle, gasPriceSelected, gasCustom } =
+    useSelector((state: AppState) => state.user)
   const { gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,
   )
+
+  // lets use toast for better messages; TO-DO: remove params and use this hook
+  const toast = useChakraToast()
 
   return async function cook(
     collateralAmount: string,
@@ -165,6 +168,7 @@ export function useCook(
             vaseContract,
             account,
             library,
+            toast,
           )
 
       // cook
@@ -226,7 +230,8 @@ const requestSignature = async (
   verifyingContract: Vase,
   account: string,
   library: ethers.providers.Web3Provider,
-): Promise<SignedSignatureRes> => {
+  toast: ToastFunctions,
+): Promise<SignedSignatureRes | null> => {
   const domain = {
     name: verifyingDomainName,
     chainId,
@@ -251,14 +256,42 @@ const requestSignature = async (
     approved: true,
     nonce: await verifyingContract.nonces(account),
   }
+  try {
+    const signature = await getSigner(library, account)._signTypedData(
+      domain,
+      types,
+      value,
+    )
 
-  const signature = await getSigner(library, account)._signTypedData(
-    domain,
-    types,
-    value,
-  )
+    return parseSignature(signature)
+  } catch (e: unknown) {
+    const error = e as { code: number; message: string }
+    // ledger won't allow us to sign so we need to set the approval ourselves
+    if (error.code === -32603) {
+      // show auto-sign on hardware wallet
+      toast.autoSignHardwareWallet()
 
-  return parseSignature(signature)
+      // auto approve
+      const tx = await verifyingContract.setMasterContractApproval(
+        account,
+        masterContractAddress,
+        true,
+        ethers.utils.formatBytes32String(""),
+        ethers.utils.formatBytes32String(""),
+        ethers.utils.formatBytes32String(""),
+      )
+
+      // await receipt
+      const receipt = await tx.wait()
+
+      // if failed, its irrecoverable.
+      if (!receipt.status) {
+        toast.transactionFailed({ txnType: TransactionType.SIGNATURE })
+        throw new Error("Unable to approve master contract. Please try again.")
+      }
+    }
+  }
+  return null
 }
 
 const getDefaultCookArgs = ({

@@ -201,7 +201,7 @@ function TopMenu({ activeTab }: Props): ReactElement {
       </div>
       <ul className="nav">
         <li>
-          <Link to="/" className={classNames({ active: activeTab === "swap" })}>
+          <Link to="/" className={classNames({ active: activeTab === "/" })}>
             {t("swap")}
           </Link>
         </li>
@@ -209,10 +209,7 @@ function TopMenu({ activeTab }: Props): ReactElement {
           <Link
             to="/pools"
             className={classNames({
-              active:
-                activeTab === "pools" ||
-                activeTab === "deposit" ||
-                activeTab === "withdraw",
+              active: /pools*/.test(activeTab),
             })}
           >
             {t("pools")}
@@ -222,7 +219,7 @@ function TopMenu({ activeTab }: Props): ReactElement {
           <Link
             to="/farms"
             className={classNames({
-              active: activeTab === "farms" || activeTab === "farm",
+              active: /farms*/.test(activeTab),
             })}
           >
             {t("farms")}
@@ -232,8 +229,7 @@ function TopMenu({ activeTab }: Props): ReactElement {
           <Link
             to="/stake"
             className={classNames({
-              active: activeTab === "stake",
-              // add additional checks here in case stake will require subpages
+              active: activeTab === "/stake",
             })}
           >
             {t("stake")}
@@ -243,7 +239,7 @@ function TopMenu({ activeTab }: Props): ReactElement {
           <Link
             to="/borrow"
             className={classNames({
-              active: activeTab === "borrow",
+              active: /borrow*/.test(activeTab),
             })}
           >
             {t("borrow")}
