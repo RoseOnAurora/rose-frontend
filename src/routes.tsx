@@ -4,9 +4,9 @@ import React, { ReactElement } from "react"
 import App from "./pages/App"
 import Borrow from "./pages/Borrow"
 import BorrowMarkets from "./pages/BorrowMarkets"
-import { BrowserRouter } from "react-router-dom"
 import Farm from "./pages/Farm"
 import Farms from "./pages/Farms"
+import { HashRouter } from "react-router-dom"
 import Pool from "./pages/Pool"
 import Pools from "./pages/Pools"
 import Stake from "./pages/Stake"
@@ -14,7 +14,7 @@ import Swap from "./pages/Swap"
 
 export default function AppRoutes(): ReactElement {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<App />}>
           <Route index element={<Swap />} />
@@ -77,6 +77,6 @@ export default function AppRoutes(): ReactElement {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
