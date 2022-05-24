@@ -383,7 +383,7 @@ function Deposit({
       {shouldDisplayWrappedOption && (
         <div className="options">
           <p className="wrappedInfo">
-            Deposit to the <a href="/pools/stables">Stables Pool</a> to get
+            Deposit to the <a href="/#/pools/stables">Stables Pool</a> to get
             RoseStablesLP.{" "}
             {poolData?.name === UST_METAPOOL_NAME && (
               <>
