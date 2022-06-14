@@ -253,11 +253,11 @@ const SwapPage = (props: Props): ReactElement => {
             mt="10px"
             borderRadius="15px"
             py="15px"
-            px="20px"
+            px={{ base: "10px", md: "20px" }}
             bg="var(--secondary-background)"
           >
             <div className="row" style={{ alignItems: "start" }}>
-              <HStack spacing="5px" alignItems="center">
+              <HStack spacing="3px" alignItems="center">
                 <Tooltip
                   bgColor="#cc3a59"
                   closeOnClick={false}
@@ -305,7 +305,7 @@ const SwapPage = (props: Props): ReactElement => {
                   </Tag>
                 )}
               </HStack>
-              <HStack spacing="10px" alignItems="center">
+              <HStack spacing="5px" alignItems="center">
                 <Stack spacing="3px" alignItems="center">
                   <Flex
                     boxSize="25px"
