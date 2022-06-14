@@ -1855,9 +1855,12 @@ export const TRANSACTION_TYPES = {
 
 export const POOL_FEE_PRECISION = 10
 
+// TO-DO: remove unused synth, token, etc
 export enum SWAP_TYPES {
   DIRECT = "swapDirect", // route length 2
   SYNTH_TO_SYNTH = "swapSynthToSynth", // route length 2
+  STABLES_TO_META = "swapStablesToMeta", // route length 2 (meta pool)
+  META_TO_META = "swapMetaToMeta", // route length 3 (through stables)
   SYNTH_TO_TOKEN = "swapSynthToToken", // route length 3
   TOKEN_TO_SYNTH = "swapTokenToSynth", // route length 3
   TOKEN_TO_TOKEN = "swapTokenToToken", // route length 4
@@ -1876,6 +1879,8 @@ export function getIsVirtualSwap(swapType: SWAP_TYPES): boolean {
 export const SWAP_CONTRACT_GAS_ESTIMATES_MAP = {
   [SWAP_TYPES.INVALID]: BigNumber.from("999999999"), // 999,999,999
   [SWAP_TYPES.DIRECT]: BigNumber.from("200000"), // 157,807
+  [SWAP_TYPES.STABLES_TO_META]: BigNumber.from("200000"), // 157,807
+  [SWAP_TYPES.META_TO_META]: BigNumber.from("200000"), // 157,807
   [SWAP_TYPES.TOKEN_TO_TOKEN]: BigNumber.from("2000000"), // 1,676,837
   [SWAP_TYPES.TOKEN_TO_SYNTH]: BigNumber.from("2000000"), // 1,655,502
   [SWAP_TYPES.SYNTH_TO_TOKEN]: BigNumber.from("1500000"), // 1,153,654
@@ -1994,6 +1999,10 @@ export const SUPPORTED_CHAINS: {
     rpc: "https://mainnet.aurora.dev",
   },
 }
+
+// multi hop swap composer contract address (note: no testnet deployment)
+export const SWAP_COMPOSER_ADDRESS =
+  "0x765A7ff1dbF79F77eB9BCA980D6Df71c3E385631"
 
 // Rose Pool Type
 export type RosePool = RoseStablesPool | RoseMetaPool

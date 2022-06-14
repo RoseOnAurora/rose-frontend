@@ -1,9 +1,21 @@
 import "./SwapPage.scss"
 
-import { Button, Center } from "@chakra-ui/react"
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  HStack,
+  Image,
+  Stack,
+  Tag,
+  Text,
+  Tooltip,
+  useColorModeValue,
+} from "@chakra-ui/react"
 import { FaArrowDown, FaArrowUp } from "react-icons/fa"
 import React, { ReactElement, useMemo, useState } from "react"
-import { SWAP_TYPES, getIsVirtualSwap } from "../constants"
+import { SWAP_TYPES, TOKENS_MAP, getIsVirtualSwap } from "../constants"
 import { formatBNToPercentString, formatBNToString } from "../utils"
 import useChakraToast, { TransactionType } from "../hooks/useChakraToast"
 
@@ -15,6 +27,7 @@ import { BsSliders } from "react-icons/bs"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { IconButtonPopover } from "./Popover"
 import { ReactComponent as InfoIcon } from "../assets/icons/info.svg"
+import { MdDoubleArrow } from "react-icons/md"
 import Modal from "./Modal"
 import ReviewSwap from "./ReviewSwap"
 import { Slippages } from "../state/user"
@@ -23,6 +36,7 @@ import type { TokenOption } from "../pages/Swap"
 import { Zero } from "@ethersproject/constants"
 import classNames from "classnames"
 import { commify } from "../utils"
+import daiUsdtUsdc from "../assets/icons/dai-usdt-usdc.png"
 import { isHighPriceImpact } from "../utils/priceImpact"
 import { logEvent } from "../utils/googleAnalytics"
 import { useActiveWeb3React } from "../hooks"
@@ -81,6 +95,9 @@ const SwapPage = (props: Props): ReactElement => {
     (state: AppState) => state.user,
   )
 
+  const negPriceImpactColor = useColorModeValue("red.600", "red.300")
+  const posPriceImpactColor = useColorModeValue("green.600", "green.300")
+
   const postTransaction = (
     transactionType: TransactionType,
     receipt?: ContractReceipt | null,
@@ -123,7 +140,6 @@ const SwapPage = (props: Props): ReactElement => {
   const formattedExchangeRate = commify(
     formatBNToString(exchangeRateInfo.exchangeRate, 18, 6),
   )
-  const formattedRoute = exchangeRateInfo.route.join(" > ")
   const formattedBalance = commify(
     formatBNToString(fromToken?.amount || Zero, fromToken?.decimals || 0, 6),
   )
@@ -220,13 +236,127 @@ const SwapPage = (props: Props): ReactElement => {
         )}
         <div className="row">
           <span>{t("priceImpact")}</span>
-          <span>{formattedPriceImpact}</span>
+          <Text
+            color={
+              exchangeRateInfo.priceImpact.lt(Zero)
+                ? negPriceImpactColor
+                : exchangeRateInfo.priceImpact.gt(Zero)
+                ? posPriceImpactColor
+                : "white"
+            }
+          >
+            {formattedPriceImpact}
+          </Text>
         </div>
-        {formattedRoute && (
-          <>
-            <div className="row">
-              <span>{t("route")}</span>
-              <span>{formattedRoute}</span>
+        {exchangeRateInfo.route.length > 0 && (
+          <Box
+            mt="10px"
+            borderRadius="15px"
+            py="15px"
+            px="20px"
+            bg="var(--secondary-background)"
+          >
+            <div className="row" style={{ alignItems: "start" }}>
+              <HStack spacing="5px" alignItems="center">
+                <Tooltip
+                  bgColor="#cc3a59"
+                  closeOnClick={false}
+                  label={
+                    swapType === SWAP_TYPES.DIRECT
+                      ? "Swaps between tokens from the Stables Pool are referred to as direct swaps."
+                      : "MetaSwaps leverage the underlying base pool to perform the swap and MultiHop swaps are for swapping two metapool tokens that share the same base pool."
+                  }
+                >
+                  <Text borderBottom="1px dotted var(--text)" cursor="help">
+                    {t("route")}
+                  </Text>
+                </Tooltip>
+                {swapType === SWAP_TYPES.STABLES_TO_META && (
+                  <Tag
+                    size="md"
+                    borderRadius="full"
+                    variant="outline"
+                    colorScheme="yellow"
+                    fontSize="11px"
+                  >
+                    MetaSwap
+                  </Tag>
+                )}
+                {swapType === SWAP_TYPES.META_TO_META && (
+                  <Tag
+                    size="md"
+                    borderRadius="full"
+                    variant="outline"
+                    colorScheme="red"
+                    fontSize="11px"
+                  >
+                    MultiHop
+                  </Tag>
+                )}
+                {swapType === SWAP_TYPES.DIRECT && (
+                  <Tag
+                    size="md"
+                    borderRadius="full"
+                    variant="outline"
+                    colorScheme="green"
+                    fontSize="11px"
+                  >
+                    Direct
+                  </Tag>
+                )}
+              </HStack>
+              <HStack spacing="10px" alignItems="center">
+                <Stack spacing="3px" alignItems="center">
+                  <Flex
+                    boxSize="25px"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Image
+                      w="100%"
+                      src={TOKENS_MAP[exchangeRateInfo.route[0]].icon}
+                    />
+                  </Flex>
+                  <Text fontSize="9px" color="var(--text-lighter)">
+                    {exchangeRateInfo.route[0]}
+                  </Text>
+                </Stack>
+                {swapType === SWAP_TYPES.META_TO_META ? (
+                  <Flex alignItems="center">
+                    <MdDoubleArrow />
+                    <Stack spacing="3px" alignItems="center">
+                      <Flex
+                        boxSize="25px"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Image w="100%" src={daiUsdtUsdc} />
+                      </Flex>
+                      <Text fontSize="9px" color="var(--text-lighter)">
+                        DAI/USDT/USDC
+                      </Text>
+                    </Stack>
+                    <MdDoubleArrow />
+                  </Flex>
+                ) : (
+                  <MdDoubleArrow />
+                )}
+                <Stack spacing="3px" alignItems="center">
+                  <Flex
+                    boxSize="25px"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Image
+                      w="100%"
+                      src={TOKENS_MAP[exchangeRateInfo.route[1]].icon}
+                    />
+                  </Flex>
+                  <Text fontSize="9px" color="var(--text-lighter)">
+                    {exchangeRateInfo.route[1]}
+                  </Text>
+                </Stack>
+              </HStack>
             </div>
             {isVirtualSwap && (
               <div className="row">
@@ -248,15 +378,15 @@ const SwapPage = (props: Props): ReactElement => {
                 {t("lowSlippageVirtualSwapWarning")}
               </div>
             )}
-          </>
+          </Box>
         )}
       </div>
       {account && isHighPriceImpact(exchangeRateInfo.priceImpact) ? (
-        <div className="exchangeWarning">
+        <Box className="exchangeWarning" bg="var(--secondary-button)">
           {t("highPriceImpact", {
             rate: formattedPriceImpact,
           })}
-        </div>
+        </Box>
       ) : null}
       {isVirtualSwap && (
         <div className="virtualSwapInfoBubble">

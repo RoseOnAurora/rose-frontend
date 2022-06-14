@@ -17,6 +17,7 @@ import {
   SROSE,
   SROSE_CONTRACT_ADDRESSES,
   STABLECOIN_SWAP_V2_TOKEN,
+  SWAP_COMPOSER_ADDRESS,
   SWAP_MIGRATOR_USD_CONTRACT_ADDRESSES,
   SYNTHETIX_CONTRACT_ADDRESSES,
   SYNTHETIX_EXCHANGE_RATES_CONTRACT_ADDRESSES,
@@ -45,9 +46,11 @@ import ROSE_STABLES_POOL_ABI from "../constants/abis/RoseStablesPool.json"
 import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
 import { RoseStablesLP } from "../../types/ethers-contracts/RoseStablesLP"
 import SROSE_ABI from "../constants/abis/stRose.json"
+import SWAP_COMPOSER_ABI from "../constants/abis/SwapComposer.json"
 import SYNTHETIX_EXCHANGE_RATE_CONTRACT_ABI from "../constants/abis/synthetixExchangeRate.json"
 import SYNTHETIX_NETWORK_TOKEN_CONTRACT_ABI from "../constants/abis/synthetixNetworkToken.json"
 import { StRose } from "../../types/ethers-contracts/StRose"
+import { SwapComposer } from "../../types/ethers-contracts/SwapComposer"
 import { SwapMigratorUSD } from "../../types/ethers-contracts/SwapMigratorUSD"
 import { SynthetixExchangeRate } from "../../types/ethers-contracts/SynthetixExchangeRate"
 import { SynthetixNetworkToken } from "../../types/ethers-contracts/SynthetixNetworkToken"
@@ -213,6 +216,13 @@ export function usePoolContract(poolName?: PoolName): RosePool | null {
       isMetaPool(poolName) ? ROSE_META_POOL_ABI : ROSE_STABLES_POOL_ABI,
     ),
   ) as RosePool
+}
+
+export function useSwapComposerContract(): SwapComposer | null {
+  return useContract(
+    SWAP_COMPOSER_ADDRESS,
+    JSON.stringify(SWAP_COMPOSER_ABI),
+  ) as SwapComposer
 }
 
 export function useLPTokenContract(

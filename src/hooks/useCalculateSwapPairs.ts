@@ -22,6 +22,8 @@ const SWAP_TYPES_ORDERED_ASC = [
   SWAP_TYPES.TOKEN_TO_SYNTH,
   SWAP_TYPES.SYNTH_TO_TOKEN,
   SWAP_TYPES.SYNTH_TO_SYNTH,
+  SWAP_TYPES.META_TO_META,
+  SWAP_TYPES.STABLES_TO_META,
   SWAP_TYPES.DIRECT,
 ]
 
@@ -254,15 +256,22 @@ function getTradingPairsForToken(
       const metaSwapPool = originPool?.metaSwapAddresses
         ? originPool
         : destinationPool
-      if (
-        !(originPool?.metaSwapAddresses && destinationPool?.metaSwapAddresses)
-      ) {
-        swapData = {
-          type: SWAP_TYPES.DIRECT,
-          from: buildSwapSideData(originToken, metaSwapPool!),
-          to: buildSwapSideData(token, metaSwapPool!),
-          route: [originToken.symbol, token.symbol],
-        }
+
+      // true if we swap meta<->meta (through stables)
+      // i.e. both origin and destination are metapools
+      const thruStables = !!(
+        originPool?.metaSwapAddresses && destinationPool?.metaSwapAddresses
+      )
+
+      // swap data is built from either meta<->meta or stables<->meta when
+      // shared pool size is 0.
+      swapData = {
+        type: thruStables
+          ? SWAP_TYPES.META_TO_META
+          : SWAP_TYPES.STABLES_TO_META,
+        from: buildSwapSideData(originToken, metaSwapPool!),
+        to: buildSwapSideData(token, metaSwapPool!),
+        route: [originToken.symbol, token.symbol],
       }
     }
 

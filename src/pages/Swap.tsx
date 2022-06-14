@@ -7,7 +7,6 @@ import {
   RUSD,
   SWAP_TYPES,
   TOKENS_MAP,
-  isMetaPool,
 } from "../constants"
 import React, {
   ReactElement,
@@ -31,6 +30,7 @@ import { formatUnits, parseUnits } from "@ethersproject/units"
 import {
   useBridgeContract,
   usePoolContract,
+  useSwapComposerContract,
   useSynthetixExchangeRatesContract,
 } from "../hooks/useContract"
 
@@ -114,6 +114,9 @@ function Swap(): ReactElement {
   const swapContract = usePoolContract(
     formState.to.poolName as PoolName | undefined,
   )
+  // meta<->meta swaps thru stables
+  const swapComposerContract = useSwapComposerContract()
+
   // build a representation of pool tokens for the UI
   const tokenOptions = useMemo(() => {
     const allTokens = Object.values(TOKENS_MAP)
@@ -152,7 +155,9 @@ function Swap(): ReactElement {
                 swapType,
                 isAvailable: IS_VIRTUAL_SWAP_ACTIVE
                   ? swapType !== SWAP_TYPES.INVALID
-                  : swapType === SWAP_TYPES.DIRECT, // TODO replace once VSwaps are live
+                  : swapType === SWAP_TYPES.DIRECT ||
+                    swapType === SWAP_TYPES.META_TO_META ||
+                    swapType === SWAP_TYPES.STABLES_TO_META,
               }
             })
             .sort(sortTokenOptions)
@@ -247,27 +252,37 @@ function Swap(): ReactElement {
           utils.formatBytes32String(formStateArg.to.symbol),
           amountToGive,
         )
-        // TO-DO: we need to clean this
+        // We use direct swap for stable<->stable (basic swap)
       } else if (
         formStateArg.swapType === SWAP_TYPES.DIRECT &&
         swapContract != null
       ) {
-        if (
-          isMetaPool(formState.from.poolName) ||
-          isMetaPool(formState.to.poolName)
-        ) {
-          amountToReceive = await swapContract.get_dy_underlying(
-            formStateArg.from.tokenIndex,
-            formStateArg.to.tokenIndex,
-            amountToGive,
-          )
-        } else {
-          amountToReceive = await swapContract.get_dy(
-            formStateArg.from.tokenIndex,
-            formStateArg.to.tokenIndex,
-            amountToGive,
-          )
-        }
+        amountToReceive = await swapContract.get_dy(
+          formStateArg.from.tokenIndex,
+          formStateArg.to.tokenIndex,
+          amountToGive,
+        )
+      } // meta<->meta
+      else if (
+        formStateArg.swapType === SWAP_TYPES.META_TO_META &&
+        swapComposerContract != null
+      ) {
+        amountToReceive = await swapComposerContract.get_dy_thru_stables(
+          tokenFrom.addresses[chainId],
+          tokenTo.addresses[chainId],
+          amountToGive,
+        )
+        // stable<->meta
+      } else if (
+        formStateArg.swapType === SWAP_TYPES.STABLES_TO_META &&
+        swapContract != null
+      ) {
+        amountToReceive = await swapContract.get_dy_underlying(
+          formStateArg.from.tokenIndex,
+          formStateArg.to.tokenIndex,
+          amountToGive,
+        )
+        // 3. stable<->stable
       } else if (
         formStateArg.swapType === SWAP_TYPES.SYNTH_TO_SYNTH &&
         snxEchangeRatesContract != null
@@ -388,7 +403,9 @@ function Swap(): ReactElement {
       const isValidSwap =
         IS_VIRTUAL_SWAP_ACTIVE && activeSwapPair
           ? activeSwapPair.type !== SWAP_TYPES.INVALID
-          : activeSwapPair?.type === SWAP_TYPES.DIRECT
+          : activeSwapPair?.type === SWAP_TYPES.DIRECT ||
+            activeSwapPair?.type === SWAP_TYPES.META_TO_META ||
+            activeSwapPair?.type === SWAP_TYPES.STABLES_TO_META
       const fromDecimals = TOKENS_MAP[prevState.from.symbol]?.decimals || 0
       const toDecimals = TOKENS_MAP[symbol]?.decimals || 0
       const nextState = {
@@ -483,6 +500,7 @@ function Swap(): ReactElement {
     const receipt = await approveAndSwap({
       bridgeContract: bridgeContract,
       poolContract: swapContract,
+      swapComposerContract: swapComposerContract,
       from: {
         amount: parseUnits(formState.from.value, fromToken.decimals),
         symbol: formState.from.symbol,

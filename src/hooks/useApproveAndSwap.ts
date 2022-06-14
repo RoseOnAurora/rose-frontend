@@ -3,28 +3,24 @@
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-return: 0 */
-/* eslint sort-imports: 0 */
-import {
-  Contract,
-  ContractReceipt,
-  ContractTransaction,
-} from "@ethersproject/contracts"
 import {
   ChainId,
-  isMetaPool,
   POOLS_MAP,
+  RosePool,
   SWAP_TYPES,
+  TOKENS_MAP,
   TRANSACTION_TYPES,
 } from "../constants"
-
+import { ContractReceipt, ContractTransaction } from "@ethersproject/contracts"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { Bridge } from "../../types/ethers-contracts/Bridge"
-import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
+import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { GasPrices } from "../state/user"
-import { parseUnits } from "@ethersproject/units"
+import { SwapComposer } from "../../types/ethers-contracts/SwapComposer"
 import { Zero } from "@ethersproject/constants"
+import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
+import { parseUnits } from "@ethersproject/units"
 import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
 import { useActiveWeb3React } from "."
@@ -34,8 +30,9 @@ import { useSelector } from "react-redux"
 import { utils } from "ethers"
 
 type Contracts = {
-  poolContract: Contract | null
+  poolContract: RosePool | null
   bridgeContract: Bridge | null
+  swapComposerContract: SwapComposer | null
 }
 type SwapSide = {
   amount: BigNumber
@@ -73,8 +70,11 @@ export function useApproveAndSwap(): (
       if (!account) throw new Error("Wallet must be connected")
       if (state.swapType === SWAP_TYPES.DIRECT && !state.poolContract)
         throw new Error("Swap contract is not loaded")
-      if (state.swapType !== SWAP_TYPES.DIRECT && !state.bridgeContract)
-        throw new Error("Bridge contract is not loaded")
+      if (
+        state.swapType === SWAP_TYPES.META_TO_META &&
+        !state.swapComposerContract
+      )
+        throw new Error("Swap Composer contract is not loaded")
       if (chainId === undefined) throw new Error("Unknown chain")
       // For each token being deposited, check the allowance and approve it if necessary
       const tokenContract = tokenContracts?.[state.from.symbol] as Erc20
@@ -95,8 +95,13 @@ export function useApproveAndSwap(): (
           : Zero
       if (tokenContract == null) return
       let addressToApprove = ""
-      if (state.swapType === SWAP_TYPES.DIRECT) {
+      if (
+        state.swapType === SWAP_TYPES.DIRECT ||
+        state.swapType === SWAP_TYPES.STABLES_TO_META
+      ) {
         addressToApprove = state.poolContract?.address as string
+      } else if (state.swapType === SWAP_TYPES.META_TO_META) {
+        addressToApprove = state.swapComposerContract?.address as string
       } else {
         addressToApprove = state.bridgeContract?.address as string
       }
@@ -164,35 +169,47 @@ export function useApproveAndSwap(): (
           ...args,
         )
       } else if (state.swapType === SWAP_TYPES.DIRECT) {
-        if (isMetaPool(state.from.poolName) || isMetaPool(state.to.poolName)) {
-          const args = [
-            state.from.tokenIndex,
-            state.to.tokenIndex,
-            state.from.amount,
-            subtractSlippage(state.to.amount, slippageSelected, slippageCustom),
-            { gasPrice },
-          ] as const
-          console.debug("exchange_underlying - direct", args)
-          swapTransaction = await (
-            state.poolContract as NonNullable<
-              typeof state.poolContract // we already check for nonnull above
-            >
-          ).exchange_underlying(...args)
-        } else {
-          const args = [
-            state.from.tokenIndex,
-            state.to.tokenIndex,
-            state.from.amount,
-            subtractSlippage(state.to.amount, slippageSelected, slippageCustom),
-            { gasPrice },
-          ] as const
-          console.debug("exchange - direct", args)
-          swapTransaction = await (
-            state.poolContract as NonNullable<
-              typeof state.poolContract // we already check for nonnull above
-            >
-          ).exchange(...args)
-        }
+        const args = [
+          state.from.tokenIndex,
+          state.to.tokenIndex,
+          state.from.amount,
+          subtractSlippage(state.to.amount, slippageSelected, slippageCustom),
+          { gasPrice },
+        ] as const
+        console.debug("exchange - direct", args)
+        swapTransaction = await (
+          state.poolContract as NonNullable<
+            typeof state.poolContract // we already check for nonnull above
+          >
+        ).exchange(...args)
+      } else if (state.swapType === SWAP_TYPES.STABLES_TO_META) {
+        const args = [
+          state.from.tokenIndex,
+          state.to.tokenIndex,
+          state.from.amount,
+          subtractSlippage(state.to.amount, slippageSelected, slippageCustom),
+          { gasPrice },
+        ] as const
+        console.debug("exchange_underlying - stables to meta", args)
+        swapTransaction = await (
+          state.poolContract as NonNullable<
+            typeof state.poolContract // we already check for nonnull above
+          >
+        ).exchange_underlying(...args)
+      } else if (state.swapType === SWAP_TYPES.META_TO_META) {
+        const args = [
+          TOKENS_MAP[state.from.symbol].addresses[chainId],
+          TOKENS_MAP[state.to.symbol].addresses[chainId],
+          state.from.amount,
+          subtractSlippage(state.to.amount, slippageSelected, slippageCustom),
+          { gasPrice },
+        ] as const
+        console.debug("exchange_thru_stables - meta to meta", args)
+        swapTransaction = await (
+          state.swapComposerContract as NonNullable<
+            typeof state.swapComposerContract // we already check for nonnull above
+          >
+        ).exchange_thru_stables(...args)
       } else {
         throw new Error("Invalid Swap Type, or contract not loaded")
       }
