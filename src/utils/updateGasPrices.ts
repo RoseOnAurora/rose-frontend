@@ -57,9 +57,9 @@ interface GenericGasReponse {
 
 const manualGasPrice = (): Promise<GenericGasReponse> =>
   Promise.resolve({
-    gasStandard: 0.03,
-    gasFast: 0.03,
-    gasInstant: 0.03,
+    gasStandard: 0.07,
+    gasFast: 0.07,
+    gasInstant: 0.07,
   })
 
 export default async function fetchGasPrices(
