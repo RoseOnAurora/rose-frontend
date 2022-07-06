@@ -60,6 +60,7 @@ export default function RosePriceButton(): ReactElement {
         <MenuButton
           variant="outline"
           lineHeight="unset"
+          whiteSpace="nowrap"
           as={Button}
           className={styles.addToken}
           leftIcon={
@@ -70,7 +71,7 @@ export default function RosePriceButton(): ReactElement {
             </Icon>
           }
         >
-          {priceOfRose ? `$${Number(priceOfRose).toFixed(2)}` : "-"}
+          {priceOfRose ? `$${Number(priceOfRose).toFixed(3)}` : "-"}
         </MenuButton>
         <MenuList bg={useColorModeValue("#fff", "rgb(28, 29, 33)")}>
           <Box p="5px" textAlign="center" height="100%">

@@ -429,8 +429,12 @@ function Pools(): ReactElement | null {
           <AnimatePresence>
             {allUserShareData.every((item) => item) || timeout
               ? Object.values(POOLS_MAP)
-                  // temporarily hide Frax pool while keeping its page enabled
-                  .filter(({ name }) => name !== FRAX_STABLES_LP_POOL_NAME)
+                  // temporarily hide Frax pool and UST pool while keeping its page enabled
+                  .filter(
+                    ({ name }) =>
+                      name !== FRAX_STABLES_LP_POOL_NAME &&
+                      name !== UST_METAPOOL_NAME,
+                  )
                   .filter((pool) => FILTER_FUNCTIONS[filterByField](pool))
                   .sort((a, b) =>
                     SORT_FUNCTIONS[sortByField](a, b)
@@ -453,11 +457,15 @@ function Pools(): ReactElement | null {
                   ))
               : // omit the frax pool for now while its filtered above to prevent UI flicker on
                 // uneven initial elements
-                Object.keys(_.omit(POOLS_MAP, "Frax Pool (outdated)")).map(
-                  (key) => (
-                    <Skeleton key={key} height="100px" borderRadius="10px" />
+                Object.keys(
+                  _.omit(
+                    POOLS_MAP,
+                    FRAX_STABLES_LP_POOL_NAME,
+                    UST_METAPOOL_NAME,
                   ),
-                )}
+                ).map((key) => (
+                  <Skeleton key={key} height="100px" borderRadius="10px" />
+                ))}
           </AnimatePresence>
         }
         right={

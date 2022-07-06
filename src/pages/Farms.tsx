@@ -356,6 +356,8 @@ function Farms(): ReactElement {
             timeout
               ? Object.values(FARMS_MAP)
                   .filter((farm) => FILTER_FUNCTIONS[filterByField](farm))
+                  // hide UST farm
+                  .filter((farm) => farm.name !== UST_METAPOOL_FARM_NAME)
                   .sort((a, b) => {
                     return SORT_FUNCTIONS[sortByField](a, b)
                       ? sortDirection * -1
@@ -385,9 +387,11 @@ function Farms(): ReactElement {
                       }}
                     />
                   ))
-              : Object.keys(FARMS_MAP).map((key) => (
-                  <Skeleton key={key} height="100px" borderRadius="10px" />
-                ))}
+              : Object.keys(_.omit(FARMS_MAP, UST_METAPOOL_FARM_NAME)).map(
+                  (key) => (
+                    <Skeleton key={key} height="100px" borderRadius="10px" />
+                  ),
+                )}
           </AnimatePresence>
         }
         right={
