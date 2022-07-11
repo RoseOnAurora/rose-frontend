@@ -5,7 +5,6 @@
 /* eslint @typescript-eslint/no-unsafe-return: 0 */
 import {
   ChainId,
-  POOLS_MAP,
   RosePool,
   SWAP_TYPES,
   TOKENS_MAP,
@@ -14,7 +13,6 @@ import {
 import { ContractReceipt, ContractTransaction } from "@ethersproject/contracts"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { Bridge } from "../../types/ethers-contracts/Bridge"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { GasPrices } from "../state/user"
 import { SwapComposer } from "../../types/ethers-contracts/SwapComposer"
@@ -27,11 +25,9 @@ import { useActiveWeb3React } from "."
 import { useAllContracts } from "./useContract"
 import { useDispatch } from "react-redux"
 import { useSelector } from "react-redux"
-import { utils } from "ethers"
 
 type Contracts = {
   poolContract: RosePool | null
-  bridgeContract: Bridge | null
   swapComposerContract: SwapComposer | null
 }
 type SwapSide = {
@@ -42,14 +38,14 @@ type SwapSide = {
 }
 type FormState = {
   from: SwapSide
-  to: SwapSide & { amountMediumSynth: BigNumber }
+  to: SwapSide
   swapType: Exclude<SWAP_TYPES, SWAP_TYPES.INVALID>
 }
 type ApproveAndSwapStateArgument = FormState & Contracts
 
 export function useApproveAndSwap(): (
   state: ApproveAndSwapStateArgument,
-) => Promise<ContractReceipt | void> {
+) => Promise<ContractReceipt> {
   const dispatch = useDispatch()
   const tokenContracts = useAllContracts()
   const { account, chainId } = useActiveWeb3React()
@@ -65,7 +61,7 @@ export function useApproveAndSwap(): (
   } = useSelector((state: AppState) => state.user)
   return async function approveAndSwap(
     state: ApproveAndSwapStateArgument,
-  ): Promise<ContractReceipt | void> {
+  ): Promise<ContractReceipt> {
     try {
       if (!account) throw new Error("Wallet must be connected")
       if (state.swapType === SWAP_TYPES.DIRECT && !state.poolContract)
@@ -93,7 +89,7 @@ export function useApproveAndSwap(): (
         chainId === ChainId.AURORA_MAINNET
           ? parseUnits(gasPrice?.toString() || "45", "gwei")
           : Zero
-      if (tokenContract == null) return
+      if (tokenContract == null) throw new Error("Token contract is not loaded")
       let addressToApprove = ""
       if (
         state.swapType === SWAP_TYPES.DIRECT ||
@@ -102,8 +98,6 @@ export function useApproveAndSwap(): (
         addressToApprove = state.poolContract?.address as string
       } else if (state.swapType === SWAP_TYPES.META_TO_META) {
         addressToApprove = state.swapComposerContract?.address as string
-      } else {
-        addressToApprove = state.bridgeContract?.address as string
       }
       await checkAndApproveTokenForTrade(
         tokenContract,
@@ -114,61 +108,7 @@ export function useApproveAndSwap(): (
         gasPrice,
       )
       let swapTransaction: ContractTransaction
-      if (state.swapType === SWAP_TYPES.TOKEN_TO_TOKEN) {
-        const originPool = POOLS_MAP[state.from.poolName]
-        const destinationPool = POOLS_MAP[state.to.poolName]
-        const args = [
-          [
-            originPool.addresses[chainId],
-            destinationPool.addresses[chainId],
-          ] as [string, string],
-          state.from.tokenIndex,
-          state.to.tokenIndex,
-          state.from.amount,
-          subtractSlippage(
-            state.to.amountMediumSynth,
-            slippageSelected,
-            slippageCustom,
-          ), // subtract slippage from minSynth
-          { gasPrice },
-        ] as const
-        console.debug("swap - tokenToToken", args)
-        swapTransaction = await (state.bridgeContract as Bridge).tokenToToken(
-          ...args,
-        )
-      } else if (state.swapType === SWAP_TYPES.SYNTH_TO_TOKEN) {
-        const destinationPool = POOLS_MAP[state.to.poolName]
-        const args = [
-          destinationPool.addresses[chainId],
-          utils.formatBytes32String(state.from.symbol),
-          state.to.tokenIndex,
-          state.from.amount,
-          subtractSlippage(
-            state.to.amountMediumSynth,
-            slippageSelected,
-            slippageCustom,
-          ), // subtract slippage from minSynth
-          { gasPrice },
-        ] as const
-        console.debug("swap - synthToToken", args)
-        swapTransaction = await (state.bridgeContract as Bridge).synthToToken(
-          ...args,
-        )
-      } else if (state.swapType === SWAP_TYPES.TOKEN_TO_SYNTH) {
-        const originPool = POOLS_MAP[state.from.poolName]
-        const args = [
-          originPool.addresses[chainId],
-          state.from.tokenIndex,
-          utils.formatBytes32String(state.to.symbol),
-          state.from.amount,
-          subtractSlippage(state.to.amount, slippageSelected, slippageCustom),
-          { gasPrice },
-        ] as const
-        console.debug("swap - tokenToSynth", args)
-        swapTransaction = await (state.bridgeContract as Bridge).tokenToSynth(
-          ...args,
-        )
-      } else if (state.swapType === SWAP_TYPES.DIRECT) {
+      if (state.swapType === SWAP_TYPES.DIRECT) {
         const args = [
           state.from.tokenIndex,
           state.to.tokenIndex,

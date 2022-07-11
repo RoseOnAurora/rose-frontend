@@ -9,7 +9,7 @@ import {
 import React, { ReactElement } from "react"
 import styles from "./BottomMenu.module.scss"
 
-function BottomMenu(): ReactElement | null {
+function Footer(): ReactElement | null {
   return (
     <div className={styles.bottommenu}>
       <div className={styles.socials}>
@@ -54,4 +54,4 @@ function BottomMenu(): ReactElement | null {
   )
 }
 
-export default BottomMenu
+export default Footer

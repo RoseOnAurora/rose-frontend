@@ -87,7 +87,7 @@ const Pool = ({ poolName }: Props): ReactElement => {
     })
 
   return (
-    <PageWrapper activeTab="pools">
+    <PageWrapper>
       <ComponentWrapper
         top={<BackButton route="/pools" buttonText="Go back to pools" />}
         left={

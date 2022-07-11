@@ -121,7 +121,7 @@ const Farm = ({ farmName }: Props): ReactElement => {
   }
 
   return (
-    <PageWrapper activeTab="farm">
+    <PageWrapper>
       <ComponentWrapper
         top={<BackButton route="/farms" buttonText="Go back to farms" />}
         left={

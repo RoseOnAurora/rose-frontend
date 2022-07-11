@@ -5,7 +5,6 @@ const PageWrapper = ({
   children,
   maxW = "1195px",
 }: React.PropsWithChildren<unknown> & {
-  activeTab: string
   maxW?: string
 }): ReactElement => {
   return (

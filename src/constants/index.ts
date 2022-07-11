@@ -173,42 +173,6 @@ export class Token {
 
 export const BLOCK_TIME = 13000 // ms
 
-export const SYNTHETIX_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]: "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F",
-  [ChainId.ROPSTEN]: "",
-  [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "",
-  [ChainId.AURORA_MAINNET]: "",
-}
-
-export const SYNTHETIX_EXCHANGE_RATES_CONTRACT_ADDRESSES: {
-  [chainId in ChainId]: string
-} = {
-  [ChainId.MAINNET]: "0xd69b189020EF614796578AfE4d10378c5e7e1138",
-  [ChainId.ROPSTEN]: "",
-  [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "",
-  [ChainId.AURORA_MAINNET]: "",
-}
-
-export const BRIDGE_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]: "0xa5bD85ed9fA27ba23BfB702989e7218E44fd4706",
-  [ChainId.ROPSTEN]: "",
-  [ChainId.HARDHAT]: "",
-  [ChainId.AURORA_TESTNET]: "",
-  [ChainId.AURORA_MAINNET]: "",
-}
-
-export const SWAP_MIGRATOR_USD_CONTRACT_ADDRESSES: {
-  [chainId in ChainId]: string
-} = {
-  [ChainId.MAINNET]: "0x9cDeF6e33687F438808766fC133b2E9d1A16AD57",
-  [ChainId.ROPSTEN]: "",
-  [ChainId.HARDHAT]: "0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf",
-  [ChainId.AURORA_TESTNET]: "",
-  [ChainId.AURORA_MAINNET]: "",
-}
-
 export const SUSD_META_SWAP_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: "0x0C8BAe14c9f9BF2c953997C881BEfaC7729FD314",
   [ChainId.ROPSTEN]: "",
@@ -1767,11 +1731,6 @@ export const BORROW_MARKET_MAP: BorrowMarketMap = {
   },
 }
 
-export function isLegacySwapABIPool(poolName: string): boolean {
-  return new Set([BTC_POOL_NAME, STABLECOIN_POOL_NAME, VETH2_POOL_NAME]).has(
-    poolName,
-  )
-}
 export function isMetaPool(poolName = ""): boolean {
   return new Set([
     SUSD_METAPOOL_NAME,
@@ -1858,22 +1817,9 @@ export const POOL_FEE_PRECISION = 10
 // TO-DO: remove unused synth, token, etc
 export enum SWAP_TYPES {
   DIRECT = "swapDirect", // route length 2
-  SYNTH_TO_SYNTH = "swapSynthToSynth", // route length 2
   STABLES_TO_META = "swapStablesToMeta", // route length 2 (meta pool)
   META_TO_META = "swapMetaToMeta", // route length 3 (through stables)
-  SYNTH_TO_TOKEN = "swapSynthToToken", // route length 3
-  TOKEN_TO_SYNTH = "swapTokenToSynth", // route length 3
-  TOKEN_TO_TOKEN = "swapTokenToToken", // route length 4
   INVALID = "invalid",
-}
-
-export function getIsVirtualSwap(swapType: SWAP_TYPES): boolean {
-  return (
-    swapType === SWAP_TYPES.SYNTH_TO_SYNTH ||
-    swapType === SWAP_TYPES.SYNTH_TO_TOKEN ||
-    swapType === SWAP_TYPES.TOKEN_TO_SYNTH ||
-    swapType === SWAP_TYPES.TOKEN_TO_TOKEN
-  )
 }
 
 export const SWAP_CONTRACT_GAS_ESTIMATES_MAP = {
@@ -1881,10 +1827,6 @@ export const SWAP_CONTRACT_GAS_ESTIMATES_MAP = {
   [SWAP_TYPES.DIRECT]: BigNumber.from("200000"), // 157,807
   [SWAP_TYPES.STABLES_TO_META]: BigNumber.from("200000"), // 157,807
   [SWAP_TYPES.META_TO_META]: BigNumber.from("200000"), // 157,807
-  [SWAP_TYPES.TOKEN_TO_TOKEN]: BigNumber.from("2000000"), // 1,676,837
-  [SWAP_TYPES.TOKEN_TO_SYNTH]: BigNumber.from("2000000"), // 1,655,502
-  [SWAP_TYPES.SYNTH_TO_TOKEN]: BigNumber.from("1500000"), // 1,153,654
-  [SWAP_TYPES.SYNTH_TO_SYNTH]: BigNumber.from("700000"), // 681,128 // TODO: https://github.com/saddle-finance/saddle-frontend/issues/471
   addLiquidity: BigNumber.from("400000"), // 386,555
   removeLiquidityImbalance: BigNumber.from("350000"), // 318,231
   removeLiquidityOneToken: BigNumber.from("250000"), // 232,947
@@ -2011,6 +1953,36 @@ export type RosePool = RoseStablesPool | RoseMetaPool
 export const SYNTH_TRACKING_ID =
   "0x534144444c450000000000000000000000000000000000000000000000000000"
 
-// FLAGS
-export const IS_VIRTUAL_SWAP_ACTIVE = true
-// FLAGS END
+type NavItemDetails = {
+  route: string
+  name: string
+  isActive: (path: string) => boolean
+}
+
+export const NAV_ITEMS: NavItemDetails[] = [
+  {
+    route: "/",
+    name: "swap",
+    isActive: (path) => path === "/",
+  },
+  {
+    route: "/pools",
+    name: "pools",
+    isActive: (path) => /pools*/.test(path),
+  },
+  {
+    route: "/farms",
+    name: "farms",
+    isActive: (path) => /farms*/.test(path),
+  },
+  {
+    route: "/stake",
+    name: "stake",
+    isActive: (path) => path === "/stake",
+  },
+  {
+    route: "/borrow",
+    name: "borrow",
+    isActive: (path) => /borrow*/.test(path),
+  },
+]

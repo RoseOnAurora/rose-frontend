@@ -60,7 +60,7 @@ const Stake = (): ReactElement => {
   }, [tokenBalances])
 
   return (
-    <PageWrapper activeTab="stake">
+    <PageWrapper>
       <ComponentWrapper
         left={
           <TabsWrapper

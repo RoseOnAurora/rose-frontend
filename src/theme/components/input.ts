@@ -1,59 +1,110 @@
 import {
-  CSSWithMultiValues,
-  RecursiveCSSObject,
-} from "@chakra-ui/styled-system"
-import { Dict } from "@chakra-ui/utils"
+  PartsStyleFunction,
+  PartsStyleObject,
+  SystemStyleObject,
+} from "@chakra-ui/theme-tools"
+import { inputAnatomy as parts } from "@chakra-ui/anatomy"
 
-const variantPrimary = (
-  props: Dict,
-): RecursiveCSSObject<CSSWithMultiValues> => {
-  const hasErrorColor = props.isInvalid ? "#cc3a59" : "#4BB543"
-  const darkMode = props.colorMode === "dark"
+// base style every input has
+const baseStyle: PartsStyleObject<typeof parts> = {
+  field: {
+    border: "2px",
+    fontWeight: 700,
+    bg: "transparent",
+  },
+  element: {
+    h: "full",
+    minW: "fit-content",
+    borderRadius: "12px",
+  },
+}
+
+// Styles for the size variations
+const sizes: Record<string, PartsStyleObject<typeof parts>> = {
+  md: {
+    field: {
+      fontSize: "16px",
+      lineHeight: "20px",
+      h: 12,
+      borderRadius: "12px",
+    },
+  },
+  lg: {
+    field: {
+      fontSize: "20px",
+      lineHeight: "26px",
+      h: 16,
+      borderRadius: "12px",
+    },
+  },
+}
+
+// Styles for the visual style variations
+const variantSimple: PartsStyleFunction<typeof parts> = () => {
   return {
     field: {
-      borderBottom: "2px solid",
-      borderColor: hasErrorColor,
-      borderRadius: "10px",
-      px: 0,
-      bg: darkMode ? "rgb(28, 29, 33)" : "rgb(248, 248, 248)",
-      _hover: {
-        bg: darkMode ? "rgb(31, 32, 36)" : "rgb(245, 245, 245)",
-      },
-      _readOnly: {
-        boxShadow: "none !important",
-        userSelect: "all",
-      },
+      textAlign: "left",
+      borderColor: "gray.700",
+      _hover: { borderColor: "gray.600" },
       _invalid: {
         borderColor: "#cc3a59 !important",
-        boxShadow: `0px 1px 0px 0px #cc3a59`,
       },
-      _focus: {
-        borderColor: hasErrorColor,
-        boxShadow: `0px 1px 0px 0px ${hasErrorColor}`,
+      _focusVisible: {
+        zIndex: 1,
+        borderColor: "red.500",
+        boxShadow: `0 0 0 1px #EF4444`,
+      },
+      _placeholder: { opacity: 0.8, fontSize: "16px !important" },
+      _readOnly: {
+        boxShadow: "none !important",
+        borderColor: "none",
+        userSelect: "all",
       },
     },
   }
 }
 
-const variantOuline = (props: Dict): RecursiveCSSObject<CSSWithMultiValues> => {
-  const darkMode = props.colorMode === "dark"
-
+const variantComplex: PartsStyleFunction<typeof parts> = () => {
   return {
     field: {
-      borderColor: darkMode ? "var(--chakra-colors-whiteAlpha-300)" : "#555555",
-      _focus: {
-        boxShadow: "none",
-        borderColor: darkMode ? "#cc3a59" : "#881f36",
+      textAlign: "right",
+      borderColor: "gray.700",
+      _hover: { borderColor: "gray.600" },
+      _disabled: {
+        opacity: 0.4,
+        cursor: "not-allowed",
       },
-      _hover: {
-        borderColor: darkMode ? "var(--chakra-colors-whiteAlpha-400)" : "#000",
+      _invalid: {
+        borderColor: "red.400 !important",
       },
+      _focusVisible: {
+        zIndex: 1,
+        borderColor: "red.500",
+        boxShadow: `0 0 0 1px #EF4444`,
+      },
+      _placeholder: { opacity: 0.8 },
+      _readOnly: {
+        boxShadow: "none !important",
+        borderColor: "gray.700",
+        userSelect: "all",
+      },
+    },
+    element: {
+      ml: "15px",
     },
   }
 }
 
-const variants = {
-  primary: variantPrimary,
-  outline: variantOuline,
+// The default `size` or `variant` values
+const defaultProps: SystemStyleObject = {
+  size: "lg",
+  variant: "complex",
 }
-export default { variants }
+
+// record of different variants
+const variants = {
+  complex: variantComplex,
+  simple: variantSimple,
+}
+
+export default { parts: parts.keys, baseStyle, variants, sizes, defaultProps }

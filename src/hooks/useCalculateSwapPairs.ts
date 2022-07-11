@@ -1,4 +1,3 @@
-/* eslint @typescript-eslint/no-non-null-assertion: 0 */
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
 import {
@@ -10,18 +9,14 @@ import {
   Token,
   TokensMap,
 } from "../constants/index"
+import { SwapData, SwapSide, TokenToSwapDataMap } from "../types/swap"
 import { useMemo, useState } from "react"
-
 import { intersection } from "../utils/index"
 import usePoolTVLs from "./usePoolsTVL"
 
 // swaptypes in order of least to most preferred (aka expensive)
 const SWAP_TYPES_ORDERED_ASC = [
   SWAP_TYPES.INVALID,
-  SWAP_TYPES.TOKEN_TO_TOKEN,
-  SWAP_TYPES.TOKEN_TO_SYNTH,
-  SWAP_TYPES.SYNTH_TO_TOKEN,
-  SWAP_TYPES.SYNTH_TO_SYNTH,
   SWAP_TYPES.META_TO_META,
   SWAP_TYPES.STABLES_TO_META,
   SWAP_TYPES.DIRECT,
@@ -31,11 +26,10 @@ type TokenToPoolsMap = {
   [tokenSymbol: string]: string[]
 }
 
-type TokenToSwapDataMap = { [symbol: string]: SwapData[] }
 export function useCalculateSwapPairs(): (token?: Token) => SwapData[] {
   const [pairCache, setPairCache] = useState<TokenToSwapDataMap>({})
   const poolTVLs = usePoolTVLs()
-  const [poolsSortedByTVL, tokenToPoolsMapSorted] = useMemo(() => {
+  const [tokenToPoolsMapSorted] = useMemo(() => {
     const sortedPools = Object.values(POOLS_MAP).sort((a, b) => {
       const aTVL = poolTVLs[a.name]
       const bTVL = poolTVLs[b.name]
@@ -52,7 +46,7 @@ export function useCalculateSwapPairs(): (token?: Token) => SwapData[] {
       })
       return newAcc
     }, {} as TokenToPoolsMap)
-    return [sortedPools, tokenToPools]
+    return [tokenToPools]
   }, [poolTVLs])
 
   return function calculateSwapPairs(token?: Token): SwapData[] {
@@ -62,7 +56,6 @@ export function useCalculateSwapPairs(): (token?: Token) => SwapData[] {
     const swapPairs = getTradingPairsForToken(
       TOKENS_MAP,
       POOLS_MAP,
-      poolsSortedByTVL,
       tokenToPoolsMapSorted,
       token,
     )
@@ -86,43 +79,18 @@ function buildSwapSideData(
   }
 }
 
-export type SwapSide = {
-  symbol: string
-  poolName?: string
-  tokenIndex?: number
-}
-
-export type SwapData =
-  | {
-      from: Required<SwapSide>
-      to: Required<SwapSide>
-      type: Exclude<SWAP_TYPES, SWAP_TYPES.INVALID>
-      route: string[]
-    }
-  | {
-      from: SwapSide
-      to: SwapSide
-      type: SWAP_TYPES.INVALID
-      route: string[]
-    }
-
 function getTradingPairsForToken(
   tokensMap: TokensMap,
   poolsMap: PoolsMap,
-  poolsSortedByTVL: Pool[],
   tokenToPoolsMap: TokenToPoolsMap,
   originToken: Token,
 ): SwapData[] {
   const allTokens = Object.values(tokensMap).filter(
     ({ isLPToken }) => !isLPToken,
   )
-  const synthPoolsSet = new Set(
-    poolsSortedByTVL.filter(({ isSynthetic }) => isSynthetic),
-  )
   const originTokenPoolsSet = new Set(
     tokenToPoolsMap[originToken.symbol].map((poolName) => poolsMap[poolName]),
   )
-  const originPoolsSynthSet = intersection(synthPoolsSet, originTokenPoolsSet)
   const tokenToSwapDataMap: { [symbol: string]: SwapData } = {} // object is used for deduping
 
   allTokens.forEach((token) => {
@@ -136,14 +104,7 @@ function getTradingPairsForToken(
     const tokenPoolsSet = new Set(
       tokenToPoolsMap[token.symbol].map((poolName) => poolsMap[poolName]),
     )
-    const tokenPoolsSynthSet = intersection(synthPoolsSet, tokenPoolsSet)
     const sharedPoolsSet = intersection(originTokenPoolsSet, tokenPoolsSet)
-
-    /**
-     * sToken = synth, Token = nonsynth
-     * sPool = synth, Pool = nonsynth
-     * sPool(TokenA) <> sTokenB = nonsynth token in synth pool swapping with synth token
-     */
 
     // Case 1: TokenA <> TokenA
     if (originToken === token) {
@@ -160,92 +121,7 @@ function getTradingPairsForToken(
       }
     }
 
-    // Case 3: sTokenA <> sTokenB
-    else if (originToken.isSynthetic && token.isSynthetic) {
-      const originPool = [...originTokenPoolsSet][0]
-      const destinationPool = [...tokenPoolsSet][0]
-      swapData = {
-        type: SWAP_TYPES.SYNTH_TO_SYNTH,
-        from: buildSwapSideData(originToken, originPool),
-        to: buildSwapSideData(token, destinationPool),
-        route: [originToken.symbol, token.symbol],
-      }
-    }
-
-    // Case 4: sTokenA <> sPool(TokenB)
-    else if (
-      originToken.isSynthetic &&
-      !token.isSynthetic &&
-      tokenPoolsSynthSet.size > 0
-    ) {
-      const originPool = [...originTokenPoolsSet][0]
-      const destinationPool = [...tokenPoolsSynthSet][0]
-      const middleSynth = destinationPool.poolTokens.find(
-        ({ isSynthetic }) => isSynthetic,
-      )
-      if (middleSynth) {
-        swapData = {
-          type: SWAP_TYPES.SYNTH_TO_TOKEN,
-          from: buildSwapSideData(originToken, originPool),
-          to: buildSwapSideData(token, destinationPool),
-          route: [originToken.symbol, middleSynth.symbol, token.symbol],
-        }
-      }
-    }
-
-    // Case 5: sPoolA(TokenA) <> sPoolB(TokenB)
-    else if (
-      !originToken.isSynthetic &&
-      originPoolsSynthSet.size > 0 &&
-      !token.isSynthetic &&
-      tokenPoolsSynthSet.size > 0
-    ) {
-      const originPool = [...originPoolsSynthSet][0]
-      const destinationPool = [...tokenPoolsSynthSet][0]
-      const originSynth = originPool.poolTokens.find(
-        ({ isSynthetic }) => isSynthetic,
-      )
-      const destinationSynth = destinationPool.poolTokens.find(
-        ({ isSynthetic }) => isSynthetic,
-      )
-      if (originSynth && destinationSynth) {
-        swapData = {
-          type: SWAP_TYPES.TOKEN_TO_TOKEN,
-          from: buildSwapSideData(originToken, originPool),
-          to: buildSwapSideData(token, destinationPool),
-          route: [
-            originToken.symbol,
-            originSynth.symbol,
-            destinationSynth.symbol,
-            token.symbol,
-          ],
-        }
-      }
-    }
-
-    // Case 6: sPool(TokenA) <> sTokenB
-    else if (
-      !originToken.isSynthetic &&
-      originPoolsSynthSet.size > 0 &&
-      token.isSynthetic
-    ) {
-      const originPool = [...originPoolsSynthSet][0]
-      const destinationPool = [...tokenPoolsSet][0]
-      const middleSynth = originPool.poolTokens.find(
-        ({ isSynthetic }) => isSynthetic,
-      )
-      if (middleSynth) {
-        swapData = {
-          type: SWAP_TYPES.TOKEN_TO_SYNTH,
-          from: buildSwapSideData(originToken, originPool),
-          to: buildSwapSideData(token, destinationPool),
-          route: [originToken.symbol, middleSynth.symbol, token.symbol],
-        }
-      }
-    }
-
-    // TO-DO: clean this logic up
-    // Case 7: poolA(TokenA) <> poolB(TokenB) (temp workaround for tokens from diff pools)
+    // Case 3: poolA(TokenA) <> poolB(TokenB) (temp workaround for tokens from diff pools)
     else if (sharedPoolsSet.size === 0) {
       const originPool = [...originTokenPoolsSet].find(
         ({ isOutdated }) => !isOutdated,
@@ -288,8 +164,4 @@ function getTradingPairsForToken(
   })
 
   return Object.values(tokenToSwapDataMap)
-}
-
-export const __test__ = {
-  getTradingPairsForToken,
 }

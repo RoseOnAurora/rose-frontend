@@ -1,7 +1,9 @@
 /* eslint @typescript-eslint/no-unsafe-assignment: 0 */
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
-
 import "./index.css"
+import "@fontsource/dm-sans/700.css"
+import "@fontsource/dm-sans/400.css"
+import "@fontsource/dm-sans/500.css"
 import "./i18n"
 
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react"

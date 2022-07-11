@@ -8,6 +8,7 @@
     "@chakra-ui/react": "^2.0.2",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
+    "@fontsource/dm-sans": "^4.5.7",
     "@metamask/jazzicon": "^2.0.0",
     "@reduxjs/toolkit": "^1.8.1",
     "@types/jest": "^26.0.22",

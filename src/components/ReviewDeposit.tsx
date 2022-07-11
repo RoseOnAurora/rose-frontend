@@ -5,7 +5,7 @@ import { commify, formatBNToPercentString, formatBNToString } from "../utils"
 
 import { AppState } from "../state/index"
 import Button from "./Button"
-import { DepositTransaction } from "../interfaces/transactions"
+import { DepositTransaction } from "../types/transactions"
 import HighPriceImpactConfirmation from "./HighPriceImpactConfirmation"
 import { formatGasToString } from "../utils/gas"
 import { formatSlippageToString } from "../utils/slippage"

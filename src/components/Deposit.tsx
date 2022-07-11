@@ -7,7 +7,7 @@
 import "./DepositPage.scss"
 import { Box, Button, Center } from "@chakra-ui/react"
 import { Contract, ContractReceipt } from "@ethersproject/contracts"
-import { DepositTransaction, TransactionItem } from "../interfaces/transactions"
+import { DepositTransaction, TransactionItem } from "../types/transactions"
 import {
   FRAX_STABLES_LP_POOL_NAME,
   POOLS_MAP,

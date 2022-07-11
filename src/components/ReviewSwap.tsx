@@ -1,15 +1,14 @@
 import "./ReviewSwap.scss"
 
 import React, { ReactElement, useState } from "react"
-import { SWAP_TYPES, TOKENS_MAP, getIsVirtualSwap } from "../constants"
+import { SWAP_TYPES, TOKENS_MAP } from "../constants"
 import { commify, formatBNToString } from "../utils"
 
 import { AppState } from "../state/index"
 import { BigNumber } from "@ethersproject/bignumber"
 import Button from "./Button"
+import { ExchangeRateInfo } from "../types/swap"
 import HighPriceImpactConfirmation from "./HighPriceImpactConfirmation"
-import { ReactComponent as ThinArrowDown } from "../assets/icons/thinArrowDown.svg"
-import classnames from "classnames"
 import { formatGasToString } from "../utils/gas"
 import { formatSlippageToString } from "../utils/slippage"
 import iconDown from "../assets/icons/icon_down.svg"
@@ -23,12 +22,7 @@ interface Props {
   data: {
     from: { symbol: string; value: string }
     to: { symbol: string; value: string }
-    exchangeRateInfo: {
-      pair: string
-      priceImpact: BigNumber
-      exchangeRate: BigNumber
-      route: string[]
-    }
+    exchangeRateInfo: ExchangeRateInfo
     swapType: SWAP_TYPES
     txnGasCost: {
       amount: BigNumber
@@ -49,27 +43,12 @@ function ReviewSwap({ onClose, onConfirm, data }: Props): ReactElement {
   const isHighPriceImpactTxn = isHighPriceImpact(
     data.exchangeRateInfo.priceImpact,
   )
-  const isVirtualSwap = getIsVirtualSwap(data.swapType)
 
   return (
     <div className="reviewSwap">
       <h3>{t("reviewSwap")}</h3>
       <div className="swapTable">
-        {isVirtualSwap ? (
-          <VirtualSwapTokens data={data} />
-        ) : (
-          <DirectSwapTokens data={data} />
-        )}
-        {data.swapType === SWAP_TYPES.SYNTH_TO_SYNTH && (
-          <div className="row">
-            <span className="aside">
-              {t("virtualSwapSynthToSynthInfo")}{" "}
-              <a href="https://blog.synthetix.io/how-fee-reclamation-rebates-work/">
-                {t("learnMore")}
-              </a>
-            </span>
-          </div>
-        )}
+        <DirectSwapTokens data={data} />
         <div className="divider" style={{ height: "1px", width: "100%" }} />
         <div className="swapInfo">
           <div className="priceTable">
@@ -180,46 +159,6 @@ function DirectSwapTokens({ data }: { data: Props["data"] }) {
           <span>{data.to.value}</span>
         </div>
       </div>
-    </>
-  )
-}
-
-function VirtualSwapTokens({ data }: { data: Props["data"] }) {
-  const { t } = useTranslation()
-
-  return (
-    <>
-      {data.exchangeRateInfo.route.map((symbol, i) => {
-        const isFirst = i === 0
-        const isLast = i === data.exchangeRateInfo.route.length - 1
-        const token = TOKENS_MAP[symbol]
-        return (
-          <div className="row" key={symbol}>
-            <div>
-              {!isFirst && !isLast && <ThinArrowDown className="stepArrow" />}
-              <img className="tokenIcon" src={token.icon} alt="icon" />
-              <span className={classnames("tokenName", { grey: isLast })}>
-                {token.symbol}
-              </span>
-
-              {(isFirst || isLast) && (
-                <span className="aside">
-                  {" "}
-                  (
-                  {t("stepN", {
-                    step: isFirst ? 1 : 2,
-                  })}
-                  )
-                </span>
-              )}
-            </div>
-            <div>
-              {isFirst && <span>{data.from.value}</span>}
-              {isLast && <span className="grey">{data.to.value}</span>}
-            </div>
-          </div>
-        )
-      })}
     </>
   )
 }

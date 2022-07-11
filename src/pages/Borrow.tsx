@@ -34,10 +34,8 @@ import {
 import useChakraToast, { TransactionType } from "../hooks/useChakraToast"
 import BackButton from "../components/BackButton"
 import { BigNumber } from "@ethersproject/bignumber"
-import BlockExplorerLink from "../components/BlockExplorerLink"
 import BorrowForm from "../components/BorrowForm"
 import ComponentWrapper from "../components/wrappers/ComponentWrapper"
-import { ContractReceipt } from "ethers"
 import OverviewInfo from "../components/OverviewInfo"
 import PageWrapper from "../components/wrappers/PageWrapper"
 import RepayForm from "../components/RepayForm"
@@ -45,9 +43,9 @@ import StakeDetails from "../components/StakeDetails"
 import TabsWrapper from "../components/wrappers/TabsWrapper"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import { parseUnits } from "@ethersproject/units"
-import { useActiveWeb3React } from "../hooks"
 import useBorrowData from "../hooks/useBorrowData"
 import { useCook } from "../hooks/useCook"
+import useHandlePostSubmit from "../hooks/useHandlePostSubmit"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -61,14 +59,13 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   const btnRef = useRef<HTMLButtonElement>(null)
   const toast = useChakraToast()
   const cook = useCook(borrowName)
-  const { chainId } = useActiveWeb3React()
+  const handlePostSubmit = useHandlePostSubmit()
   const { t } = useTranslation()
 
   const drawerBg = useColorModeValue(
     "linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9)",
     "linear-gradient(to right, #141414, #200122, #791038)",
   )
-  // const borrowCollapseTextColor = useColorModeValue("#555555", "#bbbbbb")
 
   const { borrowToken, collateralToken } = BORROW_MARKET_MAP[borrowName]
 
@@ -299,33 +296,6 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
     return +formatBNToString(borrowData.positionHealth, 18) * 100
   }
 
-  const postTransaction = (
-    receipt: ContractReceipt | null,
-    transactionType: TransactionType,
-    error?: { code: number; message: string },
-  ): void => {
-    const description = receipt?.transactionHash ? (
-      <BlockExplorerLink
-        txnType={transactionType}
-        txnHash={receipt?.transactionHash}
-        status={receipt?.status ? "Succeeded" : "Failed"}
-        chainId={chainId}
-      />
-    ) : null
-    if (receipt?.status) {
-      toast.transactionSuccess({
-        txnType: transactionType,
-        description: description,
-      })
-    } else {
-      toast.transactionFailed({
-        txnType: transactionType,
-        error,
-        description: description,
-      })
-    }
-  }
-
   const preTransaction = (txnType: TransactionType) =>
     toast.transactionPending({
       txnType,
@@ -420,7 +390,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   const mcrFormatted = formatBNToPercentString(borrowData.mcr, 18, 0)
 
   return (
-    <PageWrapper activeTab="borrow">
+    <PageWrapper>
       <Drawer
         isOpen={isOpen}
         placement="right"
@@ -597,7 +567,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
                   collateralValidator={validateDepositCollateral}
                   handlePreSubmit={preTransaction}
                   handleWhileSubmitting={onSubmitting}
-                  handlePostSubmit={postTransaction}
+                  handlePostSubmit={handlePostSubmit}
                   getMaxBorrow={calculateMaxBorrow}
                   updateLiquidationPrice={updateCurrLiquidationPrice}
                   updatePositionHealth={updatePositionHealth}
@@ -630,7 +600,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
                   collateralValidator={validateWithdrawCollateral}
                   handlePreSubmit={preTransaction}
                   handleWhileSubmitting={onSubmitting}
-                  handlePostSubmit={postTransaction}
+                  handlePostSubmit={handlePostSubmit}
                   updatePositionHealth={updatePositionHealth}
                   updateLiquidationPrice={updateCurrLiquidationPrice}
                   handleSubmit={cook}

@@ -143,8 +143,6 @@ export function useApproveAndWithdraw(
         )
       }
 
-      // notifyHandler(spendTransaction.hash, "withdraw")
-
       const receipt = await spendTransaction.wait()
       dispatch(
         updateLastTransactionTimes({

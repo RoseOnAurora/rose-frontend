@@ -160,7 +160,7 @@ function Farms(): ReactElement {
   }
 
   return (
-    <PageWrapper activeTab="farms" maxW="1650px">
+    <PageWrapper maxW="1650px">
       <Drawer
         isOpen={isOpen}
         placement="right"

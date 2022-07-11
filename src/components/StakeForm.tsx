@@ -1,8 +1,3 @@
-// TODO: create types
-/* eslint @typescript-eslint/no-unsafe-member-access: 0 */
-/* eslint @typescript-eslint/no-unsafe-call: 0 */
-/* eslint @typescript-eslint/no-unsafe-assignment: 0 */
-/* eslint @typescript-eslint/no-explicit-any: 0 */
 import {
   Box,
   Button,
@@ -15,17 +10,16 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react"
-import { Field, FieldAttributes, Form, Formik } from "formik"
+import { Field, FieldProps, Form, Formik, FormikProps } from "formik"
 import React, { ReactElement, ReactNode } from "react"
 import useChakraToast, { TransactionType } from "../hooks/useChakraToast"
 import { BigNumber } from "@ethersproject/bignumber"
-import BlockExplorerLink from "./BlockExplorerLink"
 import { ContractReceipt } from "@ethersproject/contracts"
 import FormWrapper from "./wrappers/FormWrapper"
-import { Zero } from "@ethersproject/constants"
+import { basicTokenInputValidator } from "../utils/validators"
 import { formatBNToString } from "../utils"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
-import { useActiveWeb3React } from "../hooks"
+import useHandlePostSubmit from "../hooks/useHandlePostSubmit"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -64,45 +58,10 @@ function StakeForm(props: Props): ReactElement {
 
   const { t } = useTranslation()
   const toast = useChakraToast()
-  const { chainId } = useActiveWeb3React()
+  const handlePostSubmit = useHandlePostSubmit()
 
   const validator = (amount: string): string | undefined => {
-    const { value, isFallback } = parseStringToBigNumber(amount, 18, Zero)
-
-    if (!amount) return
-
-    if (isFallback) {
-      return t("Invalid number.")
-    }
-
-    if (value.gt(max)) return t("insufficientBalance")
-  }
-
-  const handlePostSubmit = (
-    receipt: ContractReceipt | null,
-    transactionType: TransactionType,
-    error?: { code: number; message: string },
-  ): void => {
-    const description = receipt?.transactionHash ? (
-      <BlockExplorerLink
-        txnType={transactionType}
-        txnHash={receipt.transactionHash}
-        status={receipt?.status ? "Succeeded" : "Failed"}
-        chainId={chainId}
-      />
-    ) : null
-    if (receipt?.status) {
-      toast.transactionSuccess({
-        txnType: transactionType,
-        description: description,
-      })
-    } else {
-      toast.transactionFailed({
-        txnType: transactionType,
-        error,
-        description: description,
-      })
-    }
+    return basicTokenInputValidator(amount, 18, max)
   }
 
   return (
@@ -131,15 +90,19 @@ function StakeForm(props: Props): ReactElement {
           actions.resetForm({ values: { [fieldName]: "" } })
         }}
       >
-        {(props) => (
+        {(props: FormikProps<{ [key: string]: string }>) => (
           <Form>
             <Field name={fieldName} validate={validator}>
-              {({ field, form }: FieldAttributes<any>) => (
+              {({
+                field,
+                form,
+                meta,
+              }: FieldProps<string, { [key: string]: string }>) => (
                 <FormControl
                   padding="10px"
                   bgColor="var(--secondary-background)"
                   borderRadius="10px"
-                  isInvalid={form.errors?.[fieldName]}
+                  isInvalid={!!form.errors?.[fieldName]}
                 >
                   <InputGroup>
                     <InputLeftElement
@@ -156,7 +119,7 @@ function StakeForm(props: Props): ReactElement {
                       autoComplete="off"
                       autoCorrect="off"
                       type="text"
-                      isInvalid={form.errors?.[fieldName]}
+                      isInvalid={!!form.errors?.[fieldName]}
                       placeholder="0.0"
                       variant="primary"
                       onChange={(e) => {
@@ -189,7 +152,7 @@ function StakeForm(props: Props): ReactElement {
                     </Text>
                   ) : (
                     <FormErrorMessage color="#cc3a59">
-                      {form.errors?.[fieldName]}
+                      {meta.error}
                     </FormErrorMessage>
                   )}
                 </FormControl>
