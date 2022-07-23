@@ -152,7 +152,7 @@ export function useApproveAndWithdraw(
       return receipt
     } catch (e) {
       console.error(e)
-      // notifyCustomError(e as Error)
+      throw e
     }
   }
 }

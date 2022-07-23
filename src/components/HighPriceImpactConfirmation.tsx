@@ -1,8 +1,5 @@
-import "./HighPriceImpactConfirmation.scss"
-
+import { Box, Checkbox, HStack, Stack, Text } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
-
-import CheckboxInput from "./CheckboxInput"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -15,12 +12,16 @@ export default function HighPriceImpactConfirmation({
 }: Props): ReactElement {
   const { t } = useTranslation()
   return (
-    <div className="highPriceImpactConfirmation">
-      {t("highPriceImpactConfirmation")}
-      <div className="confirmationBox">
-        <span>{t("iConfirm")}</span>{" "}
-        <CheckboxInput checked={checked} onChange={onCheck} />
-      </div>
-    </div>
+    <Box p="16px" bg="red.600" borderRadius="12px" color="white">
+      <Stack>
+        <Text>{t("highPriceImpactConfirmation")}</Text>
+        <HStack spacing={2}>
+          <Text as="span" fontSize="16px" fontWeight={700}>
+            {t("iConfirm")}
+          </Text>
+          <Checkbox colorScheme="green" checked={checked} onChange={onCheck} />
+        </HStack>
+      </Stack>
+    </Box>
   )
 }

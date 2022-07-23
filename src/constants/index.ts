@@ -1,13 +1,12 @@
+import { AuroraIcon, MetamaskIcon, WalletConnectIcon } from "./icons"
 import {
   BorrowFilterFields,
   BorrowSortFields,
-  FarmFilterFields,
-  FarmSortFields,
   PoolFilterFields,
   PoolSortFields,
 } from "../state/user"
+import { ComponentWithAs, IconProps } from "@chakra-ui/react"
 import { injected, walletconnect } from "../connectors"
-
 import { AbstractConnector } from "@web3-react/abstract-connector"
 import { BigNumber } from "@ethersproject/bignumber"
 import { RoseMetaPool } from "../../types/ethers-contracts/RoseMetaPool"
@@ -21,7 +20,6 @@ import feiLogo from "../assets/icons/fei.svg"
 import fraxLogo from "../assets/icons/frax.svg"
 import lusdLogo from "../assets/icons/lusd.svg"
 import maiLogo from "../assets/icons/mai.svg"
-import metamaskIcon from "../assets/icons/metamask.svg"
 import nearLogo from "../assets/icons/near_icon.svg"
 import renbtcLogo from "../assets/icons/renbtc.svg"
 import roseAtust from "../assets/icons/rose-atust.svg"
@@ -38,7 +36,6 @@ import tbtcLogo from "../assets/icons/tbtc.svg"
 import usdcLogo from "../assets/icons/usdc.svg"
 import usdtLogo from "../assets/icons/usdt.svg"
 import veth2Logo from "../assets/icons/veth2.svg"
-import walletconnectIcon from "../assets/icons/walletconnect.svg"
 import wbtcLogo from "../assets/icons/wbtc.svg"
 import wcusdLogo from "../assets/icons/wcusd.png"
 import wethLogo from "../assets/icons/weth.svg"
@@ -1498,6 +1495,7 @@ export const POOLS_MAP: PoolsMap = {
     isSynthetic: false,
     type: PoolTypes.USD,
     route: "frax-stableslp",
+    farmName: FRAX_METAPOOL_FARM_NAME,
     isOutdated: true,
   },
   [FRAX_METAPOOL_NAME]: {
@@ -1836,7 +1834,7 @@ export const SWAP_CONTRACT_GAS_ESTIMATES_MAP = {
 
 export interface WalletInfo {
   name: string
-  icon: string
+  Icon: ComponentWithAs<"svg", IconProps>
   connector: AbstractConnector
   isMobile?: boolean
 }
@@ -1844,20 +1842,15 @@ export interface WalletInfo {
 export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
   METAMASK: {
     name: "MetaMask",
-    icon: metamaskIcon,
+    Icon: MetamaskIcon,
     connector: injected,
   },
   WALLET_CONNECT: {
     name: "WalletConnect",
-    icon: walletconnectIcon,
+    Icon: WalletConnectIcon,
     connector: walletconnect,
     isMobile: true,
   },
-}
-
-export interface ChainInfo {
-  name: string
-  rpc: string
 }
 
 export type SignedSignatureRes = {
@@ -1872,34 +1865,14 @@ export interface DashboardItems {
   icon: string
 }
 
-export const FARM_SORT_FIELDS_TO_LABEL: {
-  [sortField in FarmSortFields]: string
-} = {
-  apr: "APR",
-  name: "Name",
-  tvl: "TVL",
-  rewards: "Rewards",
-  deposit: "Deposited",
-  balance: "Balance",
-}
-
-export const FARM_FILTER_FIELDS_TO_LABEL: {
-  [filterField in FarmFilterFields]: string
-} = {
-  noFilter: "No Filter",
-  dual: "Dual Rewards",
-  deposit: "Deposited",
-  balance: "Balance",
-}
-
 export const BORROW_SORT_FIELDS_TO_LABEL: {
   [sortField in BorrowSortFields]: string
 } = {
   name: "Name",
   tvl: "TVL",
-  collateral: "Collateral Deposited",
+  collateral: "Deposited",
   borrow: "Borrowed",
-  supply: "RUSD Left to Borrow",
+  supply: "RUSD Left",
   interest: "Interest",
   liquidationFee: "Liquidation Fee",
 }
@@ -1921,6 +1894,9 @@ export const POOL_SORT_FIELDS_TO_LABEL: {
   farmDeposit: "Farm Deposit",
   balance: "Balance",
   volume: "24h Volume",
+  apr: "APR",
+  farmTvl: "Farm TVL",
+  rewards: "Rewards",
 }
 
 export const POOL_FILTER_FIELDS_TO_LABEL: {
@@ -1931,6 +1907,12 @@ export const POOL_FILTER_FIELDS_TO_LABEL: {
   balance: "Balance",
 }
 
+export interface ChainInfo {
+  name: string
+  rpc: string
+  Icon?: ComponentWithAs<"svg", IconProps>
+}
+
 // kinda hacky, but will change once we update our chain IDs
 export type SupportedChains = ChainId.AURORA_MAINNET
 export const SUPPORTED_CHAINS: {
@@ -1939,6 +1921,7 @@ export const SUPPORTED_CHAINS: {
   [ChainId.AURORA_MAINNET]: {
     name: "Aurora Mainnet",
     rpc: "https://mainnet.aurora.dev",
+    Icon: AuroraIcon,
   },
 }
 
@@ -1971,11 +1954,6 @@ export const NAV_ITEMS: NavItemDetails[] = [
     isActive: (path) => /pools*/.test(path),
   },
   {
-    route: "/farms",
-    name: "farms",
-    isActive: (path) => /farms*/.test(path),
-  },
-  {
     route: "/stake",
     name: "stake",
     isActive: (path) => path === "/stake",
@@ -1986,3 +1964,7 @@ export const NAV_ITEMS: NavItemDetails[] = [
     isActive: (path) => /borrow*/.test(path),
   },
 ]
+
+export type ErrorObj = { code: number; message: string }
+
+export type RpcErrorMessageStruct = { value: { data: { message: string } } }

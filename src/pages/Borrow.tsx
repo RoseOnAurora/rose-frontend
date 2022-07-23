@@ -8,11 +8,12 @@ import {
   DrawerFooter,
   DrawerOverlay,
   Flex,
+  HStack,
+  Heading,
   IconButton,
   Link,
   Progress,
   Text,
-  useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react"
 import { BsCurrencyDollar, BsExclamationTriangle } from "react-icons/bs"
@@ -32,14 +33,14 @@ import {
   formatBNToString,
 } from "../utils"
 import useChakraToast, { TransactionType } from "../hooks/useChakraToast"
-import BackButton from "../components/BackButton"
+import BackButton from "../components/button/BackButton"
 import { BigNumber } from "@ethersproject/bignumber"
 import BorrowForm from "../components/BorrowForm"
 import ComponentWrapper from "../components/wrappers/ComponentWrapper"
 import OverviewInfo from "../components/OverviewInfo"
 import PageWrapper from "../components/wrappers/PageWrapper"
 import RepayForm from "../components/RepayForm"
-import StakeDetails from "../components/StakeDetails"
+import StakeDetails from "../components/stake/StakeDetails"
 import TabsWrapper from "../components/wrappers/TabsWrapper"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import { parseUnits } from "@ethersproject/units"
@@ -61,11 +62,6 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   const cook = useCook(borrowName)
   const handlePostSubmit = useHandlePostSubmit()
   const { t } = useTranslation()
-
-  const drawerBg = useColorModeValue(
-    "linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9)",
-    "linear-gradient(to right, #141414, #200122, #791038)",
-  )
 
   const { borrowToken, collateralToken } = BORROW_MARKET_MAP[borrowName]
 
@@ -112,6 +108,8 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   }
 
   const calculateMaxWithdraw = (repayAmount: string): BigNumber => {
+    const generalValidation = validateAmount(repayAmount, borrowToken.decimals)
+    if (generalValidation) return Zero
     const totalBorrowed = borrowData.borrowed.sub(
       parseUnits(repayAmount || "0"),
     )
@@ -205,7 +203,11 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
     borrow: BigNumber,
     collateral: BigNumber,
   ): BigNumber => {
-    if (collateral.add(borrowData.collateralDeposited).isZero()) return Zero
+    if (
+      collateral.add(borrowData.collateralDeposited).isZero() ||
+      borrowData.priceOfCollateral.isZero()
+    )
+      return Zero
     return borrowData.borrowedUSDPrice
       .add(
         borrow
@@ -337,13 +339,19 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
       <Flex
         fontSize={{ base: "12px", sm: "16px" }}
         justifyContent="space-between"
-        color="var(--text-lighter)"
+        color="gray.300"
+        bg="bgDark"
+        p="30px"
+        mx="10px"
+        mb="15px"
+        mt="5px"
+        borderRadius="12px"
       >
-        <Box>1 {borrowToken.symbol} = 1 USD</Box>
-        <Box>
+        <Text as="span">1 {borrowToken.symbol} = 1 USD</Text>
+        <Text as="span">
           1 {collateralToken.symbol} ={" "}
           {+formatBNToString(borrowData.priceOfCollateral, 18, 3)} RUSD
-        </Box>
+        </Text>
       </Flex>
     )
   }
@@ -390,7 +398,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   const mcrFormatted = formatBNToPercentString(borrowData.mcr, 18, 0)
 
   return (
-    <PageWrapper>
+    <PageWrapper maxW="1300px">
       <Drawer
         isOpen={isOpen}
         placement="right"
@@ -398,8 +406,8 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
         finalFocusRef={btnRef}
         size="sm"
       >
-        <DrawerOverlay />
-        <DrawerContent bg={drawerBg} p="50px 10px">
+        <DrawerOverlay bg="blackAlpha.900" />
+        <DrawerContent bg="gray.900" p="50px 10px" boxShadow="lg">
           <DrawerCloseButton />
           <DrawerBody p="5px">
             <OverviewInfo
@@ -537,14 +545,149 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
               target="_blank"
               rel="noreferrer"
             >
-              Go to Full How-to Guide<sup>↗</sup>
+              Go to Full How-to Guide
             </Link>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
       <ComponentWrapper
-        top={<BackButton route="/borrow" buttonText="Go back to markets" />}
+        templateColumns="44% 53%"
         left={
+          <StakeDetails
+            extraStakeDetailChild={
+              <Flex justifyContent="space-between" alignItems="center">
+                <HStack>
+                  <BackButton
+                    route="/borrow"
+                    title="Go back to markets"
+                    aria-label="Go back to markets"
+                    borderRadius="5px"
+                    color="gray.200"
+                    fontSize="30px"
+                  />
+                  <Heading
+                    size="lg"
+                    color="#FCFCFD"
+                    fontWeight={700}
+                    lineHeight="39px"
+                  >
+                    Position
+                  </Heading>
+                </HStack>
+                <HStack spacing="10px">
+                  <FaHandHoldingMedical
+                    size="30px"
+                    color="#EF4444"
+                    title="Your Position Health"
+                  />
+                  <Box width={170}>
+                    <Progress
+                      colorScheme={calculatePositionHealthColor(
+                        positionHealth(),
+                        isStable,
+                      )}
+                      height="30px"
+                      value={positionHealth()}
+                      title={`${positionHealth().toFixed(0)}%`}
+                      isAnimated
+                      hasStripe
+                    />
+                  </Box>
+                </HStack>
+              </Flex>
+            }
+            bottom={
+              <Flex justifyContent="space-between" alignItems="center">
+                <IconButton
+                  ref={btnRef}
+                  onClick={onOpen}
+                  aria-label="Get Help"
+                  variant="outline"
+                  borderRadius="8px"
+                  size="md"
+                  icon={<FaInfoCircle />}
+                  title="Get Help"
+                />
+                <Text color="gray.200">Need Help?</Text>
+              </Flex>
+            }
+            balanceView={{
+              title: t("Balances"),
+              items: [
+                {
+                  tokenName: collateralToken.symbol,
+                  icon: collateralToken.icon,
+                  amount: commify(
+                    formatBNToString(borrowData.collateralTokenBalance, 18, 5),
+                  ),
+                },
+                {
+                  tokenName: borrowToken.symbol,
+                  icon: borrowToken.icon,
+                  amount: commify(
+                    formatBNToString(borrowData.rusdUserBalance, 18, 5),
+                  ),
+                },
+              ],
+            }}
+            stakedView={{
+              title: t("My Open Position"),
+              items: [
+                {
+                  tokenName: `${collateralToken.symbol} Collateral Deposited`,
+                  icon: collateralToken.icon,
+                  amount: `${commify(
+                    formatBNToString(borrowData.collateralDeposited, 18, 5),
+                  )} ($${commify(
+                    formatBNToString(
+                      borrowData.collateralDepositedUSDPrice,
+                      18,
+                      2,
+                    ),
+                  )})`,
+                },
+                {
+                  tokenName: `Total ${borrowToken.symbol} Debt`,
+                  icon: borrowToken.icon,
+                  amount: commify(formatBNToString(borrowData.borrowed, 18, 5)),
+                },
+              ],
+            }}
+            stats={[
+              {
+                statLabel: "Liquidation Price",
+                statValue: liquidationPriceFormatted(),
+              },
+              {
+                statLabel: "RUSD Left to Borrow",
+                statValue: commify(
+                  formatBNToString(borrowData.rusdLeftToBorrow, 18, 5),
+                ),
+              },
+              {
+                statLabel: "Maximum Debt Ratio",
+                statValue: mcrFormatted,
+              },
+              {
+                statLabel: "Liquidation Fee",
+                statValue: formatBNToPercentString(
+                  borrowData.liquidationFee,
+                  18,
+                  2,
+                ),
+              },
+              {
+                statLabel: "Borrow Fee",
+                statValue: formatBNToPercentString(borrowData.borrowFee, 18, 1),
+              },
+              {
+                statLabel: "Interest",
+                statValue: formatBNToPercentString(borrowData.interest, 18, 2),
+              },
+            ]}
+          />
+        }
+        right={
           <TabsWrapper
             tabsProps={{ variant: "primary" }}
             tab1={{
@@ -608,146 +751,6 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
                 />
               ),
             }}
-          />
-        }
-        right={
-          <StakeDetails
-            extraStakeDetailChild={
-              <Flex justifyContent="space-between" alignItems="center">
-                <FaHandHoldingMedical
-                  size="35px"
-                  color="#cc3a59"
-                  title="Your Position Health"
-                />
-                <Box width={230}>
-                  <Progress
-                    colorScheme={calculatePositionHealthColor(
-                      positionHealth(),
-                      isStable,
-                    )}
-                    height="30px"
-                    value={positionHealth()}
-                    title={`${positionHealth().toFixed(0)}%`}
-                    isAnimated
-                    hasStripe
-                  />
-                </Box>
-              </Flex>
-            }
-            bottom={
-              <Flex justifyContent="space-between" alignItems="center">
-                <IconButton
-                  ref={btnRef}
-                  onClick={onOpen}
-                  aria-label="Get Help"
-                  variant="outline"
-                  size="md"
-                  icon={<FaInfoCircle />}
-                  title="Get Help"
-                />
-                <Text>Need Help?</Text>
-              </Flex>
-            }
-            balanceView={{
-              title: t("Balances"),
-              items: [
-                {
-                  tokenName: collateralToken.symbol,
-                  icon: collateralToken.icon,
-                  amount: commify(
-                    formatBNToString(borrowData.collateralTokenBalance, 18, 5),
-                  ),
-                },
-                {
-                  tokenName: borrowToken.symbol,
-                  icon: borrowToken.icon,
-                  amount: commify(
-                    formatBNToString(borrowData.rusdUserBalance, 18, 5),
-                  ),
-                },
-              ],
-            }}
-            stakedView={{
-              title: t("My Open Position"),
-              items: [
-                {
-                  tokenName: `${collateralToken.symbol} Collateral Deposited`,
-                  icon: collateralToken.icon,
-                  amount: `${commify(
-                    formatBNToString(borrowData.collateralDeposited, 18, 5),
-                  )} ($${commify(
-                    formatBNToString(
-                      borrowData.collateralDepositedUSDPrice,
-                      18,
-                      2,
-                    ),
-                  )})`,
-                },
-                {
-                  tokenName: `Total ${borrowToken.symbol} Debt`,
-                  icon: borrowToken.icon,
-                  amount: commify(formatBNToString(borrowData.borrowed, 18, 5)),
-                  // collapseContent: (
-                  //   <Box my="5px" color={borrowCollapseTextColor}>
-                  //     <Flex justifyContent="space-between" alignItems="center">
-                  //       <Text fontSize="13px">Borrowed:</Text>
-                  //       <Box>
-                  //         {commify(
-                  //           formatBNToString(
-                  //             borrowData.borrowed
-                  //               .sub(borrowData.feesOwed)
-                  //               .abs(),
-                  //             18,
-                  //             5,
-                  //           ),
-                  //         )}
-                  //       </Box>
-                  //     </Flex>
-                  //     <Flex justifyContent="space-between" alignItems="center">
-                  //       <Text fontSize="13px">Unpaid Fees in RUSD:</Text>
-                  //       <Box>
-                  //         {commify(
-                  //           formatBNToString(borrowData.feesOwed, 18, 5),
-                  //         )}
-                  //       </Box>
-                  //     </Flex>
-                  //   </Box>
-                  // ),
-                },
-              ],
-            }}
-            stats={[
-              {
-                statLabel: "Liquidation Price",
-                statValue: liquidationPriceFormatted(),
-              },
-              {
-                statLabel: "RUSD Left to Borrow",
-                statValue: commify(
-                  formatBNToString(borrowData.rusdLeftToBorrow, 18, 5),
-                ),
-              },
-              {
-                statLabel: "Maximum Debt Ratio",
-                statValue: mcrFormatted,
-              },
-              {
-                statLabel: "Liquidation Fee",
-                statValue: formatBNToPercentString(
-                  borrowData.liquidationFee,
-                  18,
-                  2,
-                ),
-              },
-              {
-                statLabel: "Borrow Fee",
-                statValue: formatBNToPercentString(borrowData.borrowFee, 18, 1),
-              },
-              {
-                statLabel: "Interest",
-                statValue: formatBNToPercentString(borrowData.interest, 18, 2),
-              },
-            ]}
           />
         }
       />

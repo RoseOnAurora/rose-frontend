@@ -7,21 +7,19 @@ interface Props {
 }
 
 const FormattedComponentName = ({ name, icon }: Props): ReactElement => (
-  <Flex gridGap="5px" alignItems="center" mt="0 !important" flexWrap="wrap">
-    <Text fontWeight="600" fontSize={{ base: "13px", md: "16px" }}>
-      {name}
-    </Text>
+  <Flex gridGap="3px" alignItems="center" flexWrap="wrap">
     <Flex
       width={
-        /rose-/.exec(icon || "")
-          ? { base: "30px", md: "50px" }
-          : /dai-usdt-usdc/.exec(icon)
-          ? { base: "25px", md: "40px" }
-          : { base: "15px", md: "30px" }
+        /rose-|dai-usdt-usdc/.exec(icon || "")
+          ? { base: "45px", md: "55px" }
+          : { base: "20px", md: "30px" }
       }
     >
       <Image alt="icon" src={icon} w="100%" objectFit="cover" />
     </Flex>
+    <Text fontWeight="600" fontSize={{ base: "14px", md: "16px" }}>
+      {name}
+    </Text>
   </Flex>
 )
 

@@ -1,6 +1,5 @@
 /* eslint @typescript-eslint/no-unsafe-assignment: 0 */
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
-import "./index.css"
 import "@fontsource/dm-sans/700.css"
 import "@fontsource/dm-sans/400.css"
 import "@fontsource/dm-sans/500.css"
@@ -11,8 +10,10 @@ import { Chart, registerables } from "chart.js"
 import React, { Suspense } from "react"
 import { Web3ReactProvider, createWeb3ReactRoot } from "@web3-react/core"
 
-import AppRoutes from "./routes"
+import AppRoutes from "./routes/routes"
 import GasAndTokenPrices from "./components/GasAndTokenPrices"
+import { Global } from "@emotion/react"
+import { GlobalStyles } from "./theme/global"
 import { NetworkContextName } from "./constants"
 import { Provider } from "react-redux"
 import ReactDOM from "react-dom/client"
@@ -37,6 +38,7 @@ root.render(
     <ColorModeScript initialColorMode={chakraTheme.config.initialColorMode} />
     <React.StrictMode>
       <ChakraProvider theme={chakraTheme}>
+        <Global styles={GlobalStyles} />
         <Web3ReactProvider getLibrary={getLibrary}>
           <Web3ProviderNetwork getLibrary={getNetworkLibrary}>
             <Provider store={store}>

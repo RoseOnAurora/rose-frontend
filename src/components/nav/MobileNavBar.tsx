@@ -5,9 +5,9 @@ import ThemeChanger from "../ThemeChanger"
 
 const MobileNavBar = (): ReactElement => {
   return (
-    <Flex>
+    <Flex alignItems="center">
       <MobileNavMenu />
-      <Box display={{ lg: "none" }}>
+      <Box display="none">
         <ThemeChanger />
       </Box>
     </Flex>

@@ -67,6 +67,32 @@ const variantSolid: SystemStyleFunction = (props) => {
   }
 }
 
+const variantOutline: SystemStyleFunction = () => {
+  const disabled = {
+    color: "gray.300",
+    cursor: "not-allowed",
+    boxShadow: "none",
+    bg: "gray.900",
+  }
+
+  return {
+    color: "white",
+    transition: "ease-out 0.5s",
+    borderRadius: "38px",
+    border: "1px",
+    borderColor: "gray.700",
+    bg: "transparent",
+    _hover: {
+      bg: "blackAlpha.100",
+      _disabled: disabled,
+    },
+    _active: {
+      bg: "gray.800",
+    },
+    _disabled: disabled,
+  }
+}
+
 // Styles for the size variations
 const sizes: Record<string, SystemStyleObject> = {
   md: {
@@ -85,6 +111,7 @@ const sizes: Record<string, SystemStyleObject> = {
 const variants: Record<string, SystemStyleFunction> = {
   primary: variantPrimary,
   solid: variantSolid,
+  outline: variantOutline,
 }
 
 // The default `size` or `variant` values

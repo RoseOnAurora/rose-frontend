@@ -8,3 +8,9 @@ export interface TokenOption {
   amountUSD: BigNumber
   decimals?: number
 }
+
+export interface TokenProps {
+  name: string
+  symbol: string
+  icon: string
+}

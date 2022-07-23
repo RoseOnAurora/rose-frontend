@@ -1,30 +1,25 @@
 import { DebouncedFunc, debounce } from "lodash"
 import { PoolName, SWAP_TYPES, TOKENS_MAP } from "../constants"
-import {
-  calculateExchangeRate,
-  calculatePrice,
-  countDecimalPlaces,
-  formatBNToString,
-} from "../utils"
+import { calculateExchangeRate, calculatePrice } from "../utils"
 import { useCallback, useState } from "react"
+import useChakraToast, { TransactionType } from "./useChakraToast"
 import { usePoolContract, useSwapComposerContract } from "./useContract"
 import { AppState } from "../state"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { SwapState } from "../types/swap"
 import { Zero } from "@ethersproject/constants"
 import { calculatePriceImpact } from "../utils/priceImpact"
+import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import { parseUnits } from "@ethersproject/units"
 import { useActiveWeb3React } from "."
 import { useApproveAndSwap } from "./useApproveAndSwap"
 import { useCalculateSwapPairs } from "./useCalculateSwapPairs"
-import { usePoolTokenBalances } from "../state/wallet/hooks"
+import { usePoolTokenBalances } from "./useTokenBalances"
 import { useSelector } from "react-redux"
 
 const EMPTY_SWAP_STATE: SwapState = {
   from: {
     symbol: "",
-    value: "0.0",
-    valueUSD: Zero,
   },
   to: {
     symbol: "",
@@ -43,8 +38,7 @@ const useCalculateSwapState = (): [
   () => void,
   (fromSymbol: string | undefined) => void,
   (toSymbol: string | undefined) => void,
-  (value: string) => void,
-  () => Promise<ContractReceipt>,
+  (fromAmount: string) => Promise<ContractReceipt>,
 ] => {
   // state
   const [swapState, setSwapState] = useState<SwapState>(EMPTY_SWAP_STATE)
@@ -53,6 +47,7 @@ const useCalculateSwapState = (): [
   const { chainId } = useActiveWeb3React()
   const approveAndSwap = useApproveAndSwap()
   const tokenBalances = usePoolTokenBalances()
+  const toast = useChakraToast()
   const calculateSwapPairs = useCalculateSwapPairs()
   const { tokenPricesUSD } = useSelector((state: AppState) => state.application)
   const swapComposerContract = useSwapComposerContract()
@@ -63,59 +58,64 @@ const useCalculateSwapState = (): [
   // handler for calculating swap amount for given from input
   const calculateSwapAmount = useCallback(
     debounce(async (fromAmount: string): Promise<void> => {
-      // error checks -- TO-DO: add UI feedback
       if (swapState.swapType === SWAP_TYPES.INVALID) return
-      if (tokenBalances === null || chainId == null) return
       if (
         swapState.from.tokenIndex === undefined ||
         swapState.from.poolName === undefined ||
         swapState.to.tokenIndex === undefined ||
         swapState.to.poolName === undefined
-      )
+      ) {
+        toast.transactionError({
+          txnType: TransactionType.SWAP,
+          description: "Swap type is invalid.",
+        })
         return
+      }
+      if (
+        tokenBalances === null ||
+        chainId == null ||
+        !swapComposerContract ||
+        !swapContract
+      ) {
+        toast.transactionError({
+          txnType: TransactionType.SWAP,
+          description: "Network is temporarily down. Please try again.",
+        })
+        return
+      }
 
       // setup some local data
       const amountToGive = parseUnits(
-        fromAmount,
+        fromAmount || "0",
         TOKENS_MAP[swapState.from.symbol].decimals,
       )
       const tokenFrom = TOKENS_MAP[swapState.from.symbol]
       const tokenTo = TOKENS_MAP[swapState.to.symbol]
       let amountToReceive = Zero
 
-      // delegate to current contract call to calculate swap amount
-      if (amountToGive.isZero()) {
-        amountToReceive = Zero
-      } else if (
-        // We use direct swap for stable<->stable (basic swap)
-        swapState.swapType === SWAP_TYPES.DIRECT &&
-        swapContract != null
-      ) {
-        amountToReceive = await swapContract.get_dy(
-          swapState.from.tokenIndex,
-          swapState.to.tokenIndex,
-          amountToGive,
-        )
-      } // meta<->meta
-      else if (
-        swapState.swapType === SWAP_TYPES.META_TO_META &&
-        swapComposerContract != null
-      ) {
-        amountToReceive = await swapComposerContract.get_dy_thru_stables(
-          tokenFrom.addresses[chainId],
-          tokenTo.addresses[chainId],
-          amountToGive,
-        )
-        // stable<->meta
-      } else if (
-        swapState.swapType === SWAP_TYPES.STABLES_TO_META &&
-        swapContract != null
-      ) {
-        amountToReceive = await swapContract.get_dy_underlying(
-          swapState.from.tokenIndex,
-          swapState.to.tokenIndex,
-          amountToGive,
-        )
+      if (fromAmount && +fromAmount !== 0) {
+        switch (swapState.swapType) {
+          case SWAP_TYPES.DIRECT:
+            amountToReceive = await swapContract.get_dy(
+              swapState.from.tokenIndex,
+              swapState.to.tokenIndex,
+              amountToGive,
+            )
+            break
+          case SWAP_TYPES.META_TO_META:
+            amountToReceive = await swapComposerContract.get_dy_thru_stables(
+              tokenFrom.addresses[chainId],
+              tokenTo.addresses[chainId],
+              amountToGive,
+            )
+            break
+          case SWAP_TYPES.STABLES_TO_META:
+            amountToReceive = await swapContract.get_dy_underlying(
+              swapState.from.tokenIndex,
+              swapState.to.tokenIndex,
+              amountToGive,
+            )
+        }
       }
 
       // calculate USD price
@@ -136,12 +136,8 @@ const useCalculateSwapState = (): [
 
       // update state
       setSwapState((prevState) => {
-        const newState = {
+        return {
           ...prevState,
-          from: {
-            ...prevState.from,
-            valueUSD: fromValueUsd,
-          },
           to: {
             ...prevState.to,
             value: amountToReceive,
@@ -155,27 +151,10 @@ const useCalculateSwapState = (): [
             tokenTo.decimals,
           ),
         }
-        return newState
       })
     }, 250),
     [tokenBalances, swapState, swapContract, chainId, tokenPricesUSD],
   )
-
-  const handleUpdateAmountFrom = (value: string): void => {
-    setSwapState((prevState) => {
-      return {
-        ...prevState,
-        from: {
-          ...prevState.from,
-          value,
-          valueUSD: calculatePrice(
-            value,
-            tokenPricesUSD?.[prevState.from.symbol],
-          ),
-        },
-      }
-    })
-  }
 
   // handler for updating from/to on reversing the exchange direction
   const handleReverseExchangeDirection = (): void => {
@@ -184,21 +163,9 @@ const useCalculateSwapState = (): [
       const activeSwapPair = swapPairs.find(
         (pair) => pair.to.symbol === prevState.from.symbol,
       )
-      const fromDecimals = TOKENS_MAP[prevState.from.symbol]?.decimals || 0
-      const toDecimals = TOKENS_MAP[prevState.to.symbol]?.decimals || 0
-      const updatedFromVal =
-        fromDecimals <= toDecimals ||
-        countDecimalPlaces(prevState.from.value) <= toDecimals
-          ? prevState.from.value
-          : (+prevState.from.value).toFixed(toDecimals)
       return {
         from: {
           symbol: prevState.to.symbol,
-          valueUSD: calculatePrice(
-            prevState.from.value,
-            tokenPricesUSD?.[prevState.from.symbol],
-          ),
-          value: updatedFromVal,
           poolName: activeSwapPair?.from.poolName,
           tokenIndex: activeSwapPair?.from.tokenIndex,
         },
@@ -226,21 +193,9 @@ const useCalculateSwapState = (): [
         (pair) => pair.to.symbol === prevState.to.symbol,
       )
       const isValidSwap = activeSwapPair?.type !== SWAP_TYPES.INVALID
-      const fromDecimals = TOKENS_MAP[prevState.from.symbol]?.decimals || 0
-      const toDecimals = TOKENS_MAP[symbol]?.decimals || 0
-      const updatedFromVal =
-        fromDecimals <= toDecimals ||
-        countDecimalPlaces(prevState.from.value) <= toDecimals
-          ? prevState.from.value
-          : (+prevState.from.value).toFixed(toDecimals)
       return {
         from: {
           symbol,
-          value: updatedFromVal,
-          valueUSD: calculatePrice(
-            prevState.from.value,
-            tokenPricesUSD?.[prevState.from.symbol],
-          ),
           poolName: activeSwapPair?.from.poolName,
           tokenIndex: activeSwapPair?.from.tokenIndex,
         },
@@ -287,9 +242,9 @@ const useCalculateSwapState = (): [
     })
   }
 
-  const handleConfirmTransaction = async (): Promise<ContractReceipt> => {
-    const fromToken = TOKENS_MAP[swapState.from.symbol]
-    const toToken = TOKENS_MAP[swapState.to.symbol]
+  const handleConfirmTransaction = async (
+    fromAmount: string,
+  ): Promise<ContractReceipt> => {
     if (
       swapState.swapType === SWAP_TYPES.INVALID ||
       swapState.from.tokenIndex === undefined ||
@@ -297,29 +252,26 @@ const useCalculateSwapState = (): [
       swapState.to.tokenIndex === undefined ||
       swapState.to.poolName === undefined
     ) {
-      setSwapState((prevState) => ({
-        ...EMPTY_SWAP_STATE,
-        from: {
-          ...prevState.from,
-          value: "0.0",
-          valueUSD: Zero,
-        },
-      }))
       throw Error("Unable to perform swap at this time!")
     }
 
-    console.log(
-      swapState,
-      swapState.from.value,
-      formatBNToString(swapState.to.value, toToken.decimals, toToken.decimals),
+    // get the token info
+    const fromToken = TOKENS_MAP[swapState.from.symbol]
+
+    // safely parse the amount to swap
+    const { value, isFallback } = parseStringToBigNumber(
+      fromAmount,
+      fromToken.decimals,
     )
+
+    if (isFallback) throw new Error("Swap failed. Please try again.")
 
     // perform swap
     const receipt = await approveAndSwap({
       poolContract: swapContract,
       swapComposerContract: swapComposerContract,
       from: {
-        amount: parseUnits(swapState.from.value, fromToken.decimals),
+        amount: value,
         symbol: swapState.from.symbol,
         poolName: swapState.from.poolName,
         tokenIndex: swapState.from.tokenIndex,
@@ -334,22 +286,7 @@ const useCalculateSwapState = (): [
     })
 
     // Clear input after deposit
-    setSwapState((prevState) => ({
-      from: {
-        ...prevState.from,
-        value: "0.0",
-        valueUSD: Zero,
-      },
-      to: {
-        ...prevState.to,
-        value: Zero,
-        valueUSD: Zero,
-      },
-      priceImpact: Zero,
-      exchangeRate: Zero,
-      currentSwapPairs: prevState.currentSwapPairs,
-      swapType: prevState.swapType,
-    }))
+    setSwapState(() => EMPTY_SWAP_STATE)
     return receipt
   }
 
@@ -359,7 +296,6 @@ const useCalculateSwapState = (): [
     handleReverseExchangeDirection,
     handleUpdateTokenFrom,
     handleUpdateTokenTo,
-    handleUpdateAmountFrom,
     handleConfirmTransaction,
   ]
 }

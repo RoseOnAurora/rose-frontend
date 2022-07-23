@@ -27,10 +27,15 @@ export const IconButtonPopover = ({
       </PopoverTrigger>
       <Portal>
         <PopoverContent
-          _focus={{ boxShadow: "none" }}
-          _active={{ boxShadow: "none" }}
+          borderColor="gray.700"
+          border="1px"
+          borderRadius="12px"
+          minW="fit-content"
+          boxShadow="0px 20px 15px -12px rgba(0, 0, 0, 0.25)"
+          bg="gray.900"
+          _focus={{ borderColor: "gray.600" }}
         >
-          <PopoverArrow />
+          <PopoverArrow bgColor="gray.900" />
           <PopoverCloseButton zIndex={4} />
           <PopoverBody>{PopoverBodyContent}</PopoverBody>
         </PopoverContent>

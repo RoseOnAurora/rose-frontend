@@ -4,11 +4,11 @@
 /* eslint @typescript-eslint/no-unsafe-return: 0 */
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 /* eslint @typescript-eslint/no-unused-vars: 0 */
-import "./DepositPage.scss"
-import { Box, Button, Center } from "@chakra-ui/react"
+import { Box, Button, Flex, Link, Stack, Text } from "@chakra-ui/react"
 import { Contract, ContractReceipt } from "@ethersproject/contracts"
 import { DepositTransaction, TransactionItem } from "../types/transactions"
 import {
+  ErrorObj,
   FRAX_STABLES_LP_POOL_NAME,
   POOLS_MAP,
   PoolName,
@@ -19,7 +19,8 @@ import {
 import React, { ReactElement, useEffect, useMemo, useState } from "react"
 import { TokensStateType, useTokenFormState } from "../hooks/useTokenFormState"
 import {
-  formatBNToPercentString,
+  calculatePrice,
+  commify,
   formatBNToString,
   getContract,
   shiftBNDecimals,
@@ -27,26 +28,28 @@ import {
 import usePoolData, { PoolDataType } from "../hooks/usePoolData"
 import AdvancedOptions from "./AdvancedOptions"
 import { AppState } from "../state"
+import ApprovalInfo from "./ApprovalInfo"
 import { BigNumber } from "@ethersproject/bignumber"
-import { BsSliders } from "react-icons/bs"
-import { IconButtonPopover } from "./Popover"
-import { Link } from "react-router-dom"
-import Modal from "./Modal"
+import Bonus from "./pool/Bonus"
+import FormTitle from "./FormTitleOptions"
+import MaxFromBalance from "./input/MaxFromBalance"
+import ModalWrapper from "./wrappers/ModalWrapper"
+import OutdatedPoolInfo from "./OutdatedPoolInfo"
 import ROSE_META_POOL_DEPOSIT from "../constants/abis/RoseMetaPoolDeposit.json"
+import { Link as ReactLink } from "react-router-dom"
 import ReviewDeposit from "./ReviewDeposit"
-import TokenInput from "./TokenInput"
+import SingleTokenInput from "./input/SingleTokenInput"
 import { TokenPricesUSD } from "../state/application"
 import { TransactionType } from "../hooks/useChakraToast"
 import { Zero } from "@ethersproject/constants"
 import { calculatePriceImpact } from "../utils/priceImpact"
 import { ethers } from "ethers"
 import { formatGasToString } from "../utils/gas"
-import { logEvent } from "../utils/googleAnalytics"
 import { parseUnits } from "@ethersproject/units"
 import { useActiveWeb3React } from "../hooks"
 import { useApproveAndDeposit } from "../hooks/useApproveAndDeposit"
 import { usePoolContract } from "../hooks/useContract"
-import { usePoolTokenBalances } from "../state/wallet/hooks"
+import { usePoolTokenBalances } from "../hooks/useTokenBalances"
 import { useSelector } from "react-redux"
 import { useTranslation } from "react-i18next"
 
@@ -77,40 +80,21 @@ function Deposit({
     return Array.from(
       new Set(POOL.poolTokens.concat(POOL.underlyingPoolTokens || [])),
     )
-  }, [POOL.poolTokens, POOL.underlyingPoolTokens])
+  }, [POOL.poolTokens, POOL.underlyingPoolTokens, poolName])
   const [tokenFormState, updateTokenFormState] = useTokenFormState(allTokens)
-  const [shouldDepositWrapped, setShouldDepositWrapped] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
-    // empty out previous token state when switchng between wrapped and unwrapped
-    if (shouldDepositWrapped) {
-      updateTokenFormState(
-        POOL.poolTokens.reduce(
-          (acc, { symbol }) => ({
-            ...acc,
-            [symbol]: "",
-          }),
-          {},
-        ),
-      )
-    } else {
-      updateTokenFormState(
-        (POOL.underlyingPoolTokens || []).reduce(
-          (acc, { symbol }) => ({
-            ...acc,
-            [symbol]: "",
-          }),
-          {},
-        ),
-      )
-    }
-  }, [
-    shouldDepositWrapped,
-    updateTokenFormState,
-    POOL.poolTokens,
-    POOL.underlyingPoolTokens,
-  ])
+    updateTokenFormState(
+      (POOL.underlyingPoolTokens || []).reduce(
+        (acc, { symbol }) => ({
+          ...acc,
+          [symbol]: "",
+        }),
+        {},
+      ),
+    )
+  }, [updateTokenFormState, POOL.poolTokens, POOL.underlyingPoolTokens])
   const tokenBalances = usePoolTokenBalances()
   const { tokenPricesUSD, gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,
@@ -157,13 +141,6 @@ function Deposit({
     return null
   }, [isMetaSwap, chainId, library, POOL.metaSwapAddresses, account])
 
-  const exceedsWallet = allTokens.some(({ symbol }) => {
-    const exceedsBoolean = (tokenBalances?.[symbol] || Zero).lt(
-      BigNumber.from(tokenFormState[symbol].valueSafe),
-    )
-    return exceedsBoolean
-  })
-
   useEffect(() => {
     // evaluate if a new deposit will exceed the pool's per-user limit
     async function calculateMaxDeposits(): Promise<void> {
@@ -171,8 +148,7 @@ function Deposit({
         poolContract == null ||
         userShareData == null ||
         poolData == null ||
-        account == null ||
-        exceedsWallet
+        account == null
       ) {
         setEstDepositLPTokenAmount(Zero)
         return
@@ -188,24 +164,13 @@ function Deposit({
       )
       let depositLPTokenAmount
       if (poolData.totalLocked.gt(0) && tokenInputSum.gt(0)) {
-        if (shouldDepositWrapped) {
-          depositLPTokenAmount = metaSwapContract
-            ? await metaSwapContract.calc_token_amount(
-                (POOL.underlyingPoolTokens || []).map(({ symbol }) =>
-                  BigNumber.from(tokenFormState[symbol].valueSafe),
-                ),
-                true, // deposit boolean
-              )
-            : Zero
-        } else {
-          const txnAmounts: BigNumber[] = POOL.poolTokens.map((poolToken) => {
-            return BigNumber.from(tokenFormState[poolToken.symbol].valueSafe)
-          })
-          depositLPTokenAmount = await poolContract.calc_token_amount(
-            txnAmounts,
-            true, // deposit boolean
-          )
-        }
+        const txnAmounts: BigNumber[] = POOL.poolTokens.map((poolToken) => {
+          return BigNumber.from(tokenFormState[poolToken.symbol].valueSafe)
+        })
+        depositLPTokenAmount = await poolContract.calc_token_amount(
+          txnAmounts,
+          true, // deposit boolean
+        )
       } else {
         // when pool is empty, estimate the lptokens by just summing the input instead of calling contract
         depositLPTokenAmount = tokenInputSum
@@ -230,27 +195,21 @@ function Deposit({
     POOL.poolTokens,
     POOL.underlyingPoolTokens,
     metaSwapContract,
-    shouldDepositWrapped,
     allTokens,
-    exceedsWallet,
   ])
 
   // A represention of tokens used for UI
-  const tokens = (
-    shouldDepositWrapped ? POOL.underlyingPoolTokens || [] : POOL.poolTokens
-  ).map(({ symbol, name, icon, decimals }) => ({
+  const tokens = POOL.poolTokens.map(({ symbol, name, icon, decimals }) => ({
     symbol,
     name,
     icon,
-    max: formatBNToString(tokenBalances?.[symbol] || Zero, decimals),
+    max: tokenBalances?.[symbol] || Zero,
+    decimals,
     inputValue: tokenFormState[symbol].valueRaw,
   }))
 
   async function onConfirmTransaction(): Promise<ContractReceipt | void> {
-    const receipt = await approveAndDeposit(
-      tokenFormState,
-      shouldDepositWrapped,
-    )
+    const receipt = await approveAndDeposit(tokenFormState)
     // Clear input after deposit
     updateTokenFormState(
       allTokens.reduce(
@@ -271,7 +230,7 @@ function Deposit({
   const depositTransaction = buildTransactionData(
     tokenFormState,
     poolData,
-    shouldDepositWrapped ? POOL.underlyingPoolTokens || [] : POOL.poolTokens,
+    POOL.poolTokens,
     POOL.lpToken,
     priceImpact,
     estDepositLPTokenAmount,
@@ -279,26 +238,44 @@ function Deposit({
     newTokenPricesUSD,
   )
 
+  const exceedsWallet = allTokens.some(({ symbol }) => {
+    const exceedsBoolean = (tokenBalances?.[symbol] || Zero).lt(
+      BigNumber.from(tokenFormState[symbol]?.valueSafe || 0),
+    )
+    return exceedsBoolean
+  })
+
   const validDepositAmount =
-    depositTransaction.to.totalAmount.gt(0) && !exceedsWallet
+    depositTransaction.to.totalAmount.gt(0) &&
+    POOL.poolTokens.every(
+      ({ symbol }) =>
+        !tokenFormState[symbol].error || tokenFormState[symbol].isEmpty,
+    ) &&
+    !exceedsWallet
   const shouldDisplayWrappedOption = isMetaPool(poolData?.name)
 
   return (
     <Box>
-      <Modal isOpen={isOpen} onClose={(): void => setIsOpen(false)}>
+      <ModalWrapper
+        modalHeader={t("reviewDeposit")}
+        isOpen={isOpen}
+        onClose={(): void => setIsOpen(false)}
+        maxW="550px"
+        preserveScrollBarGap
+        isCentered
+      >
         <ReviewDeposit
           transactionData={depositTransaction}
           onClose={(): void => setIsOpen(false)}
           onConfirm={async () => {
             setIsOpen(false)
-            logEvent("deposit", (poolData && { pool: poolData?.name }) || {})
             handlePreSubmit?.(TransactionType.DEPOSIT)
             try {
               const receipt =
                 (await onConfirmTransaction?.()) as ContractReceipt
               handlePostSubmit?.(receipt, TransactionType.DEPOSIT)
             } catch (e) {
-              const error = e as { code: number; message: string }
+              const error = e as ErrorObj
               handlePostSubmit?.(null, TransactionType.DEPOSIT, {
                 code: error.code,
                 message: error.message,
@@ -306,132 +283,140 @@ function Deposit({
             }
           }}
         />
-      </Modal>
-      <div className="form">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-          }}
-        >
-          <h3>{t("addLiquidity")}</h3>
-          <IconButtonPopover
-            IconButtonProps={{
-              "aria-label": "Configure Settings",
-              variant: "outline",
-              size: "lg",
-              icon: <BsSliders size="25px" />,
-              title: "Configure Settings",
-            }}
-            PopoverBodyContent={<AdvancedOptions />}
-          />
-        </div>
-        {exceedsWallet ? (
-          <div className="error">{t("depositBalanceExceeded")}</div>
-        ) : null}
-        {/* disable deposit wrapped button until gas limit is raised on aurora */}
-        {/* {shouldDisplayWrappedOption && (
-          <div className="wrappedDeposit">
-            <Switch
-              colorScheme="red"
-              onChange={() =>
-                setShouldDepositWrapped((prevState) => !prevState)
-              }
-              isChecked={shouldDepositWrapped}
-            />
-            <span>
-              <small>{t("depositWrapped")}</small>
-            </span>
-          </div>
-        )} */}
-        {tokens.map((token, index) => (
-          <div key={index}>
-            <TokenInput
-              {...token}
-              disabled={poolData?.isPaused}
-              onChange={(value): void =>
-                updateTokenFormValue(token.symbol, value)
-              }
-            />
-            {index === tokens.length - 1 ? (
-              ""
-            ) : (
-              <div className="formSpace"></div>
-            )}
-          </div>
-        ))}
-        <div className="transactionInfo">
-          <div className="transactionInfoItem">
-            {depositTransaction.priceImpact.gte(0) ? (
-              <span className="bonus">{`${t("bonus")}: `}</span>
-            ) : (
-              <span className="slippage">{t("priceImpact")}</span>
-            )}
-            <span
-              className={
-                "value " +
-                (depositTransaction.priceImpact.gte(0) ? "bonus" : "slippage")
-              }
-            >
-              {" "}
-              {formatBNToPercentString(depositTransaction.priceImpact, 18, 4)}
-            </span>
-          </div>
-        </div>
-      </div>
-      {shouldDisplayWrappedOption && (
-        <div className="options">
-          <p className="wrappedInfo">
-            Deposit to the <a href="/#/pools/stables">Stables Pool</a> to get
-            RoseStablesLP.{" "}
-            {poolData?.name === UST_METAPOOL_NAME && (
-              <>
-                Get atUST by bridging UST from Terra on{" "}
-                <a
-                  href="https://app.allbridge.io/bridge?from=TRA&to=AURO&asset=UST"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ textDecoration: "underline", margin: 0 }}
+      </ModalWrapper>
+      <Stack spacing="20px">
+        <FormTitle
+          title={t("addLiquidity")}
+          popoverOptions={<AdvancedOptions />}
+        />
+        {(shouldDisplayWrappedOption ||
+          poolData?.name === FRAX_STABLES_LP_POOL_NAME) && (
+          <Stack spacing="10px" pt="10px">
+            {shouldDisplayWrappedOption && (
+              <Text
+                textAlign="center"
+                fontSize="15px"
+                fontWeight={400}
+                color="gray.300"
+              >
+                Deposit to the{" "}
+                <Link
+                  textDecoration="underline"
+                  as={ReactLink}
+                  to="/pools/stables"
+                  reloadDocument
+                  fontWeight={700}
+                  color="gray.100"
+                  _hover={{ color: "gray.200" }}
                 >
-                  Allbridge.
-                </a>
-              </>
+                  Stables Pool
+                </Link>{" "}
+                to get RoseStablesLP.{" "}
+                {poolData?.name === UST_METAPOOL_NAME && (
+                  <React.Fragment>
+                    Get atUST by bridging UST from Terra on{" "}
+                    <Link
+                      href="https://app.allbridge.io/bridge?from=TRA&to=AURO&asset=UST"
+                      isExternal
+                      textDecoration="underline"
+                      fontWeight={700}
+                      color="gray.100"
+                      _hover={{ color: "gray.200" }}
+                    >
+                      Allbridge.
+                    </Link>
+                  </React.Fragment>
+                )}
+              </Text>
             )}
-          </p>
-        </div>
-      )}
-      {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
-        <div className="options">
-          <p className="wrappedInfo">
-            This pool is outdated. Please{" "}
-            <a href="/#/pools/frax-stableslp">
-              go here to withdraw any liquidity
-            </a>{" "}
-            from this pool and{" "}
-            <a href="/#/pools/frax">use the new Frax pool instead.</a>
-          </p>
-        </div>
-      )}
-      <div className="options" style={{ height: "100%" }}>
-        <Center width="100%">
-          <Button
-            variant="primary"
-            size="lg"
-            width="100%"
-            onClick={(): void => {
-              setIsOpen(true)
-            }}
-            disabled={!validDepositAmount || poolData?.isPaused}
-          >
-            {t("deposit")}
-          </Button>
-        </Center>
-        <div className="approvalMessage">
-          Note: The &quot;Approve&quot; transaction is only needed the first
-          time; subsequent actions will not require approval.
-        </div>
-      </div>
+            {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
+              <OutdatedPoolInfo poolName="Frax" route="/pools/frax" />
+            )}
+          </Stack>
+        )}
+        <Stack spacing="15px">
+          {tokens.map((token, index) => {
+            let tokenUSDValue: number | BigNumber | undefined
+            if (poolData.lpTokenPriceUSD != Zero) {
+              tokenUSDValue = parseFloat(
+                formatBNToString(poolData.lpTokenPriceUSD, 18, 2),
+              )
+            } else {
+              tokenUSDValue = tokenPricesUSD?.[token.symbol]
+            }
+            return (
+              <Stack key={index} alignItems="flex-end" spacing={0}>
+                <MaxFromBalance
+                  onClickMax={() => {
+                    const balance = formatBNToString(
+                      tokenBalances?.[token.symbol] || Zero,
+                      token.decimals,
+                    )
+                    updateTokenFormValue(token.symbol, balance)
+                  }}
+                  max={formatBNToString(
+                    tokenBalances?.[token.symbol] || Zero,
+                    token.decimals,
+                    6,
+                  )}
+                />
+                <SingleTokenInput
+                  token={token}
+                  inputValue={token.inputValue}
+                  isInvalid={false} // TODO: fix this
+                  onChangeInput={(e): void => {
+                    updateTokenFormValue(token.symbol, e.target.value)
+                  }}
+                />
+                <Flex justifyContent="space-between" w="full">
+                  {!!tokenFormState[token.symbol].error && !!token.inputValue && (
+                    <Text color="red.600" whiteSpace="nowrap" fontSize="14px">
+                      {tokenFormState[token.symbol].error}
+                    </Text>
+                  )}
+                  {(tokenBalances?.[token.symbol] || Zero).lt(
+                    BigNumber.from(tokenFormState[token.symbol].valueSafe),
+                  ) && (
+                    <Text color="red.600" whiteSpace="nowrap" fontSize="14px">
+                      {t("insufficientBalance")}
+                    </Text>
+                  )}
+                  <Flex justifyContent="flex-end" w="full" overflow="hidden">
+                    <Text
+                      textAlign="right"
+                      fontSize="12px"
+                      fontWeight={400}
+                      color="gray.300"
+                    >
+                      ≈$
+                      {commify(
+                        formatBNToString(
+                          calculatePrice(token.inputValue, tokenUSDValue),
+                          18,
+                          2,
+                        ),
+                      )}
+                    </Text>
+                  </Flex>
+                </Flex>
+              </Stack>
+            )
+          })}
+        </Stack>
+        <Bonus amount={depositTransaction.priceImpact} />
+        <Button
+          variant="primary"
+          size="lg"
+          width="100%"
+          onClick={(): void => {
+            setIsOpen(true)
+          }}
+          disabled={!validDepositAmount || poolData?.isPaused}
+        >
+          {t("deposit")}
+        </Button>
+        <ApprovalInfo />
+      </Stack>
     </Box>
   )
 }

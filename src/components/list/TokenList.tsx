@@ -64,10 +64,18 @@ const TokenListItem = memo(
               <Image src={token.icon} objectFit="cover" w="full" />
             </Box>
             <Flex alignItems="center" gap="3px">
-              <Text fontSize="16px" fontWeight={500} color="gray.50">
+              <Text
+                fontSize={{ base: "14px", md: "16px" }}
+                fontWeight={500}
+                color="gray.50"
+              >
                 {token.symbol}
               </Text>
-              <Text fontSize="14px" fontWeight={700} color="gray.300">
+              <Text
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight={700}
+                color="gray.300"
+              >
                 {token.name}
               </Text>
             </Flex>

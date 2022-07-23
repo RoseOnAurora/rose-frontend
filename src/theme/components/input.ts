@@ -31,7 +31,7 @@ const sizes: Record<string, PartsStyleObject<typeof parts>> = {
   },
   lg: {
     field: {
-      fontSize: "20px",
+      fontSize: "18px",
       lineHeight: "26px",
       h: 16,
       borderRadius: "12px",
@@ -47,14 +47,14 @@ const variantSimple: PartsStyleFunction<typeof parts> = () => {
       borderColor: "gray.700",
       _hover: { borderColor: "gray.600" },
       _invalid: {
-        borderColor: "#cc3a59 !important",
+        borderColor: "red.600 !important",
       },
       _focusVisible: {
         zIndex: 1,
         borderColor: "red.500",
         boxShadow: `0 0 0 1px #EF4444`,
       },
-      _placeholder: { opacity: 0.8, fontSize: "16px !important" },
+      _placeholder: { opacity: 0.8 },
       _readOnly: {
         boxShadow: "none !important",
         borderColor: "none",
@@ -75,7 +75,7 @@ const variantComplex: PartsStyleFunction<typeof parts> = () => {
         cursor: "not-allowed",
       },
       _invalid: {
-        borderColor: "red.400 !important",
+        borderColor: "red.600 !important",
       },
       _focusVisible: {
         zIndex: 1,

@@ -1,12 +1,18 @@
-import "./ReviewWithdraw.scss"
-
+import {
+  Button,
+  ButtonGroup,
+  Center,
+  Divider,
+  Stack,
+  Text,
+} from "@chakra-ui/react"
 import React, { ReactElement, useState } from "react"
 import { commify, formatBNToString } from "../utils"
-
 import { AppState } from "../state/index"
-import Button from "./Button"
 import { GasPrices } from "../state/user"
 import HighPriceImpactConfirmation from "./HighPriceImpactConfirmation"
+import ReviewInfoItem from "./ReviewInfoItem"
+import ReviewItem from "./ReviewItem"
 import { ReviewWithdrawData } from "./Withdraw"
 import { formatGasToString } from "../utils/gas"
 import { formatSlippageToString } from "../utils/slippage"
@@ -32,85 +38,85 @@ function ReviewWithdraw({ onClose, onConfirm, data }: Props): ReactElement {
     useState(false)
   const isHighSlippageTxn = isHighPriceImpact(data.priceImpact)
   return (
-    <div className="reviewWithdraw">
-      <h3>{t("youWillReceive")}</h3>
-      <div className="table">
-        <div>
-          {data.withdraw.map((token, index) => (
-            <div className="eachToken" key={index}>
-              <div className="value">
-                <span className="value">{token.value}</span>
-              </div>
-              <div className="token">
-                <img src={token.icon} alt="icon" />
-                <span>{token.name}</span>
-              </div>
-            </div>
+    <Stack p="10px">
+      <Stack spacing={3}>
+        <Text fontSize="18px" color="gray.100" fontWeight={700}>
+          {t("youWillReceive")}
+        </Text>
+        <Stack spacing={2}>
+          {data.withdraw.map((token) => (
+            <ReviewItem
+              key={token.name}
+              amount={token.value}
+              icon={token.icon}
+              symbol={token.name}
+            />
           ))}
-        </div>
-        <div className="divider"></div>
-        <div className="withdrawInfoItem">
-          <span className="label">{t("gas")}</span>
-          <span className="value">
-            {formatGasToString(
-              { gasStandard, gasFast, gasInstant },
-              gasPriceSelected,
-              gasCustom,
-            )}{" "}
-            GWEI
-          </span>
-        </div>
-        {data.txnGasCost?.valueUSD && (
-          <div className="withdrawInfoItem">
-            <span className="label">{t("estimatedTxCost")}</span>
-            <span className="value">
-              {`≈$${commify(formatBNToString(data.txnGasCost.valueUSD, 2, 2))}`}{" "}
-            </span>
-          </div>
-        )}
-        <div className="withdrawInfoItem">
-          <span className="label">{t("maxSlippage")}</span>
-          <span className="value">
-            {formatSlippageToString(slippageSelected, slippageCustom)}%
-          </span>
-        </div>
-        <div className="withdrawInfoItem">
-          <span className="label">{`${t("rates")}:`}</span>
-          <div className="rates value">
-            {data.rates.map((rate, index) => (
-              <span key={index}>
-                1 {rate.name} = ${rate.rate}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-      {isHighSlippageTxn && (
-        <div className="withdrawInfoItem">
-          <HighPriceImpactConfirmation
-            checked={hasConfirmedHighPriceImpact}
-            onCheck={(): void =>
-              setHasConfirmedHighPriceImpact((prevState) => !prevState)
-            }
-          />
-        </div>
+        </Stack>
+      </Stack>
+      <Divider />
+      <ReviewInfoItem
+        label={t("gas")}
+        value={`${formatGasToString(
+          { gasStandard, gasFast, gasInstant },
+          gasPriceSelected,
+          gasCustom,
+        )} GWEI`}
+      />
+      {data.txnGasCost?.valueUSD && (
+        <ReviewInfoItem
+          label={t("estimatedTxCost")}
+          value={`≈$${commify(
+            formatBNToString(data.txnGasCost.valueUSD, 2, 2),
+          )}`}
+        />
       )}
-      <div className="bottom">
-        <p>{t("estimatedOutput")}</p>
-        <div className="buttonWrapper">
-          <Button
-            onClick={onConfirm}
-            kind="primary"
-            disabled={isHighSlippageTxn && !hasConfirmedHighPriceImpact}
-          >
-            {t("confirmWithdraw")}
-          </Button>
-          <Button onClick={onClose} kind="cancel">
-            {t("cancel")}
-          </Button>
-        </div>
-      </div>
-    </div>
+      <ReviewInfoItem
+        label={t("maxSlippage")}
+        value={`${formatSlippageToString(slippageSelected, slippageCustom)}%`}
+      />
+      <Divider />
+      <Stack spacing={2}>
+        <Text fontSize="18px" color="gray.100" fontWeight={700}>
+          {t("rates")}
+        </Text>
+        <Stack spacing={1}>
+          {data.rates.map(({ name, rate }, index) => (
+            <ReviewInfoItem
+              key={index}
+              label={`1 ${name}`}
+              value={`$${rate}`}
+            />
+          ))}
+        </Stack>
+      </Stack>
+      {isHighSlippageTxn && (
+        <HighPriceImpactConfirmation
+          checked={hasConfirmedHighPriceImpact}
+          onCheck={(): void =>
+            setHasConfirmedHighPriceImpact((prevState) => !prevState)
+          }
+        />
+      )}
+      <Stack spacing="30px" alignItems="center" p="15px">
+        <Text fontSize="14px" color="gray.300" fontStyle="italic">
+          {t("estimatedOutput")}
+        </Text>
+        <Center>
+          <ButtonGroup isAttached>
+            <Button
+              onClick={onConfirm}
+              disabled={isHighSlippageTxn && !hasConfirmedHighPriceImpact}
+            >
+              {t("confirmWithdraw")}
+            </Button>
+            <Button onClick={onClose} variant="solid" borderRadius="12px">
+              {t("cancel")}
+            </Button>
+          </ButtonGroup>
+        </Center>
+      </Stack>
+    </Stack>
   )
 }
 

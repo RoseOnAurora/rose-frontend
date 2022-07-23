@@ -21,8 +21,8 @@ const MultiTokenInput = ({
   isInvalid,
   readOnly,
   onToggleTokenSelect,
-}: // onChangeInput,
-MultiTokenInputProps): ReactElement => {
+  onChangeInput,
+}: MultiTokenInputProps): ReactElement => {
   return (
     <InputGroup py="5px">
       <InputLeftElement>
@@ -33,6 +33,7 @@ MultiTokenInputProps): ReactElement => {
       </InputLeftElement>
       <Input
         {...fieldProps}
+        pl="180px"
         type="text"
         autoComplete="off"
         autoCorrect="off"
@@ -40,7 +41,7 @@ MultiTokenInputProps): ReactElement => {
         spellCheck="false"
         isInvalid={isInvalid}
         value={readOnly ? commify(inputValue) : inputValue}
-        // onChange={onChangeInput}
+        onChange={onChangeInput}
         onFocus={(e: React.ChangeEvent<HTMLInputElement>): void => {
           if (!readOnly) {
             e.target.select()

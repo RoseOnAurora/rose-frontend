@@ -26,6 +26,7 @@ export default function useFarmExit(
       return receipt
     } catch (e) {
       console.error(e)
+      throw e
     }
   }
 }

@@ -31,9 +31,12 @@ export enum Deadlines {
 export enum PoolSortFields {
   NAME = "name",
   BALANCE = "balance",
-  FARM_DEPOSIT = "farmDeposit",
   TVL = "tvl",
   VOLUME = "volume",
+  FARM_DEPOSIT = "farmDeposit",
+  FARM_TVL = "farmTvl",
+  APR = "apr",
+  REWARDS = "rewards",
 }
 
 export enum PoolFilterFields {
@@ -48,30 +51,6 @@ interface PoolPreferences {
   }
   filterField: PoolFilterFields
   sortField: PoolSortFields
-}
-
-export enum FarmSortFields {
-  NAME = "name",
-  BALANCE = "balance",
-  DEPOSIT = "deposit",
-  TVL = "tvl",
-  APR = "apr",
-  REWARD = "rewards",
-}
-
-export enum FarmFilterFields {
-  DEPOSIT = "deposit",
-  BALANCE = "balance",
-  DUAL = "dual",
-  NO_FILTER = "noFilter",
-}
-
-interface FarmPreferences {
-  visibleFields: {
-    [field in FarmSortFields]: number
-  }
-  filterField: FarmFilterFields
-  sortField: FarmSortFields
 }
 
 export enum BorrowSortFields {
@@ -111,7 +90,6 @@ interface UserState {
   priceFromOracle: boolean
   transactionDeadlineSelected: Deadlines
   transactionDeadlineCustom?: string
-  farmPreferences: FarmPreferences
   borrowPreferences: BorrowPreferences
   poolPreferences: PoolPreferences
 }
@@ -125,18 +103,6 @@ export const initialState: UserState = {
   infiniteApproval: false,
   priceFromOracle: false,
   transactionDeadlineSelected: Deadlines.Twenty,
-  farmPreferences: {
-    visibleFields: {
-      name: 1,
-      balance: 1,
-      deposit: 1,
-      tvl: 1,
-      apr: 1,
-      rewards: 1,
-    },
-    filterField: FarmFilterFields.NO_FILTER,
-    sortField: FarmSortFields.APR,
-  },
   borrowPreferences: {
     visibleFields: {
       name: 1,
@@ -157,6 +123,9 @@ export const initialState: UserState = {
       volume: 1,
       tvl: 1,
       farmDeposit: 1,
+      farmTvl: -1,
+      apr: 1,
+      rewards: 1,
     },
     filterField: PoolFilterFields.NO_FILTER,
     sortField: PoolSortFields.TVL,
@@ -246,36 +215,6 @@ const userSlice = createSlice({
     ): void {
       state.transactionDeadlineCustom = action.payload
     },
-    updateFarmFilterPreferences(
-      state: UserState,
-      action: PayloadAction<FarmFilterFields>,
-    ): void {
-      state.farmPreferences = {
-        ...state.farmPreferences,
-        filterField: action.payload,
-      }
-    },
-    updateFarmSortPreferences(
-      state: UserState,
-      action: PayloadAction<FarmSortFields>,
-    ): void {
-      state.farmPreferences = {
-        ...state.farmPreferences,
-        sortField: action.payload,
-      }
-    },
-    updateFarmVisibleFieldPreferences(
-      state: UserState,
-      action: PayloadAction<{ field: FarmSortFields; value: number }>,
-    ): void {
-      state.farmPreferences = {
-        ...state.farmPreferences,
-        visibleFields: {
-          ...state.farmPreferences.visibleFields,
-          [action.payload.field]: action.payload.value,
-        },
-      }
-    },
     updateBorrowFilterPreferences(
       state: UserState,
       action: PayloadAction<BorrowFilterFields>,
@@ -356,9 +295,6 @@ export const {
   updateInfiniteApproval,
   updateTransactionDeadlineSelected,
   updateTransactionDeadlineCustom,
-  updateFarmFilterPreferences,
-  updateFarmSortPreferences,
-  updateFarmVisibleFieldPreferences,
   updateBorrowFilterPreferences,
   updateBorrowSortPreferences,
   updateBorrowVisibleFieldPreferences,

@@ -1,5 +1,12 @@
+import {
+  CloseAllToastsOptions,
+  ToastId,
+  UseToastOptions,
+  useToast,
+} from "@chakra-ui/react"
+import { ErrorObj } from "../constants"
 import { ReactNode } from "react"
-import { useToast } from "@chakra-ui/react"
+import { parseErrorMessage } from "../utils"
 
 export enum TransactionType {
   STAKE = "Stake",
@@ -12,6 +19,12 @@ export enum TransactionType {
   EXIT = "Withdraw & Claim Rewards",
   SWAP = "Swap",
   SIGNATURE = "Signature",
+  CONNECT = "Connect Wallet",
+}
+
+export enum TransactionErrorCode {
+  CANCELLED_TRANSACTION = 4001,
+  CONTRACT_ERROR = -32603,
 }
 
 enum TransactionErrors {
@@ -28,22 +41,47 @@ interface ToastFunctionProps {
   txnType: TransactionType
 }
 
+interface ToastPendingFunctionProps extends ToastFunctionProps {
+  duration?: number | null
+}
+
 interface ToastSuccessFunctionProps extends ToastFunctionProps {
   description: ReactNode
 }
 
 interface ToastFailedFunctionProps extends ToastFunctionProps {
-  error?: { code: number; message: string }
+  error?: ErrorObj
+  description?: ReactNode
+}
+
+interface ToastWarningFunctionProps {
+  title: string
+  description: ReactNode
+}
+
+interface ToastErrorFunctionProps extends ToastFunctionProps {
   description?: ReactNode
 }
 
 export interface ToastFunctions {
-  transactionPending: (props: ToastFunctionProps) => void
-  approvalRequired: () => void
-  signatureRequired: () => void
-  autoSignHardwareWallet: () => void
-  transactionSuccess: (props: ToastSuccessFunctionProps) => void
-  transactionFailed: (props: ToastFailedFunctionProps) => void
+  transactionPending: (props: ToastPendingFunctionProps) => ToastId
+  approvalRequired: () => ToastId
+  signatureRequired: () => ToastId
+  autoSignHardwareWallet: () => ToastId
+  transactionSuccess: (props: ToastSuccessFunctionProps) => ToastId
+  transactionFailed: (props: ToastFailedFunctionProps) => ToastId
+  transactionWarning: (props: ToastWarningFunctionProps) => ToastId
+  transactionError: (props: ToastErrorFunctionProps) => ToastId
+  instance: {
+    (options?: UseToastOptions | undefined): ToastId
+    close: (id: ToastId) => void
+    closeAll: (options?: CloseAllToastsOptions | undefined) => void
+    /**
+     * Toasts can only be updated if they have a valid id
+     */
+    update(id: ToastId, options: Omit<UseToastOptions, "id">): void
+    isActive: (id: ToastId) => boolean
+  }
 }
 
 export default function useChakraToast(): ToastFunctions {
@@ -53,30 +91,33 @@ export default function useChakraToast(): ToastFunctions {
     variant: "solid",
   })
 
-  const transactionPending = ({ txnType }: ToastFunctionProps): void => {
-    toast({
+  const transactionPending = ({
+    txnType,
+    duration = null,
+  }: ToastPendingFunctionProps): ToastId => {
+    return toast({
       title: `${txnType} Transaction Pending`,
       description: "Confirm the transaction(s) in your wallet.",
-      duration: null,
+      duration,
     })
   }
 
-  const approvalRequired = (): void => {
-    toast({
+  const approvalRequired = (): ToastId => {
+    return toast({
       title: "Approval Required",
       description: "Approve the transaction(s) in your wallet.",
     })
   }
 
-  const signatureRequired = (): void => {
-    toast({
+  const signatureRequired = (): ToastId => {
+    return toast({
       title: "Message Signature Required",
       description: "Complete message signature in your wallet.",
     })
   }
 
-  const autoSignHardwareWallet = (): void => {
-    toast({
+  const autoSignHardwareWallet = (): ToastId => {
+    return toast({
       title: "Hardware wallet detected.",
       status: "warning",
       description:
@@ -87,9 +128,9 @@ export default function useChakraToast(): ToastFunctions {
   const transactionSuccess = ({
     txnType,
     description,
-  }: ToastSuccessFunctionProps): void => {
+  }: ToastSuccessFunctionProps): ToastId => {
     toast.closeAll()
-    toast({
+    return toast({
       title: `${txnType} Transaction Succeeded!`,
       description: description,
       status: "success",
@@ -97,11 +138,35 @@ export default function useChakraToast(): ToastFunctions {
     })
   }
 
+  const transactionWarning = ({
+    title,
+    description,
+  }: ToastWarningFunctionProps): ToastId => {
+    toast.closeAll()
+    return toast({
+      title,
+      description,
+      status: "warning",
+    })
+  }
+
+  const transactionError = ({
+    txnType,
+    description,
+  }: ToastErrorFunctionProps): ToastId => {
+    toast.closeAll()
+    return toast({
+      title: `${txnType} Error!`,
+      description,
+      status: "error",
+    })
+  }
+
   const transactionFailed = ({
     txnType,
     error,
     description,
-  }: ToastFailedFunctionProps): void => {
+  }: ToastFailedFunctionProps): ToastId => {
     toast.closeAll()
     const toastData: {
       title: string
@@ -110,39 +175,26 @@ export default function useChakraToast(): ToastFunctions {
     } = {
       title: `${txnType} Transaction Failed!`,
       status: "error",
-      description: "Unknown Error occurred. Please try again.",
+      description: description || "Unknown Error occurred. Please try again.",
     }
 
-    let message
-    try {
-      message =
-        error?.message?.split(
-          "[ethjs-query] while formatting outputs from RPC ",
-        )?.[1] || ""
-      message = JSON.parse(message.substring(1, message.length - 1)) as {
-        value: { data: { message: string } }
-      }
-    } catch (e) {
-      message = { value: { data: { message: "Internal JSON-RPC error." } } }
-    }
+    const parsed = parseErrorMessage(error)
 
     switch (error?.code) {
-      case 4001:
+      case TransactionErrorCode.CANCELLED_TRANSACTION:
         toastData.title = `${txnType} Transaction Aborted!`
         toastData.description = `${error.code}: ${error.message}`
         toastData.status = "warning"
         break
-      case -32603:
-        toastData.description =
-          description ||
-          `${error.code}: ${
-            ERROR_MAP[message.value.data.message as TransactionErrors] ||
-            message.value.data.message
-          } `
+      case TransactionErrorCode.CONTRACT_ERROR:
+        toastData.description = `${error.code}: ${
+          ERROR_MAP[parsed.value.data.message as TransactionErrors] ||
+          parsed.value.data.message
+        } `
         break
     }
 
-    toast({
+    return toast({
       title: toastData.title,
       description: toastData.description,
       status: toastData.status,
@@ -157,5 +209,8 @@ export default function useChakraToast(): ToastFunctions {
     transactionSuccess,
     transactionFailed,
     autoSignHardwareWallet,
+    transactionWarning,
+    transactionError,
+    instance: toast,
   }
 }

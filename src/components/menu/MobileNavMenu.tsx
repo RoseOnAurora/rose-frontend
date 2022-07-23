@@ -9,7 +9,6 @@ import {
   FaBook,
   FaChartPie,
   FaDiscord,
-  FaGift,
   FaGithub,
   FaHandHoldingUsd,
   FaRegCircle,
@@ -24,7 +23,6 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
-  useColorModeValue,
 } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import { Link } from "react-router-dom"
@@ -33,7 +31,6 @@ import { useTranslation } from "react-i18next"
 const MobileNavMenu = (): ReactElement => {
   // hooks
   const { t } = useTranslation()
-  const menuColor = useColorModeValue("#fff", "rgb(28, 29, 33)")
 
   return (
     <Menu>
@@ -45,20 +42,18 @@ const MobileNavMenu = (): ReactElement => {
             aria-label="Open Menu"
             display={{ lg: "none" }}
             variant="outline"
+            borderRadius="15px"
             lineHeight="unset"
           >
             {isOpen ? <CloseIcon /> : <HamburgerIcon />}
           </MenuButton>
-          <MenuList bg={menuColor}>
+          <MenuList zIndex={10} boxShadow="md" bg="gray.900">
             <MenuGroup title="Pages">
               <MenuItem icon={<BsArrowLeftRight />} as={Link} to="/">
                 {t("swap")}
               </MenuItem>
               <MenuItem icon={<FaChartPie />} as={Link} to="/pools">
                 {t("pools")}
-              </MenuItem>
-              <MenuItem icon={<FaGift />} as={Link} to="/farms">
-                {t("farms")}
               </MenuItem>
               <MenuItem icon={<BsReceipt />} as={Link} to="/stake">
                 {t("stake")}

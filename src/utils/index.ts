@@ -1,18 +1,17 @@
 import { AddressZero, Zero } from "@ethersproject/constants"
 import {
   ChainId,
-  PoolTypes,
+  ErrorObj,
+  RpcErrorMessageStruct,
   SignedSignatureRes,
   TOKENS_MAP,
   Token,
 } from "../constants"
 import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers"
 import { formatUnits, parseUnits } from "@ethersproject/units"
-
 import { BigNumber } from "@ethersproject/bignumber"
 import { Contract } from "@ethersproject/contracts"
 import { ContractInterface } from "ethers"
-import { Deadlines } from "../state/user"
 import { getAddress } from "@ethersproject/address"
 import parseStringToBigNumber from "./parseStringToBigNumber"
 
@@ -109,31 +108,6 @@ export function calculateExchangeRate(
     : BigNumber.from("0")
 }
 
-export function formatDeadlineToNumber(
-  deadlineSelected: Deadlines,
-  deadlineCustom?: string,
-): number {
-  let deadline = 20
-  switch (deadlineSelected) {
-    case Deadlines.Ten:
-      deadline = 10
-      break
-    case Deadlines.Twenty:
-      deadline = 20
-      break
-    case Deadlines.Thirty:
-      deadline = 30
-      break
-    case Deadlines.Forty:
-      deadline = 40
-      break
-    case Deadlines.Custom:
-      deadline = +(deadlineCustom || formatDeadlineToNumber(Deadlines.Twenty))
-      break
-  }
-  return deadline
-}
-
 // A better version of ether's commify util
 export function commify(str: string): string {
   const parts = str.split(".")
@@ -202,18 +176,6 @@ export function calculatePrice(
   return Zero
 }
 
-export function getTokenSymbolForPoolType(poolType: PoolTypes): string {
-  if (poolType === PoolTypes.BTC) {
-    return "WBTC"
-  } else if (poolType === PoolTypes.ETH) {
-    return "WETH"
-  } else if (poolType === PoolTypes.USD) {
-    return "USDC"
-  } else {
-    return ""
-  }
-}
-
 export const toHex = (num: number): string => {
   return "0x" + num.toString(16)
 }
@@ -273,4 +235,33 @@ export function countDecimalPlaces(num: number | string) {
     }
   }
   return 0
+}
+
+export function fixDecimalsOnRawVal(
+  rawVal: string,
+  fromSymbol: string,
+  toSymbol: string,
+): string {
+  const fromDecimals = TOKENS_MAP[fromSymbol]?.decimals || 18
+  const toDecimals = TOKENS_MAP[toSymbol]?.decimals || 18
+  return fromDecimals <= toDecimals || countDecimalPlaces(rawVal) <= toDecimals
+    ? rawVal
+    : (+rawVal).toFixed(toDecimals)
+}
+
+export function parseErrorMessage(error?: ErrorObj): RpcErrorMessageStruct {
+  const message: RpcErrorMessageStruct = {
+    value: { data: { message: "Internal JSON-RPC error." } },
+  }
+  try {
+    const parsed =
+      error?.message?.split(
+        "[ethjs-query] while formatting outputs from RPC ",
+      )?.[1] || ""
+    return JSON.parse(parsed.substring(1, parsed.length - 1)) as {
+      value: { data: { message: string } }
+    }
+  } catch {
+    return message
+  }
 }

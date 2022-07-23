@@ -5,7 +5,7 @@ import { Zero } from "@ethersproject/constants"
 import { calculatePrice } from "../utils"
 import { sortTokenOptions } from "../utils/swapUtils"
 import { useMemo } from "react"
-import { usePoolTokenBalances } from "../state/wallet/hooks"
+import { usePoolTokenBalances } from "./useTokenBalances"
 import { useSelector } from "react-redux"
 
 const useSwapTokenOptions = (

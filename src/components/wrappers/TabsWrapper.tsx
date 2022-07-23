@@ -6,7 +6,6 @@ import {
   TabPanels,
   Tabs,
   TabsProps,
-  useColorModeValue,
 } from "@chakra-ui/react"
 
 interface TabProps {
@@ -22,16 +21,7 @@ interface Props {
 
 const TabsWrapper = ({ tabsProps, tab1, tab2 }: Props): ReactElement => {
   return (
-    <Tabs
-      {...tabsProps}
-      isFitted
-      height="100%"
-      bg={useColorModeValue(
-        "rgba(250, 250, 250, 0.6)",
-        "rgba(28, 29, 33, 0.3)",
-      )}
-      borderRadius="10px"
-    >
+    <Tabs {...tabsProps} isFitted height="100%" size={{ base: "md", md: "lg" }}>
       <TabList mb="1em">
         <Tab>{tab1.name}</Tab>
         <Tab>{tab2.name}</Tab>

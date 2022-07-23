@@ -16,7 +16,7 @@ export const basicTokenInputValidator = (
 
   if (!amount) return
 
-  if (isFallback) {
+  if (isFallback || value.lt(Zero)) {
     return i18next.t("Invalid number.")
   }
 

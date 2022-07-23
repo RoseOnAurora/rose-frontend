@@ -40,7 +40,7 @@ const OverviewInfo = ({ sections, infoType }: Props): ReactElement => {
   )
 
   return (
-    <Box p="30px" borderRadius="10px" background="var(--background-element)">
+    <Box p="30px" borderRadius="10px" bg="gray.900">
       <Grid gridTemplateRows="auto" rowGap="15px">
         <GridItem>
           <Text fontSize="25px" fontWeight="700">
@@ -51,8 +51,8 @@ const OverviewInfo = ({ sections, infoType }: Props): ReactElement => {
         {sections.map(({ title, items }, i) => {
           return (
             <GridItem key={i}>
-              <Flex>
-                <Text mb="10px" fontWeight="600" fontSize="20px">
+              <Flex alignItems="center">
+                <Text fontWeight={700} fontSize="20px" color="gray.100">
                   {title}
                 </Text>
                 <IconButton
@@ -60,19 +60,20 @@ const OverviewInfo = ({ sections, infoType }: Props): ReactElement => {
                     setHowTo((prev) => ({ ...prev, [i]: !howTo[i] }))
                   }
                   aria-label={howTo[i] ? "Collapse" : "Expand"}
-                  variant="outline"
+                  variant="solid"
                   size="xs"
                   marginLeft="5px"
+                  borderRadius="8px"
                   icon={<BsChevronExpand />}
                   title={howTo[i] ? "Collapse" : "Expand"}
                 />
               </Flex>
               <Collapse in={howTo[i]} animateOpacity>
-                <List color="var(--text-lighter)" spacing={3}>
+                <List color="gray.300" spacing={3}>
                   {items.map(({ icon, text }, j) => {
                     return (
-                      <ListItem key={j}>
-                        <ListIcon as={icon} color="var(--text-primary)" />
+                      <ListItem key={j} pt="10px">
+                        <ListIcon as={icon} color="red.500" />
                         {text}
                       </ListItem>
                     )

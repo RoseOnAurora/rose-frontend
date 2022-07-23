@@ -8,12 +8,7 @@ const PageWrapper = ({
   maxW?: string
 }): ReactElement => {
   return (
-    <Container
-      maxW={maxW}
-      mt="40px"
-      paddingInlineStart={"0.5em"}
-      paddingInlineEnd={"0.5em"}
-    >
+    <Container maxW={maxW} mt="50px" px={3}>
       {children}
     </Container>
   )

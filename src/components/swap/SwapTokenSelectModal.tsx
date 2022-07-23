@@ -3,17 +3,12 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
   Stack,
 } from "@chakra-ui/react"
 import { DAI, RUSD, TOKENS_MAP, USDC, USDT } from "../../constants"
 import React, { ReactElement, useMemo, useState } from "react"
 import CommonSwapBases from "./CommonSwapBases"
+import ModalWrapper from "../wrappers/ModalWrapper"
 import { SearchIcon } from "@chakra-ui/icons"
 import { SwapTokenOption } from "../../types/swap"
 import TokenList from "../list/TokenList"
@@ -74,7 +69,8 @@ const SwapTokenSelectModal = ({
   }, [tokens, searchText])
 
   return (
-    <Modal
+    <ModalWrapper
+      modalHeader={t("chooseToken")}
       isOpen={isOpen}
       onClose={onClose}
       onCloseComplete={() => {
@@ -82,63 +78,57 @@ const SwapTokenSelectModal = ({
         setSearchText("")
         setSelectedToken("")
       }}
+      blockScrollOnMount={false}
+      isCentered
     >
-      <ModalOverlay bg="blackAlpha.800" />
-      <ModalContent bg="gray.900" borderRadius="20px" my="4.5rem" p="25px">
-        <ModalHeader fontWeight={700} fontSize="30px" lineHeight="39px" p="0">
-          {t("chooseToken")}
-        </ModalHeader>
-        <ModalCloseButton top={7} />
-        <ModalBody p="0" mt="30px">
-          <Stack spacing="30px">
-            <InputGroup>
-              <InputLeftElement pointerEvents="none">
-                <SearchIcon color="gray.500" />
-              </InputLeftElement>
-              <Input
-                value={searchText}
-                variant="simple"
-                placeholder="Search name or paste address"
-                type="text"
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-            </InputGroup>
-            <CommonSwapBases
-              commonBases={tokens.filter(
-                ({ isAvailable, symbol }) =>
-                  isAvailable &&
-                  // hardcode for now until we can pull data
-                  (symbol === USDT.symbol ||
-                    symbol === RUSD.symbol ||
-                    symbol === DAI.symbol ||
-                    symbol === USDC.symbol),
-              )}
-              onSelect={(symbol: string) => {
+      <Stack spacing="30px">
+        <InputGroup>
+          <InputLeftElement pointerEvents="none">
+            <SearchIcon color="gray.500" />
+          </InputLeftElement>
+          <Input
+            value={searchText}
+            variant="simple"
+            fontSize={{ base: "14px", md: "16px" }}
+            placeholder="Search name or paste address"
+            type="text"
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+        </InputGroup>
+        <CommonSwapBases
+          commonBases={tokens.filter(
+            ({ isAvailable, symbol }) =>
+              isAvailable &&
+              // hardcode for now until we can pull data
+              (symbol === USDT.symbol ||
+                symbol === RUSD.symbol ||
+                symbol === DAI.symbol ||
+                symbol === USDC.symbol),
+          )}
+          onSelect={(symbol: string) => {
+            setSelectedToken(symbol)
+            onClose()
+          }}
+        />
+        <Box
+          bgColor="bgDark"
+          borderRadius="14px"
+          p="8px"
+          h="350px"
+          overflowY="auto"
+        >
+          <Stack spacing="10px">
+            <TokenList
+              tokens={filteredTokens}
+              onSelectToken={(symbol: string) => {
                 setSelectedToken(symbol)
                 onClose()
               }}
             />
-            <Box
-              bgColor="bgDark"
-              borderRadius="14px"
-              p="8px"
-              h="350px"
-              overflowY="auto"
-            >
-              <Stack spacing="10px">
-                <TokenList
-                  tokens={filteredTokens}
-                  onSelectToken={(symbol: string) => {
-                    setSelectedToken(symbol)
-                    onClose()
-                  }}
-                />
-              </Stack>
-            </Box>
           </Stack>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+        </Box>
+      </Stack>
+    </ModalWrapper>
   )
 }
 

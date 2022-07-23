@@ -32,11 +32,11 @@ const CommonSwapBases = ({
               onClick={() => onSelect(base.symbol)}
             >
               <Flex alignItems="center" gap="5px">
-                <Box boxSize="30px">
+                <Box boxSize="25px">
                   <Image src={base.icon} w="full" objectFit="cover" />
                 </Box>
                 <Text
-                  fontSize="16px"
+                  fontSize={{ base: "14px", md: "16px" }}
                   fontWeight={500}
                   color="gray.50"
                   lineHeight="21px"

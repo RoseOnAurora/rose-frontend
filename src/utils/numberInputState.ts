@@ -1,5 +1,6 @@
 import { BigNumber } from "@ethersproject/bignumber"
 import { formatUnits } from "@ethersproject/units"
+import i18next from "i18next"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 
 export interface NumberInputState {
@@ -8,6 +9,7 @@ export interface NumberInputState {
   precision: number
   valueRaw: string
   valueSafe: string // represents a BigNumber
+  error?: string
 }
 
 /**
@@ -36,6 +38,7 @@ export function numberInputStateCreator(
         precision,
         valueRaw: formatUnits(inputValue, precision),
         valueSafe: inputValue.toString(),
+        error: "",
       }
     } else {
       const { value: valueSafe, isFallback } = parseStringToBigNumber(
@@ -49,6 +52,7 @@ export function numberInputStateCreator(
         precision,
         valueRaw: inputValue,
         valueSafe: valueSafe.toString(),
+        error: isFallback ? i18next.t("Invalid number.") : "",
       }
     }
   }

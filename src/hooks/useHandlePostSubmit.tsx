@@ -1,13 +1,14 @@
 import useChakraToast, { TransactionType } from "./useChakraToast"
 import BlockExplorerLink from "../components/BlockExplorerLink"
 import { ContractReceipt } from "ethers"
+import { ErrorObj } from "../constants"
 import React from "react"
 import { useActiveWeb3React } from "."
 
 const useHandlePostSubmit = (): ((
   receipt: ContractReceipt | null,
   transactionType: TransactionType,
-  error?: { code: number; message: string },
+  error?: ErrorObj,
 ) => void) => {
   const toast = useChakraToast()
   const { chainId } = useActiveWeb3React()
@@ -15,7 +16,7 @@ const useHandlePostSubmit = (): ((
   const handlePostSubmit = (
     receipt: ContractReceipt | null,
     transactionType: TransactionType,
-    error?: { code: number; message: string },
+    error?: ErrorObj,
   ): void => {
     const description = receipt?.transactionHash ? (
       <BlockExplorerLink

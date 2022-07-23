@@ -168,7 +168,7 @@ export function useApproveAndDeposit(
       return receipt
     } catch (e) {
       console.error(e)
-      // notifyCustomError(e as Error)
+      throw e
     }
   }
 }

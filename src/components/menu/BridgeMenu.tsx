@@ -8,7 +8,6 @@ import {
   MenuItem,
   MenuList,
   Text,
-  useColorModeValue,
 } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import { BsRainbow } from "react-icons/bs"
@@ -16,8 +15,6 @@ import { FaRegCircle } from "react-icons/fa"
 import arrowUpRight from "../../assets/arrow-up-right.svg"
 
 const BridgeMenu = (): ReactElement => {
-  const menuBg = useColorModeValue("#fff", "rgb(28, 29, 33)")
-
   return (
     <Menu>
       {({ isOpen }) => (
@@ -37,7 +34,7 @@ const BridgeMenu = (): ReactElement => {
               </Box>
             </Flex>
           </MenuButton>
-          <MenuList bg={menuBg}>
+          <MenuList zIndex={10} boxShadow="md" bg="gray.900">
             <MenuGroup>
               <MenuItem
                 icon={<BsRainbow />}

@@ -11,7 +11,7 @@ import React, { ReactElement } from "react"
 import { MdDoubleArrow } from "react-icons/md"
 import { SWAP_TYPES } from "../../constants"
 import { SwapRouteToken } from "../../types/swap"
-import daiUsdtUsdc from "../../assets/icons/dai-usdt-usdc.png"
+import daiUsdtUsdc from "../../assets/icons/dai-usdt-usdc.svg"
 import { useTranslation } from "react-i18next"
 
 interface SwapRouteProps {
@@ -26,7 +26,6 @@ const SwapRoute = ({ swapType, from, to }: SwapRouteProps): ReactElement => {
     <Flex justifyContent="space-between" alignItems="start">
       <HStack spacing="3px" alignItems="center">
         <Tooltip
-          bgColor="#cc3a59"
           closeOnClick={false}
           label={
             swapType === SWAP_TYPES.DIRECT

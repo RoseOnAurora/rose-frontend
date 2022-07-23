@@ -23,12 +23,16 @@ export type SwapTokenOption = {
   isAvailable: boolean
 }
 
+/** TO-DO: swap logic needs improvement. Main concerns:
+ * 1. Swapping is functional but need to improve interfaces
+ * 2. Migration to formik form is not complete; we have state
+ * managed outside of the form
+ * 3. user feedback - i.e. errors, ui enhancements etc
+ */
 export type SwapState = {
-  from: {
-    value: string
-    valueUSD: BigNumber
-  } & SwapSide
+  from: SwapSide
   to: {
+    // we need to manage to outside of the form as its calculated from user input
     value: BigNumber
     valueUSD: BigNumber
   } & SwapSide

@@ -14,21 +14,33 @@ import {
   PoolName,
   RUSD_METAPOOL_NAME,
   STABLECOIN_POOL_V2_NAME,
+  UST_METAPOOL_FARM_NAME,
   UST_METAPOOL_NAME,
 } from "../constants"
 import {
+  Box,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
   DrawerOverlay,
   Flex,
+  Grid,
+  GridItem,
+  HStack,
+  Image,
   Skeleton,
+  Stack,
   Text,
-  useColorModeValue,
   useDisclosure,
   useTimeout,
 } from "@chakra-ui/react"
+import {
+  BsChevronDown,
+  BsChevronExpand,
+  BsChevronUp,
+  BsSliders,
+} from "react-icons/bs"
 import {
   FaChartPie,
   FaFilter,
@@ -50,13 +62,14 @@ import {
   calculatePctOfTotalShare,
   formatBNToPercentString,
   formatBNToString,
+  isAddress,
 } from "../utils"
 import { useDispatch, useSelector } from "react-redux"
 import usePoolData, { PoolDataType, UserShareType } from "../hooks/usePoolData"
 import { AnimatePresence } from "framer-motion"
+import AnimatingNumber from "../components/AnimateNumber"
 import { BigNumber } from "@ethersproject/bignumber"
-import { BsSliders } from "react-icons/bs"
-import Dashboard from "../components/Dashboard"
+import { FarmStats } from "../utils/fetchFarmStats"
 import { Link } from "react-router-dom"
 import OverviewInfo from "../components/OverviewInfo"
 import OverviewInputFieldsWrapper from "../components/wrappers/OverviewInputFieldsWrapper"
@@ -64,17 +77,23 @@ import OverviewSettingsContent from "../components/OverviewSettingsContent"
 import OverviewWrapper from "../components/wrappers/OverviewWrapper"
 import PageWrapper from "../components/wrappers/PageWrapper"
 import PoolOverview from "../components/PoolOverview"
-import StakeDetails from "../components/StakeDetails"
+import StakeDetails from "../components/stake/StakeDetails"
 import { Zero } from "@ethersproject/constants"
-import _ from "lodash"
+import chartGraph from "../assets/chart-graph.svg"
 import { commify } from "@ethersproject/units"
-import stablesPoolIcon from "../assets/icons/dai-usdt-usdc.png"
+import rewardsGift from "../assets/rewards-gift.svg"
+import stablesPoolIcon from "../assets/icons/dai-usdt-usdc.svg"
+import { useActiveWeb3React } from "../hooks"
+import { useMultiCallEarnedRewards } from "../hooks/useMultiCallEarnedRewards"
 import { useMultiCallFarmDeposits } from "../hooks/useMultiCallFarmDeposits"
 
 function Pools(): ReactElement | null {
   const dispatch = useDispatch<AppDispatch>()
   const { poolPreferences } = useSelector((state: AppState) => state.user)
+  const { farmStats } = useSelector((state: AppState) => state.application)
   const farmDeposits = useMultiCallFarmDeposits()
+  const allRewards = useMultiCallEarnedRewards()
+  const { chainId } = useActiveWeb3React()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [usdPoolV2Data, usdV2UserShareData] = usePoolData(
     STABLECOIN_POOL_V2_NAME,
@@ -100,6 +119,7 @@ function Pools(): ReactElement | null {
   )
   const [timeout, setTimout] = useState(false)
   const [isInfo, setIsInfo] = useState(false)
+  const [searchText, setSearchText] = useState<string>("")
 
   useTimeout(() => setTimout(true), 5000)
 
@@ -118,6 +138,18 @@ function Pools(): ReactElement | null {
       getPoolData(a.name).balance.gt(getPoolData(b.name).balance),
     volume: (a: Pool, b: Pool) =>
       getPoolData(a.name).volume.gt(getPoolData(b.name).volume),
+    farmTvl: (a: Pool, b: Pool) =>
+      +(farmStats?.[a.farmName || ""]?.tvl || 0) >
+      +(farmStats?.[b.farmName || ""]?.tvl || 0),
+    rewards: (a: Pool, b: Pool) =>
+      (allRewards?.[a.farmName || ""] || Zero).gt(
+        allRewards?.[b.farmName || ""] || Zero,
+      ),
+    apr: (a: Pool, b: Pool) =>
+      +(farmStats?.[a.farmName || ""]?.apr.slice(0, -1) || 0) +
+        +(farmStats?.[a.farmName || ""]?.dualReward.apr?.slice(0, -1) || 0) >
+      +(farmStats?.[b.farmName || ""]?.apr.slice(0, -1) || 0) +
+        +(farmStats?.[b.farmName || ""]?.dualReward.apr?.slice(0, -1) || 0),
   }
 
   const FILTER_FUNCTIONS: {
@@ -192,6 +224,16 @@ function Pools(): ReactElement | null {
     }, Zero),
   )
 
+  const allRewardsFormatted = useMemo(() => {
+    return +formatBNToString(
+      Object.values(allRewards || {})?.reduce((sum, balance) => {
+        return sum.add(balance)
+      }, Zero),
+      18,
+      5,
+    )
+  }, [allRewards])
+
   const total24HrVolume = allPoolData.reduce((sum, data) => {
     return sum.add(data?.volume || Zero)
   }, Zero)
@@ -250,6 +292,16 @@ function Pools(): ReactElement | null {
         }
     }
   }
+
+  // pool fields
+  const fields: PoolSortFields[] = Object.values(PoolSortFields)
+    .filter((field) => {
+      return poolPreferences.visibleFields[field] > 0
+    })
+    .map((field) => {
+      return field
+    })
+
   return (
     <PageWrapper maxW="1650px">
       <Drawer
@@ -258,14 +310,8 @@ function Pools(): ReactElement | null {
         onClose={resetDashboardView}
         size={isInfo ? "sm" : "md"}
       >
-        <DrawerOverlay />
-        <DrawerContent
-          bg={useColorModeValue(
-            "linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9)",
-            "linear-gradient(to right, #141414, #200122, #791038)",
-          )}
-          p="50px 10px"
-        >
+        <DrawerOverlay bg="blackAlpha.900" />
+        <DrawerContent bg="gray.900" p="50px 10px" boxShadow="lg">
           <DrawerCloseButton />
           <DrawerBody p="5px">
             {isInfo ? (
@@ -372,103 +418,16 @@ function Pools(): ReactElement | null {
                 loading={
                   allUserShareData.some((item) => item === null) && !timeout
                 }
+                allRewards={allRewardsFormatted}
+                farmStats={farmStats}
               />
             )}
           </DrawerBody>
         </DrawerContent>
       </Drawer>
       <OverviewWrapper
-        top={
-          <OverviewInputFieldsWrapper
-            sortDirection={sortDirection}
-            sortByField={sortByField}
-            sortFieldLabelMap={POOL_SORT_FIELDS_TO_LABEL}
-            filterByField={filterByField}
-            filterFieldLabelMap={POOL_FILTER_FIELDS_TO_LABEL}
-            handleSortDirection={setSortDirection}
-            handleClearFilter={() =>
-              setfilterByField(PoolFilterFields.NO_FILTER)
-            }
-            handleUpdateSortField={(e) =>
-              setSortByField(e.target.value as PoolSortFields)
-            }
-            handleUpdateFilterField={(e) =>
-              setfilterByField(e.target.value as PoolFilterFields)
-            }
-            popOverContent={
-              <OverviewSettingsContent
-                sortFieldLabelMap={POOL_SORT_FIELDS_TO_LABEL}
-                filterFieldLabelMap={POOL_FILTER_FIELDS_TO_LABEL}
-                preferences={poolPreferences}
-                updateVisibleFields={(e, field: string) =>
-                  dispatch(
-                    updatePoolVisibleFieldPreferences({
-                      field: field as PoolSortFields,
-                      value: +e.target.value * -1,
-                    }),
-                  )
-                }
-                updateFilterPreferences={(e) =>
-                  dispatch(
-                    updatePoolFilterPreferences(
-                      e.target.value as PoolFilterFields,
-                    ),
-                  )
-                }
-                updateSortPreferences={(e) =>
-                  dispatch(
-                    updatePoolSortPreferences(e.target.value as PoolSortFields),
-                  )
-                }
-              />
-            }
-            onIconClick={onIconButtonClick}
-          />
-        }
+        templateColumns="30% 68%"
         left={
-          <AnimatePresence>
-            {allUserShareData.every((item) => item) || timeout
-              ? Object.values(POOLS_MAP)
-                  // temporarily hide Frax pool and UST pool while keeping its page enabled
-                  .filter(
-                    ({ name }) =>
-                      name !== FRAX_STABLES_LP_POOL_NAME &&
-                      name !== UST_METAPOOL_NAME,
-                  )
-                  .filter((pool) => FILTER_FUNCTIONS[filterByField](pool))
-                  .sort((a, b) =>
-                    SORT_FUNCTIONS[sortByField](a, b)
-                      ? sortDirection * -1
-                      : sortDirection,
-                  )
-                  .map((pool) => (
-                    <PoolOverview
-                      key={pool.name}
-                      poolName={pool.name}
-                      poolRoute={pool.route}
-                      poolIcon={
-                        pool.name === STABLECOIN_POOL_V2_NAME
-                          ? stablesPoolIcon
-                          : pool.lpToken.icon
-                      }
-                      farmDeposit={farmDeposits?.[pool.farmName || ""] || Zero}
-                      {...getPoolData(pool.name)}
-                    />
-                  ))
-              : // omit the frax pool for now while its filtered above to prevent UI flicker on
-                // uneven initial elements
-                Object.keys(
-                  _.omit(
-                    POOLS_MAP,
-                    FRAX_STABLES_LP_POOL_NAME,
-                    UST_METAPOOL_NAME,
-                  ),
-                ).map((key) => (
-                  <Skeleton key={key} height="100px" borderRadius="10px" />
-                ))}
-          </AnimatePresence>
-        }
-        right={
           <PoolDashboard
             totalShare={totalShare}
             formattedBalances={formattedLpTokenBalances}
@@ -476,7 +435,185 @@ function Pools(): ReactElement | null {
             totalTvl={totalTvl}
             total24hVolume={total24HrVolume}
             loading={allUserShareData.some((item) => item === null) && !timeout}
+            allRewards={allRewardsFormatted}
+            farmStats={farmStats}
           />
+        }
+        right={
+          <Stack spacing="15px" ml={2}>
+            <Stack spacing="50px">
+              <OverviewInputFieldsWrapper
+                title="Pools"
+                sortDirection={sortDirection}
+                sortByField={sortByField}
+                sortFieldLabelMap={POOL_SORT_FIELDS_TO_LABEL}
+                filterByField={filterByField}
+                filterFieldLabelMap={POOL_FILTER_FIELDS_TO_LABEL}
+                handleSortDirection={setSortDirection}
+                handleClearFilter={() => {
+                  setfilterByField(PoolFilterFields.NO_FILTER)
+                  setSearchText("")
+                }}
+                handleUpdateSortField={(e) =>
+                  setSortByField(e.target.value as PoolSortFields)
+                }
+                handleUpdateFilterField={(e) =>
+                  setfilterByField(e.target.value as PoolFilterFields)
+                }
+                onUpdateFilterText={setSearchText}
+                searchText={searchText}
+                popOverContent={
+                  <OverviewSettingsContent
+                    sortFieldLabelMap={POOL_SORT_FIELDS_TO_LABEL}
+                    filterFieldLabelMap={POOL_FILTER_FIELDS_TO_LABEL}
+                    preferences={poolPreferences}
+                    updateVisibleFields={(e, field: string) =>
+                      dispatch(
+                        updatePoolVisibleFieldPreferences({
+                          field: field as PoolSortFields,
+                          value: +e.target.value * -1,
+                        }),
+                      )
+                    }
+                    updateFilterPreferences={(e) =>
+                      dispatch(
+                        updatePoolFilterPreferences(
+                          e.target.value as PoolFilterFields,
+                        ),
+                      )
+                    }
+                    updateSortPreferences={(e) =>
+                      dispatch(
+                        updatePoolSortPreferences(
+                          e.target.value as PoolSortFields,
+                        ),
+                      )
+                    }
+                  />
+                }
+                onIconClick={onIconButtonClick}
+              />
+              <Grid
+                templateColumns={{
+                  base: `repeat(${fields.length < 3 ? fields.length : 3}, 1fr)`,
+                  md: `repeat(${fields.length}, 1fr)`,
+                }}
+                columnGap={6}
+                alignItems="baseline"
+                py="15px"
+                px="10px"
+                color="gray.300"
+                display={{ base: "none", lg: "grid" }}
+              >
+                {fields.map((field, index) => (
+                  <GridItem key={index}>
+                    <Flex alignItems="center" gap="3px">
+                      <Text fontSize="14px">
+                        {POOL_SORT_FIELDS_TO_LABEL[field]}
+                      </Text>
+                      {field === sortByField ? (
+                        sortDirection > 0 ? (
+                          <BsChevronUp
+                            onClick={() => {
+                              setSortByField(field)
+                              setSortDirection((prev) => prev * -1)
+                            }}
+                            cursor="pointer"
+                            color="#8B5CF6"
+                          />
+                        ) : (
+                          <BsChevronDown
+                            onClick={() => {
+                              setSortByField(field)
+                              setSortDirection((prev) => prev * -1)
+                            }}
+                            cursor="pointer"
+                            color="#8B5CF6"
+                          />
+                        )
+                      ) : (
+                        <BsChevronExpand
+                          onClick={() => {
+                            setSortByField(field)
+                            setSortDirection((prev) => prev * -1)
+                          }}
+                          cursor="pointer"
+                          color="#6B7280"
+                        />
+                      )}
+                    </Flex>
+                  </GridItem>
+                ))}
+              </Grid>
+            </Stack>
+            <Stack spacing={6} maxH="600px" overflowY="auto">
+              <AnimatePresence initial={false}>
+                {Object.values(POOLS_MAP)
+                  // temporarily hide Frax pool and UST pool while keeping its page enabled
+                  .filter(
+                    ({ name }) =>
+                      name !== FRAX_STABLES_LP_POOL_NAME &&
+                      name !== UST_METAPOOL_NAME,
+                  )
+                  .filter((pool) => FILTER_FUNCTIONS[filterByField](pool))
+                  .filter(({ name, addresses }) => {
+                    const target = searchText.toLowerCase()
+                    if (isAddress(target) && chainId) {
+                      return addresses[chainId].toLowerCase() === target
+                    }
+                    return name.toLowerCase().includes(target)
+                  })
+                  .sort((a, b) =>
+                    SORT_FUNCTIONS[sortByField](a, b)
+                      ? sortDirection * -1
+                      : sortDirection,
+                  )
+                  .map((pool) => (
+                    <Skeleton
+                      key={pool.name}
+                      borderRadius="10px"
+                      fadeDuration={1}
+                      isLoaded={
+                        (farmStats &&
+                          allUserShareData.every((item) => item) &&
+                          !!farmDeposits?.[pool.farmName || ""] &&
+                          !!allRewards?.[pool.farmName || ""]) ||
+                        timeout
+                      }
+                    >
+                      <PoolOverview
+                        poolName={pool.name}
+                        poolRoute={pool.route}
+                        poolIcon={
+                          pool.name === STABLECOIN_POOL_V2_NAME
+                            ? stablesPoolIcon
+                            : pool.lpToken.icon
+                        }
+                        farmDeposit={
+                          farmDeposits?.[pool.farmName || ""] || Zero
+                        }
+                        farmTvl={farmStats?.[pool.farmName || ""]?.tvl}
+                        apr={{
+                          roseApr: farmStats?.[pool.farmName || ""]?.apr,
+                          dualRewardApr:
+                            farmStats?.[pool.farmName || ""]?.dualReward.apr,
+                          dualRewardTokenName:
+                            farmStats?.[pool.farmName || ""]?.dualReward.token,
+                        }}
+                        rewards={{
+                          rose: allRewards?.[pool.farmName || ""] || Zero,
+                          dual:
+                            pool.farmName === UST_METAPOOL_FARM_NAME
+                              ? allRewards?.["dualReward"] || Zero
+                              : Zero,
+                        }}
+                        {...getPoolData(pool.name)}
+                      />
+                    </Skeleton>
+                  ))}
+              </AnimatePresence>
+            </Stack>
+          </Stack>
         }
       />
     </PageWrapper>
@@ -490,6 +627,8 @@ interface PoolDashboardProps {
   totalTvl: BigNumber
   total24hVolume: BigNumber
   loading: boolean
+  allRewards: number
+  farmStats: { [key: string]: FarmStats } | undefined
 }
 
 const PoolDashboard = ({
@@ -499,49 +638,130 @@ const PoolDashboard = ({
   totalTvl,
   total24hVolume,
   loading,
+  allRewards,
+  farmStats,
 }: PoolDashboardProps): ReactElement => {
   return (
-    <Dashboard
-      dashboardName="Pools"
-      dashboardContent={
-        <StakeDetails
-          extraStakeDetailChild={
-            <Flex justifyContent="space-between" alignItems="center">
-              <FaChartPie
-                color="#cc3a59"
-                size="35px"
-                title="Total Share of Pools"
-              />
-              <Text
-                as="span"
-                fontSize={{ base: "24px", lg: "30px" }}
-                fontWeight="700"
-              >
-                {formatBNToPercentString(totalShare, 18, 5)}
-              </Text>
-            </Flex>
-          }
-          loading={loading}
-          balanceView={{
-            title: "LP Token Balances",
-            items: formattedBalances,
-          }}
-          stakedView={{
-            title: "Farm Deposits",
-            items: formattedDeposits,
-          }}
-          stats={[
-            {
-              statLabel: "Total Pool TVL",
-              statValue: `$${commify(formatBNToString(totalTvl, 18, 2))}`,
-            },
-            {
-              statLabel: "Total 24h Volume",
-              statValue: `$${commify(formatBNToString(total24hVolume, 18, 2))}`,
-            },
-          ]}
-        />
+    <StakeDetails
+      extraStakeDetailChild={
+        <Stack spacing={4}>
+          <Flex
+            justifyContent="space-between"
+            alignItems="center"
+            gap="15px"
+            py="5px"
+            px="15px"
+          >
+            <Text
+              fontWeight={700}
+              fontSize="30px"
+              color="#FCFCFD"
+              lineHeight="39px"
+            >
+              Dashboard
+            </Text>
+            <Box boxSize="30px">
+              <Image src={chartGraph} objectFit="cover" w="full" />
+            </Box>
+          </Flex>
+          <HStack spacing={4}>
+            <Box
+              bg="bgDark"
+              borderRadius="8px"
+              py="5px"
+              px="20px"
+              w="full"
+              h="115px"
+            >
+              <Stack>
+                <Text
+                  fontWeight={700}
+                  fontSize="15px"
+                  color="gray.200"
+                  lineHeight="39px"
+                  textAlign="left"
+                >
+                  Total Pool Share
+                </Text>
+                <Flex gap="10px" alignItems="center">
+                  <FaChartPie color="#EF4444" fontSize="25px" />
+                  <Text
+                    as="span"
+                    fontSize={{ base: "21px", lg: "24px" }}
+                    fontWeight={700}
+                  >
+                    {formatBNToPercentString(totalShare, 18, 2)}
+                  </Text>
+                </Flex>
+              </Stack>
+            </Box>
+            <Box
+              bg="bgDark"
+              borderRadius="8px"
+              py="5px"
+              px="20px"
+              w="full"
+              h="115px"
+            >
+              <Stack>
+                <Text
+                  fontWeight={700}
+                  fontSize="15px"
+                  color="gray.200"
+                  lineHeight="39px"
+                  textAlign="left"
+                >
+                  Total Rewards
+                </Text>
+                <Flex gap="10px" alignItems="center">
+                  <Box boxSize="25px">
+                    <Image src={rewardsGift} objectFit="cover" w="full" />
+                  </Box>
+                  <AnimatingNumber
+                    value={allRewards}
+                    precision={allRewards > 0 ? 3 : 1}
+                  />
+                </Flex>
+              </Stack>
+            </Box>
+          </HStack>
+        </Stack>
       }
+      loading={loading}
+      balanceView={{
+        title: "LP Token Balances",
+        items: formattedBalances,
+      }}
+      stakedView={{
+        title: "Farm Deposits",
+        items: formattedDeposits,
+      }}
+      stats={[
+        {
+          statLabel: "Total Pool TVL",
+          statValue: `$${commify(formatBNToString(totalTvl, 18, 2))}`,
+        },
+        {
+          statLabel: "Total 24h Volume",
+          statValue: `$${commify(formatBNToString(total24hVolume, 18, 2))}`,
+        },
+        {
+          statLabel: "Total Farm TVL",
+          statValue: `$${commify(
+            formatBNToString(
+              Object.values(farmStats || {})
+                ?.map((stat) => {
+                  return BigNumber.from(stat?.tvl || Zero)
+                })
+                .reduce((sum, tvl) => {
+                  return sum.add(tvl)
+                }, Zero),
+              18,
+              2,
+            ),
+          )}`,
+        },
+      ]}
     />
   )
 }
