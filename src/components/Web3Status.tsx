@@ -61,7 +61,7 @@ const Web3Status = (): ReactElement => {
             size: "lg",
             title: chainIdToName(chainId),
             marginRight: "10px",
-            w: "60px",
+            w: "55px",
             borderRadius: "20px",
             icon: <AuroraIcon />,
           }}
@@ -85,6 +85,8 @@ const Web3Status = (): ReactElement => {
         boxShadow="0px 5px 10px rgba(220, 51, 24, 0.5)"
         lineHeight="unset"
         size="lg"
+        w="fit-content"
+        fontSize={{ base: "13px", lg: "15px" }}
         fontWeight={700}
         p={padding}
         color={color}

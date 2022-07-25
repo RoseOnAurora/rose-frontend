@@ -32,7 +32,7 @@ export default function AdvancedOptions(): ReactElement {
   )
 
   return (
-    <Box p="15px">
+    <Box p="15px" overflow="hidden">
       <Stack spacing="20px">
         <Flex justifyContent="self-start" alignItems="center" gap="15px">
           <Switch
@@ -56,7 +56,12 @@ export default function AdvancedOptions(): ReactElement {
             </Text>
           </Tooltip>
         </Flex>
-        <Flex alignItems="center" justifyContent="space-between" gap="12px">
+        <Flex
+          flexDir={{ base: "column", lg: "row" }}
+          alignItems="center"
+          justifyContent="space-between"
+          gap="12px"
+        >
           <Flex alignItems="center" gap="12px">
             <Text
               color="gray.400"
@@ -106,7 +111,7 @@ export default function AdvancedOptions(): ReactElement {
           <InputGroup>
             <Input
               value={slippageCustom?.valueRaw}
-              w="100px"
+              w={{ base: "full", lg: "100px" }}
               type="text"
               variant="simple"
               placeholder="0.0"

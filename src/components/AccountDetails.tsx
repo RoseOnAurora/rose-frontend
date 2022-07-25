@@ -32,7 +32,7 @@ export default function AccountDetail({
   const { name, Icon } = find(SUPPORTED_WALLETS, ["connector", connector]) || {}
 
   return (
-    <Stack spacing="20px">
+    <Stack spacing="20px" overflow="hidden">
       <Grid
         alignItems="center"
         w="full"
@@ -101,7 +101,7 @@ export default function AccountDetail({
               disabled={!account}
               color="red.500"
               fontWeight={700}
-              fontSize="15px"
+              fontSize={{ base: "13px", lg: "15px" }}
               p="10px"
               variant="unstyled"
               display="flex"
@@ -121,7 +121,7 @@ export default function AccountDetail({
           <ChangeAccountButton
             color="inherit"
             fontWeight={700}
-            fontSize="15px"
+            fontSize={{ base: "13px", lg: "15px" }}
             p="10px"
             transition="ease-in-out 0.1s"
             onClick={openOptions}

@@ -78,8 +78,8 @@ const SwapTokenSelectModal = ({
         setSearchText("")
         setSelectedToken("")
       }}
-      blockScrollOnMount={false}
       isCentered
+      preserveScrollBarGap
     >
       <Stack spacing="30px">
         <InputGroup>

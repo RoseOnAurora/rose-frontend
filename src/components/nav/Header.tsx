@@ -1,4 +1,4 @@
-import { Box, Flex, Image } from "@chakra-ui/react"
+import { Box, Center, Flex, Image } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import { Link } from "react-router-dom"
 import MobileNavBar from "./MobileNavBar"
@@ -40,7 +40,7 @@ function Header({ activeTab }: Props): ReactElement {
         <Box w="35%" mx="auto" display={{ base: "none", lg: "flex" }}>
           <NavBar activeNavItem={activeTab} />
         </Box>
-        <Flex
+        <Center
           alignItems="center"
           bottom={0}
           left={0}
@@ -52,13 +52,14 @@ function Header({ activeTab }: Props): ReactElement {
           borderTopRightRadius={{ base: "15px", lg: 0 }}
           pos={{ base: "fixed", lg: "static" }}
           p={{ base: "10px", lg: 0 }}
+          overflow="hidden"
         >
           <RosePriceButton />
           <Web3Status />
           <Box display="none">
             <ThemeChanger />
           </Box>
-        </Flex>
+        </Center>
       </Flex>
     </Box>
   )

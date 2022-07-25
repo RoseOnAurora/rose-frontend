@@ -31,7 +31,7 @@ const CommonSwapBases = ({
               cursor="pointer"
               onClick={() => onSelect(base.symbol)}
             >
-              <Flex alignItems="center" gap="5px">
+              <Flex alignItems="center" gap="3px">
                 <Box boxSize="25px">
                   <Image src={base.icon} w="full" objectFit="cover" />
                 </Box>
