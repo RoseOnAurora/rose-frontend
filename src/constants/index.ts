@@ -27,6 +27,7 @@ import roseBusdLogo from "../assets/icons/rose-busd.svg"
 import roseFraxLogo from "../assets/icons/rose-frax.svg"
 import roseLogo from "../assets/icons/rose.svg"
 import roseMaiLogo from "../assets/icons/rose-mai.svg"
+import rusdLogo from "../assets/icons/rusd.svg"
 import sRoseLogo from "../assets/icons/srose.svg"
 import saddleLogo from "../assets/icons/logo_24.svg"
 import sbtcLogo from "../assets/icons/sbtc.svg"
@@ -1147,7 +1148,7 @@ export const RUSD = new Token(
   "RUSD",
   "tether", // to-do: update
   "RoseUSD",
-  roseLogo, // to-do: update
+  rusdLogo,
 )
 
 export const NEAR_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {

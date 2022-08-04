@@ -21,7 +21,11 @@ import {
 } from "@chakra-ui/react"
 import { ROSE, RUSD, SROSE, TRANSACTION_TYPES } from "../../constants"
 import React, { ReactElement, useState } from "react"
-import { RoseIconSmall, StRoseIconSmall } from "../../constants/icons"
+import {
+  RoseIconSmall,
+  RusdIconSmall,
+  StRoseIconSmall,
+} from "../../constants/icons"
 import { AppState } from "../../state"
 import { BsClock } from "react-icons/bs"
 import LineChart from "../LineChart"
@@ -414,7 +418,7 @@ export default function RosePriceButton(): ReactElement {
               stROSE
             </MenuItem>
             <MenuItem
-              icon={<RoseIconSmall w="5" h="5" />}
+              icon={<RusdIconSmall w="5" h="5" />}
               onClick={async () => await addRusdToken()}
               fontSize="13px"
               color="gray.200"

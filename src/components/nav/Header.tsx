@@ -52,7 +52,6 @@ function Header({ activeTab }: Props): ReactElement {
           borderTopRightRadius={{ base: "15px", lg: 0 }}
           pos={{ base: "fixed", lg: "static" }}
           p={{ base: "10px", lg: 0 }}
-          overflow="hidden"
         >
           <RosePriceButton />
           <Web3Status />
