@@ -440,7 +440,7 @@ function Pools(): ReactElement | null {
           />
         }
         right={
-          <Stack spacing="15px" ml={2}>
+          <Stack spacing="15px">
             <Stack spacing="50px">
               <OverviewInputFieldsWrapper
                 title="Pools"
@@ -668,7 +668,7 @@ const PoolDashboard = ({
             <Box
               bg="bgDark"
               borderRadius="8px"
-              py="5px"
+              py="15px"
               px="20px"
               w="full"
               h="115px"
@@ -676,9 +676,9 @@ const PoolDashboard = ({
               <Stack>
                 <Text
                   fontWeight={700}
-                  fontSize="15px"
+                  fontSize={{ base: "12px", md: "15px" }}
                   color="gray.200"
-                  lineHeight="39px"
+                  lineHeight="19px"
                   textAlign="left"
                 >
                   Total Pool Share
@@ -698,7 +698,7 @@ const PoolDashboard = ({
             <Box
               bg="bgDark"
               borderRadius="8px"
-              py="5px"
+              py="15px"
               px="20px"
               w="full"
               h="115px"
@@ -706,9 +706,9 @@ const PoolDashboard = ({
               <Stack>
                 <Text
                   fontWeight={700}
-                  fontSize="15px"
+                  fontSize={{ base: "12px", md: "15px" }}
                   color="gray.200"
-                  lineHeight="39px"
+                  lineHeight="19px"
                   textAlign="left"
                 >
                   Total Rewards

@@ -32,18 +32,18 @@ export default function AccountDetail({
   const { name, Icon } = find(SUPPORTED_WALLETS, ["connector", connector]) || {}
 
   return (
-    <Stack spacing="20px" overflow="hidden">
+    <Stack spacing="20px">
       <Grid
         alignItems="center"
         w="full"
         templateColumns="repeat(2, 1fr)"
         rowGap={1}
-        columnGap={6}
+        columnGap={5}
         whiteSpace="nowrap"
       >
         <GridItem>
           <Flex gap={1} alignItems="center">
-            <Text fontWeight={400} fontSize="14px" color="gray.400">
+            <Text fontWeight={400} fontSize="12px" color="gray.400">
               {t("connectedWith")}&nbsp;
               {name || "Unknown Wallet"}
             </Text>
@@ -51,7 +51,7 @@ export default function AccountDetail({
           </Flex>
         </GridItem>
         <GridItem>
-          <Text as="span" fontWeight={400} fontSize="14px" color="gray.400">
+          <Text as="span" fontWeight={400} fontSize="12px" color="gray.400">
             {t("balance")}
           </Text>
         </GridItem>
@@ -59,7 +59,7 @@ export default function AccountDetail({
           <Flex gap="8px" alignItems="center">
             <Identicon />
             <Flex gap="0px" alignItems="center">
-              <Text as="span" fontWeight={700} fontSize="17px" color="gray.50">
+              <Text as="span" fontWeight={700} fontSize="15px" color="gray.50">
                 {account && shortenAddress(account)}
               </Text>
               <IconButton
@@ -87,7 +87,7 @@ export default function AccountDetail({
             <Text
               as="span"
               fontWeight={700}
-              fontSize={{ base: "14px", md: "17px" }}
+              fontSize={{ base: "13px", md: "17px" }}
               color="gray.50"
             >
               {roseBalanceFormatted}
