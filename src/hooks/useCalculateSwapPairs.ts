@@ -145,7 +145,9 @@ function getTradingPairsForToken(
         type: thruStables
           ? SWAP_TYPES.META_TO_META
           : SWAP_TYPES.STABLES_TO_META,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         from: buildSwapSideData(originToken, metaSwapPool!),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         to: buildSwapSideData(token, metaSwapPool!),
         route: [originToken.symbol, token.symbol],
       }

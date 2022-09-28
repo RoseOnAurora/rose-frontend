@@ -66,7 +66,7 @@ const SwapTokenSelectModal = ({
         amountUSD: valueUSD,
         decimals,
       }))
-  }, [tokens, searchText])
+  }, [tokens, chainId, searchText])
 
   return (
     <ModalWrapper
