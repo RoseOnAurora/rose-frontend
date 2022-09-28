@@ -106,11 +106,11 @@ const InnerSwapForm = (
   // get the to and from tokens in USD
   const fromUSDValue = useMemo(
     () => calculatePrice(values.from, tokenPricesUSD?.[swapData.from.symbol]),
-    [fromToken, values.from, tokenPricesUSD],
+    [values.from, tokenPricesUSD, swapData.from.symbol],
   )
   const toUSDValue = useMemo(
     () => calculatePrice(values.to, tokenPricesUSD?.[swapData.to.symbol]),
-    [fromToken, values.to, tokenPricesUSD],
+    [values.to, tokenPricesUSD, swapData.to.symbol],
   )
 
   // handlers
@@ -120,7 +120,7 @@ const InnerSwapForm = (
       setModalTokenOptions(tokenOptions[option])
       onOpen()
     },
-    [tokenOptions],
+    [tokenOptions, onOpen],
   )
 
   // generically listen for input changes to calculate swap amount
@@ -138,7 +138,16 @@ const InnerSwapForm = (
       setFieldValue("to", toValue)
       setFieldValue("from", values.from)
     }
-  }, [swapData, values.from, isValidating, setFieldValue])
+  }, [
+    swapData,
+    values.from,
+    values.to,
+    errors.from,
+    toToken?.decimals,
+    isValidating,
+    t,
+    setFieldValue,
+  ])
 
   // UI loading animation
   useEffect(() => {

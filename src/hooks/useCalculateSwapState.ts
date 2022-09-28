@@ -56,6 +56,7 @@ const useCalculateSwapState = (): [
   )
 
   // handler for calculating swap amount for given from input
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const calculateSwapAmount = useCallback(
     debounce(async (fromAmount: string): Promise<void> => {
       if (swapState.swapType === SWAP_TYPES.INVALID) return
