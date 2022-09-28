@@ -94,7 +94,9 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
       maxBorrow.mul(borrowData.borrowFee).div(BigNumber.from(10).pow(18)),
     )
 
-    return maxBorrowAdj.gt(borrowData.totalRUSDLeftToBorrow)
+    return maxBorrowAdj.lte(Zero)
+      ? Zero
+      : maxBorrowAdj.gt(borrowData.totalRUSDLeftToBorrow)
       ? borrowData.totalRUSDLeftToBorrow
       : maxBorrowAdj
   }
@@ -189,12 +191,15 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   }
 
   const validateAmount = (amount: string, decimals: number): string | null => {
-    if (
-      amount &&
-      parseStringToBigNumber(amount, decimals > 18 ? 18 : decimals, Zero)
-        .isFallback
-    ) {
+    const { isFallback, value } = parseStringToBigNumber(
+      amount,
+      decimals > 18 ? 18 : decimals,
+      Zero,
+    )
+    if (amount && isFallback) {
       return t("Invalid number.")
+    } else if (amount && value.lte(Zero)) {
+      return t("Must be greater than zero.")
     }
     return null
   }
@@ -570,6 +575,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
                     color="#FCFCFD"
                     fontWeight={700}
                     lineHeight="39px"
+                    fontSize={{ base: "21px", md: "27px" }}
                   >
                     Position
                   </Heading>
@@ -580,7 +586,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
                     color="#EF4444"
                     title="Your Position Health"
                   />
-                  <Box width={170}>
+                  <Box width={{ base: 120, md: 170 }}>
                     <Progress
                       colorScheme={calculatePositionHealthColor(
                         positionHealth(),

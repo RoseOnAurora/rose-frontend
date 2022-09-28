@@ -18,15 +18,14 @@ const RewardInfo = ({ lpTokenName }: RewardInfoProps): ReactElement => {
         fontSize="15px"
         lineHeight="21px"
         textAlign="center"
+        pt="10px"
         px="25px"
-        pt="25px"
-        pb="10px"
       >
         <Highlight query={lpTokenName} styles={{ color: "gray.100" }}>
           {desc}
         </Highlight>
       </Text>
-      <Box pos="absolute" top="0px">
+      <Box pos="absolute" top="-20px">
         <Image src={rewardInfo} />
       </Box>
     </Center>

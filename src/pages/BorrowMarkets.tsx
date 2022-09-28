@@ -32,7 +32,6 @@ import {
   Flex,
   Grid,
   GridItem,
-  HStack,
   Image,
   Link,
   Progress,
@@ -59,7 +58,11 @@ import {
   FaUserLock,
 } from "react-icons/fa"
 import React, { ReactElement, useMemo, useState } from "react"
-import { calculatePositionHealthColor, formatBNToString } from "../utils"
+import {
+  calculatePositionHealthColor,
+  formatBNToString,
+  isAddress,
+} from "../utils"
 import useBorrowData, { BorrowDataType } from "../hooks/useBorrowData"
 import { useDispatch, useSelector } from "react-redux"
 import { AnimatePresence } from "framer-motion"
@@ -78,12 +81,13 @@ import borrowedIcon from "../assets/borrowed.svg"
 import chartGraph from "../assets/chart-graph.svg"
 import { commify } from "@ethersproject/units"
 import emptyListGraphic from "../assets/empty-list.svg"
+import { useActiveWeb3React } from "../hooks"
 import walletIcon from "../assets/wallet-icon.svg"
 
 function BorrowMarkets(): ReactElement {
   const dispatch = useDispatch<AppDispatch>()
-
   const { borrowPreferences } = useSelector((state: AppState) => state.user)
+  const { chainId } = useActiveWeb3React()
 
   const [sortDirection, setSortDirection] = useState(1)
   const [sortByField, setSortByField] = useState(borrowPreferences.sortField)
@@ -391,7 +395,7 @@ function BorrowMarkets(): ReactElement {
         </DrawerContent>
       </Drawer>
       <OverviewWrapper
-        templateColumns="33% 65%"
+        templateColumns="36% 62%"
         left={
           <BorrowDashboard
             totalRUSDBorrowed={totalRUSDBorrowed}
@@ -517,6 +521,13 @@ function BorrowMarkets(): ReactElement {
                   .filter((borrowMarket) =>
                     FILTER_FUNCTIONS[filterByField](borrowMarket),
                   )
+                  .filter(({ name, gardenAddresses }) => {
+                    const target = searchText.toLowerCase()
+                    if (isAddress(target) && chainId) {
+                      return gardenAddresses[chainId].toLowerCase() === target
+                    }
+                    return name.toLowerCase().includes(target)
+                  })
                   .sort((a, b) => {
                     return SORT_FUNCTIONS[sortByField](a, b)
                       ? sortDirection * -1
@@ -609,7 +620,11 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
               <Image src={chartGraph} objectFit="cover" w="full" />
             </Box>
           </Flex>
-          <HStack spacing="10px" alignItems="center">
+          <Stack
+            spacing="10px"
+            alignItems="center"
+            direction={{ base: "column", md: "row" }}
+          >
             <Box
               bg="bgDark"
               borderRadius="8px"
@@ -618,12 +633,12 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
               w="full"
               h="115px"
             >
-              <Stack>
+              <Stack pt={{ base: "15px", md: 0 }}>
                 <Text
                   fontWeight={700}
                   fontSize="15px"
                   color="gray.200"
-                  lineHeight="39px"
+                  lineHeight={{ base: "25px", md: "39px" }}
                   textAlign="left"
                 >
                   Total RUSD Borrowed
@@ -636,7 +651,7 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
                   <Box justifySelf="center" alignSelf="center">
                     <AnimatingNumber
                       value={totalRUSDBorrowed}
-                      precision={totalRUSDBorrowed > 0 ? 3 : 1}
+                      precision={totalRUSDBorrowed > 0 ? 2 : 1}
                     />
                   </Box>
                 </Flex>
@@ -650,12 +665,12 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
               w="full"
               h="115px"
             >
-              <Stack>
+              <Stack pt={{ base: "15px", md: 0 }}>
                 <Text
                   fontWeight={700}
                   fontSize="15px"
                   color="gray.200"
-                  lineHeight="39px"
+                  lineHeight={{ base: "25px", md: "39px" }}
                   textAlign="left"
                 >
                   Total RUSD Balance
@@ -670,7 +685,7 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
                       value={+commify(formatBNToString(rusdBalance, 18, 2))}
                       precision={
                         +commify(formatBNToString(rusdBalance, 18, 2)) > 0
-                          ? 3
+                          ? 2
                           : 1
                       }
                     />
@@ -678,7 +693,7 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
                 </Flex>
               </Stack>
             </Box>
-          </HStack>
+          </Stack>
           <Box bg="bgDark" borderRadius="8px" p="24px">
             <Grid gridTemplateRows="auto" rowGap="25px">
               <GridItem>

@@ -211,7 +211,21 @@ const PoolOverview = (props: Props): ReactElement => {
         ),
       },
     }
-  }, [poolName, balance, farmDeposit, isMetapool, t, tvl, volume, poolIcon])
+  }, [
+    poolName,
+    balance,
+    farmDeposit,
+    isMetapool,
+    t,
+    tvl,
+    volume,
+    poolIcon,
+    dualRewardApr,
+    dualRewardTokenName,
+    farmTvl,
+    rewards,
+    roseApr,
+  ])
 
   const { poolPreferences } = useSelector(
     (state: AppState) => state.user,

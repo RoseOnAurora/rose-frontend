@@ -51,7 +51,7 @@ const Renderer = ({
           <Text
             color="#FCFCFD"
             fontWeight={700}
-            fontSize="30px"
+            fontSize={{ base: "20px", md: "25px" }}
             lineHeight="39px"
             cursor="help"
           >
@@ -73,7 +73,7 @@ const Renderer = ({
         <Text
           color="#FCFCFD"
           fontWeight={700}
-          fontSize="30px"
+          fontSize={{ base: "20px", md: "25px" }}
           lineHeight="39px"
           as="span"
           cursor="help"

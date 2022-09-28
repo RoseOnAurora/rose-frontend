@@ -53,7 +53,11 @@ const StakeBalanceView = ({
   return (
     <Box bg="bgDark" borderRadius="8px" p="28px">
       <Box textAlign="left" mb="20px">
-        <Text fontSize="25px" fontWeight={700} lineHeight="30px">
+        <Text
+          fontSize={{ base: "18px", md: "25px" }}
+          fontWeight={700}
+          lineHeight="30px"
+        >
           {title}
         </Text>
       </Box>
@@ -67,8 +71,14 @@ const StakeBalanceView = ({
                 alignItems="center"
               >
                 <Flex alignItems="center" gap="5px">
-                  <Box boxSize="30px">
-                    <Image src={icon} objectFit="cover" w="full" />
+                  <Box
+                    width={
+                      /rose-|dai-usdt-usdc/.exec(icon || "")
+                        ? { base: "45px", md: "55px" }
+                        : { base: "20px", md: "30px" }
+                    }
+                  >
+                    <Image src={icon} objectFit="cover" w="100%" />
                   </Box>
                   <Text
                     fontSize="15px"

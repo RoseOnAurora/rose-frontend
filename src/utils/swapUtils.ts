@@ -2,7 +2,10 @@ import { RUSD, SWAP_TYPES } from "../constants"
 import { SwapTokenOption } from "../types/swap"
 import { shiftBNDecimals } from "."
 
-export const sortTokenOptions = (a: SwapTokenOption, b: SwapTokenOption) => {
+export const sortTokenOptions = (
+  a: SwapTokenOption,
+  b: SwapTokenOption,
+): 1 | -1 => {
   if (a.isAvailable !== b.isAvailable) {
     return a.isAvailable ? -1 : 1
   }

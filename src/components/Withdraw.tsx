@@ -195,7 +195,7 @@ function Withdraw({
     } catch {
       return []
     }
-  }, [withdrawFormState, POOL.poolTokens, userShareData?.tokens, poolName])
+  }, [withdrawFormState, POOL.poolTokens, userShareData?.tokens])
   // TO-DO: fix gas price calculation
   const gasAmount = BigNumber.from(0)
 

@@ -134,7 +134,7 @@ export default function RosePriceButton(): ReactElement {
           <MenuGroup title="ROSE TOKEN" color="gray.100">
             <MenuItem
               icon={
-                <Icon viewBox="0 0 125 99" fill="none">
+                <Icon w="1.5em" h="1.5em" viewBox="0 0 125 99" fill="none">
                   <g clipPath="url(#clip0)">
                     <path
                       d="M17.9456 95.4377C17.9456 87.5692 24.3639 81.1886 32.279 81.1886H42.1944C48.7998 81.1886 54.1389 86.5105 54.1389 93.0628C54.1389 96.339 51.4621 99 48.1666 99H21.5289C19.543 99 17.9456 97.412 17.9456 95.4377Z"
@@ -310,8 +310,8 @@ export default function RosePriceButton(): ReactElement {
             <MenuItem
               icon={
                 <Icon
-                  width="1em"
-                  height="1em"
+                  width="1.5em"
+                  height="1.5em"
                   fill="white"
                   fillRule="evenodd"
                   viewBox="0 0 252 300"
@@ -333,7 +333,12 @@ export default function RosePriceButton(): ReactElement {
             </MenuItem>
             <MenuItem
               icon={
-                <Icon viewBox="0 0 276 276" focusable="false">
+                <Icon
+                  w="1.5em"
+                  h="1.5em"
+                  viewBox="0 0 276 276"
+                  focusable="false"
+                >
                   <path
                     fill="#8dc63f"
                     d="M276,137.39A138,138,0,1,1,137.39,0h0A138,138,0,0,1,276,137.39Z"

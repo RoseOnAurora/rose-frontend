@@ -225,7 +225,7 @@ export function calculatePositionHealthColor(
     : "orange"
 }
 
-export function countDecimalPlaces(num: number | string) {
+export function countDecimalPlaces(num: number | string): number {
   const stringCast = `${num}`
   if (stringCast.includes(".")) {
     try {

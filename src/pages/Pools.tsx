@@ -12,6 +12,8 @@ import {
   POOL_SORT_FIELDS_TO_LABEL,
   Pool,
   PoolName,
+  ROSE_FRAX_NLP_FARM_NAME,
+  ROSE_PAD_NLP_FARM_NAME,
   RUSD_METAPOOL_NAME,
   STABLECOIN_POOL_V2_NAME,
   UST_METAPOOL_FARM_NAME,
@@ -19,6 +21,7 @@ import {
 } from "../constants"
 import {
   Box,
+  Collapse,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
@@ -27,7 +30,7 @@ import {
   Flex,
   Grid,
   GridItem,
-  HStack,
+  IconButton,
   Image,
   Skeleton,
   Stack,
@@ -69,8 +72,8 @@ import usePoolData, { PoolDataType, UserShareType } from "../hooks/usePoolData"
 import { AnimatePresence } from "framer-motion"
 import AnimatingNumber from "../components/AnimateNumber"
 import { BigNumber } from "@ethersproject/bignumber"
+import Farm from "../components/Farm"
 import { FarmStats } from "../utils/fetchFarmStats"
-import { Link } from "react-router-dom"
 import OverviewInfo from "../components/OverviewInfo"
 import OverviewInputFieldsWrapper from "../components/wrappers/OverviewInputFieldsWrapper"
 import OverviewSettingsContent from "../components/OverviewSettingsContent"
@@ -82,6 +85,8 @@ import { Zero } from "@ethersproject/constants"
 import chartGraph from "../assets/chart-graph.svg"
 import { commify } from "@ethersproject/units"
 import rewardsGift from "../assets/rewards-gift.svg"
+import roseFraxIcon from "../assets/icons/rose-frax.svg"
+import rosePadIcon from "../assets/icons/rose-pad.svg"
 import stablesPoolIcon from "../assets/icons/dai-usdt-usdc.svg"
 import { useActiveWeb3React } from "../hooks"
 import { useMultiCallEarnedRewards } from "../hooks/useMultiCallEarnedRewards"
@@ -158,7 +163,7 @@ function Pools(): ReactElement | null {
     farmDeposit: (a: Pool) =>
       (farmDeposits?.[a.farmName || ""] || Zero).gt(Zero),
     balance: (a: Pool) => getPoolData(a.name).balance.gt(Zero),
-    noFilter: (a: Pool) => (a ? true : false),
+    noFilter: (a: Pool) => a === a,
   }
 
   const onIconButtonClick = (isInfo: boolean): void => {
@@ -378,22 +383,7 @@ function Pools(): ReactElement | null {
                       },
                       {
                         icon: FaGift,
-                        text: (
-                          <>
-                            All farms can be found on our{" "}
-                            <Link
-                              to="/farms"
-                              style={{
-                                textDecoration: "underline",
-                                margin: 0,
-                                fontWeight: "bold",
-                              }}
-                            >
-                              farms page
-                            </Link>
-                            .
-                          </>
-                        ),
+                        text: "All farms can be found in each of their corresponding pool pages with the exception of the ROSE/PAD PLP & ROSE/FRAX PLP farms. Those can be found on this page under the external farms section.",
                       },
                     ],
                   },
@@ -426,7 +416,7 @@ function Pools(): ReactElement | null {
         </DrawerContent>
       </Drawer>
       <OverviewWrapper
-        templateColumns="30% 68%"
+        templateColumns="33% 65%"
         left={
           <PoolDashboard
             totalShare={totalShare}
@@ -549,12 +539,8 @@ function Pools(): ReactElement | null {
             <Stack spacing={6} maxH="600px" overflowY="auto">
               <AnimatePresence initial={false}>
                 {Object.values(POOLS_MAP)
-                  // temporarily hide Frax pool and UST pool while keeping its page enabled
-                  .filter(
-                    ({ name }) =>
-                      name !== FRAX_STABLES_LP_POOL_NAME &&
-                      name !== UST_METAPOOL_NAME,
-                  )
+                  // temporarily hide outdated Frax pool while keeping its page enabled
+                  .filter(({ name }) => name !== FRAX_STABLES_LP_POOL_NAME)
                   .filter((pool) => FILTER_FUNCTIONS[filterByField](pool))
                   .filter(({ name, addresses }) => {
                     const target = searchText.toLowerCase()
@@ -641,6 +627,7 @@ const PoolDashboard = ({
   allRewards,
   farmStats,
 }: PoolDashboardProps): ReactElement => {
+  const [externalFarm, setExternalFarm] = useState<"PAD" | "FRAX">("PAD")
   return (
     <StakeDetails
       extraStakeDetailChild={
@@ -664,7 +651,7 @@ const PoolDashboard = ({
               <Image src={chartGraph} objectFit="cover" w="full" />
             </Box>
           </Flex>
-          <HStack spacing={4}>
+          <Stack spacing={4} direction={{ base: "column", md: "row" }}>
             <Box
               bg="bgDark"
               borderRadius="8px"
@@ -673,7 +660,7 @@ const PoolDashboard = ({
               w="full"
               h="115px"
             >
-              <Stack>
+              <Stack pt={{ base: "5px", md: 0 }}>
                 <Text
                   fontWeight={700}
                   fontSize={{ base: "12px", md: "15px" }}
@@ -703,7 +690,7 @@ const PoolDashboard = ({
               w="full"
               h="115px"
             >
-              <Stack>
+              <Stack pt={{ base: "5px", md: 0 }}>
                 <Text
                   fontWeight={700}
                   fontSize={{ base: "12px", md: "15px" }}
@@ -719,12 +706,12 @@ const PoolDashboard = ({
                   </Box>
                   <AnimatingNumber
                     value={allRewards}
-                    precision={allRewards > 0 ? 3 : 1}
+                    precision={allRewards > 0 ? 2 : 1}
                   />
                 </Flex>
               </Stack>
             </Box>
-          </HStack>
+          </Stack>
         </Stack>
       }
       loading={loading}
@@ -762,6 +749,61 @@ const PoolDashboard = ({
           )}`,
         },
       ]}
+      bottom={
+        <Stack spacing={2} h="250px">
+          <Flex alignItems="center" justifyContent="space-between">
+            <Text
+              fontSize={{ base: "18px", md: "25px" }}
+              fontWeight={700}
+              lineHeight="30px"
+            >
+              External Farms
+            </Text>
+            <Flex alignItems="center" gap={3}>
+              <IconButton
+                aria-label="ROSE/PAD PLP Farm"
+                icon={
+                  <Box width={{ base: "35px", md: "45px" }}>
+                    <Image src={rosePadIcon} objectFit="cover" w="100%" />
+                  </Box>
+                }
+                p={3}
+                variant="outline"
+                borderRadius="md"
+                size="lg"
+                title="ROSE/PAD PLP Farm"
+                onClick={() => setExternalFarm("PAD")}
+              />
+              <IconButton
+                aria-label="ROSE/FRAX PLP Farm"
+                icon={
+                  <Box width={{ base: "35px", md: "45px" }}>
+                    <Image src={roseFraxIcon} objectFit="cover" w="100%" />
+                  </Box>
+                }
+                p={3}
+                variant="outline"
+                borderRadius="md"
+                size="lg"
+                title="ROSE/FRAX PLP Farm"
+                onClick={() => setExternalFarm("FRAX")}
+              />
+            </Flex>
+          </Flex>
+          <Collapse in={externalFarm === "PAD"} animateOpacity>
+            <Farm
+              farmName={ROSE_PAD_NLP_FARM_NAME}
+              farmDescription="ROSE/PAD PLP"
+            />
+          </Collapse>
+          <Collapse in={externalFarm === "FRAX"} animateOpacity>
+            <Farm
+              farmName={ROSE_FRAX_NLP_FARM_NAME}
+              farmDescription="ROSE/FRAX PLP"
+            />
+          </Collapse>
+        </Stack>
+      }
     />
   )
 }

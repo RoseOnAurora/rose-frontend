@@ -693,7 +693,7 @@ export const RUSD_LP_TOKEN = new Token(
   "RoseRUSDLP",
   "tether", // tracking tether: cannot fetch coingecko for LPs
   "Rose RUSD/Stables",
-  roseLogo,
+  rusdLogo,
   false,
   true,
 )
@@ -1466,7 +1466,7 @@ export type Pool = {
   addresses: { [chainId in ChainId]: string }
   type: PoolTypes
   route: string
-  farmName?: FarmName
+  farmName: FarmName
   migration?: PoolName
   metaSwapAddresses?: { [chainId in ChainId]: string }
   underlyingPoolTokens?: Token[]

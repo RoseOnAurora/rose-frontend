@@ -80,7 +80,7 @@ function Deposit({
     return Array.from(
       new Set(POOL.poolTokens.concat(POOL.underlyingPoolTokens || [])),
     )
-  }, [POOL.poolTokens, POOL.underlyingPoolTokens, poolName])
+  }, [POOL.poolTokens, POOL.underlyingPoolTokens])
   const [tokenFormState, updateTokenFormState] = useTokenFormState(allTokens)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -262,7 +262,6 @@ function Deposit({
         onClose={(): void => setIsOpen(false)}
         maxW="550px"
         preserveScrollBarGap
-        isCentered
       >
         <ReviewDeposit
           transactionData={depositTransaction}

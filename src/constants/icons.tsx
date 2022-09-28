@@ -63,7 +63,7 @@ export const RoseIconSmall = ({
   w = "6",
   h = "6",
   ...rest
-}: CustomIconProps) => (
+}: CustomIconProps): ReactElement => (
   <Icon w={w} h={h} {...rest} viewBox="21 15 22 22">
     <g filter="url(#filter0_d_15_3228)">
       <path
