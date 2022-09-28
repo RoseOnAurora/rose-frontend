@@ -22,6 +22,7 @@ import {
 } from "../state/user"
 import {
   Box,
+  Center,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
@@ -31,16 +32,22 @@ import {
   Flex,
   Grid,
   GridItem,
+  Image,
   Link,
   Progress,
   Skeleton,
   Stack,
   Text,
-  useColorModeValue,
   useDisclosure,
   useTimeout,
 } from "@chakra-ui/react"
-import { BsCurrencyDollar, BsSliders } from "react-icons/bs"
+import {
+  BsChevronDown,
+  BsChevronExpand,
+  BsChevronUp,
+  BsCurrencyDollar,
+  BsSliders,
+} from "react-icons/bs"
 import {
   FaFilter,
   FaGlassWhiskey,
@@ -49,31 +56,38 @@ import {
   FaLayerGroup,
   FaSortAmountUp,
   FaUserLock,
-  FaWallet,
 } from "react-icons/fa"
 import React, { ReactElement, useMemo, useState } from "react"
-import { calculatePositionHealthColor, formatBNToString } from "../utils"
+import {
+  calculatePositionHealthColor,
+  formatBNToString,
+  isAddress,
+} from "../utils"
 import useBorrowData, { BorrowDataType } from "../hooks/useBorrowData"
 import { useDispatch, useSelector } from "react-redux"
 import { AnimatePresence } from "framer-motion"
 import AnimatingNumber from "../components/AnimateNumber"
 import { BigNumber } from "@ethersproject/bignumber"
 import BorrowMarketsOverview from "../components/BorrowMarketsOverview"
-import Dashboard from "../components/Dashboard"
 import FormattedComponentName from "../components/FormattedComponentName"
 import OverviewInfo from "../components/OverviewInfo"
 import OverviewInputFieldsWrapper from "../components/wrappers/OverviewInputFieldsWrapper"
 import OverviewSettingsContent from "../components/OverviewSettingsContent"
 import OverviewWrapper from "../components/wrappers/OverviewWrapper"
 import PageWrapper from "../components/wrappers/PageWrapper"
-import StakeDetails from "../components/StakeDetails"
+import StakeDetails from "../components/stake/StakeDetails"
 import { Zero } from "@ethersproject/constants"
+import borrowedIcon from "../assets/borrowed.svg"
+import chartGraph from "../assets/chart-graph.svg"
 import { commify } from "@ethersproject/units"
+import emptyListGraphic from "../assets/empty-list.svg"
+import { useActiveWeb3React } from "../hooks"
+import walletIcon from "../assets/wallet-icon.svg"
 
 function BorrowMarkets(): ReactElement {
   const dispatch = useDispatch<AppDispatch>()
-
   const { borrowPreferences } = useSelector((state: AppState) => state.user)
+  const { chainId } = useActiveWeb3React()
 
   const [sortDirection, setSortDirection] = useState(1)
   const [sortByField, setSortByField] = useState(borrowPreferences.sortField)
@@ -82,6 +96,7 @@ function BorrowMarkets(): ReactElement {
   )
   const [timeout, setTimout] = useState(false)
   const [isInfo, setIsInfo] = useState(false)
+  const [searchText, setSearchText] = useState<string>("")
 
   const { isOpen, onOpen, onClose } = useDisclosure()
   const resetDashboardView = () => {
@@ -220,22 +235,25 @@ function BorrowMarkets(): ReactElement {
     )
   }
 
+  // borrow market fields
+  const fields: BorrowSortFields[] = Object.values(BorrowSortFields)
+    .filter((field) => {
+      return borrowPreferences.visibleFields[field] > 0
+    })
+    .map((field) => {
+      return field
+    })
+
   return (
-    <PageWrapper activeTab="borrow" maxW="1650px">
+    <PageWrapper maxW="1650px">
       <Drawer
         isOpen={isOpen}
         placement="right"
         onClose={resetDashboardView}
         size={isInfo ? "sm" : "md"}
       >
-        <DrawerOverlay />
-        <DrawerContent
-          bg={useColorModeValue(
-            "linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9)",
-            "linear-gradient(to right, #141414, #200122, #791038)",
-          )}
-          p="50px 10px"
-        >
+        <DrawerOverlay bg="blackAlpha.900" />
+        <DrawerContent bg="gray.900" p="50px 10px" boxShadow="lg">
           <DrawerCloseButton />
           <DrawerBody p="5px">
             {isInfo ? (
@@ -367,102 +385,18 @@ function BorrowMarkets(): ReactElement {
                 target="_blank"
                 rel="noreferrer"
               >
-                Go to Full How-to Guide<sup>↗</sup>
+                Go to Full How-to Guide
               </Link>
+              {/* <Box w="12px">
+                <Image src={arrowUpRight} w="full" objectFit="cover" />
+              </Box> */}
             </DrawerFooter>
           )}
         </DrawerContent>
       </Drawer>
       <OverviewWrapper
-        top={
-          <OverviewInputFieldsWrapper
-            sortDirection={sortDirection}
-            sortByField={sortByField}
-            sortFieldLabelMap={BORROW_SORT_FIELDS_TO_LABEL}
-            filterByField={filterByField}
-            filterFieldLabelMap={BORROW_FILTER_FIELDS_TO_LABEL}
-            handleSortDirection={setSortDirection}
-            handleClearFilter={() =>
-              setfilterByField(BorrowFilterFields.NO_FILTER)
-            }
-            handleUpdateSortField={(e) =>
-              setSortByField(e.target.value as BorrowSortFields)
-            }
-            handleUpdateFilterField={(e) =>
-              setfilterByField(e.target.value as BorrowFilterFields)
-            }
-            popOverContent={
-              <OverviewSettingsContent
-                sortFieldLabelMap={BORROW_SORT_FIELDS_TO_LABEL}
-                filterFieldLabelMap={BORROW_FILTER_FIELDS_TO_LABEL}
-                preferences={borrowPreferences}
-                updateVisibleFields={(e, field: string) =>
-                  dispatch(
-                    updateBorrowVisibleFieldPreferences({
-                      field: field as BorrowSortFields,
-                      value: +e.target.value * -1,
-                    }),
-                  )
-                }
-                updateFilterPreferences={(e) =>
-                  dispatch(
-                    updateBorrowFilterPreferences(
-                      e.target.value as BorrowFilterFields,
-                    ),
-                  )
-                }
-                updateSortPreferences={(e) =>
-                  dispatch(
-                    updateBorrowSortPreferences(
-                      e.target.value as BorrowSortFields,
-                    ),
-                  )
-                }
-              />
-            }
-            onIconClick={onIconButtonClick}
-          />
-        }
+        templateColumns="36% 62%"
         left={
-          <AnimatePresence>
-            {timeout || !loading
-              ? Object.values(BORROW_MARKET_MAP)
-                  .filter((borrowMarket) =>
-                    FILTER_FUNCTIONS[filterByField](borrowMarket),
-                  )
-                  .sort((a, b) => {
-                    return SORT_FUNCTIONS[sortByField](a, b)
-                      ? sortDirection * -1
-                      : sortDirection
-                  })
-                  .map((borrowMarket) => (
-                    <BorrowMarketsOverview
-                      key={borrowMarket.name}
-                      marketName={borrowMarket.name}
-                      borrowRoute={borrowMarket.route}
-                      tokenIcon={borrowMarket.collateralToken.icon}
-                      borrowed={marketsData[borrowMarket.name].borrowed || Zero}
-                      position={
-                        marketsData[borrowMarket.name]
-                          .collateralDepositedUSDPrice || Zero
-                      }
-                      rusdLeftToBorrow={
-                        marketsData[borrowMarket.name].totalRUSDLeftToBorrow ||
-                        Zero
-                      }
-                      tvl={marketsData[borrowMarket.name].tvl || Zero}
-                      interest={marketsData[borrowMarket.name].interest || Zero}
-                      fee={
-                        marketsData[borrowMarket.name].liquidationFee || Zero
-                      }
-                    />
-                  ))
-              : Object.keys(BORROW_MARKET_MAP).map((key) => (
-                  <Skeleton key={key} height="100px" borderRadius="10px" />
-                ))}
-          </AnimatePresence>
-        }
-        right={
           <BorrowDashboard
             totalRUSDBorrowed={totalRUSDBorrowed}
             rusdBalance={nearMarketData.rusdUserBalance}
@@ -473,6 +407,167 @@ function BorrowMarkets(): ReactElement {
             loading={loading}
             timeout={timeout}
           />
+        }
+        right={
+          <Stack spacing="15px" ml={2}>
+            <Stack spacing="15px">
+              <OverviewInputFieldsWrapper
+                title="Markets"
+                sortDirection={sortDirection}
+                sortByField={sortByField}
+                sortFieldLabelMap={BORROW_SORT_FIELDS_TO_LABEL}
+                filterByField={filterByField}
+                filterFieldLabelMap={BORROW_FILTER_FIELDS_TO_LABEL}
+                searchText={searchText}
+                handleSortDirection={setSortDirection}
+                handleClearFilter={() => {
+                  setfilterByField(BorrowFilterFields.NO_FILTER)
+                  setSearchText("")
+                }}
+                handleUpdateSortField={(e) =>
+                  setSortByField(e.target.value as BorrowSortFields)
+                }
+                handleUpdateFilterField={(e) =>
+                  setfilterByField(e.target.value as BorrowFilterFields)
+                }
+                onUpdateFilterText={setSearchText}
+                popOverContent={
+                  <OverviewSettingsContent
+                    sortFieldLabelMap={BORROW_SORT_FIELDS_TO_LABEL}
+                    filterFieldLabelMap={BORROW_FILTER_FIELDS_TO_LABEL}
+                    preferences={borrowPreferences}
+                    updateVisibleFields={(e, field: string) =>
+                      dispatch(
+                        updateBorrowVisibleFieldPreferences({
+                          field: field as BorrowSortFields,
+                          value: +e.target.value * -1,
+                        }),
+                      )
+                    }
+                    updateFilterPreferences={(e) =>
+                      dispatch(
+                        updateBorrowFilterPreferences(
+                          e.target.value as BorrowFilterFields,
+                        ),
+                      )
+                    }
+                    updateSortPreferences={(e) =>
+                      dispatch(
+                        updateBorrowSortPreferences(
+                          e.target.value as BorrowSortFields,
+                        ),
+                      )
+                    }
+                  />
+                }
+                onIconClick={onIconButtonClick}
+              />
+              <Grid
+                templateColumns={{
+                  base: `repeat(${fields.length < 3 ? fields.length : 3}, 1fr)`,
+                  md: `repeat(${fields.length}, 1fr)`,
+                }}
+                columnGap={6}
+                alignItems="baseline"
+                py="15px"
+                px="10px"
+                color="gray.300"
+                display={{ base: "none", lg: "grid" }}
+              >
+                {fields.map((field, index) => (
+                  <GridItem key={index}>
+                    <Flex alignItems="center" gap="3px">
+                      <Text fontSize="14px">
+                        {BORROW_SORT_FIELDS_TO_LABEL[field]}
+                      </Text>
+                      {field === sortByField ? (
+                        sortDirection > 0 ? (
+                          <BsChevronUp
+                            onClick={() => {
+                              setSortByField(field)
+                              setSortDirection((prev) => prev * -1)
+                            }}
+                            cursor="pointer"
+                            color="#8B5CF6"
+                          />
+                        ) : (
+                          <BsChevronDown
+                            onClick={() => {
+                              setSortByField(field)
+                              setSortDirection((prev) => prev * -1)
+                            }}
+                            cursor="pointer"
+                            color="#8B5CF6"
+                          />
+                        )
+                      ) : (
+                        <BsChevronExpand
+                          onClick={() => {
+                            setSortByField(field)
+                            setSortDirection((prev) => prev * -1)
+                          }}
+                          cursor="pointer"
+                          color="#6B7280"
+                        />
+                      )}
+                    </Flex>
+                  </GridItem>
+                ))}
+              </Grid>
+            </Stack>
+            <Stack spacing={6} maxH="600px" overflowY="auto">
+              <AnimatePresence initial={false}>
+                {Object.values(BORROW_MARKET_MAP)
+                  .filter((borrowMarket) =>
+                    FILTER_FUNCTIONS[filterByField](borrowMarket),
+                  )
+                  .filter(({ name, gardenAddresses }) => {
+                    const target = searchText.toLowerCase()
+                    if (isAddress(target) && chainId) {
+                      return gardenAddresses[chainId].toLowerCase() === target
+                    }
+                    return name.toLowerCase().includes(target)
+                  })
+                  .sort((a, b) => {
+                    return SORT_FUNCTIONS[sortByField](a, b)
+                      ? sortDirection * -1
+                      : sortDirection
+                  })
+                  .map((borrowMarket) => (
+                    <Skeleton
+                      key={borrowMarket.name}
+                      borderRadius="10px"
+                      fadeDuration={1}
+                      isLoaded={timeout || !loading}
+                    >
+                      <BorrowMarketsOverview
+                        marketName={borrowMarket.name}
+                        borrowRoute={borrowMarket.route}
+                        tokenIcon={borrowMarket.collateralToken.icon}
+                        borrowed={
+                          marketsData[borrowMarket.name].borrowed || Zero
+                        }
+                        position={
+                          marketsData[borrowMarket.name]
+                            .collateralDepositedUSDPrice || Zero
+                        }
+                        rusdLeftToBorrow={
+                          marketsData[borrowMarket.name]
+                            .totalRUSDLeftToBorrow || Zero
+                        }
+                        tvl={marketsData[borrowMarket.name].tvl || Zero}
+                        interest={
+                          marketsData[borrowMarket.name].interest || Zero
+                        }
+                        fee={
+                          marketsData[borrowMarket.name].liquidationFee || Zero
+                        }
+                      />
+                    </Skeleton>
+                  ))}
+              </AnimatePresence>
+            </Stack>
+          </Stack>
         }
       />
     </PageWrapper>
@@ -501,92 +596,105 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
     loading,
     timeout,
   } = props
-  const positionTextColorSafe = useColorModeValue("green.500", "green.200")
-  const positionTextColorMod = useColorModeValue("orange.500", "orange.200")
-  const positionTextColorHigh = useColorModeValue("red.500", "red.200")
+
   return (
-    <Dashboard
-      dashboardName="Borrow Markets"
-      dashboardContent={
-        <StakeDetails
-          extraStakeDetailChild={
-            <Flex
-              justifyContent="space-between"
-              alignItems="baseline"
-              gridGap="15px"
-              flexDirection={{ base: "column", xl: "row" }}
+    <StakeDetails
+      extraStakeDetailChild={
+        <Stack spacing={4}>
+          <Flex
+            justifyContent="space-between"
+            alignItems="center"
+            gap="15px"
+            py="5px"
+            px="15px"
+          >
+            <Text
+              fontWeight={700}
+              fontSize="30px"
+              color="#FCFCFD"
+              lineHeight="39px"
             >
-              <Stack
-                spacing="30px"
-                w="100%"
-                alignItems="center"
-                bg="var(--secondary-background)"
-                justifyContent="baseline"
-                p="20px"
-                borderRadius="15px"
-                boxShadow="0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)"
-              >
-                <Stack spacing="10px" alignItems="center">
-                  <Text
-                    textAlign="center"
-                    fontSize="16px"
-                    as="h3"
-                    color="var(--text-lighter)"
-                    fontWeight={600}
-                  >
-                    Your Total RUSD Borrowed
-                  </Text>
-                  <FaHandHoldingUsd
-                    color="#cc3a59"
-                    size="40px"
-                    title="Total RUSD Borrowed"
-                  />
-                </Stack>
-                <Box justifySelf="center" alignSelf="center">
-                  <AnimatingNumber
-                    value={totalRUSDBorrowed}
-                    precision={totalRUSDBorrowed > 0 ? 3 : 1}
-                  />
-                </Box>
+              Dashboard
+            </Text>
+            <Box boxSize="30px">
+              <Image src={chartGraph} objectFit="cover" w="full" />
+            </Box>
+          </Flex>
+          <Stack
+            spacing="10px"
+            alignItems="center"
+            direction={{ base: "column", md: "row" }}
+          >
+            <Box
+              bg="bgDark"
+              borderRadius="8px"
+              py="5px"
+              px="20px"
+              w="full"
+              h="115px"
+            >
+              <Stack pt={{ base: "15px", md: 0 }}>
+                <Text
+                  fontWeight={700}
+                  fontSize="15px"
+                  color="gray.200"
+                  lineHeight={{ base: "25px", md: "39px" }}
+                  textAlign="left"
+                >
+                  Total RUSD Borrowed
+                </Text>
+
+                <Flex gap="10px" alignItems="center">
+                  <Box boxSize="25px">
+                    <Image src={borrowedIcon} w="full" objectFit="cover" />
+                  </Box>
+                  <Box justifySelf="center" alignSelf="center">
+                    <AnimatingNumber
+                      value={totalRUSDBorrowed}
+                      precision={totalRUSDBorrowed > 0 ? 2 : 1}
+                    />
+                  </Box>
+                </Flex>
               </Stack>
-              <Stack
-                spacing="30px"
-                alignItems="center"
-                w="100%"
-                bg="var(--secondary-background)"
-                justifyContent="baseline"
-                p="20px"
-                borderRadius="15px"
-                boxShadow="0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)"
-              >
-                <Stack spacing="10px" alignItems="center">
-                  <Text
-                    textAlign="center"
-                    fontSize="16px"
-                    as="h3"
-                    color="var(--text-lighter)"
-                    fontWeight={600}
-                  >
-                    Your Total RUSD Balance
-                  </Text>
-                  <FaWallet
-                    color="#cc3a59"
-                    size="40px"
-                    title="RUSD Balance in your Wallet"
-                  />
-                </Stack>
-                <Box justifySelf="center" alignSelf="center">
-                  <AnimatingNumber
-                    value={+commify(formatBNToString(rusdBalance, 18, 2))}
-                    precision={
-                      +commify(formatBNToString(rusdBalance, 18, 2)) > 0 ? 3 : 1
-                    }
-                  />
-                </Box>
+            </Box>
+            <Box
+              bg="bgDark"
+              borderRadius="8px"
+              py="5px"
+              px="20px"
+              w="full"
+              h="115px"
+            >
+              <Stack pt={{ base: "15px", md: 0 }}>
+                <Text
+                  fontWeight={700}
+                  fontSize="15px"
+                  color="gray.200"
+                  lineHeight={{ base: "25px", md: "39px" }}
+                  textAlign="left"
+                >
+                  Total RUSD Balance
+                </Text>
+
+                <Flex gap="10px" alignItems="center">
+                  <Box boxSize="25px">
+                    <Image src={walletIcon} w="full" objectFit="cover" />
+                  </Box>
+                  <Box justifySelf="center" alignSelf="center">
+                    <AnimatingNumber
+                      value={+commify(formatBNToString(rusdBalance, 18, 2))}
+                      precision={
+                        +commify(formatBNToString(rusdBalance, 18, 2)) > 0
+                          ? 2
+                          : 1
+                      }
+                    />
+                  </Box>
+                </Flex>
               </Stack>
-            </Flex>
-          }
-          bottom={
+            </Box>
+          </Stack>
+          <Box bg="bgDark" borderRadius="8px" p="24px">
             <Grid gridTemplateRows="auto" rowGap="25px">
               <GridItem>
                 <Text fontWeight={700} lineHeight="30px" fontSize="25px">
@@ -620,10 +728,10 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
                           )
                           const textColor =
                             barColor === "red"
-                              ? positionTextColorHigh
+                              ? "red.400"
                               : barColor === "green"
-                              ? positionTextColorSafe
-                              : positionTextColorMod
+                              ? "green.400"
+                              : "orange.400"
 
                           // return sorted grid items
                           return (
@@ -661,30 +769,44 @@ const BorrowDashboard = (props: BorrowDashboardProps): ReactElement => {
                         })}
                   </Grid>
                 ) : (
-                  <Text textAlign="center" color="var(--text-lighter)">
-                    Your position health will appear here.
-                  </Text>
+                  <Center w="full" isolation="isolate" pos="relative">
+                    <Text
+                      zIndex={2}
+                      color="gray.200"
+                      fontWeight={500}
+                      fontSize="16px"
+                      lineHeight="16px"
+                      textAlign="center"
+                      pt="28px"
+                      pb="14px"
+                    >
+                      Your position health will appear here.
+                    </Text>
+                    <Box pos="absolute" top="0px" opacity={0.6}>
+                      <Image src={emptyListGraphic} />
+                    </Box>
+                  </Center>
                 )}
               </GridItem>
             </Grid>
-          }
-          loading={!timeout && loading}
-          balanceView={{
-            title: "Your RUSD Borrowed",
-            items: rusdBorrowedFormatted,
-          }}
-          stakedView={{
-            title: "Your Collateral Deposited",
-            items: collateralDepositedUSD,
-          }}
-          stats={[
-            {
-              statLabel: "Total Borrow TVL",
-              statValue: `$${commify(formatBNToString(totalTvl, 18, 2))}`,
-            },
-          ]}
-        />
+          </Box>
+        </Stack>
       }
+      loading={!timeout && loading}
+      balanceView={{
+        title: "Your RUSD Borrowed",
+        items: rusdBorrowedFormatted,
+      }}
+      stakedView={{
+        title: "Your Collateral Deposited",
+        items: collateralDepositedUSD,
+      }}
+      stats={[
+        {
+          statLabel: "Total Borrow TVL",
+          statValue: `$${commify(formatBNToString(totalTvl, 18, 2))}`,
+        },
+      ]}
     />
   )
 }

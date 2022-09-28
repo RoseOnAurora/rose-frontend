@@ -1,8 +1,3 @@
-// TODO: create types
-/* eslint @typescript-eslint/no-unsafe-member-access: 0 */
-/* eslint @typescript-eslint/no-unsafe-call: 0 */
-/* eslint @typescript-eslint/no-unsafe-assignment: 0 */
-/* eslint @typescript-eslint/no-explicit-any: 0 */
 import {
   Box,
   Button,
@@ -11,22 +6,21 @@ import {
   FormErrorMessage,
   FormHelperText,
   FormLabel,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  InputRightElement,
   Stack,
   Text,
 } from "@chakra-ui/react"
-import { Field, FieldAttributes, Form, Formik } from "formik"
+import { Field, FieldProps, Form, Formik } from "formik"
 import React, { ReactElement, ReactNode } from "react"
+import ApprovalInfo from "./ApprovalInfo"
 import { BigNumber } from "@ethersproject/bignumber"
 import BorrowAdvancedOptions from "./BorrowAdvancedOptions"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { CookAction } from "../hooks/useCook"
 import FormTitle from "./FormTitleOptions"
 import FormWrapper from "./wrappers/FormWrapper"
+import MaxFromBalance from "./input/MaxFromBalance"
 import SafetyTag from "./SafetyTag"
+import SingleTokenInput from "./input/SingleTokenInput"
 import { TransactionType } from "../hooks/useChakraToast"
 import { formatBNToString } from "../utils"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
@@ -36,6 +30,7 @@ export interface RepayFormTokenDetails {
   symbol: string
   icon: string
   decimals: number
+  name: string
 }
 
 interface Props {
@@ -176,19 +171,22 @@ const RepayForm = (props: Props): ReactElement => {
         {(props) => (
           <Form onSubmit={props.handleSubmit}>
             <Field name="borrow">
-              {({ field, form }: FieldAttributes<any>) => (
+              {({
+                field,
+                form,
+                meta,
+              }: FieldProps<string, { [key: string]: string }>) => (
                 <FormControl
-                  padding="15px"
-                  mt="15px"
-                  bgColor="var(--secondary-background)"
+                  padding="10px"
                   borderRadius="10px"
-                  isInvalid={form.errors?.borrow}
+                  isInvalid={!!meta.error}
                 >
                   <Flex
                     justifyContent="space-between"
                     alignItems="baseline"
                     gridColumnGap="25px"
                     flexWrap={{ base: "wrap", md: "nowrap" }}
+                    mb="20px"
                   >
                     <FormLabel
                       fontSize="18px"
@@ -206,7 +204,7 @@ const RepayForm = (props: Props): ReactElement => {
                         alignItems="center"
                       >
                         <Text
-                          color="var(--text-lighter)"
+                          color="gray.300"
                           fontSize={{ base: "13px", lg: "16px" }}
                         >
                           Expected Liquidation Price:
@@ -227,7 +225,7 @@ const RepayForm = (props: Props): ReactElement => {
                         alignItems="center"
                       >
                         <Text
-                          color="var(--text-lighter)"
+                          color="gray.300"
                           fontSize={{ base: "13px", lg: "16px" }}
                         >
                           Expected Position Health:
@@ -248,7 +246,7 @@ const RepayForm = (props: Props): ReactElement => {
                         alignItems="center"
                       >
                         <Text
-                          color="var(--text-lighter)"
+                          color="gray.300"
                           fontSize={{ base: "13px", lg: "16px" }}
                         >
                           Expected Risk:
@@ -266,41 +264,29 @@ const RepayForm = (props: Props): ReactElement => {
                       </Flex>
                     </Stack>
                   </Flex>
-                  <InputGroup mt="25px">
-                    <InputLeftElement
-                      pointerEvents="none"
-                      color="gray.300"
-                      fontSize="2em"
-                      marginLeft="5px"
-                    >
-                      <img src={borrowToken.icon} alt="tokenIcon" />
-                    </InputLeftElement>
-                    <Input
-                      {...field}
-                      paddingLeft="60px"
-                      autoComplete="off"
-                      autoCorrect="off"
-                      type="text"
-                      isInvalid={form.errors?.borrow}
-                      placeholder="0.0"
-                      variant="primary"
+                  <Flex justifyContent="flex-end" alignItems="center">
+                    <MaxFromBalance
+                      max={max}
+                      onClickMax={() => {
+                        props.setFieldTouched("borrow", true)
+                        props.setFieldValue("borrow", max)
+                        props.setFieldValue("collateral", "")
+                      }}
                     />
-                    <InputRightElement width="6rem" padding="10px">
-                      <Button
-                        variant="light"
-                        size="sm"
-                        onClick={() => {
-                          props.setFieldTouched("borrow", true)
-                          props.setFieldValue("borrow", max)
-                          props.setFieldValue("collateral", "")
-                        }}
-                      >
-                        {t("max")}
-                      </Button>
-                    </InputRightElement>
-                  </InputGroup>
+                  </Flex>
+                  <SingleTokenInput
+                    inputValue={meta.value}
+                    fieldProps={field}
+                    isInvalid={!!meta.error}
+                    token={{
+                      name: borrowToken.name,
+                      symbol: borrowToken.symbol,
+                      icon: borrowToken.icon,
+                    }}
+                    onChangeInput={field.onChange}
+                  />
                   {form.errors?.borrow ? (
-                    <FormErrorMessage color="#cc3a59">
+                    <FormErrorMessage color="red.600">
                       {form.errors?.borrow}
                     </FormErrorMessage>
                   ) : (
@@ -316,56 +302,55 @@ const RepayForm = (props: Props): ReactElement => {
               )}
             </Field>
             <Field name="collateral">
-              {({ field, form }: FieldAttributes<any>) => (
+              {({
+                field,
+                form,
+                meta,
+              }: FieldProps<string, { [key: string]: string }>) => (
                 <FormControl
                   padding="10px"
-                  mt="15px"
-                  bgColor="var(--secondary-background)"
                   borderRadius="10px"
-                  isInvalid={form.errors?.collateral}
+                  isInvalid={!!meta.error}
                 >
-                  <FormLabel fontSize="18px" fontWeight={700} htmlFor="amount">
-                    Withdraw Collateral
-                  </FormLabel>
-                  <InputGroup mt="25px">
-                    <InputLeftElement
-                      pointerEvents="none"
-                      color="gray.300"
-                      fontSize="2em"
-                      marginLeft="5px"
+                  <Flex justifyContent="space-between" alignItems="flex-end">
+                    <FormLabel
+                      fontSize="18px"
+                      fontWeight={700}
+                      htmlFor="amount"
                     >
-                      <img src={collateralToken.icon} alt="tokenIcon" />
-                    </InputLeftElement>
-                    <Input
-                      {...field}
-                      paddingLeft="60px"
-                      autoComplete="off"
-                      autoCorrect="off"
-                      type="text"
-                      isInvalid={form.errors?.collateral}
-                      placeholder="0.0"
-                      variant="primary"
+                      Withdraw Collateral
+                    </FormLabel>
+                    <MaxFromBalance
+                      max={formatBNToString(
+                        getMaxWithdraw(props.values.borrow),
+                        18,
+                        3,
+                      )}
+                      onClickMax={() => {
+                        const withdrawMax = formatBNToString(
+                          getMaxWithdraw(props.values.borrow),
+                          18,
+                          collateralToken.decimals,
+                        )
+                        props.setFieldTouched("collateral", true)
+                        props.setFieldValue("collateral", withdrawMax)
+                      }}
+                      label={t("max")}
                     />
-                    <InputRightElement width="6rem" padding="10px">
-                      <Button
-                        variant="light"
-                        size="sm"
-                        onClick={() => {
-                          const withdrawMax = formatBNToString(
-                            getMaxWithdraw(props.values.borrow),
-                            18,
-                            collateralToken.decimals,
-                          )
-                          props.setFieldTouched("collateral", true)
-                          props.setFieldValue("collateral", withdrawMax)
-                        }}
-                      >
-                        {t("max")}
-                      </Button>
-                    </InputRightElement>
-                  </InputGroup>
-                  {form.errors?.collateral ? (
-                    <FormErrorMessage color="#cc3a59">
+                  </Flex>
+                  <SingleTokenInput
+                    inputValue={meta.value}
+                    fieldProps={field}
+                    isInvalid={!!meta.error}
+                    token={{
+                      name: collateralToken.name,
+                      symbol: collateralToken.symbol,
+                      icon: collateralToken.icon,
+                    }}
+                    onChangeInput={field.onChange}
+                  />
+                  {meta.error ? (
+                    <FormErrorMessage color="red.600">
                       {form.errors?.collateral}
                     </FormErrorMessage>
                   ) : (
@@ -381,19 +366,13 @@ const RepayForm = (props: Props): ReactElement => {
                 </FormControl>
               )}
             </Field>
-            <Flex
-              mt="20px"
-              alignItems="center"
-              justifyContent="center"
-              flexDirection="column"
-              bg="var(--secondary-background)"
-              border="1px solid var(--outline)"
+            <Stack
+              spacing={5}
               borderRadius="10px"
-              padding="10px"
+              py="15px"
+              px={{ base: "5px", md: "15px" }}
             >
               <Button
-                variant="primary"
-                size="lg"
                 width="100%"
                 type="submit"
                 fontSize={{ base: "12px", sm: "16px" }}
@@ -411,17 +390,8 @@ const RepayForm = (props: Props): ReactElement => {
                   TransactionType.REPAY,
                 )}
               </Button>
-              <Text
-                as="p"
-                p="20px 0 10px"
-                textAlign="center"
-                color="var(--text-lighter)"
-                fontSize="14px"
-              >
-                Note: The &quot;Approve&quot; transaction is only needed the
-                first time; subsequent actions will not require approval.
-              </Text>
-            </Flex>
+              <ApprovalInfo />
+            </Stack>
           </Form>
         )}
       </Formik>

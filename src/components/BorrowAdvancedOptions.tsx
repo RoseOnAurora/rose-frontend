@@ -21,12 +21,13 @@ export default function BorrowAdvancedOptions(): ReactElement {
           isChecked={infiniteApproval}
           onChange={() => dispatch(updateInfiniteApproval(!infiniteApproval))}
         >
-          <Tooltip
-            bgColor="#cc3a59"
-            closeOnClick={false}
-            label={t("infiniteApprovalTooltip")}
-          >
-            <Text borderBottom="1px dotted var(--text)" cursor="help">
+          <Tooltip closeOnClick={false} label={t("infiniteApprovalTooltip")}>
+            <Text
+              borderBottom="1px dotted"
+              borderBottomColor="gray.100"
+              cursor="help"
+              color="gray.200"
+            >
               {t("infiniteApproval")}
             </Text>
           </Tooltip>
@@ -38,11 +39,15 @@ export default function BorrowAdvancedOptions(): ReactElement {
           onChange={() => dispatch(updatePriceFromOracle(!priceFromOracle))}
         >
           <Tooltip
-            bgColor="#cc3a59"
             closeOnClick={false}
             label="Update collateral price from the Oracle for a small gas fee!"
           >
-            <Text borderBottom="1px dotted var(--text)" cursor="help">
+            <Text
+              borderBottom="1px dotted"
+              borderBottomColor="gray.100"
+              cursor="help"
+              color="gray.200"
+            >
               Update price
             </Text>
           </Tooltip>

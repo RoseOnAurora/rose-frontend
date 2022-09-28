@@ -1,4 +1,4 @@
-import { Box, Grid, GridItem } from "@chakra-ui/react"
+import { Box, BoxProps, Grid, GridItem } from "@chakra-ui/react"
 import React, { ReactElement, ReactNode } from "react"
 
 interface Props {
@@ -6,6 +6,7 @@ interface Props {
   right: ReactNode
   top?: ReactNode
   bottom?: ReactNode
+  templateColumns?: string
 }
 
 const ComponentWrapper = ({
@@ -13,19 +14,18 @@ const ComponentWrapper = ({
   left,
   right,
   bottom,
+  templateColumns,
 }: Props): ReactElement => {
-  const defaultBoxProps = {
-    bg: "var(--background-element)",
-    boxShadow: "var(--shadow)",
-    border: "1px solid var(--outline)",
-    borderRadius: "10px",
-    p: "10px",
+  const defaultBoxProps: BoxProps = {
+    bg: "gray.900",
+    borderRadius: "20px",
+    p: { base: "15px", md: "28px" },
   }
   return (
     <Grid
-      gridTemplateColumns="52% 44%"
+      gridTemplateColumns={templateColumns || "42% 54%"}
       gridTemplateRows="auto"
-      gap="10px"
+      gap="30px"
       justifyContent="center"
     >
       {top && <GridItem colSpan={2}>{top}</GridItem>}

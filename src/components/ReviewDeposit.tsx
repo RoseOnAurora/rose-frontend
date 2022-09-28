@@ -1,12 +1,19 @@
-import "./ReviewDeposit.scss"
-
+import {
+  Button,
+  ButtonGroup,
+  Center,
+  Divider,
+  Flex,
+  Stack,
+  Text,
+} from "@chakra-ui/react"
 import React, { ReactElement, useState } from "react"
 import { commify, formatBNToPercentString, formatBNToString } from "../utils"
-
 import { AppState } from "../state/index"
-import Button from "./Button"
-import { DepositTransaction } from "../interfaces/transactions"
+import { DepositTransaction } from "../types/transactions"
 import HighPriceImpactConfirmation from "./HighPriceImpactConfirmation"
+import ReviewInfoItem from "./ReviewInfoItem"
+import ReviewItem from "./ReviewItem"
 import { formatGasToString } from "../utils/gas"
 import { formatSlippageToString } from "../utils/slippage"
 import { isHighPriceImpact } from "../utils/priceImpact"
@@ -35,111 +42,97 @@ function ReviewDeposit({
   const isHighPriceImpactTxn = isHighPriceImpact(transactionData.priceImpact)
 
   return (
-    <div className="reviewDeposit">
-      <h3>{t("reviewDeposit")}</h3>
-      <div className="table">
-        <h4>{t("depositing")}</h4>
-        <div>
+    <Stack p="10px">
+      <Stack spacing={3}>
+        <Text fontSize="18px" color="gray.100" fontWeight={700}>
+          {t("depositing")}
+        </Text>
+        <Stack spacing={2}>
           {transactionData.from.items.map(({ token, amount }) => (
-            <div className="eachToken" key={token.symbol}>
-              <div className="token">
-                <img src={token.icon} alt="icon" />
-                <span>{token.symbol}</span>
-              </div>
-              <div className="value">
-                <span className="value">
-                  {commify(formatBNToString(amount, token.decimals))}
-                </span>
-              </div>
-            </div>
+            <ReviewItem
+              key={token.symbol}
+              amount={commify(formatBNToString(amount, token.decimals))}
+              icon={token.icon}
+              symbol={token.symbol}
+            />
           ))}
-          <div className="eachToken">
-            <div className="token">
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text as="span" color="gray.200" fontWeight={500}>
               <b>{t("total")}</b>
-            </div>
-            <div className="value">
-              <b className="value">
-                {commify(
-                  formatBNToString(transactionData.from.totalAmount, 18),
-                )}
-              </b>
-            </div>
-          </div>
-        </div>
-        <div className="divider" style={{ height: "1px", width: "100%" }}></div>
-        <h4>{t("receiving")}</h4>
-        <div>
-          <div className="eachToken" key={transactionData.to.item.token.symbol}>
-            <div className="token">
-              <img src={transactionData.to.item.token.icon} alt="icon" />
-              <span>{transactionData.to.item.token.symbol}</span>
-            </div>
-            <div className="value">
-              <span className="value">
-                {commify(
-                  formatBNToString(
-                    transactionData.to.item.amount,
-                    transactionData.to.item.token.decimals,
-                  ),
-                )}
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="divider" style={{ height: "1px", width: "100%" }}></div>
-        <div className="depositInfoItem">
-          <span className="label">{t("shareOfPool")}</span>
-          <span className="value">
-            {formatBNToPercentString(transactionData.shareOfPool, 18)}
-          </span>
-        </div>
-        <div className="depositInfoItem">
-          <span className="label">{t("gas")}</span>
-          <span className="value">
-            {formatGasToString(
-              { gasStandard, gasFast, gasInstant },
-              gasPriceSelected,
-              gasCustom,
-            )}{" "}
-            GWEI
-          </span>
-        </div>
+            </Text>
+            <Text as="span" color="gray.50" fontWeight={700}>
+              {commify(formatBNToString(transactionData.from.totalAmount, 18))}
+            </Text>
+          </Flex>
+        </Stack>
+        <Divider />
+        <Text fontSize="18px" color="gray.100" fontWeight={700}>
+          {t("receiving")}
+        </Text>
+        <ReviewItem
+          amount={commify(
+            formatBNToString(
+              transactionData.to.item.amount,
+              transactionData.to.item.token.decimals,
+            ),
+          )}
+          icon={transactionData.to.item.token.icon}
+          symbol={transactionData.to.item.token.symbol}
+        />
+        <Divider />
+        <ReviewInfoItem
+          label={t("shareOfPool")}
+          value={formatBNToPercentString(transactionData.shareOfPool, 18)}
+        />
+        <ReviewInfoItem
+          label={t("gas")}
+          value={`${formatGasToString(
+            { gasStandard, gasFast, gasInstant },
+            gasPriceSelected,
+            gasCustom,
+          )} GWEI`}
+        />
         {transactionData.txnGasCost?.valueUSD && (
-          <div className="depositInfoItem">
-            <span className="label">{t("estimatedTxCost")}</span>
-            <span className="value">
-              {`≈$${commify(
-                formatBNToString(transactionData.txnGasCost.valueUSD, 2, 2),
-              )}`}
-            </span>
-          </div>
+          <ReviewInfoItem
+            label={t("estimatedTxCost")}
+            value={`≈$${commify(
+              formatBNToString(transactionData.txnGasCost.valueUSD, 2, 2),
+            )}`}
+          />
         )}
-        <div className="depositInfoItem">
-          <span className="label">{t("maxSlippage")}</span>
-          <span className="value">
-            {formatSlippageToString(slippageSelected, slippageCustom)}%
-          </span>
-        </div>
-        <div className="depositInfoItem">
-          <span className="label">{t("rates")}</span>
-          <div className="rates value">
+        <ReviewInfoItem
+          label={t("maxSlippage")}
+          value={`${formatSlippageToString(slippageSelected, slippageCustom)}%`}
+        />
+        <Divider />
+        <Stack spacing={2}>
+          <Text fontSize="18px" color="gray.100" fontWeight={700}>
+            {t("rates")}
+          </Text>
+          <Stack spacing={1}>
             {transactionData.from.items.map(
               ({ token, singleTokenPriceUSD }) => (
-                <span key={token.symbol}>
-                  1 {token.symbol} = $
-                  {commify(formatBNToString(singleTokenPriceUSD, 18, 2))}
-                </span>
+                <ReviewInfoItem
+                  key={token.symbol}
+                  label={`1 ${token.symbol}`}
+                  value={`≈$${commify(
+                    formatBNToString(singleTokenPriceUSD, 18, 2),
+                  )}`}
+                />
               ),
             )}
             {[transactionData.to.item].map(({ token, singleTokenPriceUSD }) => (
-              <span key={token.symbol}>
-                1 {token.symbol} = $
-                {commify(formatBNToString(singleTokenPriceUSD, 18, 2))}
-              </span>
+              <ReviewInfoItem
+                key={token.symbol}
+                label={`1 ${token.symbol}`}
+                value={`≈$${commify(
+                  commify(formatBNToString(singleTokenPriceUSD, 18, 2)),
+                )}`}
+              />
             ))}
-          </div>
-        </div>
-      </div>
+          </Stack>
+        </Stack>
+      </Stack>
       {isHighPriceImpactTxn && (
         <HighPriceImpactConfirmation
           checked={hasConfirmedHighPriceImpact}
@@ -148,22 +141,25 @@ function ReviewDeposit({
           }
         />
       )}
-      <div className="bottom">
-        <p>{t("estimatedOutput")}</p>
-        <div className="buttonWrapper">
-          <Button
-            onClick={onConfirm}
-            kind="primary"
-            disabled={isHighPriceImpactTxn && !hasConfirmedHighPriceImpact}
-          >
-            {t("confirmDeposit")}
-          </Button>
-          <Button onClick={onClose} kind="cancel">
-            {t("cancel")}
-          </Button>
-        </div>
-      </div>
-    </div>
+      <Stack spacing="30px" alignItems="center" p="15px">
+        <Text fontSize="14px" color="gray.300" fontStyle="italic">
+          {t("estimatedOutput")}
+        </Text>
+        <Center>
+          <ButtonGroup isAttached>
+            <Button
+              onClick={onConfirm}
+              disabled={isHighPriceImpactTxn && !hasConfirmedHighPriceImpact}
+            >
+              {t("confirmDeposit")}
+            </Button>
+            <Button onClick={onClose} variant="solid" borderRadius="12px">
+              {t("cancel")}
+            </Button>
+          </ButtonGroup>
+        </Center>
+      </Stack>
+    </Stack>
   )
 }
 

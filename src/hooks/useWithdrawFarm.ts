@@ -29,6 +29,7 @@ export function useWithdrawFarm(
       return receipt
     } catch (e) {
       console.error(e)
+      throw e
     }
   }
 }

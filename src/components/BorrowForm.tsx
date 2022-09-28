@@ -1,9 +1,3 @@
-// TODO: create types
-/* eslint @typescript-eslint/no-unsafe-member-access: 0 */
-/* eslint @typescript-eslint/no-unsafe-call: 0 */
-/* eslint @typescript-eslint/no-unsafe-assignment: 0 */
-/* eslint @typescript-eslint/no-explicit-any: 0 */
-
 import {
   Box,
   Button,
@@ -12,10 +6,6 @@ import {
   FormErrorMessage,
   FormHelperText,
   FormLabel,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  InputRightElement,
   Slider,
   SliderFilledTrack,
   SliderMark,
@@ -25,16 +15,20 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react"
-import { Field, FieldAttributes, Form, Formik } from "formik"
+import { Field, FieldProps, Form, Formik } from "formik"
 import React, { ReactElement, ReactNode, useState } from "react"
+import ApprovalInfo from "./ApprovalInfo"
 import { BigNumber } from "@ethersproject/bignumber"
 import BorrowAdvancedOptions from "../components/BorrowAdvancedOptions"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { CookAction } from "../hooks/useCook"
+import { ErrorObj } from "../constants"
 import { FaHandHoldingUsd } from "react-icons/fa"
 import FormTitle from "./FormTitleOptions"
 import FormWrapper from "./wrappers/FormWrapper"
+import MaxFromBalance from "./input/MaxFromBalance"
 import SafetyTag from "./SafetyTag"
+import SingleTokenInput from "./input/SingleTokenInput"
 import { TransactionType } from "../hooks/useChakraToast"
 import { formatBNToString } from "../utils"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
@@ -45,6 +39,7 @@ export interface BorrowFormTokenDetails {
   symbol: string
   icon: string
   decimals: number
+  name: string
 }
 
 interface Props {
@@ -152,7 +147,7 @@ const BorrowForm = (props: Props): ReactElement => {
             handlePostSubmit?.(receipt, TransactionType.BORROW)
           } catch (e) {
             console.error(e)
-            const error = e as { code: number; message: string }
+            const error = e as ErrorObj
             handlePostSubmit?.(receipt, TransactionType.BORROW, {
               code: error.code,
               message: error.message,
@@ -189,52 +184,46 @@ const BorrowForm = (props: Props): ReactElement => {
         {(props) => (
           <Form onSubmit={props.handleSubmit}>
             <Field name="collateral">
-              {({ field, form }: FieldAttributes<any>) => (
+              {({
+                field,
+                form,
+                meta,
+              }: FieldProps<string, { [key: string]: string }>) => (
                 <FormControl
                   padding="10px"
-                  bgColor="var(--secondary-background)"
                   borderRadius="10px"
-                  isInvalid={form.errors?.collateral}
+                  isInvalid={!!meta.error}
                 >
-                  <FormLabel fontSize="18px" fontWeight={700} htmlFor="amount">
-                    Deposit Collateral
-                  </FormLabel>
-                  <InputGroup mt="25px">
-                    <InputLeftElement
-                      pointerEvents="none"
-                      color="gray.300"
-                      fontSize="2em"
-                      marginLeft="5px"
+                  <Flex justifyContent="space-between" alignItems="flex-end">
+                    <FormLabel
+                      fontSize="18px"
+                      fontWeight={700}
+                      htmlFor="amount"
                     >
-                      <img src={collateralToken.icon} alt="tokenIcon" />
-                    </InputLeftElement>
-                    <Input
-                      {...field}
-                      paddingLeft="60px"
-                      autoComplete="off"
-                      autoCorrect="off"
-                      fontSize={{ base: "12px", md: "16px" }}
-                      type="text"
-                      isInvalid={form.errors?.collateral}
-                      placeholder="0.0"
-                      variant="primary"
+                      Deposit Collateral
+                    </FormLabel>
+                    <MaxFromBalance
+                      max={max}
+                      onClickMax={() => {
+                        props.setFieldTouched("collateral", true)
+                        props.setFieldValue("collateral", max)
+                        props.setFieldValue("borrow", "")
+                      }}
                     />
-                    <InputRightElement width="6rem" padding="10px">
-                      <Button
-                        variant="light"
-                        size="sm"
-                        onClick={() => {
-                          props.setFieldTouched("collateral", true)
-                          props.setFieldValue("collateral", max)
-                          props.setFieldValue("borrow", "")
-                        }}
-                      >
-                        {t("max")}
-                      </Button>
-                    </InputRightElement>
-                  </InputGroup>
+                  </Flex>
+                  <SingleTokenInput
+                    inputValue={meta.value}
+                    fieldProps={field}
+                    isInvalid={!!meta?.error}
+                    token={{
+                      name: collateralToken.name,
+                      symbol: collateralToken.symbol,
+                      icon: collateralToken.icon,
+                    }}
+                    onChangeInput={field.onChange}
+                  />
                   {form.errors?.collateral ? (
-                    <FormErrorMessage color="#cc3a59">
+                    <FormErrorMessage color="red.600">
                       {form.errors?.collateral}
                     </FormErrorMessage>
                   ) : (
@@ -251,13 +240,15 @@ const BorrowForm = (props: Props): ReactElement => {
               )}
             </Field>
             <Field name="borrow">
-              {({ field, form }: FieldAttributes<any>) => (
+              {({
+                field,
+                form,
+                meta,
+              }: FieldProps<string, { [key: string]: string }>) => (
                 <FormControl
                   padding="15px"
-                  mt="15px"
-                  bgColor="var(--secondary-background)"
                   borderRadius="10px"
-                  isInvalid={form.errors?.borrow}
+                  isInvalid={!!form.errors?.borrow}
                 >
                   <Flex
                     justifyContent="space-between"
@@ -280,7 +271,7 @@ const BorrowForm = (props: Props): ReactElement => {
                         alignItems="center"
                       >
                         <Text
-                          color="var(--text-lighter)"
+                          color="gray.300"
                           fontSize={{ base: "13px", lg: "16px" }}
                         >
                           Expected Liquidation Price:
@@ -300,7 +291,7 @@ const BorrowForm = (props: Props): ReactElement => {
                         alignItems="center"
                       >
                         <Text
-                          color="var(--text-lighter)"
+                          color="gray.300"
                           fontSize={{ base: "13px", lg: "16px" }}
                         >
                           Expected Position Health:
@@ -321,7 +312,7 @@ const BorrowForm = (props: Props): ReactElement => {
                         alignItems="center"
                       >
                         <Text
-                          color="var(--text-lighter)"
+                          color="gray.300"
                           fontSize={{ base: "13px", lg: "16px" }}
                         >
                           Expected Risk:
@@ -347,7 +338,7 @@ const BorrowForm = (props: Props): ReactElement => {
                       mb="40px"
                       mt="20px"
                       isDisabled={
-                        form.errors?.collateral ||
+                        !!form.errors?.collateral ||
                         +props.values.collateral === 0
                       }
                       focusThumbOnChange={false}
@@ -370,89 +361,90 @@ const BorrowForm = (props: Props): ReactElement => {
                       onMouseEnter={() => setShowTooltip(true)}
                       onMouseLeave={() => setShowTooltip(false)}
                     >
-                      <SliderMark value={25} mt="3" ml="-2.5" fontSize="sm">
+                      <SliderMark value={0} mt="2.5" fontSize="xs">
+                        0%
+                      </SliderMark>
+                      <SliderMark value={25} mt="2.5" ml="-2.5" fontSize="xs">
                         25%
                       </SliderMark>
-                      <SliderMark value={50} mt="3" ml="-2.5" fontSize="sm">
+                      <SliderMark value={50} mt="2.5" ml="-2.5" fontSize="xs">
                         50%
                       </SliderMark>
-                      <SliderMark value={75} mt="3" ml="-2.5" fontSize="sm">
+                      <SliderMark value={75} mt="2.5" ml="-2.5" fontSize="xs">
                         75%
                       </SliderMark>
+                      <SliderMark value={100} mt="2.5" ml="-3" fontSize="xs">
+                        100%
+                      </SliderMark>
                       <SliderTrack>
-                        <SliderFilledTrack bg="#cc3a59" />
+                        <SliderFilledTrack bg="red.500" />
                       </SliderTrack>
                       <Tooltip
                         hasArrow
-                        bg="#cc3a59"
-                        color="white"
+                        color="gray.900"
+                        bg="red.400"
                         placement="top"
                         isOpen={showTooltip}
                         label={`${sliderValue}%`}
                       >
                         <SliderThumb boxSize={6}>
-                          <Box color="#cc3a59" as={FaHandHoldingUsd} />
+                          <Box
+                            boxSize={4}
+                            color="red.400"
+                            as={FaHandHoldingUsd}
+                          />
                         </SliderThumb>
                       </Tooltip>
                     </Slider>
                   </Box>
-                  <InputGroup>
-                    <InputLeftElement
-                      pointerEvents="none"
-                      color="gray.300"
-                      fontSize="2em"
-                      marginLeft="5px"
-                    >
-                      <img src={borrowToken.icon} alt="tokenIcon" />
-                    </InputLeftElement>
-                    <Input
-                      {...field}
-                      paddingLeft="60px"
-                      autoComplete="off"
-                      autoCorrect="off"
-                      fontSize={{ base: "12px", md: "16px" }}
-                      type="text"
-                      isInvalid={form.errors?.borrow}
-                      placeholder="0.0"
-                      variant="primary"
-                      onChange={(e) => {
-                        props.handleChange(e)
-                        const decimalRegex = /^[0-9]\d*(\.\d{1,18})?$/
-                        const formattedVal = decimalRegex.exec(e.target.value)
-                          ? +e.target.value
-                          : 0
-                        setSliderValue(
-                          Math.round(
-                            Math.min(
-                              (formattedVal /
-                                collateralUSDPrice /
-                                (+props.values?.collateral || 1)) *
-                                100,
-                              100,
-                            ),
-                          ),
+                  <Flex justifyContent="flex-end" alignItems="center">
+                    <MaxFromBalance
+                      max={formatBNToString(
+                        getMaxBorrow(props.values.collateral),
+                        18,
+                        3,
+                      )}
+                      label={t("max")}
+                      onClickMax={() => {
+                        const borrowMax = formatBNToString(
+                          getMaxBorrow(props.values.collateral),
+                          18,
                         )
+                        props.setFieldTouched("borrow", true)
+                        props.setFieldValue("borrow", borrowMax)
                       }}
                     />
-                    <InputRightElement width="6rem" padding="10px">
-                      <Button
-                        variant="light"
-                        size="sm"
-                        onClick={() => {
-                          const borrowMax = formatBNToString(
-                            getMaxBorrow(props.values.collateral),
-                            18,
-                          )
-                          props.setFieldTouched("borrow", true)
-                          props.setFieldValue("borrow", borrowMax)
-                        }}
-                      >
-                        {t("max")}
-                      </Button>
-                    </InputRightElement>
-                  </InputGroup>
-                  {form.errors?.borrow ? (
-                    <FormErrorMessage color="#cc3a59">
+                  </Flex>
+                  <SingleTokenInput
+                    inputValue={meta.value}
+                    fieldProps={field}
+                    isInvalid={!!meta.error}
+                    token={{
+                      name: borrowToken.name,
+                      symbol: borrowToken.symbol,
+                      icon: borrowToken.icon,
+                    }}
+                    onChangeInput={(e) => {
+                      field.onChange(e)
+                      const decimalRegex = /^[0-9]\d*(\.\d{1,18})?$/
+                      const formattedVal = decimalRegex.exec(e.target.value)
+                        ? +e.target.value
+                        : 0
+                      setSliderValue(
+                        Math.round(
+                          Math.min(
+                            (formattedVal /
+                              collateralUSDPrice /
+                              (+props.values?.collateral || 1)) *
+                              100,
+                            100,
+                          ),
+                        ),
+                      )
+                    }}
+                  />
+                  {meta.error ? (
+                    <FormErrorMessage color="red.600">
                       {form.errors?.borrow}
                     </FormErrorMessage>
                   ) : (
@@ -467,20 +459,14 @@ const BorrowForm = (props: Props): ReactElement => {
                 </FormControl>
               )}
             </Field>
-            <Flex
-              mt="20px"
-              alignItems="center"
-              justifyContent="center"
-              flexDirection="column"
-              bg="var(--secondary-background)"
-              border="1px solid var(--outline)"
+            <Stack
+              spacing={5}
               borderRadius="10px"
-              padding="10px"
+              py="15px"
+              px={{ base: "5px", md: "15px" }}
             >
               <Button
-                variant="primary"
                 fontSize={{ base: "12px", sm: "16px" }}
-                size="lg"
                 width="100%"
                 type="submit"
                 disabled={
@@ -497,19 +483,8 @@ const BorrowForm = (props: Props): ReactElement => {
                   TransactionType.BORROW,
                 )}
               </Button>
-              <Box p="15px">
-                <Text
-                  as="p"
-                  p="20px 0 10px"
-                  textAlign="center"
-                  color="var(--text-lighter)"
-                  fontSize="14px"
-                >
-                  Note: The &quot;Approve&quot; transaction is only needed the
-                  first time; subsequent actions will not require approval.
-                </Text>
-              </Box>
-            </Flex>
+              <ApprovalInfo />
+            </Stack>
           </Form>
         )}
       </Formik>

@@ -1,7 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 import { FarmStats } from "../utils/fetchFarmStats"
 import { StakeStats } from "../utils/fetchStakeStats"
-import { SwapStatsReponse } from "../utils/getSwapStats"
 import { TRANSACTION_TYPES } from "../constants"
 
 interface GasPrices {
@@ -9,14 +8,7 @@ interface GasPrices {
   gasFast?: number
   gasInstant?: number
 }
-interface SwapStats {
-  [swapAddress: string]: {
-    oneDayVolume: string
-    apy: string
-    tvl: string
-    utilization: string
-  }
-}
+
 export interface TokenPricesUSD {
   [tokenSymbol: string]: number
 }
@@ -35,7 +27,7 @@ interface RosePriceHistory {
 
 type ApplicationState = GasPrices & { tokenPricesUSD?: TokenPricesUSD } & {
   lastTransactionTimes: LastTransactionTimes
-} & { swapStats?: SwapStats } & { farmStats?: UpdatedFarmStats } & {
+} & { farmStats?: UpdatedFarmStats } & {
   stakeStats?: StakeStats
 } & { rosePriceHistory?: RosePriceHistory[] }
 
@@ -91,31 +83,6 @@ const applicationSlice = createSlice({
         ...action.payload,
       }
     },
-    updateSwapStats(state, action: PayloadAction<SwapStatsReponse>): void {
-      const formattedPayload = Object.keys(action.payload).reduce(
-        (acc, key) => {
-          const { APY, TVL, oneDayVolume: ODV } = action.payload[key]
-          if (isNaN(APY) || isNaN(TVL) || isNaN(ODV)) {
-            return acc
-          }
-          const apy = APY.toFixed(18)
-          const tvl = TVL.toFixed(18)
-          const oneDayVolume = ODV.toFixed(18)
-          const utilization = (TVL > 0 ? ODV / TVL : 0).toFixed(18)
-          return {
-            ...acc,
-            [key]: {
-              apy,
-              tvl,
-              oneDayVolume,
-              utilization,
-            },
-          }
-        },
-        {},
-      )
-      state.swapStats = formattedPayload
-    },
   },
 })
 
@@ -123,7 +90,6 @@ export const {
   updateGasPrices,
   updateTokensPricesUSD,
   updateLastTransactionTimes,
-  updateSwapStats,
   updateFarmStats,
   updateStakeStats,
   updateRosePriceHistory,

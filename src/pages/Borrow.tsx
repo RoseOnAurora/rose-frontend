@@ -8,11 +8,12 @@ import {
   DrawerFooter,
   DrawerOverlay,
   Flex,
+  HStack,
+  Heading,
   IconButton,
   Link,
   Progress,
   Text,
-  useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react"
 import { BsCurrencyDollar, BsExclamationTriangle } from "react-icons/bs"
@@ -32,22 +33,20 @@ import {
   formatBNToString,
 } from "../utils"
 import useChakraToast, { TransactionType } from "../hooks/useChakraToast"
-import BackButton from "../components/BackButton"
+import BackButton from "../components/button/BackButton"
 import { BigNumber } from "@ethersproject/bignumber"
-import BlockExplorerLink from "../components/BlockExplorerLink"
 import BorrowForm from "../components/BorrowForm"
 import ComponentWrapper from "../components/wrappers/ComponentWrapper"
-import { ContractReceipt } from "ethers"
 import OverviewInfo from "../components/OverviewInfo"
 import PageWrapper from "../components/wrappers/PageWrapper"
 import RepayForm from "../components/RepayForm"
-import StakeDetails from "../components/StakeDetails"
+import StakeDetails from "../components/stake/StakeDetails"
 import TabsWrapper from "../components/wrappers/TabsWrapper"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import { parseUnits } from "@ethersproject/units"
-import { useActiveWeb3React } from "../hooks"
 import useBorrowData from "../hooks/useBorrowData"
 import { useCook } from "../hooks/useCook"
+import useHandlePostSubmit from "../hooks/useHandlePostSubmit"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -61,14 +60,8 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   const btnRef = useRef<HTMLButtonElement>(null)
   const toast = useChakraToast()
   const cook = useCook(borrowName)
-  const { chainId } = useActiveWeb3React()
+  const handlePostSubmit = useHandlePostSubmit()
   const { t } = useTranslation()
-
-  const drawerBg = useColorModeValue(
-    "linear-gradient(to bottom, #f7819a, #ebd9c2, #e9e0d9)",
-    "linear-gradient(to right, #141414, #200122, #791038)",
-  )
-  // const borrowCollapseTextColor = useColorModeValue("#555555", "#bbbbbb")
 
   const { borrowToken, collateralToken } = BORROW_MARKET_MAP[borrowName]
 
@@ -101,7 +94,9 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
       maxBorrow.mul(borrowData.borrowFee).div(BigNumber.from(10).pow(18)),
     )
 
-    return maxBorrowAdj.gt(borrowData.totalRUSDLeftToBorrow)
+    return maxBorrowAdj.lte(Zero)
+      ? Zero
+      : maxBorrowAdj.gt(borrowData.totalRUSDLeftToBorrow)
       ? borrowData.totalRUSDLeftToBorrow
       : maxBorrowAdj
   }
@@ -115,6 +110,8 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   }
 
   const calculateMaxWithdraw = (repayAmount: string): BigNumber => {
+    const generalValidation = validateAmount(repayAmount, borrowToken.decimals)
+    if (generalValidation) return Zero
     const totalBorrowed = borrowData.borrowed.sub(
       parseUnits(repayAmount || "0"),
     )
@@ -194,12 +191,15 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   }
 
   const validateAmount = (amount: string, decimals: number): string | null => {
-    if (
-      amount &&
-      parseStringToBigNumber(amount, decimals > 18 ? 18 : decimals, Zero)
-        .isFallback
-    ) {
+    const { isFallback, value } = parseStringToBigNumber(
+      amount,
+      decimals > 18 ? 18 : decimals,
+      Zero,
+    )
+    if (amount && isFallback) {
       return t("Invalid number.")
+    } else if (amount && value.lte(Zero)) {
+      return t("Must be greater than zero.")
     }
     return null
   }
@@ -208,7 +208,11 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
     borrow: BigNumber,
     collateral: BigNumber,
   ): BigNumber => {
-    if (collateral.add(borrowData.collateralDeposited).isZero()) return Zero
+    if (
+      collateral.add(borrowData.collateralDeposited).isZero() ||
+      borrowData.priceOfCollateral.isZero()
+    )
+      return Zero
     return borrowData.borrowedUSDPrice
       .add(
         borrow
@@ -299,33 +303,6 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
     return +formatBNToString(borrowData.positionHealth, 18) * 100
   }
 
-  const postTransaction = (
-    receipt: ContractReceipt | null,
-    transactionType: TransactionType,
-    error?: { code: number; message: string },
-  ): void => {
-    const description = receipt?.transactionHash ? (
-      <BlockExplorerLink
-        txnType={transactionType}
-        txnHash={receipt?.transactionHash}
-        status={receipt?.status ? "Succeeded" : "Failed"}
-        chainId={chainId}
-      />
-    ) : null
-    if (receipt?.status) {
-      toast.transactionSuccess({
-        txnType: transactionType,
-        description: description,
-      })
-    } else {
-      toast.transactionFailed({
-        txnType: transactionType,
-        error,
-        description: description,
-      })
-    }
-  }
-
   const preTransaction = (txnType: TransactionType) =>
     toast.transactionPending({
       txnType,
@@ -367,13 +344,19 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
       <Flex
         fontSize={{ base: "12px", sm: "16px" }}
         justifyContent="space-between"
-        color="var(--text-lighter)"
+        color="gray.300"
+        bg="bgDark"
+        p="30px"
+        mx="10px"
+        mb="15px"
+        mt="5px"
+        borderRadius="12px"
       >
-        <Box>1 {borrowToken.symbol} = 1 USD</Box>
-        <Box>
+        <Text as="span">1 {borrowToken.symbol} = 1 USD</Text>
+        <Text as="span">
           1 {collateralToken.symbol} ={" "}
           {+formatBNToString(borrowData.priceOfCollateral, 18, 3)} RUSD
-        </Box>
+        </Text>
       </Flex>
     )
   }
@@ -420,7 +403,7 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
   const mcrFormatted = formatBNToPercentString(borrowData.mcr, 18, 0)
 
   return (
-    <PageWrapper activeTab="borrow">
+    <PageWrapper maxW="1300px">
       <Drawer
         isOpen={isOpen}
         placement="right"
@@ -428,8 +411,8 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
         finalFocusRef={btnRef}
         size="sm"
       >
-        <DrawerOverlay />
-        <DrawerContent bg={drawerBg} p="50px 10px">
+        <DrawerOverlay bg="blackAlpha.900" />
+        <DrawerContent bg="gray.900" p="50px 10px" boxShadow="lg">
           <DrawerCloseButton />
           <DrawerBody p="5px">
             <OverviewInfo
@@ -567,101 +550,56 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
               target="_blank"
               rel="noreferrer"
             >
-              Go to Full How-to Guide<sup>↗</sup>
+              Go to Full How-to Guide
             </Link>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
       <ComponentWrapper
-        top={<BackButton route="/borrow" buttonText="Go back to markets" />}
+        templateColumns="44% 53%"
         left={
-          <TabsWrapper
-            tabsProps={{ variant: "primary" }}
-            tab1={{
-              name: t("borrow"),
-              content: (
-                <BorrowForm
-                  borrowToken={borrowToken}
-                  collateralToken={collateralToken}
-                  isStable={isStable}
-                  max={formatBNToString(
-                    borrowData.collateralTokenBalance,
-                    18,
-                    collateralToken.decimals,
-                  )}
-                  collateralUSDPrice={
-                    +formatBNToString(borrowData.priceOfCollateral, 18)
-                  }
-                  formDescription={<FormDescription />}
-                  borrowValidator={validateBorrow}
-                  collateralValidator={validateDepositCollateral}
-                  handlePreSubmit={preTransaction}
-                  handleWhileSubmitting={onSubmitting}
-                  handlePostSubmit={postTransaction}
-                  getMaxBorrow={calculateMaxBorrow}
-                  updateLiquidationPrice={updateCurrLiquidationPrice}
-                  updatePositionHealth={updatePositionHealth}
-                  handleSubmit={cook}
-                  submitButtonLabelText={submitButtonLabelText}
-                />
-              ),
-            }}
-            tab2={{
-              name: t("Repay"),
-              content: (
-                <RepayForm
-                  borrowToken={borrowToken}
-                  collateralToken={collateralToken}
-                  isStable={isStable}
-                  max={formatBNToString(
-                    borrowData.borrowed.gt(borrowData.rusdUserBalance)
-                      ? borrowData.rusdUserBalance
-                      : borrowData.borrowed,
-                    18,
-                  )}
-                  maxRepayBn={borrowData.borrowed}
-                  maxCollateralBn={borrowData.collateralDeposited}
-                  getMaxWithdraw={calculateMaxWithdraw}
-                  collateralUSDPrice={
-                    +formatBNToString(borrowData.priceOfCollateral, 18)
-                  }
-                  formDescription={<FormDescription />}
-                  repayValidator={validateRepay}
-                  collateralValidator={validateWithdrawCollateral}
-                  handlePreSubmit={preTransaction}
-                  handleWhileSubmitting={onSubmitting}
-                  handlePostSubmit={postTransaction}
-                  updatePositionHealth={updatePositionHealth}
-                  updateLiquidationPrice={updateCurrLiquidationPrice}
-                  handleSubmit={cook}
-                  submitButtonLabelText={submitButtonLabelText}
-                />
-              ),
-            }}
-          />
-        }
-        right={
           <StakeDetails
             extraStakeDetailChild={
               <Flex justifyContent="space-between" alignItems="center">
-                <FaHandHoldingMedical
-                  size="35px"
-                  color="#cc3a59"
-                  title="Your Position Health"
-                />
-                <Box width={230}>
-                  <Progress
-                    colorScheme={calculatePositionHealthColor(
-                      positionHealth(),
-                      isStable,
-                    )}
-                    height="30px"
-                    value={positionHealth()}
-                    title={`${positionHealth().toFixed(0)}%`}
-                    isAnimated
-                    hasStripe
+                <HStack>
+                  <BackButton
+                    route="/borrow"
+                    title="Go back to markets"
+                    aria-label="Go back to markets"
+                    borderRadius="5px"
+                    color="gray.200"
+                    fontSize="30px"
                   />
-                </Box>
+                  <Heading
+                    size="lg"
+                    color="#FCFCFD"
+                    fontWeight={700}
+                    lineHeight="39px"
+                    fontSize={{ base: "21px", md: "27px" }}
+                  >
+                    Position
+                  </Heading>
+                </HStack>
+                <HStack spacing="10px">
+                  <FaHandHoldingMedical
+                    size="30px"
+                    color="#EF4444"
+                    title="Your Position Health"
+                  />
+                  <Box width={{ base: 120, md: 170 }}>
+                    <Progress
+                      colorScheme={calculatePositionHealthColor(
+                        positionHealth(),
+                        isStable,
+                      )}
+                      height="30px"
+                      value={positionHealth()}
+                      title={`${positionHealth().toFixed(0)}%`}
+                      isAnimated
+                      hasStripe
+                    />
+                  </Box>
+                </HStack>
               </Flex>
             }
             bottom={
@@ -671,11 +609,12 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
                   onClick={onOpen}
                   aria-label="Get Help"
                   variant="outline"
+                  borderRadius="8px"
                   size="md"
                   icon={<FaInfoCircle />}
                   title="Get Help"
                 />
-                <Text>Need Help?</Text>
+                <Text color="gray.200">Need Help?</Text>
               </Flex>
             }
             balanceView={{
@@ -717,32 +656,6 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
                   tokenName: `Total ${borrowToken.symbol} Debt`,
                   icon: borrowToken.icon,
                   amount: commify(formatBNToString(borrowData.borrowed, 18, 5)),
-                  // collapseContent: (
-                  //   <Box my="5px" color={borrowCollapseTextColor}>
-                  //     <Flex justifyContent="space-between" alignItems="center">
-                  //       <Text fontSize="13px">Borrowed:</Text>
-                  //       <Box>
-                  //         {commify(
-                  //           formatBNToString(
-                  //             borrowData.borrowed
-                  //               .sub(borrowData.feesOwed)
-                  //               .abs(),
-                  //             18,
-                  //             5,
-                  //           ),
-                  //         )}
-                  //       </Box>
-                  //     </Flex>
-                  //     <Flex justifyContent="space-between" alignItems="center">
-                  //       <Text fontSize="13px">Unpaid Fees in RUSD:</Text>
-                  //       <Box>
-                  //         {commify(
-                  //           formatBNToString(borrowData.feesOwed, 18, 5),
-                  //         )}
-                  //       </Box>
-                  //     </Flex>
-                  //   </Box>
-                  // ),
                 },
               ],
             }}
@@ -778,6 +691,72 @@ const Borrow = ({ borrowName, isStable }: Props): ReactElement => {
                 statValue: formatBNToPercentString(borrowData.interest, 18, 2),
               },
             ]}
+          />
+        }
+        right={
+          <TabsWrapper
+            tabsProps={{ variant: "primary" }}
+            tab1={{
+              name: t("borrow"),
+              content: (
+                <BorrowForm
+                  borrowToken={borrowToken}
+                  collateralToken={collateralToken}
+                  isStable={isStable}
+                  max={formatBNToString(
+                    borrowData.collateralTokenBalance,
+                    18,
+                    collateralToken.decimals,
+                  )}
+                  collateralUSDPrice={
+                    +formatBNToString(borrowData.priceOfCollateral, 18)
+                  }
+                  formDescription={<FormDescription />}
+                  borrowValidator={validateBorrow}
+                  collateralValidator={validateDepositCollateral}
+                  handlePreSubmit={preTransaction}
+                  handleWhileSubmitting={onSubmitting}
+                  handlePostSubmit={handlePostSubmit}
+                  getMaxBorrow={calculateMaxBorrow}
+                  updateLiquidationPrice={updateCurrLiquidationPrice}
+                  updatePositionHealth={updatePositionHealth}
+                  handleSubmit={cook}
+                  submitButtonLabelText={submitButtonLabelText}
+                />
+              ),
+            }}
+            tab2={{
+              name: t("Repay"),
+              content: (
+                <RepayForm
+                  borrowToken={borrowToken}
+                  collateralToken={collateralToken}
+                  isStable={isStable}
+                  max={formatBNToString(
+                    borrowData.borrowed.gt(borrowData.rusdUserBalance)
+                      ? borrowData.rusdUserBalance
+                      : borrowData.borrowed,
+                    18,
+                  )}
+                  maxRepayBn={borrowData.borrowed}
+                  maxCollateralBn={borrowData.collateralDeposited}
+                  getMaxWithdraw={calculateMaxWithdraw}
+                  collateralUSDPrice={
+                    +formatBNToString(borrowData.priceOfCollateral, 18)
+                  }
+                  formDescription={<FormDescription />}
+                  repayValidator={validateRepay}
+                  collateralValidator={validateWithdrawCollateral}
+                  handlePreSubmit={preTransaction}
+                  handleWhileSubmitting={onSubmitting}
+                  handlePostSubmit={handlePostSubmit}
+                  updatePositionHealth={updatePositionHealth}
+                  updateLiquidationPrice={updateCurrLiquidationPrice}
+                  handleSubmit={cook}
+                  submitButtonLabelText={submitButtonLabelText}
+                />
+              ),
+            }}
           />
         }
       />

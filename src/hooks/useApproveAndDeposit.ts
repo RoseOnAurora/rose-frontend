@@ -159,8 +159,6 @@ export function useApproveAndDeposit(
         },
       )
 
-      // notifyHandler(spendTransaction.hash, "deposit")
-
       const receipt = await spendTransaction.wait()
       dispatch(
         updateLastTransactionTimes({
@@ -170,7 +168,7 @@ export function useApproveAndDeposit(
       return receipt
     } catch (e) {
       console.error(e)
-      // notifyCustomError(e as Error)
+      throw e
     }
   }
 }

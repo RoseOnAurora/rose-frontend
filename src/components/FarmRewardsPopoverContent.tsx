@@ -1,11 +1,11 @@
-import { Box, Button, Flex, Text } from "@chakra-ui/react"
+import { Box, Button, ButtonGroup, Flex, Text } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import useChakraToast, { TransactionType } from "../hooks/useChakraToast"
-import BlockExplorerLink from "./BlockExplorerLink"
 import { ContractReceipt } from "ethers"
+import { ErrorObj } from "../constants"
 import roseIcon from "../assets/icons/rose.svg"
 import terraLunaIcon from "../assets/icons/terra-luna-logo.svg"
-import { useActiveWeb3React } from "../hooks"
+import useHandlePostSubmit from "../hooks/useHandlePostSubmit"
 import { useTranslation } from "react-i18next"
 
 interface Props {
@@ -19,26 +19,6 @@ interface Props {
   claim: () => Promise<void | ContractReceipt>
 }
 
-const ToastDescription = ({
-  txnType,
-  status,
-  txnHash,
-}: {
-  txnType: TransactionType
-  status: number
-  txnHash?: string
-}): ReactElement | null => {
-  const { chainId } = useActiveWeb3React()
-  return txnHash ? (
-    <BlockExplorerLink
-      txnType={txnType}
-      txnHash={txnHash}
-      status={status ? "Succeeded" : "Failed"}
-      chainId={chainId}
-    />
-  ) : null
-}
-
 const FarmRewardsPopoverContent = (props: Props): ReactElement => {
   const {
     totalRewardsAmount,
@@ -50,16 +30,18 @@ const FarmRewardsPopoverContent = (props: Props): ReactElement => {
 
   const { t } = useTranslation()
   const toast = useChakraToast()
+  const handlePostSubmit = useHandlePostSubmit()
+
   return (
     <Box p="15px">
       <Flex justifyContent="center">
-        <Text as="p" color="var(--text-lighter)">
+        <Text as="p" color="gray.200">
           Current Rewards
         </Text>
       </Flex>
       <Flex justifyContent="center">
-        <Box bg="#cc3a59" borderRadius="5px" p="20px" mt="5px">
-          <Text as="h3" color="white">
+        <Box bg="red.500" borderRadius="5px" p="20px" mt="5px">
+          <Text as="h3" color="#FCFCFD">
             {+totalRewardsAmount > 0 ? (+totalRewardsAmount).toFixed(8) : "0.0"}
           </Text>
         </Box>
@@ -101,110 +83,47 @@ const FarmRewardsPopoverContent = (props: Props): ReactElement => {
           </Flex>
         ) : null}
       </Box>
-      <Flex
-        justifyContent="space-around"
-        alignItems="center"
-        mt="30px"
-        flexWrap="wrap"
-        gridGap="10px"
-      >
-        <Button
-          p="20px"
-          variant="primary"
-          onClick={async () => {
-            toast.transactionPending({ txnType: TransactionType.REWARDS })
-            let receipt: ContractReceipt | null = null
-            try {
-              receipt = (await claim()) as ContractReceipt
-              if (receipt?.status) {
-                toast.transactionSuccess({
-                  txnType: TransactionType.REWARDS,
-                  description: (
-                    <ToastDescription
-                      txnType={TransactionType.REWARDS}
-                      status={1}
-                      txnHash={receipt.transactionHash}
-                    />
-                  ),
-                })
-              } else {
-                toast.transactionFailed({
-                  txnType: TransactionType.REWARDS,
-                  description: (
-                    <ToastDescription
-                      txnType={TransactionType.REWARDS}
-                      status={0}
-                      txnHash={receipt.transactionHash}
-                    />
-                  ),
+      <Flex maxW="300px" justifyContent="center" mt="10px">
+        <ButtonGroup size="md" isAttached>
+          <Button
+            onClick={async () => {
+              toast.transactionPending({ txnType: TransactionType.REWARDS })
+              let receipt: ContractReceipt | null = null
+              try {
+                receipt = (await claim()) as ContractReceipt
+                handlePostSubmit(receipt, TransactionType.REWARDS)
+              } catch (e) {
+                const error = e as ErrorObj
+                handlePostSubmit?.(receipt, TransactionType.REWARDS, {
+                  code: error.code,
+                  message: error.message,
                 })
               }
-            } catch (e) {
-              const error = e as { code: number; message: string }
-              toast.transactionFailed({
-                txnType: TransactionType.REWARDS,
-                description: (
-                  <ToastDescription
-                    txnType={TransactionType.REWARDS}
-                    status={0}
-                    txnHash={receipt?.transactionHash}
-                  />
-                ),
-                error,
-              })
-            }
-          }}
-        >
-          {t("harvestRewards")}
-        </Button>
-        <Button
-          variant="outline"
-          onClick={async () => {
-            toast.transactionPending({ txnType: TransactionType.REWARDS })
-            let receipt: ContractReceipt | null = null
-            try {
-              receipt = (await withdrawAndClaim()) as ContractReceipt
-              if (receipt?.status) {
-                toast.transactionSuccess({
-                  txnType: TransactionType.EXIT,
-                  description: (
-                    <ToastDescription
-                      txnType={TransactionType.EXIT}
-                      status={1}
-                      txnHash={receipt.transactionHash}
-                    />
-                  ),
-                })
-              } else {
-                toast.transactionFailed({
-                  txnType: TransactionType.EXIT,
-                  description: (
-                    <ToastDescription
-                      txnType={TransactionType.EXIT}
-                      status={0}
-                      txnHash={receipt.transactionHash}
-                    />
-                  ),
+            }}
+          >
+            {t("harvestRewards")}
+          </Button>
+          <Button
+            variant="outline"
+            borderRadius="12px"
+            onClick={async () => {
+              toast.transactionPending({ txnType: TransactionType.EXIT })
+              let receipt: ContractReceipt | null = null
+              try {
+                receipt = (await withdrawAndClaim()) as ContractReceipt
+                handlePostSubmit(receipt, TransactionType.EXIT)
+              } catch (e) {
+                const error = e as ErrorObj
+                handlePostSubmit?.(receipt, TransactionType.EXIT, {
+                  code: error.code,
+                  message: error.message,
                 })
               }
-            } catch (e) {
-              const error = e as { code: number; message: string }
-              toast.transactionFailed({
-                txnType: TransactionType.EXIT,
-                description: (
-                  <ToastDescription
-                    txnType={TransactionType.EXIT}
-                    status={0}
-                    txnHash={receipt?.transactionHash}
-                  />
-                ),
-                error,
-              })
-            }
-          }}
-        >
-          {t("withdrawAndHarvest")}
-        </Button>
+            }}
+          >
+            {t("withdrawAndHarvest")}
+          </Button>
+        </ButtonGroup>
       </Flex>
     </Box>
   )

@@ -1,10 +1,11 @@
-import AnimatedComponentCard, { Field } from "./ComponentCard"
 import React, { ReactElement, useMemo } from "react"
 import { formatBNToPercentString, formatBNToShortString } from "../utils"
+import AnimatedComponentCard from "./ComponentCard"
 import { AppState } from "../state"
 import { BORROW_SORT_FIELDS_TO_LABEL } from "../constants/index"
 import { BigNumber } from "@ethersproject/bignumber"
 import { BorrowSortFields } from "../state/user"
+import { Field } from "../types/table"
 import FormattedComponentName from "./FormattedComponentName"
 import { Zero } from "@ethersproject/constants"
 import { useSelector } from "react-redux"
@@ -102,10 +103,10 @@ function BorrowMarketsOverview(props: BorrowMarketsOverviewData): ReactElement {
       fields={fields}
       route={borrowRoute}
       borderRadius="10px"
-      p="15px"
-      background="var(--background-element)"
-      boxShadow="var(--shadow)"
-      _hover={{ bg: "var(--background-element-hover)" }}
+      py={{ base: "20px", lg: "15px" }}
+      px={{ base: "30px", lg: "10px" }}
+      background="gray.900"
+      _hover={{ bg: "gray.800" }}
     />
   )
 }

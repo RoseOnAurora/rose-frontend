@@ -1,38 +1,74 @@
 import {
-  CSSWithMultiValues,
-  RecursiveCSSObject,
-} from "@chakra-ui/styled-system"
-import { Dict } from "@chakra-ui/utils"
+  PartsStyleFunction,
+  PartsStyleObject,
+  SystemStyleObject,
+} from "@chakra-ui/theme-tools"
+import { tabsAnatomy as parts } from "@chakra-ui/anatomy"
 
-const variantPrimary = (
-  props: Dict,
-): RecursiveCSSObject<CSSWithMultiValues> => {
-  const darkMode = props.colorMode === "dark"
+// base styles every tab has
+const baseStyle: PartsStyleObject<typeof parts> = {
+  tab: {
+    borderRadius: "40px",
+    fontWeight: 700,
+    fontSize: "16px",
+    lineHeight: "21px",
+    transitionDuration: "500ms",
+  },
+  tablist: {
+    p: "8px",
+    borderRadius: "40px",
+  },
+}
+
+// Styles for the size variations
+const sizes: Record<string, PartsStyleObject<typeof parts>> = {
+  md: {
+    tab: {
+      fontSize: "14px",
+      lineHeight: "16px",
+      h: 12,
+    },
+  },
+  lg: {
+    tab: {
+      fontSize: "18px",
+      lineHeight: "21px",
+      h: 14,
+    },
+  },
+}
+
+const variantPrimary: PartsStyleFunction<typeof parts> = () => {
   return {
     tab: {
-      borderRadius: "full",
-      fontWeight: "semibold",
-      color: "grey",
-      bg: darkMode ? "rgba(28, 29, 33, 0.4)" : "rgba(245, 239, 239, 0.8)",
+      color: "gray.100",
+      bg: "bgDark",
       _selected: {
-        color: darkMode ? "#000000" : "#ffffff",
-        bg: darkMode
-          ? "linear-gradient(95deg, #cc3a59, #791038)"
-          : "linear-gradient(195deg, #f7819a, #cc3a59)",
+        color: "white",
+        bg: "linear-gradient(254.92deg, #F14226 21.22%, #FF6D40 78.77%)",
       },
       _active: {
-        color: darkMode ? "#000000" : "#ffffff",
-        bg: darkMode
-          ? "linear-gradient(95deg, #cc3a59, #791038)"
-          : "linear-gradient(195deg, #f7819a, #cc3a59)",
+        color: "white",
+        bg: "linear-gradient(254.92deg, #F14226 21.22%, #FF6D40 78.77%)",
       },
       _focus: {
         boxShadow: "none",
       },
     },
+    tablist: {
+      bg: "bgDark",
+    },
   }
 }
+
+// The default `size` or `variant` values
+const defaultProps: SystemStyleObject = {
+  size: "lg",
+  variant: "primary",
+}
+
 const variants = {
   primary: variantPrimary,
 }
-export default { variants }
+
+export default { parts: parts.keys, baseStyle, variants, sizes, defaultProps }

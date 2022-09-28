@@ -1,71 +1,127 @@
 import { ThemeConfig, extendTheme } from "@chakra-ui/react"
-
 import components from "./components/index"
-
-// import components from "./components"
 
 const config: ThemeConfig = {
   initialColorMode: "dark",
   useSystemColorMode: false,
 }
 
+const fonts = {
+  heading: `"DM Sans", "sans-serif"`,
+  body: `"DM Sans", "sans-serif"`,
+  mono: `"DM Sans", "sans-serif"`,
+}
+
 const colors = {
-  red: {
-    50: "#ffe3e3",
-    100: "#ffb2b3",
-    200: "#fd8282",
-    300: "#fb5151",
-    400: "#f92120",
-    500: "#df0a06", // base
-    600: "#ae0404",
-    700: "#7d0102",
-    800: "#4d0000",
-    900: "#1f0000",
+  bgDark: "#121217",
+  rose: {
+    50: "#FFF1F2",
+    100: "#FFE4E6",
+    200: "#FECDD3",
+    300: "#FDA4AF",
+    400: "#FB7185",
+    500: "#F43F5E",
+    600: "#E11D48",
+    700: "#BE123C",
+    800: "#9F1239",
+    900: "#881337",
   },
-  teal: {
-    50: "#d7fffe",
-    100: "#abfff7",
-    200: "#7afff0",
-    300: "#48ffea",
-    400: "#1affe4",
-    500: "#00e6ca", // base
-    600: "#00b39d",
-    700: "#008170",
-    800: "#004e43",
-    900: "#001c16",
+  red: {
+    50: "#FEF2F2",
+    100: "#FEE2E2",
+    200: "#FECACA",
+    300: "#FCA5A5",
+    400: "#F87171",
+    500: "#EF4444",
+    600: "#DC2626",
+    700: "#B91C1C",
+    800: "#991B1B",
+    900: "#7F1D1D",
   },
   purple: {
-    50: "#f4e3ff",
-    100: "#d5b2ff",
-    200: "#b87fff",
-    300: "#9b4cff",
-    400: "#7e1aff",
-    500: "#6500e6", // base
-    600: "#4e00b4",
-    700: "#380082",
-    800: "#220050",
-    900: "#0d0020",
+    50: "#F5F3FF",
+    100: "#EDE9FE",
+    200: "#DDD6FE",
+    300: "#C4B5FD",
+    400: "#A78BFA",
+    500: "#8B5CF6",
+    600: "#7C3AED",
+    700: "#6D28D9",
+    800: "#5B21B6",
+    900: "#4C1D95",
   },
-  gold: {
-    50: "#fff6e1",
-    100: "#fbe5b7",
-    200: "#f7d38a",
-    300: "#f4c25c",
-    400: "#f1b030",
-    500: "#d7971b", // base
-    600: "#a77513",
-    700: "#77540c",
-    800: "#483204",
-    900: "#1a1100",
+  gray: {
+    50: "#F9FBFD",
+    100: "#C3C6D5",
+    200: "#9399B4",
+    300: "#646D90",
+    400: "#545B78",
+    500: "#545B78",
+    600: "#434960",
+    700: "#323748",
+    800: "#222531",
+    900: "#1A1B23",
+  },
+  orange: {
+    50: "#FFF7ED",
+    100: "#FFEDD5",
+    200: "#FED7AA",
+    300: "#FDBA74",
+    400: "#FB923C",
+    500: "#F97316",
+    600: "#EA580C",
+    700: "#C2410C",
+    800: "#9A3412",
+    900: "#7C2D12",
+  },
+  yellow: {
+    50: "#FFFBEB",
+    100: "#FEF3C7",
+    200: "#FDE68A",
+    300: "#FCD34D",
+    400: "#FBBF24",
+    500: "#F59E0B",
+    600: "#D97706",
+    700: "#B45309",
+    800: "#92400E",
+    900: "#78350F",
+  },
+  green: {
+    50: "#ECFDF5",
+    100: "#D1FAE5",
+    200: "#A7F3D0",
+    300: "#6EE7B7",
+    400: "#34D399",
+    500: "#10B981",
+    600: "#059669",
+    700: "#047857",
+    800: "#065F46",
+    900: "#064E3B",
+  },
+  teal: {
+    50: "#F0FDFA",
+    100: "#CCFBF1",
+    200: "#99F6E4",
+    300: "#5EEAD4",
+    400: "#2DD4BF",
+    500: "#14B8A6",
+    600: "#0D9488",
+    700: "#0F766E",
+    800: "#115E59",
+    900: "#134E4A",
+  },
+  cyan: {
+    50: "#ECFEFF",
+    100: "#CFFAFE",
+    200: "#A5F3FC",
+    300: "#67E8F9",
+    400: "#22D3EE",
+    500: "#06B6D4",
+    600: "#0891B2",
+    700: "#0E7490",
+    800: "#155E75",
+    900: "#164E63",
   },
 }
 
-const fonts = {
-  body: "Neue Machina, sans-serif",
-  heading: "Neue Machina, sans-serif",
-  mono: "Neue Machina, sans-serif",
-}
-
-const overrides = { config, colors, fonts, components }
-
-export default extendTheme(overrides)
+export default extendTheme({ config, colors, fonts, components })

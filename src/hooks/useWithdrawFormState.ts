@@ -5,7 +5,6 @@ import {
 } from "../utils/numberInputState"
 import { POOLS_MAP, PoolName } from "../constants"
 import { useCallback, useMemo, useState } from "react"
-
 import { BigNumber } from "@ethersproject/bignumber"
 import { Contract } from "@ethersproject/contracts"
 import { debounce } from "lodash"
@@ -13,6 +12,7 @@ import { parseUnits } from "@ethersproject/units"
 import { useActiveWeb3React } from "."
 import { usePoolContract } from "../hooks/useContract"
 import usePoolData from "../hooks/usePoolData"
+import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
 
 interface ErrorState {
   field: string
@@ -63,7 +63,7 @@ export default function useWithdrawFormState(
       POOL.poolTokens.reduce(
         (acc, { symbol }) => ({
           ...acc,
-          [symbol]: tokenInputStateCreators[symbol]("0"),
+          [symbol]: tokenInputStateCreators[symbol](""),
         }),
         {},
       ),
@@ -108,7 +108,7 @@ export default function useWithdrawFormState(
 
       // Use state.withdrawType to figure out which swap functions to use to calcuate next state
       let nextState: WithdrawFormState | Record<string, unknown>
-      if (state.withdrawType === IMBALANCE) {
+      if (!state.percentage) {
         try {
           const inputCalculatedLPTokenAmount =
             await poolContract.calc_token_amount(txnAmounts, false)
@@ -127,87 +127,41 @@ export default function useWithdrawFormState(
                 lpTokenAmountToSpend: inputCalculatedLPTokenAmount,
               }
         } catch (e) {
-          console.error(e)
-          // calculateTokenAmount errors if amount exceeds amount in pool
           nextState = {
             error: {
               field: "tokenInputs",
-              message: "Insufficient balance in pool.",
+              message: "Unable to calculate token amount at this moment.",
             },
             lpTokenAmountToSpend: BigNumber.from("0"),
           }
         }
-        // } else if (state.withdrawType === ALL) {
-        //   try {
-        //     const tokenAmounts = await (poolContract as RoseStablesPool).calculateRemoveLiquidity(
-        //       effectiveUserLPTokenBalance,
-        //     )
-        //     nextState = {
-        //       lpTokenAmountToSpend: effectiveUserLPTokenBalance,
-        //       tokenInputs: POOL.poolTokens.reduce(
-        //         (acc, { symbol }, i) => ({
-        //           ...acc,
-        //           [symbol]: tokenInputStateCreators[symbol](tokenAmounts[i]),
-        //         }),
-        //         {},
-        //       ),
-        //       error: null,
-        //     }
-        //   } catch {
-        //     nextState = {
-        //       error: {
-        //         field: "tokenInputs",
-        //         message: "Insufficient balance in pool.",
-        //       },
-        //     }
-        //   }
       } else {
         try {
-          if (state.withdrawType !== ALL && state.percentage) {
-            const tokenIndex = POOL.poolTokens.findIndex(
-              ({ symbol }) => symbol === state.withdrawType,
-            )
-            const tokenAmount = await poolContract.calc_withdraw_one_coin(
-              effectiveUserLPTokenBalance, // lp token to be burnt
-              tokenIndex,
-            ) // actual coin amount to be returned
-            nextState = {
-              lpTokenAmountToSpend: effectiveUserLPTokenBalance,
-              tokenInputs: POOL.poolTokens.reduce(
-                (acc, { symbol }, i) => ({
-                  ...acc,
-                  [symbol]: tokenInputStateCreators[symbol](
-                    i === tokenIndex ? tokenAmount : "0",
-                  ),
-                }),
-                {},
-              ),
-              error: null,
-            }
-          } else {
-            // This branch addresses a user manually inputting a value for one token
-            const inputCalculatedLPTokenAmount =
-              await poolContract.calc_token_amount(txnAmounts, false)
-            nextState = inputCalculatedLPTokenAmount.gt(
-              effectiveUserLPTokenBalance,
-            )
-              ? {
-                  error: {
-                    field: "tokenInputs",
-                    message: "Insufficient balance.",
-                  },
-                  lpTokenAmountToSpend: BigNumber.from("0"),
-                }
-              : {
-                  lpTokenAmountToSpend: inputCalculatedLPTokenAmount,
-                  error: null,
-                }
+          const tokenIndex = POOL.poolTokens.findIndex(
+            ({ symbol }) => symbol === state.withdrawType,
+          )
+          const tokenAmount = await poolContract.calc_withdraw_one_coin(
+            effectiveUserLPTokenBalance, // lp token to be burnt
+            tokenIndex,
+          ) // actual coin amount to be returned
+          nextState = {
+            lpTokenAmountToSpend: effectiveUserLPTokenBalance,
+            tokenInputs: POOL.poolTokens.reduce(
+              (acc, { symbol }, i) => ({
+                ...acc,
+                [symbol]: tokenInputStateCreators[symbol](
+                  i === tokenIndex ? tokenAmount : "0",
+                ),
+              }),
+              {},
+            ),
+            error: null,
           }
-        } catch {
+        } catch (e) {
           nextState = {
             error: {
               field: "tokenInputs",
-              message: "Insufficient balance in pool.",
+              message: "Unable to calculate token amount at this moment.",
             },
           }
         }

@@ -1,13 +1,12 @@
-@import "../styles/theme";
-@import "../styles/viewports";
+@import "../theme/viewports";
 
 .ticker-view {
   display: flex;
   flex-direction: row-reverse;
   overflow: hidden;
   position: relative;
-  font-weight: $bold;
-  color: var(--text-title);
+  font-weight: 700;
+  color: #fcfcfd;
   letter-spacing: -1px;
   font-size: 26px;
   @include breakpoint(lg) {
@@ -45,21 +44,21 @@
 @keyframes pulseGreen {
   0%,
   100% {
-    color: var(--text-title);
+    color: #fcfcfd;
   }
 
   50% {
-    color: $success;
+    color: #34D399;
   }
 }
 
 @keyframes pulseRed {
   0%,
   100% {
-    color: var(--text-title);
+    color: #fcfcfd;
   }
 
   50% {
-    color: $error;
+    color: #F87171;
   }
 }

@@ -1,35 +1,40 @@
-import { Grid, GridItem, Stack } from "@chakra-ui/react"
+import { Box, BoxProps, Grid, GridItem } from "@chakra-ui/react"
 import React, { ReactElement, ReactNode } from "react"
 
 interface Props {
   left: ReactNode
   right: ReactNode
-  top: ReactNode
+  top?: ReactNode
   templateColumns?: string
 }
 
 const OverviewWrapper = ({
   left,
   right,
-  top,
   templateColumns,
 }: Props): ReactElement => {
+  const defaultBoxProps: BoxProps = {
+    bg: { base: "transparent", lg: "gray.900" },
+    borderRadius: "20px",
+    py: "28px",
+    px: "20px",
+  }
   return (
     <Grid
-      templateColumns={{ base: "100%", xl: templateColumns || "60% 37%" }}
+      templateColumns={{ base: "100%", xl: templateColumns || "32% 65%" }}
       templateRows="auto"
-      columnGap={{ base: "0", xl: "30px" }}
-      rowGap="20px"
+      gap="20px"
       justifyContent="center"
     >
-      <GridItem rowSpan={{ base: 2, xl: 1 }} colSpan={1}>
-        {top}
-      </GridItem>
-      <GridItem display={{ base: "none", xl: "grid" }} rowSpan={10} colSpan={1}>
-        {right}
+      <GridItem
+        display={{ base: "none", xl: "initial" }}
+        rowSpan="auto"
+        colSpan={{ base: 0, lg: 1 }}
+      >
+        <Box {...defaultBoxProps}>{left}</Box>
       </GridItem>
       <GridItem rowSpan="auto" colSpan={1}>
-        <Stack spacing="10px">{left}</Stack>
+        <Box {...defaultBoxProps}>{right}</Box>
       </GridItem>
     </Grid>
   )

@@ -70,7 +70,7 @@ export default function AnimatingNumber({ value, precision = 2 }) {
   if (value < previousNumber) delta = "decrease"
 
   return (
-    <motion.div layout className="ticker-view">
+    <motion.div layout className="ticker-view" style={+value === 0 ? { color: "#545B78" } : {}}>
       {numArray.map((number, index) =>
         number === "." ? (
           <DecimalColumn key={index} />

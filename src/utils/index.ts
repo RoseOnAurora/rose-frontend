@@ -1,19 +1,19 @@
 import { AddressZero, Zero } from "@ethersproject/constants"
 import {
   ChainId,
-  PoolTypes,
+  ErrorObj,
+  RpcErrorMessageStruct,
   SignedSignatureRes,
   TOKENS_MAP,
   Token,
 } from "../constants"
 import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers"
 import { formatUnits, parseUnits } from "@ethersproject/units"
-
 import { BigNumber } from "@ethersproject/bignumber"
 import { Contract } from "@ethersproject/contracts"
 import { ContractInterface } from "ethers"
-import { Deadlines } from "../state/user"
 import { getAddress } from "@ethersproject/address"
+import parseStringToBigNumber from "./parseStringToBigNumber"
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
@@ -108,31 +108,6 @@ export function calculateExchangeRate(
     : BigNumber.from("0")
 }
 
-export function formatDeadlineToNumber(
-  deadlineSelected: Deadlines,
-  deadlineCustom?: string,
-): number {
-  let deadline = 20
-  switch (deadlineSelected) {
-    case Deadlines.Ten:
-      deadline = 10
-      break
-    case Deadlines.Twenty:
-      deadline = 20
-      break
-    case Deadlines.Thirty:
-      deadline = 30
-      break
-    case Deadlines.Forty:
-      deadline = 40
-      break
-    case Deadlines.Custom:
-      deadline = +(deadlineCustom || formatDeadlineToNumber(Deadlines.Twenty))
-      break
-  }
-  return deadline
-}
-
 // A better version of ether's commify util
 export function commify(str: string): string {
   const parts = str.split(".")
@@ -184,30 +159,21 @@ export function calculatePrice(
 ): BigNumber {
   // returns amount * price as BN 18 precision
   if (typeof amount === "string") {
+    // if bad input, return 0
     if (isNaN(+amount)) return Zero
-    // kind of hacky, but need to prevent underflow error on large numbers
-    return parseUnits(
-      (+amount * tokenPrice).toLocaleString("en-US", { useGrouping: false }),
-      18,
-    )
+
+    // use bn for multiplication
+    const { value, isFallback } = parseStringToBigNumber(amount, 18)
+    if (!isFallback)
+      return value
+        .mul(parseUnits(tokenPrice.toString(), 18))
+        .div(BigNumber.from(10).pow(18))
   } else if (decimals != null) {
     return amount
-      .mul(parseUnits(tokenPrice.toFixed(2), 18))
+      .mul(parseUnits(tokenPrice.toString(), 18))
       .div(BigNumber.from(10).pow(decimals))
   }
   return Zero
-}
-
-export function getTokenSymbolForPoolType(poolType: PoolTypes): string {
-  if (poolType === PoolTypes.BTC) {
-    return "WBTC"
-  } else if (poolType === PoolTypes.ETH) {
-    return "WETH"
-  } else if (poolType === PoolTypes.USD) {
-    return "USDC"
-  } else {
-    return ""
-  }
 }
 
 export const toHex = (num: number): string => {
@@ -257,4 +223,45 @@ export function calculatePositionHealthColor(
     : positionHealth <= lo
     ? "green"
     : "orange"
+}
+
+export function countDecimalPlaces(num: number | string): number {
+  const stringCast = `${num}`
+  if (stringCast.includes(".")) {
+    try {
+      return stringCast.split(".")[1].length
+    } catch {
+      return 0
+    }
+  }
+  return 0
+}
+
+export function fixDecimalsOnRawVal(
+  rawVal: string,
+  fromSymbol: string,
+  toSymbol: string,
+): string {
+  const fromDecimals = TOKENS_MAP[fromSymbol]?.decimals || 18
+  const toDecimals = TOKENS_MAP[toSymbol]?.decimals || 18
+  return fromDecimals <= toDecimals || countDecimalPlaces(rawVal) <= toDecimals
+    ? rawVal
+    : (+rawVal).toFixed(toDecimals)
+}
+
+export function parseErrorMessage(error?: ErrorObj): RpcErrorMessageStruct {
+  const message: RpcErrorMessageStruct = {
+    value: { data: { message: "Internal JSON-RPC error." } },
+  }
+  try {
+    const parsed =
+      error?.message?.split(
+        "[ethjs-query] while formatting outputs from RPC ",
+      )?.[1] || ""
+    return JSON.parse(parsed.substring(1, parsed.length - 1)) as {
+      value: { data: { message: string } }
+    }
+  } catch {
+    return message
+  }
 }

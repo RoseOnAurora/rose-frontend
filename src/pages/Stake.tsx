@@ -3,22 +3,24 @@ import { commify, formatBNToShortString, formatBNToString } from "../utils"
 import { useRoseContract, useStRoseContract } from "../hooks/useContract"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
+import { Box } from "@chakra-ui/react"
 import ComponentWrapper from "../components/wrappers/ComponentWrapper"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import PageWrapper from "../components/wrappers/PageWrapper"
 import { ROSE_TOKENS_MAP } from "../constants"
 import { StRose } from "../../types/ethers-contracts/StRose"
-import StakeDetails from "../components/StakeDetails"
-import StakeForm from "../components/StakeForm"
-import StakePageTitle from "../components/StakePageTitle"
-import StakingCountdown from "../components/StakingCountdown"
+import StakeDescription from "../components/stake/StakeDescription"
+import StakeDetails from "../components/stake/StakeDetails"
+import StakeForm from "../components/stake/StakeForm"
+import StakePageTitle from "../components/stake/StakePageTitle"
+import StakingCountdown from "../components/stake/StakingCountdown"
 import TabsWrapper from "../components/wrappers/TabsWrapper"
 import { TransactionType } from "../hooks/useChakraToast"
 import { Zero } from "@ethersproject/constants"
 import { useApproveAndStake } from "../hooks/useApproveAndStake"
 import { useApproveAndUnstake } from "../hooks/useApproveAndUnstake"
 import { useCheckTokenRequiresApproval } from "../hooks/useCheckTokenRequiresApproval"
-import { useRoseTokenBalances } from "../state/wallet/hooks"
+import { useRoseTokenBalances } from "../hooks/useTokenBalances"
 import { useSelector } from "react-redux"
 import { useTranslation } from "react-i18next"
 
@@ -60,59 +62,15 @@ const Stake = (): ReactElement => {
   }, [tokenBalances])
 
   return (
-    <PageWrapper activeTab="stake">
+    <PageWrapper>
       <ComponentWrapper
         left={
-          <TabsWrapper
-            tabsProps={{ variant: "primary" }}
-            tab1={{
-              name: t("stake"),
-              content: (
-                <StakeForm
-                  fieldName={"stake"}
-                  token={"ROSE"}
-                  tokenIcon={ROSE_TOKENS_MAP.rose.icon}
-                  submitButtonLabel={
-                    approved
-                      ? t("stake")
-                      : t("approveAnd", { action: t("stake") })
-                  }
-                  formTitle={<StakePageTitle title={`${t("stake")} ROSE`} />}
-                  formDescription={t("stakingInfo")}
-                  isLoading={loading}
-                  usdPrice={+(priceOfRose || 0)}
-                  max={tokenBalanceDetails.balance}
-                  txnType={TransactionType.STAKE}
-                  handleInputChanged={checkRoseApproved}
-                  handleSubmit={stake}
-                />
-              ),
-            }}
-            tab2={{
-              name: t("unstake"),
-              content: (
-                <StakeForm
-                  fieldName={"unstake"}
-                  token={"stROSE"}
-                  tokenIcon={ROSE_TOKENS_MAP.stRose.icon}
-                  isLoading={false}
-                  formTitle={
-                    <StakePageTitle title={`${t("unstake")} stROSE`} />
-                  }
-                  formDescription={t("stakingInfo")}
-                  submitButtonLabel={t("unstake")}
-                  usdPrice={+(priceOfRose || 0) * +(priceRatio || 0)}
-                  max={tokenBalanceDetails.staked}
-                  txnType={TransactionType.UNSTAKE}
-                  handleSubmit={unstake}
-                />
-              ),
-            }}
-          />
-        }
-        right={
           <StakeDetails
-            extraStakeDetailChild={<StakingCountdown />}
+            extraStakeDetailChild={
+              <Box py="5px" px="15px">
+                <StakingCountdown />
+              </Box>
+            }
             balanceView={{
               title: t("balance"),
               items: [
@@ -162,6 +120,56 @@ const Stake = (): ReactElement => {
                 statValue: apr ?? "-",
               },
             ]}
+          />
+        }
+        right={
+          <TabsWrapper
+            tabsProps={{ variant: "primary" }}
+            tab1={{
+              name: t("stake"),
+              content: (
+                <StakeForm
+                  fieldName={"stake"}
+                  token={ROSE_TOKENS_MAP.rose.symbol}
+                  tokenName={ROSE_TOKENS_MAP.rose.name}
+                  tokenIcon={ROSE_TOKENS_MAP.rose.icon}
+                  submitButtonLabel={
+                    approved
+                      ? t("stake")
+                      : t("approveAnd", { action: t("stake") })
+                  }
+                  formTitle={<StakePageTitle title={`${t("stake")} ROSE`} />}
+                  formDescription={<StakeDescription />}
+                  isLoading={loading}
+                  usdPrice={+(priceOfRose || 0)}
+                  max={tokenBalanceDetails.balance}
+                  txnType={TransactionType.STAKE}
+                  handleInputChanged={checkRoseApproved}
+                  handleSubmit={stake}
+                />
+              ),
+            }}
+            tab2={{
+              name: t("unstake"),
+              content: (
+                <StakeForm
+                  fieldName={"unstake"}
+                  token={ROSE_TOKENS_MAP.stRose.symbol}
+                  tokenName={ROSE_TOKENS_MAP.stRose.name}
+                  tokenIcon={ROSE_TOKENS_MAP.stRose.icon}
+                  isLoading={false}
+                  formTitle={
+                    <StakePageTitle title={`${t("unstake")} stROSE`} />
+                  }
+                  formDescription={<StakeDescription />}
+                  submitButtonLabel={t("unstake")}
+                  usdPrice={+(priceOfRose || 0) * +(priceRatio || 0)}
+                  max={tokenBalanceDetails.staked}
+                  txnType={TransactionType.UNSTAKE}
+                  handleSubmit={unstake}
+                />
+              ),
+            }}
           />
         }
       />

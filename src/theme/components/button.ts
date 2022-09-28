@@ -1,125 +1,123 @@
-import {
-  CSSWithMultiValues,
-  RecursiveCSSObject,
-} from "@chakra-ui/styled-system"
-import { Dict } from "@chakra-ui/utils"
-import { transparentize } from "@chakra-ui/theme-tools"
+import { SystemStyleFunction } from "@chakra-ui/theme-tools"
+import { SystemStyleObject } from "@chakra-ui/styled-system"
 
-const variantPrimary = (
-  props: Dict,
-): RecursiveCSSObject<CSSWithMultiValues> => {
+// base style every button has
+const baseStyle: SystemStyleObject = {
+  borderRadius: "12px",
+  fontWeight: 700,
+  border: "none",
+  _focus: {
+    boxShadow: "none",
+  },
+  display: "flex",
+  alignItems: "center",
+}
+
+// Styles for the visual style variations
+const variantPrimary: SystemStyleFunction = (props) => {
   const darkMode = props.colorMode === "dark"
-  const transparentColor = transparentize(
-    darkMode ? "gray.300" : "gray.100",
-    0.7,
-  )(props.theme)
-  const disableBg = transparentize(
-    darkMode ? "#1c1d21" : "#cc3a59",
-    1,
-  )(props.theme)
-  const boxShadowHover = darkMode
-    ? "2px 2px 12px rgba(68, 64, 64, 0.14)"
-    : "0px 7px 12px rgba(68, 64, 64, 0.3)"
   const disabled = {
-    color: transparentColor,
-    border: "none",
+    color: "gray.300",
     cursor: "not-allowed",
     boxShadow: "none",
-    bg: disableBg,
+    bg: "gray.800",
   }
 
   return {
-    color: darkMode ? "#000000" : "#ffffff",
-    borderRadius: "10px",
+    color: "#FFFFFF",
+    boxShadow: "0px 10px 40px rgba(220, 51, 24, 0.5)",
+    transition: "ease-out 0.5s",
     bg: darkMode
-      ? "linear-gradient(95deg, #cc3a59, #791038)"
-      : "linear-gradient(195deg, #f7819a, #cc3a59)",
-    letterSpacing: "0.02em",
-    fontWeight: "700",
-    padding: "1px 6px",
+      ? "linear-gradient(254.92deg, #F14226 21.22%, #FF6D40 78.77%)"
+      : "linear-gradient(254.92deg, #F14226 21.22%, #FF6D40 78.77%)",
     _hover: {
-      color: "#ffffff",
-      bg: "linear-gradient(195deg, #cc3a59, #d63255)",
-      boxShadow: boxShadowHover,
+      bg: "linear-gradient(254.92deg, #CF2F17 21.22%, #FF480F 78.77%)",
+      boxShadow: "0px 0px 16px rgba(220, 51, 24, 0.5)",
       _disabled: disabled,
     },
     _active: {
-      color: "#ffffff",
-      bg: "#cc3a59",
+      bg: "linear-gradient(254.92deg, #CF2F17 21.22%, #FF480F 78.77%)",
     },
     _disabled: disabled,
-    _focus: {
-      boxShadow: "none",
-    },
   }
 }
 
-const variantLight = (props: Dict): RecursiveCSSObject<CSSWithMultiValues> => {
-  const transparentColor = transparentize("gray.500", 0.6)(props.theme)
-  const disableBg = transparentize("#cc3a59", 0.2)(props.theme)
+const variantSolid: SystemStyleFunction = (props) => {
   const darkMode = props.colorMode === "dark"
-  const boxShadowHover =
-    props.colorMode === "light"
-      ? "0px 7px 12px rgba(68, 64, 64, 0.3)"
-      : "2px 2px 12px rgba(68, 64, 64, 0.14)"
   const disabled = {
-    opacity: "1",
-    color: transparentColor,
-    border: "none",
+    color: "gray.300",
     cursor: "not-allowed",
     boxShadow: "none",
-    bg: disableBg,
+    bg: "gray.800",
   }
+
   return {
-    color: darkMode ? "#000000" : "#ffffff",
-    borderRadius: "full",
-    fontSize: "13px",
-    width: "75px",
-    letterSpacing: "0.02em",
-    fontWeight: "700",
-    padding: "1px 6px",
-    border: "none",
-    bg: "#cc3a59",
+    color: "gray.200",
+    transition: "ease-out 0.5s",
+    borderRadius: "32px",
+    bg: darkMode ? "gray.800" : "gray.800",
     _hover: {
-      color: "#ffffff",
-      bg: "#d63255",
-      boxShadow: boxShadowHover,
+      bg: "gray.700",
       _disabled: disabled,
     },
-    _disabled: disabled,
-    _focus: {
-      boxShadow: "none",
+    _active: {
+      bg: "gray.800",
     },
+    _disabled: disabled,
   }
 }
 
-const variantOuline = (props: Dict): RecursiveCSSObject<CSSWithMultiValues> => {
-  const darkMode = props.colorMode === "dark"
+const variantOutline: SystemStyleFunction = () => {
+  const disabled = {
+    color: "gray.300",
+    cursor: "not-allowed",
+    boxShadow: "none",
+    bg: "gray.900",
+  }
 
   return {
-    borderRadius: "10px",
-    borderColor: darkMode
-      ? "var(--chakra-colors-whiteAlpha-300)"
-      : "var(--chakra-colors-blackAlpha-400)",
+    color: "white",
+    transition: "ease-out 0.5s",
+    borderRadius: "38px",
+    border: "1px",
+    borderColor: "gray.700",
+    bg: "transparent",
     _hover: {
-      bg: darkMode
-        ? "var(--chakra-colors-whiteAlpha-200)"
-        : "var(--chakra-colors-whiteAlpha-500)",
-    },
-    _focus: {
-      boxShadow: "none",
+      bg: "blackAlpha.100",
+      _disabled: disabled,
     },
     _active: {
-      bg: darkMode
-        ? "var(--chakra-colors-whiteAlpha-300)"
-        : "var(--chakra-colors-whiteAlpha-600)",
+      bg: "gray.800",
     },
+    _disabled: disabled,
   }
 }
 
-const variants = {
-  primary: variantPrimary,
-  light: variantLight,
-  outline: variantOuline,
+// Styles for the size variations
+const sizes: Record<string, SystemStyleObject> = {
+  md: {
+    fontSize: "14px",
+    lineHeight: "18px",
+    padding: "10px 16px 10px 16px",
+  },
+  lg: {
+    fontSize: "16px",
+    lineHeight: "21px",
+    padding: "14px 24px 14px 24px",
+  },
 }
-export default { variants }
+
+// record of different variants
+const variants: Record<string, SystemStyleFunction> = {
+  primary: variantPrimary,
+  solid: variantSolid,
+  outline: variantOutline,
+}
+
+// The default `size` or `variant` values
+const defaultProps: SystemStyleObject = {
+  size: "lg",
+  variant: "primary",
+}
+
+export default { baseStyle, variants, sizes, defaultProps }

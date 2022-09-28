@@ -1,43 +1,52 @@
 /* eslint @typescript-eslint/no-unsafe-assignment: 0 */
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
 /* eslint @typescript-eslint/no-explicit-any: 0 */
-import "./WithdrawPage.scss"
 import {
   Box,
   Button,
-  Center,
+  Flex,
   SlideFade,
   Slider,
   SliderFilledTrack,
   SliderMark,
   SliderThumb,
   SliderTrack,
+  Stack,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
+  Text,
   Tooltip,
 } from "@chakra-ui/react"
 import { Contract, ContractReceipt } from "@ethersproject/contracts"
-import { FRAX_STABLES_LP_POOL_NAME, POOLS_MAP, PoolName } from "../constants"
+import {
+  ErrorObj,
+  FRAX_STABLES_LP_POOL_NAME,
+  POOLS_MAP,
+  PoolName,
+} from "../constants"
 import React, { ReactElement, useEffect, useState } from "react"
+import { calculatePrice, formatBNToString } from "../utils"
 import { commify, formatUnits, parseUnits } from "@ethersproject/units"
-import { formatBNToPercentString, formatBNToString } from "../utils"
 import AdvancedOptions from "./AdvancedOptions"
 import { AppState } from "../state"
+import ApprovalInfo from "./ApprovalInfo"
 import { BigNumber } from "@ethersproject/bignumber"
-import { BsSliders } from "react-icons/bs"
-import { IconButtonPopover } from "./Popover"
-import Modal from "./Modal"
-import RadioButton from "./RadioButton"
+import Bonus from "./pool/Bonus"
+import { FaCircle } from "react-icons/fa"
+import FormTitle from "./FormTitleOptions"
+import MaxFromBalance from "./input/MaxFromBalance"
+import ModalWrapper from "./wrappers/ModalWrapper"
+import OutdatedPoolInfo from "./OutdatedPoolInfo"
 import ReviewWithdraw from "./ReviewWithdraw"
-import TokenInput from "./TokenInput"
+import RoseRadioButton from "./button/RadioButton"
+import SingleTokenInput from "./input/SingleTokenInput"
 import { TransactionType } from "../hooks/useChakraToast"
 import { Zero } from "@ethersproject/constants"
 import { calculatePriceImpact } from "../utils/priceImpact"
 import { formatSlippageToString } from "../utils/slippage"
-import { logEvent } from "../utils/googleAnalytics"
 import { useActiveWeb3React } from "../hooks"
 import { useApproveAndWithdraw } from "../hooks/useApproveAndWithdraw"
 import { usePoolContract } from "../hooks/useContract"
@@ -70,7 +79,7 @@ interface Props {
   handlePostSubmit?: (
     receipt: ContractReceipt | null,
     transactionType: TransactionType,
-    error?: { code: number; message: string },
+    error?: ErrorObj,
   ) => void
 }
 
@@ -167,9 +176,9 @@ function Withdraw({
     return receipt
   }
 
-  const tokensData = React.useMemo(
-    () =>
-      POOL.poolTokens.map(({ name, symbol, icon, decimals }) => ({
+  const tokensData = React.useMemo(() => {
+    try {
+      return POOL.poolTokens.map(({ name, symbol, icon, decimals }) => ({
         name,
         symbol,
         icon,
@@ -182,22 +191,12 @@ function Withdraw({
             ?.value.div(BigNumber.from(10).pow(18 - decimals)) || Zero,
           decimals,
         ),
-      })),
-    [withdrawFormState, POOL.poolTokens, userShareData?.tokens],
-  )
+      }))
+    } catch {
+      return []
+    }
+  }, [withdrawFormState, POOL.poolTokens, userShareData?.tokens])
   // TO-DO: fix gas price calculation
-  // const gasPrice = Zero
-  // const gasPrice = ethers.utils.parseUnits(
-  //   formatGasToString(
-  //     { gasStandard, gasFast, gasInstant },
-  //     gasPriceSelected,
-  //     gasCustom,
-  //   ),
-  //   "gwei",
-  // )
-  // const gasAmount = calculateGasEstimate("removeLiquidityImbalance").mul(
-  //   gasPrice,
-  // ) // units of gas * GWEI/Unit of gas
   const gasAmount = BigNumber.from(0)
 
   const txnGasCost = {
@@ -217,50 +216,62 @@ function Withdraw({
     txnGasCost: txnGasCost,
   }
 
-  POOL.poolTokens.forEach(({ name, decimals, icon, symbol }) => {
-    if (BigNumber.from(withdrawFormState.tokenInputs[symbol].valueSafe).gt(0)) {
-      reviewWithdrawData.withdraw.push({
-        name,
-        value: commify(
-          formatUnits(
-            withdrawFormState.tokenInputs[symbol].valueSafe,
-            decimals,
-          ),
-        ),
-        icon,
-      })
-      if (tokenPricesUSD != null) {
-        reviewWithdrawData.rates.push({
+  try {
+    POOL.poolTokens.forEach(({ name, decimals, icon, symbol }) => {
+      if (
+        BigNumber.from(withdrawFormState.tokenInputs[symbol].valueSafe).gt(0)
+      ) {
+        reviewWithdrawData.withdraw.push({
           name,
-          value: formatUnits(
-            withdrawFormState.tokenInputs[symbol].valueSafe,
-            decimals,
+          value: commify(
+            formatUnits(
+              withdrawFormState.tokenInputs[symbol].valueSafe,
+              decimals,
+            ),
           ),
-          rate: commify(tokenPricesUSD[symbol]?.toFixed(2)),
+          icon,
         })
+        if (tokenPricesUSD != null) {
+          reviewWithdrawData.rates.push({
+            name,
+            value: formatUnits(
+              withdrawFormState.tokenInputs[symbol].valueSafe,
+              decimals,
+            ),
+            rate: commify(tokenPricesUSD[symbol]?.toFixed(2)),
+          })
+        }
       }
-    }
-  })
+    })
+  } catch {
+    // noop
+  }
 
   const noShare = !userShareData || userShareData.lpTokenBalance.eq(Zero)
 
   return (
     <Box>
-      <Modal isOpen={isModalOpen} onClose={(): void => setIsModalOpen(false)}>
+      <ModalWrapper
+        modalHeader={t("reviewWithdraw")}
+        isOpen={isModalOpen}
+        onClose={(): void => setIsModalOpen(false)}
+        maxW="550px"
+        preserveScrollBarGap
+        isCentered
+      >
         <ReviewWithdraw
           data={reviewWithdrawData}
           onClose={(): void => setIsModalOpen(false)}
           gas={gasPriceSelected}
           onConfirm={async () => {
             setIsModalOpen(false)
-            logEvent("withdraw", (poolData && { pool: poolData?.name }) || {})
             handlePreSubmit?.(TransactionType.WITHDRAW)
             try {
               const receipt =
                 (await onConfirmTransaction?.()) as ContractReceipt
               handlePostSubmit?.(receipt, TransactionType.WITHDRAW)
             } catch (e) {
-              const error = e as { code: number; message: string }
+              const error = e as ErrorObj
               handlePostSubmit?.(null, TransactionType.WITHDRAW, {
                 code: error.code,
                 message: error.message,
@@ -268,257 +279,291 @@ function Withdraw({
             }
           }}
         />
-      </Modal>
-      <div className="form">
+      </ModalWrapper>
+      <Stack spacing="10px">
+        <FormTitle title={t("withdraw")} popoverOptions={<AdvancedOptions />} />
         <Tabs
           isFitted
           variant="primary"
+          size="md"
+          pt={4}
           onChange={() => {
             updateWithdrawFormState({ fieldName: "reset", value: "reset" })
             setIsOpen(false)
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-            }}
-          >
-            <h3>{t("withdraw")}</h3>
-            <IconButtonPopover
-              IconButtonProps={{
-                "aria-label": "Configure Settings",
-                variant: "outline",
-                size: "lg",
-                icon: <BsSliders size="25px" />,
-                title: "Configure Settings",
-              }}
-              PopoverBodyContent={<AdvancedOptions />}
-            />
-          </div>
           <TabList>
             <Tab>Single Token</Tab>
             <Tab>Multi Token</Tab>
           </TabList>
           <TabPanels>
-            <TabPanel>
-              {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
-                <p className="outdatedInfo">
-                  This pool is outdated. Please withdraw your liquidity and{" "}
-                  <a href="/#/pools/frax">migrate to the new Frax pool.</a>
-                </p>
-              )}
-              <div className="horizontalDisplay">
-                <span>Select a token: </span>
-                <div>
-                  {tokensData.map((t) => {
-                    return (
-                      <RadioButton
-                        key={t.symbol}
-                        checked={withdrawFormState.withdrawType === t.symbol}
-                        onChange={(): void => {
-                          updateWithdrawFormState({
-                            fieldName: "withdrawType",
-                            value: t.symbol,
-                          })
-                          setIsOpen(true)
-                        }}
-                        label={t.name}
-                      />
-                    )
-                  })}
-                </div>
-              </div>
-              <span>
-                <small>% of share to withdraw:</small>
-              </span>
-              <div className="percentage">
-                <Slider
-                  id="slider"
-                  defaultValue={100}
-                  min={0}
-                  max={100}
-                  mt="1"
-                  onChange={(v) => {
-                    setSliderValue(v)
-                    updateWithdrawFormState({
-                      fieldName: "percentage",
-                      value: String(v),
-                    })
-                  }}
-                  onMouseEnter={() => setShowTooltip(true)}
-                  onMouseLeave={() => setShowTooltip(false)}
-                >
-                  <SliderMark value={0} mt="1" ml="-2.5" fontSize="sm">
-                    0%
-                  </SliderMark>
-                  <SliderMark value={50} mt="1" ml="-2.5" fontSize="sm">
-                    50%
-                  </SliderMark>
-                  <SliderMark value={100} mt="1" ml="-2.5" fontSize="sm">
-                    100%
-                  </SliderMark>
-                  <SliderTrack>
-                    <SliderFilledTrack bg="#cc3a59" />
-                  </SliderTrack>
-                  <Tooltip
-                    hasArrow
-                    bg="#cc3a59"
-                    color="white"
-                    placement="top"
-                    isOpen={showTooltip}
-                    label={`${sliderValue}%`}
-                  >
-                    <SliderThumb />
-                  </Tooltip>
-                </Slider>
-              </div>
-              {withdrawFormState.error ? (
-                <div className="error">{withdrawFormState.error.message}</div>
-              ) : null}
-              <SlideFade in={isOpen} hidden={!isOpen} offsetY="-30px">
-                <Box mt="50px">
-                  {tokensData.map((token, index) => (
-                    <div key={index}>
-                      <TokenInput
-                        {...token}
-                        max={undefined}
-                        readonly={true}
-                        // inputValue={parseFloat(token.inputValue).toFixed(5)}
-                        onChange={(value): void =>
-                          updateWithdrawFormState({
-                            fieldName: "tokenInputs",
-                            value: value,
-                            tokenSymbol: token.symbol,
-                          })
-                        }
-                      />
-                      {index === tokensData.length - 1 ? (
-                        ""
-                      ) : (
-                        <div
-                          className="formSpace"
-                          style={{ marginBottom: "10px" }}
-                        ></div>
-                      )}
-                    </div>
-                  ))}
+            <TabPanel px={1} pb={8}>
+              <Stack spacing={5} mt="10px">
+                {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
+                  <OutdatedPoolInfo poolName="Frax" route="/pools/frax" />
+                )}
+                <Box bg="gray.800" borderRadius="12px" p="16px">
+                  <Flex justifyContent="space-between" alignItems="center">
+                    <Text
+                      as="span"
+                      color="gray.100"
+                      fontWeight={700}
+                      fontSize="15px"
+                    >
+                      Select a token:
+                    </Text>
+                    <RoseRadioButton
+                      options={tokensData.map((t) => t.symbol)}
+                      onChange={(nextValue: string): void => {
+                        updateWithdrawFormState({
+                          fieldName: "withdrawType",
+                          value: nextValue,
+                        })
+                        setIsOpen(true)
+                      }}
+                    />
+                  </Flex>
                 </Box>
-                <div className={"transactionInfoContainer"}>
-                  <div className="transactionInfo">
-                    <div className="transactionInfoItem">
-                      {reviewWithdrawData.priceImpact.gte(0) ? (
-                        <span className="bonus">{t("bonus")}: </span>
-                      ) : (
-                        <span className="slippage">{t("priceImpact")}</span>
-                      )}
-                      <span
-                        className={
-                          "value " +
-                          (reviewWithdrawData.priceImpact.gte(0)
-                            ? "bonus"
-                            : "slippage")
-                        }
+                <Stack spacing={3}>
+                  <Text color="gray.100" fontSize="14px" fontWeight={700}>
+                    % of share to withdraw:
+                  </Text>
+                  <Box p={3}>
+                    <Slider
+                      id="slider"
+                      defaultValue={100}
+                      min={0}
+                      max={100}
+                      mt="1"
+                      onChange={(v) => {
+                        setSliderValue(v)
+                        updateWithdrawFormState({
+                          fieldName: "percentage",
+                          value: String(v),
+                        })
+                      }}
+                      onMouseEnter={() => setShowTooltip(true)}
+                      onMouseLeave={() => setShowTooltip(false)}
+                      color="gray.300"
+                    >
+                      <SliderMark value={0} mt="2.5" fontSize="xs">
+                        0%
+                      </SliderMark>
+                      <SliderMark value={25} mt="2.5" ml="-2.5" fontSize="xs">
+                        25%
+                      </SliderMark>
+                      <SliderMark value={50} mt="2.5" ml="-2.5" fontSize="xs">
+                        50%
+                      </SliderMark>
+                      <SliderMark value={75} mt="2.5" ml="-2.5" fontSize="xs">
+                        75%
+                      </SliderMark>
+                      <SliderMark value={100} mt="2.5" ml="-3" fontSize="xs">
+                        100%
+                      </SliderMark>
+                      <SliderTrack bg="gray.700">
+                        <SliderFilledTrack bg="red.500" />
+                      </SliderTrack>
+                      <Tooltip
+                        hasArrow
+                        bg="red.400"
+                        color="gray.900"
+                        placement="top"
+                        isOpen={showTooltip}
+                        label={`${sliderValue}%`}
                       >
-                        {" "}
-                        {formatBNToPercentString(
-                          reviewWithdrawData.priceImpact,
-                          18,
-                          4,
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </SlideFade>
+                        <SliderThumb boxSize={5}>
+                          <Box boxSize={3} as={FaCircle} color="red.400" />
+                        </SliderThumb>
+                      </Tooltip>
+                    </Slider>
+                  </Box>
+                </Stack>
+                <SlideFade in={isOpen} hidden={!isOpen} offsetY="-30px">
+                  <Stack spacing="15px" mt={2}>
+                    {tokensData.map((token, index) => {
+                      let tokenUSDValue: number | BigNumber | undefined
+                      if (poolData.lpTokenPriceUSD != Zero) {
+                        tokenUSDValue = parseFloat(
+                          formatBNToString(poolData.lpTokenPriceUSD, 18, 2),
+                        )
+                      } else {
+                        tokenUSDValue = tokenPricesUSD?.[token.symbol]
+                      }
+                      return (
+                        <Stack key={index} alignItems="flex-end" spacing={0}>
+                          <SingleTokenInput
+                            token={token}
+                            inputValue={token.inputValue}
+                            isInvalid={false}
+                            readOnly={true}
+                            onChangeInput={(e): void => {
+                              updateWithdrawFormState({
+                                fieldName: "tokenInputs",
+                                value: e.target.value,
+                                tokenSymbol: token.symbol,
+                              })
+                            }}
+                          />
+                          <Flex
+                            justifyContent="flex-end"
+                            w="full"
+                            overflow="hidden"
+                          >
+                            <Text
+                              textAlign="right"
+                              fontSize="12px"
+                              fontWeight={400}
+                              color="gray.300"
+                            >
+                              ≈$
+                              {commify(
+                                formatBNToString(
+                                  calculatePrice(
+                                    token.inputValue,
+                                    tokenUSDValue,
+                                  ),
+                                  18,
+                                  2,
+                                ),
+                              )}
+                            </Text>
+                          </Flex>
+                        </Stack>
+                      )
+                    })}
+                    {withdrawFormState.error && (
+                      <Text
+                        textAlign="center"
+                        color="red.600"
+                        whiteSpace="nowrap"
+                        fontSize="14px"
+                      >
+                        {withdrawFormState.error.message}
+                      </Text>
+                    )}
+                  </Stack>
+                </SlideFade>
+                <Bonus amount={reviewWithdrawData.priceImpact} />
+              </Stack>
             </TabPanel>
             <TabPanel>
-              {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
-                <p className="outdatedInfo">
-                  This pool is outdated. Please withdraw your liquidity and{" "}
-                  <a href="/#/pools/frax">migrate to the new Frax pool.</a>
-                </p>
-              )}
-              <p className="instructions">
-                Type in below the amounts of each token you want to withdraw.
-              </p>
-              {withdrawFormState.error ? (
-                <div className="error">{withdrawFormState.error.message}</div>
-              ) : null}
-              {tokensData.map((token, index) => (
-                <div key={index}>
-                  <TokenInput
-                    {...token}
-                    // inputValue={parseFloat(token.inputValue).toFixed(5)}
-                    onChange={(value): void =>
-                      updateWithdrawFormState({
-                        fieldName: "tokenInputs",
-                        value: value,
-                        tokenSymbol: token.symbol,
-                      })
-                    }
-                  />
-                  {index === tokensData.length - 1 ? (
-                    ""
-                  ) : (
-                    <div className="formSpace"></div>
-                  )}
-                </div>
-              ))}
-              <div className={"transactionInfoContainer"}>
-                <div className="transactionInfo">
-                  <div className="transactionInfoItem">
-                    {reviewWithdrawData.priceImpact.gte(0) ? (
-                      <span className="bonus">{t("bonus")}: </span>
-                    ) : (
-                      <span className="slippage">{t("priceImpact")}</span>
-                    )}
-                    <span
-                      className={
-                        "value " +
-                        (reviewWithdrawData.priceImpact.gte(0)
-                          ? "bonus"
-                          : "slippage")
-                      }
-                    >
-                      {" "}
-                      {formatBNToPercentString(
-                        reviewWithdrawData.priceImpact,
-                        18,
-                        4,
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              <Stack spacing={5} mt="10px">
+                {poolData?.name === FRAX_STABLES_LP_POOL_NAME && (
+                  <OutdatedPoolInfo poolName="Frax" route="/pools/frax" />
+                )}
+                <Text
+                  fontSize="16px"
+                  fontWeight={400}
+                  color="gray.300"
+                  textAlign="center"
+                >
+                  Type in below the amounts of each token you want to withdraw.
+                </Text>
+                {tokensData.map((token, index) => {
+                  let tokenUSDValue: number | BigNumber | undefined
+                  if (poolData.lpTokenPriceUSD != Zero) {
+                    tokenUSDValue = parseFloat(
+                      formatBNToString(poolData.lpTokenPriceUSD, 18, 2),
+                    )
+                  } else {
+                    tokenUSDValue = tokenPricesUSD?.[token.symbol]
+                  }
+                  return (
+                    <Stack key={index} alignItems="flex-end" spacing={0}>
+                      <MaxFromBalance
+                        onClickMax={() => {
+                          updateWithdrawFormState({
+                            fieldName: "tokenInputs",
+                            value: token.max,
+                            tokenSymbol: token.symbol,
+                          })
+                        }}
+                        max={token.max}
+                      />
+                      <SingleTokenInput
+                        token={token}
+                        inputValue={token.inputValue}
+                        isInvalid={false} // TODO: fix this
+                        onChangeInput={(e): void => {
+                          updateWithdrawFormState({
+                            fieldName: "tokenInputs",
+                            value: e.target.value,
+                            tokenSymbol: token.symbol,
+                          })
+                        }}
+                      />
+                      <Flex justifyContent="space-between" w="full">
+                        {!!withdrawFormState.tokenInputs[token.symbol].error &&
+                          !!token.inputValue && (
+                            <Text
+                              color="red.600"
+                              whiteSpace="nowrap"
+                              fontSize="14px"
+                            >
+                              {
+                                withdrawFormState.tokenInputs[token.symbol]
+                                  .error
+                              }
+                            </Text>
+                          )}
+                        <Flex
+                          justifyContent="flex-end"
+                          w="full"
+                          overflow="hidden"
+                        >
+                          <Text
+                            textAlign="right"
+                            fontSize="12px"
+                            fontWeight={400}
+                            color="gray.300"
+                          >
+                            ≈$
+                            {commify(
+                              formatBNToString(
+                                calculatePrice(token.inputValue, tokenUSDValue),
+                                18,
+                                2,
+                              ),
+                            )}
+                          </Text>
+                        </Flex>
+                      </Flex>
+                    </Stack>
+                  )
+                })}
+                {withdrawFormState.error && (
+                  <Text
+                    textAlign="center"
+                    color="red.600"
+                    whiteSpace="nowrap"
+                    fontSize="14px"
+                  >
+                    {withdrawFormState.error.message}
+                  </Text>
+                )}
+                <Bonus amount={reviewWithdrawData.priceImpact} />
+              </Stack>
             </TabPanel>
           </TabPanels>
         </Tabs>
-      </div>
-      <div className="options" style={{ height: "100%" }}>
-        <Center width="100%">
-          <Button
-            variant="primary"
-            size="lg"
-            width="100%"
-            disabled={
-              noShare ||
-              !!withdrawFormState.error ||
-              withdrawFormState.lpTokenAmountToSpend.isZero()
-            }
-            onClick={(): void => {
-              setIsModalOpen(true)
-            }}
-          >
-            {t("withdraw")}
-          </Button>
-        </Center>
-        <div className="approvalMessage">
-          Note: The &quot;Approve&quot; transaction is only needed the first
-          time; subsequent actions will not require approval.
-        </div>
-      </div>
+        <Button
+          variant="primary"
+          size="lg"
+          width="100%"
+          disabled={
+            noShare ||
+            !!withdrawFormState.error ||
+            withdrawFormState.lpTokenAmountToSpend.isZero()
+          }
+          onClick={(): void => {
+            setIsModalOpen(true)
+          }}
+        >
+          {t("withdraw")}
+        </Button>
+        <ApprovalInfo />
+      </Stack>
     </Box>
   )
 }

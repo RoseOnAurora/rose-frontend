@@ -1,24 +1,17 @@
-import "../styles/global.scss"
 import { Outlet, useLocation } from "react-router-dom"
 import React, { ReactElement } from "react"
-import BottomMenu from "../components/BottomMenu"
 import { Box } from "@chakra-ui/react"
-import TopMenu from "../components/TopMenu"
+import Footer from "../components/nav/Footer"
+import Header from "../components/nav/Header"
 
 const App = ({ children }: React.PropsWithChildren<unknown>): ReactElement => {
   const { pathname } = useLocation()
 
   return (
-    <Box
-      minH="100vh"
-      bg="var(--background-main)"
-      color="var(--text)"
-      fontSize="16px"
-      pb="300px"
-    >
-      <TopMenu activeTab={pathname} />
+    <Box minH="100vh" bg="bgDark" color="white" fontSize="16px" pb="300px">
+      <Header activeTab={pathname} />
       {children}
-      <BottomMenu />
+      <Footer />
       <Outlet />
     </Box>
   )

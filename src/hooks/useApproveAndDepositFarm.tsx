@@ -75,6 +75,7 @@ export function useApproveAndDepositFarm(
       return receipt
     } catch (e) {
       console.error(e)
+      throw e
     }
   }
 }

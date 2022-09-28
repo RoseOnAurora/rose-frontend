@@ -1,6 +1,5 @@
 import {
   BORROW_MARKET_MAP,
-  BRIDGE_CONTRACT_ADDRESSES,
   BUSD,
   BorrowMarketName,
   DAI,
@@ -18,9 +17,6 @@ import {
   SROSE_CONTRACT_ADDRESSES,
   STABLECOIN_SWAP_V2_TOKEN,
   SWAP_COMPOSER_ADDRESS,
-  SWAP_MIGRATOR_USD_CONTRACT_ADDRESSES,
-  SYNTHETIX_CONTRACT_ADDRESSES,
-  SYNTHETIX_EXCHANGE_RATES_CONTRACT_ADDRESSES,
   Token,
   USDC,
   USDT,
@@ -28,15 +24,12 @@ import {
   isMetaPool,
 } from "../constants"
 import { Contract, ContractInterface } from "@ethersproject/contracts"
-import BRIDGE_CONTRACT_ABI from "../constants/abis/bridge.json"
-import { Bridge } from "../../types/ethers-contracts/Bridge"
 import ERC20_ABI from "../constants/abis/erc20.json"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import GARDEN_ABI from "../constants/abis/Garden.json"
 import { Garden } from "../../types/ethers-contracts/Garden"
 import LPTOKEN_UNGUARDED_ABI from "../constants/abis/lpTokenUnguarded.json"
 import { LpTokenUnguarded } from "../../types/ethers-contracts/LpTokenUnguarded"
-import MIGRATOR_USD_CONTRACT_ABI from "../constants/abis/swapMigratorUSD.json"
 import MULTIMINTER_ABI from "../constants/abis/multiminter.json"
 import ORACLE_ABI from "../constants/abis/Oracle.json"
 import { Oracle } from "../../types/ethers-contracts/Oracle"
@@ -47,13 +40,8 @@ import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
 import { RoseStablesLP } from "../../types/ethers-contracts/RoseStablesLP"
 import SROSE_ABI from "../constants/abis/stRose.json"
 import SWAP_COMPOSER_ABI from "../constants/abis/SwapComposer.json"
-import SYNTHETIX_EXCHANGE_RATE_CONTRACT_ABI from "../constants/abis/synthetixExchangeRate.json"
-import SYNTHETIX_NETWORK_TOKEN_CONTRACT_ABI from "../constants/abis/synthetixNetworkToken.json"
 import { StRose } from "../../types/ethers-contracts/StRose"
 import { SwapComposer } from "../../types/ethers-contracts/SwapComposer"
-import { SwapMigratorUSD } from "../../types/ethers-contracts/SwapMigratorUSD"
-import { SynthetixExchangeRate } from "../../types/ethers-contracts/SynthetixExchangeRate"
-import { SynthetixNetworkToken } from "../../types/ethers-contracts/SynthetixNetworkToken"
 import VASE_ABI from "../constants/abis/Vase.json"
 import { Vase } from "../../types/ethers-contracts/Vase"
 import { getContract } from "../utils"
@@ -154,47 +142,6 @@ export function useOracleContract(
     ? BORROW_MARKET_MAP[borrowMarket].oracleAddresses[chainId]
     : undefined
   return useContract(contractAddress, JSON.stringify(ORACLE_ABI)) as Oracle
-}
-
-export function useSwapMigratorUSDContract(): SwapMigratorUSD | null {
-  const { chainId } = useActiveWeb3React()
-  const contractAddress = chainId
-    ? SWAP_MIGRATOR_USD_CONTRACT_ADDRESSES[chainId]
-    : undefined
-  return useContract(
-    contractAddress,
-    MIGRATOR_USD_CONTRACT_ABI,
-  ) as SwapMigratorUSD
-}
-
-export function useBridgeContract(): Bridge | null {
-  const { chainId } = useActiveWeb3React()
-  const contractAddress = chainId
-    ? BRIDGE_CONTRACT_ADDRESSES[chainId]
-    : undefined
-  return useContract(contractAddress, BRIDGE_CONTRACT_ABI) as Bridge
-}
-
-export function useSynthetixContract(): SynthetixNetworkToken | null {
-  const { chainId } = useActiveWeb3React()
-  const contractAddress = chainId
-    ? SYNTHETIX_CONTRACT_ADDRESSES[chainId]
-    : undefined
-  return useContract(
-    contractAddress,
-    SYNTHETIX_NETWORK_TOKEN_CONTRACT_ABI,
-  ) as SynthetixNetworkToken
-}
-
-export function useSynthetixExchangeRatesContract(): SynthetixExchangeRate | null {
-  const { chainId } = useActiveWeb3React()
-  const contractAddress = chainId
-    ? SYNTHETIX_EXCHANGE_RATES_CONTRACT_ADDRESSES[chainId]
-    : undefined
-  return useContract(
-    contractAddress,
-    SYNTHETIX_EXCHANGE_RATE_CONTRACT_ABI,
-  ) as SynthetixExchangeRate
 }
 
 export function useTokenContract(

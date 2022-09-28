@@ -47,12 +47,6 @@ export function useTokenFormState(
     ),
   )
 
-  // function updateTokenFormValue(tokenSymbol: string, value: string): void {
-  //   setTokenFormState((prevState) => ({
-  //     ...prevState,
-  //     [tokenSymbol]: tokenInputStateCreators[tokenSymbol](value),
-  //   }))
-  // }
   const updateTokenFormState = useCallback(
     (newState: { [symbol: string]: string | BigNumber }) => {
       const convertedNewState = Object.keys(newState).reduce(
