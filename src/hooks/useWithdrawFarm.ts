@@ -2,16 +2,16 @@ import { FarmName, TRANSACTION_TYPES } from "../constants"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { updateLastTransactionTimes } from "../state/application"
-import { useActiveWeb3React } from "."
 import { useDispatch } from "react-redux"
 import { useFarmContract } from "./useContract"
+import { useWeb3React } from "@web3-react/core"
 
 export function useWithdrawFarm(
   farmName: FarmName,
 ): (amount: string) => Promise<ContractReceipt | void> {
   const dispatch = useDispatch()
   const farmContract = useFarmContract(farmName)
-  const { account } = useActiveWeb3React()
+  const { account } = useWeb3React()
   return async function approveAndStake(
     amount: string,
   ): Promise<ContractReceipt | void> {

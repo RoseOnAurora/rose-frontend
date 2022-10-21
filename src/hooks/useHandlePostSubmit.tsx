@@ -3,7 +3,7 @@ import BlockExplorerLink from "../components/BlockExplorerLink"
 import { ContractReceipt } from "ethers"
 import { ErrorObj } from "../constants"
 import React from "react"
-import { useActiveWeb3React } from "."
+import { useWeb3React } from "@web3-react/core"
 
 const useHandlePostSubmit = (): ((
   receipt: ContractReceipt | null,
@@ -11,7 +11,7 @@ const useHandlePostSubmit = (): ((
   error?: ErrorObj,
 ) => void) => {
   const toast = useChakraToast()
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
 
   const handlePostSubmit = (
     receipt: ContractReceipt | null,

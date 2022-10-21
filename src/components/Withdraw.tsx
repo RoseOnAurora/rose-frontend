@@ -47,12 +47,12 @@ import { TransactionType } from "../hooks/useChakraToast"
 import { Zero } from "@ethersproject/constants"
 import { calculatePriceImpact } from "../utils/priceImpact"
 import { formatSlippageToString } from "../utils/slippage"
-import { useActiveWeb3React } from "../hooks"
 import { useApproveAndWithdraw } from "../hooks/useApproveAndWithdraw"
 import { usePoolContract } from "../hooks/useContract"
 import usePoolData from "../hooks/usePoolData"
 import { useSelector } from "react-redux"
 import { useTranslation } from "react-i18next"
+import { useWeb3React } from "@web3-react/core"
 import useWithdrawFormState from "../hooks/useWithdrawFormState"
 
 export interface ReviewWithdrawData {
@@ -98,7 +98,7 @@ function Withdraw({
   const { tokenPricesUSD } = useSelector((state: AppState) => state.application)
   const approveAndWithdraw = useApproveAndWithdraw(poolName)
   const poolContract = usePoolContract(poolName) as Contract
-  const { account } = useActiveWeb3React()
+  const { account } = useWeb3React()
   const [sliderValue, setSliderValue] = useState(100)
   const [showTooltip, setShowTooltip] = useState(false)
   const [isOpen, setIsOpen] = useState(false)

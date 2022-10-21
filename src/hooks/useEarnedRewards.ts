@@ -2,9 +2,9 @@ import { BLOCK_TIME, FarmName } from "../constants"
 import { useFarmContract, useRoseContract } from "./useContract"
 import { Zero } from "@ethersproject/constants"
 import { formatBNToString } from "../utils"
-import { useActiveWeb3React } from "."
 import usePoller from "./usePoller"
 import { useState } from "react"
+import { useWeb3React } from "@web3-react/core"
 
 interface EarnedRewards {
   roseRewards: string
@@ -16,7 +16,7 @@ export default function useEarnedRewards(
   farmName: FarmName,
   dualRewardAddress?: string,
 ): EarnedRewards {
-  const { account } = useActiveWeb3React()
+  const { account } = useWeb3React()
 
   const [rewardsEarned, setRewardsEarned] = useState<EarnedRewards>({
     roseRewards: "",

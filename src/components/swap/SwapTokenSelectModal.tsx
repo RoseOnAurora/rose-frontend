@@ -5,7 +5,7 @@ import {
   InputLeftElement,
   Stack,
 } from "@chakra-ui/react"
-import { DAI, RUSD, TOKENS_MAP, USDC, USDT } from "../../constants"
+import { ChainId, DAI, RUSD, TOKENS_MAP, USDC, USDT } from "../../constants"
 import React, { ReactElement, useMemo, useState } from "react"
 import CommonSwapBases from "./CommonSwapBases"
 import ModalWrapper from "../wrappers/ModalWrapper"
@@ -14,8 +14,8 @@ import { SwapTokenOption } from "../../types/swap"
 import TokenList from "../list/TokenList"
 import { TokenOption } from "../../types/token"
 import { isAddress } from "../../utils"
-import { useActiveWeb3React } from "../../hooks"
 import { useTranslation } from "react-i18next"
+import { useWeb3React } from "@web3-react/core"
 
 interface SwapTokenSelectModalProps {
   tokens: SwapTokenOption[]
@@ -31,7 +31,7 @@ const SwapTokenSelectModal = ({
   onSelectToken,
 }: SwapTokenSelectModalProps): ReactElement => {
   // hooks
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const { t } = useTranslation()
 
   // state
@@ -47,7 +47,8 @@ const SwapTokenSelectModal = ({
           // if target is address
           if (isAddress(target) && chainId) {
             return (
-              TOKENS_MAP[symbol].addresses[chainId].toLowerCase() === target
+              TOKENS_MAP[symbol].addresses[chainId as ChainId].toLowerCase() ===
+              target
             )
           }
           // otherwise its plain text

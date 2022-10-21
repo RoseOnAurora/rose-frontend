@@ -3,8 +3,8 @@ import {
   numberInputStateCreator,
 } from "../utils/numberInputState"
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
-
 import { BigNumber } from "@ethersproject/bignumber"
+import { ConnectionType } from "../types/web3"
 import { Zero } from "@ethersproject/constants"
 
 export enum GasPrices {
@@ -78,6 +78,11 @@ interface BorrowPreferences {
   sortField: BorrowSortFields
 }
 
+type Wallet = {
+  connectionType: ConnectionType
+  address?: string
+}
+
 interface UserState {
   userSwapAdvancedMode: boolean
   userPoolAdvancedMode: boolean
@@ -92,6 +97,8 @@ interface UserState {
   transactionDeadlineCustom?: string
   borrowPreferences: BorrowPreferences
   poolPreferences: PoolPreferences
+  connectedWallets: { [key: string]: Wallet }
+  selectedWallet?: Wallet
 }
 
 export const initialState: UserState = {
@@ -130,6 +137,7 @@ export const initialState: UserState = {
     filterField: PoolFilterFields.NO_FILTER,
     sortField: PoolSortFields.TVL,
   },
+  connectedWallets: {},
 }
 
 const gasCustomStateCreator = numberInputStateCreator(
@@ -281,6 +289,32 @@ const userSlice = createSlice({
     ): void {
       state.priceFromOracle = action.payload
     },
+    addConnectedWallet(
+      state: UserState,
+      { payload }: PayloadAction<Required<Wallet>>,
+    ) {
+      state.connectedWallets[payload.address] = payload
+    },
+    removeConnectedWallet(
+      state: UserState,
+      { payload }: PayloadAction<Wallet>,
+    ) {
+      state.connectedWallets = Object.fromEntries(
+        Object.entries(state.connectedWallets).filter(
+          ([, { connectionType }]) => connectionType !== payload.connectionType,
+        ),
+      )
+    },
+    updateSelectedWallet(
+      state: UserState,
+      { payload }: PayloadAction<Wallet | undefined>,
+    ) {
+      if (payload?.address || !state.selectedWallet || !payload) {
+        state.selectedWallet = payload
+      } else {
+        state.selectedWallet = { ...state.selectedWallet, ...payload }
+      }
+    },
   },
 })
 
@@ -302,6 +336,9 @@ export const {
   updatePoolSortPreferences,
   updatePoolFilterPreferences,
   updatePoolVisibleFieldPreferences,
+  addConnectedWallet,
+  removeConnectedWallet,
+  updateSelectedWallet,
 } = userSlice.actions
 
 export default userSlice.reducer

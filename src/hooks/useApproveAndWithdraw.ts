@@ -15,9 +15,9 @@ import { NumberInputState } from "../utils/numberInputState"
 import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { updateLastTransactionTimes } from "../state/application"
-import { useActiveWeb3React } from "."
 import { useDispatch } from "react-redux"
 import { useSelector } from "react-redux"
+import { useWeb3React } from "@web3-react/core"
 
 interface ApproveAndWithdrawStateArgument {
   tokenFormState: { [symbol: string]: NumberInputState }
@@ -30,7 +30,7 @@ export function useApproveAndWithdraw(
 ): (state: ApproveAndWithdrawStateArgument) => Promise<ContractReceipt | void> {
   const dispatch = useDispatch()
   const poolContract = usePoolContract(poolName) as Contract
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId } = useWeb3React()
   const { gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,
   )

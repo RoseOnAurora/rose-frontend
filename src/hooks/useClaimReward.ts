@@ -1,13 +1,13 @@
 import { ContractReceipt } from "@ethersproject/contracts"
 import { FarmName } from "../constants"
-import { useActiveWeb3React } from "."
 import { useFarmContract } from "./useContract"
+import { useWeb3React } from "@web3-react/core"
 
 export default function useClaimReward(
   farmName: FarmName,
 ): () => Promise<ContractReceipt | void> {
   const farmContract = useFarmContract(farmName)
-  const { account } = useActiveWeb3React()
+  const { account } = useWeb3React()
   return async function claimReward(): Promise<ContractReceipt | void> {
     try {
       if (!account) throw new Error("Wallet must be connected")

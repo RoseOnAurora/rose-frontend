@@ -23,9 +23,9 @@ import { LpTokenUnguarded } from "../../types/ethers-contracts/LpTokenUnguarded"
 import ROSE_STABLES_POOL from "../constants/abis/RoseStablesPool.json"
 import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
 import { parseUnits } from "@ethersproject/units"
-import { useActiveWeb3React } from "."
 import { usePoolContract } from "./useContract"
 import { useSelector } from "react-redux"
+import { useWeb3React } from "@web3-react/core"
 
 const poolStatsApi =
   "https://raw.githubusercontent.com/RoseOnAurora/apr/master/pools.json"
@@ -101,7 +101,7 @@ const emptyPoolData = {
 export default function usePoolData(
   poolName?: PoolName,
 ): PoolDataHookReturnType {
-  const { account, library, chainId } = useActiveWeb3React()
+  const { account, provider, chainId } = useWeb3React()
   const poolContract = usePoolContract(poolName)
   const { tokenPricesUSD, lastTransactionTimes } = useSelector(
     (state: AppState) => state.application,
@@ -125,7 +125,7 @@ export default function usePoolData(
         poolName == null ||
         poolContract == null ||
         tokenPricesUSD == null ||
-        library == null ||
+        provider == null ||
         chainId == null
       )
         return
@@ -154,14 +154,14 @@ export default function usePoolData(
       const POOL = POOLS_MAP[poolName]
       const effectivePoolTokens = POOL.poolTokens
       const lpTokenContract = getContract(
-        POOL.lpToken.addresses[chainId],
+        POOL.lpToken.addresses[chainId as ChainId],
         LPTOKEN_UNGUARDED_ABI,
-        library,
+        provider,
         account ?? undefined,
       ) as LpTokenUnguarded
 
       const ethcallProvider = new Provider() as MulticallProvider
-      await ethcallProvider.init(library)
+      await ethcallProvider.init(provider)
       // override the contract address when using aurora
       if (chainId == ChainId.AURORA_TESTNET) {
         ethcallProvider.multicallAddress =
@@ -317,7 +317,7 @@ export default function usePoolData(
     tokenPricesUSD,
     poolName,
     account,
-    library,
+    provider,
     chainId,
   ])
 

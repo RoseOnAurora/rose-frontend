@@ -2,11 +2,11 @@ import { useEffect, useState } from "react"
 import { AppState } from "../state"
 import { TRANSACTION_TYPES } from "../constants"
 import fetchLastStakedTime from "../utils/fetchBlockTransactions"
-import { useActiveWeb3React } from "."
 import { useSelector } from "react-redux"
+import { useWeb3React } from "@web3-react/core"
 
 export default function useLastStakedTime(): string | undefined {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId } = useWeb3React()
 
   const [lastStakedTime, setLastStakedTime] = useState<string | undefined>(
     undefined,

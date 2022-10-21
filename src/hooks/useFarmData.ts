@@ -1,13 +1,13 @@
 import { AddressZero, Zero } from "@ethersproject/constants"
-import { FARMS_MAP, FarmName, TRANSACTION_TYPES } from "../constants"
+import { ChainId, FARMS_MAP, FarmName, TRANSACTION_TYPES } from "../constants"
 import { useEffect, useState } from "react"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import LPTOKEN_UNGUARDED_ABI from "../constants/abis/lpTokenUnguarded.json"
 import { LpTokenUnguarded } from "../../types/ethers-contracts/LpTokenUnguarded"
 import { getContract } from "../utils"
-import { useActiveWeb3React } from "."
 import { useSelector } from "react-redux"
+import { useWeb3React } from "@web3-react/core"
 
 export interface FarmDataType {
   lpTokenBalance: BigNumber
@@ -22,7 +22,7 @@ const emptyFarmData = {
 export default function useFarmData(
   farmName: FarmName,
 ): FarmDataHookReturnType {
-  const { account, library, chainId } = useActiveWeb3React()
+  const { account, provider, chainId } = useWeb3React()
   const { lastTransactionTimes } = useSelector(
     (state: AppState) => state.application,
   )
@@ -34,14 +34,14 @@ export default function useFarmData(
 
   useEffect(() => {
     async function getFarmData(): Promise<void> {
-      if (library == null || chainId == null) return
+      if (provider == null || chainId == null) return
 
       const FARM = FARMS_MAP[farmName]
 
       const lpTokenContract = getContract(
-        FARM.lpToken.addresses[chainId],
+        FARM.lpToken.addresses[chainId as ChainId],
         LPTOKEN_UNGUARDED_ABI,
-        library,
+        provider,
         account ?? undefined,
       ) as LpTokenUnguarded
       let userLpTokenBalance: BigNumber
@@ -64,7 +64,7 @@ export default function useFarmData(
       }))
     }
     void getFarmData()
-  }, [lastDepositTime, lastWithdrawTime, farmName, account, library, chainId])
+  }, [lastDepositTime, lastWithdrawTime, farmName, account, provider, chainId])
 
   return farmData
 }

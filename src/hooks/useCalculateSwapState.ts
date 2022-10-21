@@ -1,5 +1,5 @@
+import { ChainId, PoolName, SWAP_TYPES, TOKENS_MAP } from "../constants"
 import { DebouncedFunc, debounce } from "lodash"
-import { PoolName, SWAP_TYPES, TOKENS_MAP } from "../constants"
 import { calculateExchangeRate, calculatePrice } from "../utils"
 import { useCallback, useState } from "react"
 import useChakraToast, { TransactionType } from "./useChakraToast"
@@ -11,11 +11,11 @@ import { Zero } from "@ethersproject/constants"
 import { calculatePriceImpact } from "../utils/priceImpact"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import { parseUnits } from "@ethersproject/units"
-import { useActiveWeb3React } from "."
 import { useApproveAndSwap } from "./useApproveAndSwap"
 import { useCalculateSwapPairs } from "./useCalculateSwapPairs"
 import { usePoolTokenBalances } from "./useTokenBalances"
 import { useSelector } from "react-redux"
+import { useWeb3React } from "@web3-react/core"
 
 const EMPTY_SWAP_STATE: SwapState = {
   from: {
@@ -44,7 +44,7 @@ const useCalculateSwapState = (): [
   const [swapState, setSwapState] = useState<SwapState>(EMPTY_SWAP_STATE)
 
   // hooks
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const approveAndSwap = useApproveAndSwap()
   const tokenBalances = usePoolTokenBalances()
   const toast = useChakraToast()
@@ -105,8 +105,8 @@ const useCalculateSwapState = (): [
             break
           case SWAP_TYPES.META_TO_META:
             amountToReceive = await swapComposerContract.get_dy_thru_stables(
-              tokenFrom.addresses[chainId],
-              tokenTo.addresses[chainId],
+              tokenFrom.addresses[chainId as ChainId],
+              tokenTo.addresses[chainId as ChainId],
               amountToGive,
             )
             break

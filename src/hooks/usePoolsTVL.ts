@@ -8,11 +8,11 @@ import { BigNumber } from "@ethersproject/bignumber"
 import LPTOKEN_UNGUARDED_ABI from "../constants/abis/lpTokenUnguarded.json"
 import { LpTokenUnguarded } from "../../types/ethers-contracts/LpTokenUnguarded"
 import { parseUnits } from "@ethersproject/units"
-import { useActiveWeb3React } from "."
 import { useSelector } from "react-redux"
+import { useWeb3React } from "@web3-react/core"
 
 export default function usePoolTVLs(): { [poolName in PoolName]?: BigNumber } {
-  const { chainId, library } = useActiveWeb3React()
+  const { chainId, provider } = useWeb3React()
   const { tokenPricesUSD } = useSelector((state: AppState) => state.application)
   const [poolTvls, setPoolTvls] = useState<{
     [poolName in PoolName]?: BigNumber
@@ -26,10 +26,10 @@ export default function usePoolTVLs(): { [poolName in PoolName]?: BigNumber } {
     )
       return
     async function fetchTVLs() {
-      if (!library || !chainId) return
+      if (!provider || !chainId) return
       const ethcallProvider = new Provider() as MulticallProvider
 
-      await ethcallProvider.init(library)
+      await ethcallProvider.init(provider)
       // override the contract address when using aurora
       if (chainId == ChainId.AURORA_TESTNET) {
         ethcallProvider.multicallAddress =
@@ -43,7 +43,7 @@ export default function usePoolTVLs(): { [poolName in PoolName]?: BigNumber } {
       const supplyCalls = pools
         .map((p) => {
           return new Contract(
-            p.lpToken.addresses[chainId],
+            p.lpToken.addresses[chainId as ChainId],
             LPTOKEN_UNGUARDED_ABI,
           ) as MulticallContract<LpTokenUnguarded>
         })
@@ -79,6 +79,6 @@ export default function usePoolTVLs(): { [poolName in PoolName]?: BigNumber } {
       }
     }
     void fetchTVLs()
-  }, [chainId, library, tokenPricesUSD, poolTvls])
+  }, [chainId, provider, tokenPricesUSD, poolTvls])
   return poolTvls
 }

@@ -78,7 +78,7 @@ interface Props {
   handlePostSubmit?: (
     receipt: ContractReceipt | null,
     transactionType: TransactionType,
-    error?: { code: number; message: string },
+    error?: ErrorObj,
   ) => void
   submitButtonLabelText: (
     borrow: string,

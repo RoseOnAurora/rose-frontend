@@ -1,4 +1,3 @@
-import { AuroraIcon, MetamaskIcon, WalletConnectIcon } from "./icons"
 import {
   BorrowFilterFields,
   BorrowSortFields,
@@ -6,8 +5,7 @@ import {
   PoolSortFields,
 } from "../state/user"
 import { ComponentWithAs, IconProps } from "@chakra-ui/react"
-import { injected, walletconnect } from "../connectors"
-import { AbstractConnector } from "@web3-react/abstract-connector"
+import { AuroraIcon } from "./icons"
 import { BigNumber } from "@ethersproject/bignumber"
 import { RoseMetaPool } from "../../types/ethers-contracts/RoseMetaPool"
 import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
@@ -40,8 +38,6 @@ import veth2Logo from "../assets/icons/veth2.svg"
 import wbtcLogo from "../assets/icons/wbtc.svg"
 import wcusdLogo from "../assets/icons/wcusd.png"
 import wethLogo from "../assets/icons/weth.svg"
-
-export const NetworkContextName = "NETWORK"
 
 // POOLS
 export const BTC_POOL_NAME = "BTC Pool"
@@ -1833,27 +1829,6 @@ export const SWAP_CONTRACT_GAS_ESTIMATES_MAP = {
   virtualSwapSettleOrWithdraw: BigNumber.from("400000"),
 }
 
-export interface WalletInfo {
-  name: string
-  Icon: ComponentWithAs<"svg", IconProps>
-  connector: AbstractConnector
-  isMobile?: boolean
-}
-
-export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
-  METAMASK: {
-    name: "MetaMask",
-    Icon: MetamaskIcon,
-    connector: injected,
-  },
-  WALLET_CONNECT: {
-    name: "WalletConnect",
-    Icon: WalletConnectIcon,
-    connector: walletconnect,
-    isMobile: true,
-  },
-}
-
 export type SignedSignatureRes = {
   r: string
   s: string
@@ -1966,6 +1941,6 @@ export const NAV_ITEMS: NavItemDetails[] = [
   },
 ]
 
-export type ErrorObj = { code: number; message: string }
+export type ErrorObj = { code: number | string; message: string }
 
 export type RpcErrorMessageStruct = { value: { data: { message: string } } }

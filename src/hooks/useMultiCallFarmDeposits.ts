@@ -4,14 +4,14 @@ import { MulticallContract, MulticallProvider } from "../types/ethcall"
 import { BigNumber } from "@ethersproject/bignumber"
 import ROSE_STABLES_FARM_ABI from "../constants/abis/RoseStablesFarm.json"
 import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
-import { useActiveWeb3React } from "."
 import usePoller from "./usePoller"
 import { useState } from "react"
+import { useWeb3React } from "@web3-react/core"
 
 export const useMultiCallFarmDeposits = (): {
   [farmName: string]: BigNumber
 } | null => {
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId, provider } = useWeb3React()
   const [balances, setBalances] = useState<{ [farmName: string]: BigNumber }>(
     {},
   )
@@ -20,9 +20,9 @@ export const useMultiCallFarmDeposits = (): {
 
   usePoller((): void => {
     async function pollFarmBalances(): Promise<void> {
-      if (!library || !chainId || !account) return
+      if (!provider || !chainId || !account) return
 
-      await ethcallProvider.init(library)
+      await ethcallProvider.init(provider)
       // override the contract address when using aurora
       if (chainId == ChainId.AURORA_TESTNET) {
         ethcallProvider.multicallAddress =
@@ -35,7 +35,7 @@ export const useMultiCallFarmDeposits = (): {
       const balanceCalls = Object.values(FARMS_MAP)
         .map((farm) => {
           return new Contract(
-            farm.addresses[chainId],
+            farm.addresses[chainId as ChainId],
             ROSE_STABLES_FARM_ABI.abi,
           ) as MulticallContract<RoseStablesFarm>
         })

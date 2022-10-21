@@ -31,8 +31,8 @@ import { getContract } from "../utils"
 import { parseUnits } from "@ethersproject/units"
 import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
-import { useActiveWeb3React } from "."
 import { useMemo } from "react"
+import { useWeb3React } from "@web3-react/core"
 
 interface ApproveAndDepositStateArgument {
   [tokenSymbol: string]: NumberInputState
@@ -48,7 +48,7 @@ export function useApproveAndDeposit(
   const poolContract = usePoolContract(poolName) as Contract
   const lpTokenContract = useLPTokenContract(poolName)
   const tokenContracts = useAllContracts()
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId, provider } = useWeb3React()
   const {
     slippageCustom,
     slippageSelected,
@@ -61,16 +61,16 @@ export function useApproveAndDeposit(
   )
   const POOL = POOLS_MAP[poolName]
   const metaSwapContract = useMemo(() => {
-    if (POOL.metaSwapAddresses && chainId && library) {
+    if (POOL.metaSwapAddresses && chainId && provider) {
       return getContract(
-        POOL.metaSwapAddresses?.[chainId],
+        POOL.metaSwapAddresses?.[chainId as ChainId],
         JSON.stringify(ROSE_META_POOL_DEPOSIT),
-        library,
+        provider,
         account ?? undefined,
       ) as RoseMetaPoolDeposit
     }
     return null
-  }, [chainId, library, POOL.metaSwapAddresses, account])
+  }, [chainId, provider, POOL.metaSwapAddresses, account])
 
   return async function approveAndDeposit(
     state: ApproveAndDepositStateArgument,

@@ -2,13 +2,13 @@
 import { ContractReceipt } from "@ethersproject/contracts"
 import { TRANSACTION_TYPES } from "../constants"
 import { updateLastTransactionTimes } from "../state/application"
-import { useActiveWeb3React } from "."
+import { useWeb3React } from "@web3-react/core"
 import { useDispatch } from "react-redux"
 import { useTestnetMinterContract } from "./useContract"
 
 export default function useMultiMinter(): () => Promise<ContractReceipt | void> {
   const minterContract = useTestnetMinterContract()
-  const { account } = useActiveWeb3React()
+  const { account } = useWeb3React()
   const dispatch = useDispatch()
   return async function claimTestnetTokens(): Promise<ContractReceipt | void> {
     try {
