@@ -82,18 +82,21 @@ const Web3Status = (): ReactElement => {
       try {
         setModalView(Web3ModalView.CONNECTING)
         await c.activate()
-
+        if (chainName) {
+          setModalView(Web3ModalView.ACCOUNT)
+        } else {
+          setModalView(Web3ModalView.CHAINS)
+        }
         const { type } = getWeb3Connection(c)
         dispatch(updateSelectedWallet({ connectionType: type }))
       } catch (e) {
         const error = e as { code: string | number; message: string }
         console.debug("web3-react connection error", error)
-        console.log(error)
         setModalView(Web3ModalView.ERROR)
         setRetryConnetor(c)
       }
     },
-    [dispatch],
+    [chainName, dispatch],
   )
 
   // deactivation
@@ -139,7 +142,7 @@ const Web3Status = (): ReactElement => {
           : Web3ModalView.WALLETS,
       )
     }
-  }, [account, chainName, modalOpen, chainId])
+  }, [account, chainName, modalOpen])
 
   return (
     <Flex alignItems="center" justifyContent="space-evenly">
