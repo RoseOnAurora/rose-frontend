@@ -44,8 +44,8 @@ enum Web3ModalView {
   ERROR,
 }
 
-function chainIdToName(chainId: number | undefined) {
-  if (typeof chainId == undefined) {
+function chainIdToName(chainId: number | undefined, account?: string) {
+  if (typeof chainId == undefined || !account) {
     return ""
   }
   switch (chainId) {
@@ -64,7 +64,10 @@ const Web3Status = (): ReactElement => {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalView, setModalView] = useState(Web3ModalView.ACCOUNT)
   const [retryConnector, setRetryConnetor] = useState<Connector>()
-  const chainName = useMemo(() => chainIdToName(chainId), [chainId])
+  const chainName = useMemo(
+    () => chainIdToName(chainId, account),
+    [chainId, account],
+  )
   const { connectedWallets, selectedWallet } = useSelector(
     (state: AppState) => state.user,
   )
