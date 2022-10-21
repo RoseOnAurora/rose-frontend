@@ -85,11 +85,7 @@ const Web3Status = (): ReactElement => {
       try {
         setModalView(Web3ModalView.CONNECTING)
         await c.activate()
-        if (chainName) {
-          setModalView(Web3ModalView.ACCOUNT)
-        } else {
-          setModalView(Web3ModalView.CHAINS)
-        }
+        setModalView(Web3ModalView.ACCOUNT)
         const { type } = getWeb3Connection(c)
         dispatch(updateSelectedWallet({ connectionType: type }))
       } catch (e) {
@@ -99,7 +95,7 @@ const Web3Status = (): ReactElement => {
         setRetryConnetor(c)
       }
     },
-    [chainName, dispatch],
+    [dispatch],
   )
 
   // deactivation
@@ -225,7 +221,9 @@ const Web3Status = (): ReactElement => {
         isCentered
         preserveScrollBarGap
       >
-        {modalView === Web3ModalView.CHAINS ? (
+        {modalView === Web3ModalView.WALLETS ? (
+          <ConnectWallet onActivation={handleActivation} />
+        ) : modalView === Web3ModalView.CHAINS || (account && !chainName) ? (
           <SupportedChains
             openOptions={() => setModalView(Web3ModalView.WALLETS)}
           />
@@ -238,8 +236,6 @@ const Web3Status = (): ReactElement => {
               setModalOpen(false)
             }}
           />
-        ) : modalView === Web3ModalView.WALLETS ? (
-          <ConnectWallet onActivation={handleActivation} />
         ) : modalView === Web3ModalView.CONNECTING ? (
           <Center>
             <Spinner />
