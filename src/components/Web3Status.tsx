@@ -151,7 +151,7 @@ const Web3Status = (): ReactElement => {
             "aria-label": "Connected Network",
             variant: "outline",
             size: "lg",
-            title: chainIdToName(chainId),
+            title: chainIdToName(chainId, account),
             marginRight: "10px",
             w: "55px",
             borderRadius: "20px",
@@ -164,7 +164,7 @@ const Web3Status = (): ReactElement => {
               </Text>
               <Flex alignItems="center" marginTop="5px" gap="8px">
                 <Text fontSize="19px" fontWeight={700}>
-                  {chainIdToName(chainId)} Network
+                  {chainIdToName(chainId, account)} Network
                 </Text>
                 <AuroraIcon />
               </Flex>
