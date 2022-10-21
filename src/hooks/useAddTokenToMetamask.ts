@@ -1,15 +1,15 @@
-import { Token } from "../constants"
+import { ChainId, Token } from "../constants"
 import { imageIconToUrl } from "../utils"
-import { useActiveWeb3React } from "./index"
 import { useCallback } from "react"
+import { useWeb3React } from "@web3-react/core"
 
 export default function useAddTokenToMetamask(
   token: Token | undefined,
 ): () => Promise<void> {
-  const { library, chainId } = useActiveWeb3React()
+  const { provider, chainId } = useWeb3React()
 
   const addToken = useCallback(async (): Promise<void> => {
-    if (library && window.ethereum && token && chainId) {
+    if (provider && window.ethereum && token && chainId) {
       try {
         await window.ethereum.request({
           method: "wallet_watchAsset",
@@ -17,7 +17,7 @@ export default function useAddTokenToMetamask(
             //@ts-ignore // need this for incorrect ethers provider type
             type: "ERC20",
             options: {
-              address: token.addresses[chainId],
+              address: token.addresses[chainId as ChainId],
               symbol: token.symbol,
               decimals: token.decimals,
               image: imageIconToUrl(token.icon),
@@ -25,10 +25,10 @@ export default function useAddTokenToMetamask(
           },
         })
       } catch (e) {
-        console.log(e)
+        console.debug(e)
       }
     }
-  }, [library, token, chainId])
+  }, [provider, token, chainId])
 
   return addToken
 }

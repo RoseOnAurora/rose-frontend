@@ -9,7 +9,7 @@ import { BigNumber } from "@ethersproject/bignumber"
 import { Contract } from "@ethersproject/contracts"
 import { debounce } from "lodash"
 import { parseUnits } from "@ethersproject/units"
-import { useActiveWeb3React } from "."
+import { useWeb3React } from "@web3-react/core"
 import { usePoolContract } from "../hooks/useContract"
 import usePoolData from "../hooks/usePoolData"
 import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
@@ -44,7 +44,7 @@ export default function useWithdrawFormState(
   const POOL = POOLS_MAP[poolName]
   const poolContract = usePoolContract(poolName) as Contract
   const [, userShareData] = usePoolData(poolName)
-  const { account } = useActiveWeb3React()
+  const { account } = useWeb3React()
   const tokenInputStateCreators: {
     [tokenSymbol: string]: ReturnType<typeof numberInputStateCreator>
   } = useMemo(

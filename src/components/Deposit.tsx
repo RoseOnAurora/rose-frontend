@@ -5,9 +5,8 @@
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 /* eslint @typescript-eslint/no-unused-vars: 0 */
 import { Box, Button, Flex, Link, Stack, Text } from "@chakra-ui/react"
-import { Contract, ContractReceipt } from "@ethersproject/contracts"
-import { DepositTransaction, TransactionItem } from "../types/transactions"
 import {
+  ChainId,
   ErrorObj,
   FRAX_STABLES_LP_POOL_NAME,
   POOLS_MAP,
@@ -16,6 +15,8 @@ import {
   UST_METAPOOL_NAME,
   isMetaPool,
 } from "../constants"
+import { Contract, ContractReceipt } from "@ethersproject/contracts"
+import { DepositTransaction, TransactionItem } from "../types/transactions"
 import React, { ReactElement, useEffect, useMemo, useState } from "react"
 import { TokensStateType, useTokenFormState } from "../hooks/useTokenFormState"
 import {
@@ -46,12 +47,12 @@ import { calculatePriceImpact } from "../utils/priceImpact"
 import { ethers } from "ethers"
 import { formatGasToString } from "../utils/gas"
 import { parseUnits } from "@ethersproject/units"
-import { useActiveWeb3React } from "../hooks"
 import { useApproveAndDeposit } from "../hooks/useApproveAndDeposit"
 import { usePoolContract } from "../hooks/useContract"
 import { usePoolTokenBalances } from "../hooks/useTokenBalances"
 import { useSelector } from "react-redux"
 import { useTranslation } from "react-i18next"
+import { useWeb3React } from "@web3-react/core"
 
 interface Props {
   poolName: PoolName
@@ -59,7 +60,7 @@ interface Props {
   handlePostSubmit?: (
     receipt: ContractReceipt | null,
     transactionType: TransactionType,
-    error?: { code: number; message: string },
+    error?: ErrorObj,
   ) => void
 }
 
@@ -68,7 +69,7 @@ function Deposit({
   handlePreSubmit,
   handlePostSubmit,
 }: Props): ReactElement | null {
-  const { account, library, chainId } = useActiveWeb3React()
+  const { account, provider, chainId } = useWeb3React()
   const approveAndDeposit = useApproveAndDeposit(poolName)
   const [poolData, userShareData] = usePoolData(poolName)
   const poolContract = usePoolContract(poolName) as Contract
@@ -130,16 +131,16 @@ function Deposit({
   const [priceImpact, setPriceImpact] = useState(Zero)
   const isMetaSwap = isMetaPool(POOL.name)
   const metaSwapContract = useMemo(() => {
-    if (isMetaSwap && chainId && library) {
+    if (isMetaSwap && chainId && provider) {
       return getContract(
-        POOL.metaSwapAddresses?.[chainId] as string,
+        POOL.metaSwapAddresses?.[chainId as ChainId] as string,
         JSON.stringify(ROSE_META_POOL_DEPOSIT),
-        library,
+        provider,
         account ?? undefined,
       )
     }
     return null
-  }, [isMetaSwap, chainId, library, POOL.metaSwapAddresses, account])
+  }, [isMetaSwap, chainId, provider, POOL.metaSwapAddresses, account])
 
   useEffect(() => {
     // evaluate if a new deposit will exceed the pool's per-user limit

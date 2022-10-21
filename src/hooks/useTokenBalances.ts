@@ -12,23 +12,23 @@ import { MulticallContract, MulticallProvider } from "../types/ethcall"
 import { BigNumber } from "@ethersproject/bignumber"
 import ERC20_ABI from "../constants/abis/erc20.json"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import { useActiveWeb3React } from "."
 import usePoller from "./usePoller"
 import { useState } from "react"
+import { useWeb3React } from "@web3-react/core"
 
 const useTokenBalancesHelper = (
   tokenMap: TokensMap,
 ): { [token: string]: BigNumber } | null => {
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId, provider } = useWeb3React()
   const [balances, setBalances] = useState<{ [token: string]: BigNumber }>({})
 
   const ethcallProvider = new Provider() as MulticallProvider
 
   usePoller((): void => {
     async function pollBalances(): Promise<void> {
-      if (!library || !chainId || !account) return
+      if (!provider || !chainId || !account) return
 
-      await ethcallProvider.init(library)
+      await ethcallProvider.init(provider)
       // override the contract address when using aurora
       if (chainId == ChainId.AURORA_TESTNET) {
         ethcallProvider.multicallAddress =
@@ -42,14 +42,14 @@ const useTokenBalancesHelper = (
       const balanceCalls = tokens
         .map((t) => {
           return new Contract(
-            t.addresses[chainId],
+            t.addresses[chainId as ChainId],
             ERC20_ABI,
           ) as MulticallContract<Erc20>
         })
         .map((c) => c.balanceOf(account))
       try {
         const balances = await ethcallProvider.all(balanceCalls, "latest")
-        const ethBalance = await library.getBalance(account)
+        const ethBalance = await provider.getBalance(account)
         setBalances(
           tokens.reduce(
             (acc, t, i) => ({

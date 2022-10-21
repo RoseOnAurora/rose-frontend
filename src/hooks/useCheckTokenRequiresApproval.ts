@@ -3,15 +3,15 @@ import { LpTokenUnguarded } from "../../types/ethers-contracts/LpTokenUnguarded"
 import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
 import checkTokenAllowance from "../utils/checkTokenAllowance"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
-import { useActiveWeb3React } from "."
 import { useState } from "react"
+import { useWeb3React } from "@web3-react/core"
 
 export function useCheckTokenRequiresApproval(
   srcTokenContract: Erc20 | LpTokenUnguarded | null,
   dstTokenContract: RoseStablesFarm | Erc20 | null,
   timeout = 500,
 ): [boolean, boolean, (spendingValue: string) => void] {
-  const { account } = useActiveWeb3React()
+  const { account } = useWeb3React()
   const [approved, setApproved] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const [timer, setTimer] = useState<NodeJS.Timer>()

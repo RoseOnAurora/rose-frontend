@@ -21,10 +21,10 @@ import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { parseUnits } from "@ethersproject/units"
 import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
-import { useActiveWeb3React } from "."
 import { useAllContracts } from "./useContract"
 import { useDispatch } from "react-redux"
 import { useSelector } from "react-redux"
+import { useWeb3React } from "@web3-react/core"
 
 type Contracts = {
   poolContract: RosePool | null
@@ -48,7 +48,7 @@ export function useApproveAndSwap(): (
 ) => Promise<ContractReceipt> {
   const dispatch = useDispatch()
   const tokenContracts = useAllContracts()
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId } = useWeb3React()
   const { gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,
   )
@@ -138,8 +138,8 @@ export function useApproveAndSwap(): (
         ).exchange_underlying(...args)
       } else if (state.swapType === SWAP_TYPES.META_TO_META) {
         const args = [
-          TOKENS_MAP[state.from.symbol].addresses[chainId],
-          TOKENS_MAP[state.to.symbol].addresses[chainId],
+          TOKENS_MAP[state.from.symbol].addresses[chainId as ChainId],
+          TOKENS_MAP[state.to.symbol].addresses[chainId as ChainId],
           state.from.amount,
           subtractSlippage(state.to.amount, slippageSelected, slippageCustom),
           { gasPrice },

@@ -1,15 +1,15 @@
 import { FarmName, TRANSACTION_TYPES } from "../constants"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { updateLastTransactionTimes } from "../state/application"
-import { useActiveWeb3React } from "."
 import { useDispatch } from "react-redux"
 import { useFarmContract } from "./useContract"
+import { useWeb3React } from "@web3-react/core"
 
 export default function useFarmExit(
   farmName: FarmName,
 ): () => Promise<ContractReceipt | void> {
   const farmContract = useFarmContract(farmName)
-  const { account } = useActiveWeb3React()
+  const { account } = useWeb3React()
   const dispatch = useDispatch()
   return async function exitFarm(): Promise<ContractReceipt | void> {
     try {

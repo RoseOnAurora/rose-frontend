@@ -1,35 +1,49 @@
-import { Flex, Grid, GridItem, IconButton, Stack, Text } from "@chakra-ui/react"
+import {
+  Button,
+  Flex,
+  Grid,
+  GridItem,
+  IconButton,
+  Stack,
+  Text,
+} from "@chakra-ui/react"
 import React, { ReactElement } from "react"
-import { commify, formatBNToString } from "../utils"
+import { commify, formatBNToString, getWeb3Connection } from "../utils"
 import ChangeAccountButton from "./button/ChangeAccountButton"
+import { Connector } from "@web3-react/types"
 import CopyButton from "./button/CopyButton"
 import { ExternalLinkIcon } from "@chakra-ui/icons"
 import Identicon from "./Identicon"
 import { RoseIconSmall } from "../constants/icons"
-import { SUPPORTED_WALLETS } from "../constants"
 import { Zero } from "@ethersproject/constants"
-import { find } from "lodash"
 import { getEtherscanLink } from "../utils/getEtherscanLink"
 import { shortenAddress } from "../utils/shortenAddress"
-import { useActiveWeb3React } from "../hooks"
 import { useRoseTokenBalances } from "../hooks/useTokenBalances"
+import useSwitchAccounts from "../hooks/useSwitchAccount"
 import { useTranslation } from "react-i18next"
+import { useWeb3React } from "@web3-react/core"
 
 interface AccountDetailProps {
   openOptions: () => void
+  deactivate: (c: Connector) => Promise<void>
 }
 
 export default function AccountDetail({
   openOptions,
+  deactivate,
 }: AccountDetailProps): ReactElement {
+  // hooks
   const { t } = useTranslation()
-  const { account, connector } = useActiveWeb3React()
+  const { account, connector } = useWeb3React()
   const tokenBalances = useRoseTokenBalances()
+  const switchAccounts = useSwitchAccounts()
+
+  // state
   const roseBalanceFormatted = commify(
     formatBNToString(tokenBalances?.ROSE || Zero, 18, 5),
   )
 
-  const { name, Icon } = find(SUPPORTED_WALLETS, ["connector", connector]) || {}
+  const { name, Icon } = getWeb3Connection(connector)
 
   return (
     <Stack spacing="20px">
@@ -38,7 +52,7 @@ export default function AccountDetail({
         w="full"
         templateColumns="repeat(2, 1fr)"
         rowGap={1}
-        columnGap={5}
+        columnGap={3}
         whiteSpace="nowrap"
       >
         <GridItem>
@@ -87,7 +101,7 @@ export default function AccountDetail({
             <Text
               as="span"
               fontWeight={700}
-              fontSize={{ base: "13px", md: "17px" }}
+              fontSize={{ base: "12px", md: "17px" }}
               color="gray.50"
             >
               {roseBalanceFormatted}
@@ -101,7 +115,7 @@ export default function AccountDetail({
               disabled={!account}
               color="red.500"
               fontWeight={700}
-              fontSize={{ base: "13px", lg: "15px" }}
+              fontSize={{ base: "11px", lg: "15px" }}
               p="10px"
               variant="unstyled"
               display="flex"
@@ -121,11 +135,29 @@ export default function AccountDetail({
           <ChangeAccountButton
             color="inherit"
             fontWeight={700}
-            fontSize={{ base: "13px", lg: "15px" }}
+            fontSize={{ base: "11px", lg: "15px" }}
             p="10px"
             transition="ease-in-out 0.1s"
             onClick={openOptions}
           />
+        </GridItem>
+        <GridItem>
+          <Button
+            fontSize={{ base: "12px", lg: "15px" }}
+            variant="outline"
+            onClick={() => deactivate(connector)}
+          >
+            {t("logout")}
+          </Button>
+        </GridItem>
+        <GridItem>
+          <Button
+            fontSize={{ base: "12px", lg: "15px" }}
+            variant="ghost"
+            onClick={switchAccounts}
+          >
+            {t("switchAccounts")}
+          </Button>
         </GridItem>
       </Grid>
     </Stack>

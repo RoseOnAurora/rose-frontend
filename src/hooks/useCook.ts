@@ -26,7 +26,7 @@ import { Vase } from "../../types/ethers-contracts/Vase"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { formatGasToString } from "../utils/gas"
 import { updateLastTransactionTimes } from "../state/application"
-import { useActiveWeb3React } from "."
+import { useWeb3React } from "@web3-react/core"
 
 enum GardenActions {
   REPAY = 2,
@@ -80,7 +80,7 @@ export function useCook(
   const collateralTokenContract = useCollateralContract(borrowMarket) as Erc20
   const borrowTokenContract = useBorrowContract(borrowMarket) as Erc20
 
-  const { library, account, chainId } = useActiveWeb3React()
+  const { provider, account, chainId } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
 
   const { infiniteApproval, priceFromOracle, gasPriceSelected, gasCustom } =
@@ -104,7 +104,7 @@ export function useCook(
     if (
       !account ||
       !chainId ||
-      !library ||
+      !provider ||
       !gardenContract ||
       !vaseContract ||
       !collateralTokenContract ||
@@ -167,7 +167,7 @@ export function useCook(
             masterContractAddress,
             vaseContract,
             account,
-            library,
+            provider,
             toast,
           )
 
@@ -218,7 +218,7 @@ export function useCook(
  * @param masterContractAddress string
  * @param verifyingContract Contract
  * @param account string
- * @param library Web3Provider
+ * @param provider Web3Provider
  * @returns Promise<SignedSignatureRes>
  */
 const requestSignature = async (
@@ -229,7 +229,7 @@ const requestSignature = async (
   masterContractAddress: string,
   verifyingContract: Vase,
   account: string,
-  library: ethers.providers.Web3Provider,
+  provider: ethers.providers.Web3Provider,
   toast: ToastFunctions,
 ): Promise<SignedSignatureRes | null> => {
   const domain = {
@@ -257,7 +257,7 @@ const requestSignature = async (
     nonce: await verifyingContract.nonces(account),
   }
   try {
-    const signature = await getSigner(library, account)._signTypedData(
+    const signature = await getSigner(provider, account)._signTypedData(
       domain,
       types,
       value,

@@ -1,70 +1,75 @@
-import { Button, Flex, Stack, Text } from "@chakra-ui/react"
-import { ErrorObj, SUPPORTED_WALLETS } from "../constants"
+import { Button, Flex, Link, Stack, Text } from "@chakra-ui/react"
+import { MetamaskIcon, WalletConnectIcon } from "../constants/icons"
 import React, { ReactElement } from "react"
-import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core"
-import { find, map } from "lodash"
-import useChakraToast, { TransactionType } from "../hooks/useChakraToast"
-import { UserRejectedRequestError as InjectedUserRejectedRequestError } from "@web3-react/injected-connector"
-import { UserRejectedRequestError } from "@web3-react/walletconnect-connector"
+import {
+  injectedConnection,
+  walletconnectConnection,
+} from "../constants/connection"
+import { isIE, isMobile, isSafari } from "react-device-detect"
+import { Connector } from "@web3-react/types"
+import { getIsMetamaskWallet } from "../utils"
 import { useTranslation } from "react-i18next"
 
 interface Props {
-  onClose: () => void
+  onActivation: (c: Connector) => Promise<void>
 }
 
-function ConnectWallet({ onClose }: Props): ReactElement {
+function ConnectWallet({ onActivation }: Props): ReactElement {
+  // state
+  const isMetamaskWallet = getIsMetamaskWallet()
+  const requiresMetamaskInstall =
+    !isMetamaskWallet && !isMobile && !isIE && !isSafari
+  const isMetamaskWalletBrowser = isMetamaskWallet && isMobile
+
+  // hooks
   const { t } = useTranslation()
-  const toast = useChakraToast()
-  const { activate } = useWeb3React()
 
   return (
     <Stack spacing="20px">
-      {map(SUPPORTED_WALLETS, ({ Icon, connector, name }, index) => (
+      {requiresMetamaskInstall ? (
         <Button
-          key={index}
+          as={Link}
           variant="outline"
           display="flex"
           justifyContent="space-between"
           alignItems="center"
           fontSize="18px"
-          rightIcon={<Icon w="10" h="10" />}
-          onClick={(): void => {
-            toast.transactionPending({
-              txnType: TransactionType.CONNECT,
-            })
-            activate(connector, undefined, true)
-              .then(() => {
-                const { name } =
-                  find(SUPPORTED_WALLETS, ["connector", connector]) || {}
-                toast.transactionSuccess({
-                  txnType: TransactionType.CONNECT,
-                  description: `Connected with ${name || "unknown connector"}.`,
-                })
-              })
-              .catch((error: ErrorObj) => {
-                if (error instanceof UnsupportedChainIdError) {
-                  void activate(connector) // a little janky...can't use setError because the connector isn't set
-                } else if (
-                  error instanceof InjectedUserRejectedRequestError ||
-                  error instanceof UserRejectedRequestError
-                ) {
-                  toast.transactionWarning({
-                    title: `${TransactionType.CONNECT} Transaction Aborted!`,
-                    description: "User rejected the request.",
-                  })
-                } else {
-                  toast.transactionFailed({
-                    txnType: TransactionType.CONNECT,
-                    error,
-                  })
-                }
-              })
-            onClose()
-          }}
+          rightIcon={<MetamaskIcon w="10" h="10" />}
+          href="https://metamask.io/"
+          title="Install Metamask"
+          target="_blank"
+          rel="noreferrer"
         >
-          {name}
+          Install Metamask
         </Button>
-      ))}
+      ) : isMetamaskWallet ? (
+        <Button
+          variant="outline"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          fontSize="18px"
+          rightIcon={<MetamaskIcon w="10" h="10" />}
+          onClick={() => onActivation(injectedConnection.connector)}
+          title="Activate Metamask"
+        >
+          Metamask Wallet
+        </Button>
+      ) : null}
+      {!isMetamaskWalletBrowser && (
+        <Button
+          variant="outline"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          fontSize="18px"
+          rightIcon={<WalletConnectIcon w="10" h="10" />}
+          onClick={() => onActivation(walletconnectConnection.connector)}
+          title="Activate WalletConnect"
+        >
+          WalletConnect
+        </Button>
+      )}
       <Flex alignItems="center" justifyContent="start" gap={3} pt={2} pl={2}>
         <Text as="i" fontSize="15px" color="gray.300" fontWeight={400}>
           {t("dontHaveWallet")}

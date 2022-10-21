@@ -6,22 +6,22 @@ import fetchGasPrices from "../utils/updateGasPrices"
 import fetchRosePriceHistory from "../utils/fetchRosePriceHistory"
 import fetchStakeStats from "../utils/fetchStakeStats"
 import fetchTokenPricesUSD from "../utils/updateTokenPrices"
-import { useActiveWeb3React } from "../hooks"
 import { useDispatch } from "react-redux"
 import usePoller from "../hooks/usePoller"
+import { useWeb3React } from "@web3-react/core"
 
 export default function GasAndTokenPrices({
   children,
 }: React.PropsWithChildren<unknown>): ReactElement {
   const dispatch = useDispatch<AppDispatch>()
-  const { chainId, library } = useActiveWeb3React()
+  const { chainId, provider } = useWeb3React()
 
   const fetchAndUpdateGasPrice = useCallback(() => {
     void fetchGasPrices(dispatch)
   }, [dispatch])
   const fetchAndUpdateTokensPrice = useCallback(() => {
-    fetchTokenPricesUSD(dispatch, chainId, library)
-  }, [dispatch, chainId, library])
+    fetchTokenPricesUSD(dispatch, chainId, provider)
+  }, [dispatch, chainId, provider])
   const fetchAndUpdateFarmStats = useCallback(() => {
     void fetchFarmStats(dispatch)
   }, [dispatch])

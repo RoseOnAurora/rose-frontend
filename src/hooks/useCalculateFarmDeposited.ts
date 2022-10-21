@@ -3,15 +3,15 @@ import { useEffect, useState } from "react"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { Zero } from "@ethersproject/constants"
-import { useActiveWeb3React } from "."
 import { useFarmContract } from "./useContract"
 import { useSelector } from "react-redux"
+import { useWeb3React } from "@web3-react/core"
 
 export default function useCalculateFarmDeposited(
   balance: BigNumber | undefined,
   farmName: FarmName,
 ): BigNumber {
-  const { account } = useActiveWeb3React()
+  const { account } = useWeb3React()
 
   const [depositedBalance, setDepositedBalance] = useState<BigNumber>(Zero)
   const farmContract = useFarmContract(farmName)

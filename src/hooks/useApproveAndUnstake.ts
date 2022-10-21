@@ -1,14 +1,14 @@
 import { BigNumber } from "@ethersproject/bignumber"
 import { ContractReceipt } from "@ethersproject/contracts"
 import { StRose } from "../../types/ethers-contracts/StRose"
-import { useActiveWeb3React } from "."
 import { useStRoseContract } from "./useContract"
+import { useWeb3React } from "@web3-react/core"
 
 export function useApproveAndUnstake(): (
   amount: string,
 ) => Promise<ContractReceipt | void> {
   const stRoseContract = useStRoseContract() as StRose
-  const { account } = useActiveWeb3React()
+  const { account } = useWeb3React()
   return async function approveAndUnstake(
     amount: string,
   ): Promise<ContractReceipt | void> {

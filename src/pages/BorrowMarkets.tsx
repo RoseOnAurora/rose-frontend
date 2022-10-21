@@ -5,6 +5,7 @@ import {
   BORROW_SORT_FIELDS_TO_LABEL,
   BorrowMarket,
   BorrowMarketName,
+  ChainId,
   DashboardItems,
   NEAR_MARKET_NAME,
   USDC_MARKET_NAME,
@@ -81,13 +82,13 @@ import borrowedIcon from "../assets/borrowed.svg"
 import chartGraph from "../assets/chart-graph.svg"
 import { commify } from "@ethersproject/units"
 import emptyListGraphic from "../assets/empty-list.svg"
-import { useActiveWeb3React } from "../hooks"
+import { useWeb3React } from "@web3-react/core"
 import walletIcon from "../assets/wallet-icon.svg"
 
 function BorrowMarkets(): ReactElement {
   const dispatch = useDispatch<AppDispatch>()
   const { borrowPreferences } = useSelector((state: AppState) => state.user)
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
 
   const [sortDirection, setSortDirection] = useState(1)
   const [sortByField, setSortByField] = useState(borrowPreferences.sortField)
@@ -524,7 +525,10 @@ function BorrowMarkets(): ReactElement {
                   .filter(({ name, gardenAddresses }) => {
                     const target = searchText.toLowerCase()
                     if (isAddress(target) && chainId) {
-                      return gardenAddresses[chainId].toLowerCase() === target
+                      return (
+                        gardenAddresses[chainId as ChainId].toLowerCase() ===
+                        target
+                      )
                     }
                     return name.toLowerCase().includes(target)
                   })

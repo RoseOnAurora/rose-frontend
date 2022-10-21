@@ -14,14 +14,14 @@ import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { parseUnits } from "ethers/lib/utils"
 import { updateLastTransactionTimes } from "../state/application"
-import { useActiveWeb3React } from "."
+import { useWeb3React } from "@web3-react/core"
 
 export function useApproveAndStake(): (
   amount: string,
 ) => Promise<ContractReceipt | void> {
   const roseContract = useRoseContract() as Erc20
   const stRoseContract = useStRoseContract() as StRose
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId } = useWeb3React()
   const { gasPriceSelected, gasCustom } = useSelector(
     (state: AppState) => state.user,
   )

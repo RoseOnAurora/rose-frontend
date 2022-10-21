@@ -2,6 +2,7 @@ import {
   BORROW_MARKET_MAP,
   BUSD,
   BorrowMarketName,
+  ChainId,
   DAI,
   FARMS_MAP,
   FRAX,
@@ -45,8 +46,8 @@ import { SwapComposer } from "../../types/ethers-contracts/SwapComposer"
 import VASE_ABI from "../constants/abis/Vase.json"
 import { Vase } from "../../types/ethers-contracts/Vase"
 import { getContract } from "../utils"
-import { useActiveWeb3React } from "./index"
 import { useMemo } from "react"
+import { useWeb3React } from "@web3-react/core"
 
 // returns null on errors
 function useContract(
@@ -54,27 +55,27 @@ function useContract(
   ABI: ContractInterface,
   withSignerIfPossible = true,
 ): Contract | null {
-  const { library, account } = useActiveWeb3React()
+  const { provider, account } = useWeb3React()
   return useMemo(() => {
-    if (!address || !ABI || !library) return null
+    if (!address || !ABI || !provider) return null
     try {
       return getContract(
         address,
         ABI,
-        library,
+        provider,
         withSignerIfPossible && account ? account : undefined,
       )
     } catch (error) {
       console.error("Failed to get contract", error)
       return null
     }
-  }, [address, ABI, library, withSignerIfPossible, account])
+  }, [address, ABI, provider, withSignerIfPossible, account])
 }
 
 export function useFarmContract(farmName: FarmName): RoseStablesFarm | null {
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const contractAddress = chainId
-    ? FARMS_MAP[farmName].addresses[chainId]
+    ? FARMS_MAP[farmName].addresses[chainId as ChainId]
     : undefined
   return useContract(
     contractAddress,
@@ -83,15 +84,17 @@ export function useFarmContract(farmName: FarmName): RoseStablesFarm | null {
 }
 
 export function useRoseContract(): Erc20 | null {
-  const { chainId } = useActiveWeb3React()
-  const contractAddress = chainId ? ROSE_CONTRACT_ADDRESSES[chainId] : undefined
+  const { chainId } = useWeb3React()
+  const contractAddress = chainId
+    ? ROSE_CONTRACT_ADDRESSES[chainId as ChainId]
+    : undefined
   return useContract(contractAddress, ERC20_ABI) as Erc20
 }
 
 export function useStRoseContract(): StRose | null {
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const contractAddress = chainId
-    ? SROSE_CONTRACT_ADDRESSES[chainId]
+    ? SROSE_CONTRACT_ADDRESSES[chainId as ChainId]
     : undefined
   return useContract(contractAddress, SROSE_ABI.abi) as StRose
 }
@@ -99,17 +102,17 @@ export function useStRoseContract(): StRose | null {
 export function useGardenContract(
   borrowMarket: BorrowMarketName,
 ): Garden | null {
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const contractAddress = chainId
-    ? BORROW_MARKET_MAP[borrowMarket].gardenAddresses[chainId]
+    ? BORROW_MARKET_MAP[borrowMarket].gardenAddresses[chainId as ChainId]
     : undefined
   return useContract(contractAddress, JSON.stringify(GARDEN_ABI)) as Garden
 }
 
 export function useVaseContract(borrowMarket: BorrowMarketName): Vase | null {
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const contractAddress = chainId
-    ? BORROW_MARKET_MAP[borrowMarket].vaseAddresses[chainId]
+    ? BORROW_MARKET_MAP[borrowMarket].vaseAddresses[chainId as ChainId]
     : undefined
   return useContract(contractAddress, JSON.stringify(VASE_ABI)) as Vase
 }
@@ -117,9 +120,11 @@ export function useVaseContract(borrowMarket: BorrowMarketName): Vase | null {
 export function useCollateralContract(
   borrowMarket: BorrowMarketName,
 ): Erc20 | null {
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const contractAddress = chainId
-    ? BORROW_MARKET_MAP[borrowMarket].collateralToken.addresses[chainId]
+    ? BORROW_MARKET_MAP[borrowMarket].collateralToken.addresses[
+        chainId as ChainId
+      ]
     : undefined
   return useContract(contractAddress, JSON.stringify(ERC20_ABI)) as Erc20
 }
@@ -127,9 +132,9 @@ export function useCollateralContract(
 export function useBorrowContract(
   borrowMarket: BorrowMarketName,
 ): Erc20 | null {
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const contractAddress = chainId
-    ? BORROW_MARKET_MAP[borrowMarket].borrowToken.addresses[chainId]
+    ? BORROW_MARKET_MAP[borrowMarket].borrowToken.addresses[chainId as ChainId]
     : undefined
   return useContract(contractAddress, JSON.stringify(ERC20_ABI)) as Erc20
 }
@@ -137,9 +142,9 @@ export function useBorrowContract(
 export function useOracleContract(
   borrowMarket: BorrowMarketName,
 ): Oracle | null {
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const contractAddress = chainId
-    ? BORROW_MARKET_MAP[borrowMarket].oracleAddresses[chainId]
+    ? BORROW_MARKET_MAP[borrowMarket].oracleAddresses[chainId as ChainId]
     : undefined
   return useContract(contractAddress, JSON.stringify(ORACLE_ABI)) as Oracle
 }
@@ -148,15 +153,17 @@ export function useTokenContract(
   t: Token,
   withSignerIfPossible?: boolean,
 ): Contract | null {
-  const { chainId } = useActiveWeb3React()
-  const tokenAddress = chainId ? t.addresses[chainId] : undefined
+  const { chainId } = useWeb3React()
+  const tokenAddress = chainId ? t.addresses[chainId as ChainId] : undefined
   return useContract(tokenAddress, ERC20_ABI, withSignerIfPossible)
 }
 
 export function usePoolContract(poolName?: PoolName): RosePool | null {
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const contractAddress =
-    chainId && poolName ? POOLS_MAP[poolName].addresses[chainId] : undefined
+    chainId && poolName
+      ? POOLS_MAP[poolName].addresses[chainId as ChainId]
+      : undefined
   return useContract(
     contractAddress,
     JSON.stringify(
@@ -175,9 +182,9 @@ export function useSwapComposerContract(): SwapComposer | null {
 export function useLPTokenContract(
   poolName: PoolName,
 ): LpTokenUnguarded | null {
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const contractAddress = chainId
-    ? POOLS_MAP[poolName].lpToken.addresses[chainId]
+    ? POOLS_MAP[poolName].lpToken.addresses[chainId as ChainId]
     : undefined
   return useContract(
     contractAddress,
@@ -188,9 +195,9 @@ export function useLPTokenContract(
 export function useLPTokenContractForFarm(
   farmName: FarmName,
 ): LpTokenUnguarded | null {
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const contractAddress = chainId
-    ? FARMS_MAP[farmName].lpToken.addresses[chainId]
+    ? FARMS_MAP[farmName].lpToken.addresses[chainId as ChainId]
     : undefined
   return useContract(
     contractAddress,

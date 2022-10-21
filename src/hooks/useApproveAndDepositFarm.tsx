@@ -10,7 +10,7 @@ import { RoseStablesFarm } from "../../types/ethers-contracts/RoseStablesFarm"
 import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { updateLastTransactionTimes } from "../state/application"
-import { useActiveWeb3React } from "."
+import { useWeb3React } from "@web3-react/core"
 import { useDispatch, useSelector } from "react-redux"
 import { AppState } from "../state"
 import { GasPrices } from "../state/user"
@@ -28,7 +28,7 @@ export function useApproveAndDepositFarm(
   const { gasStandard, gasFast, gasInstant } = useSelector(
     (state: AppState) => state.application,
   )
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId } = useWeb3React()
   return async function approveAndStake(
     amount: string,
   ): Promise<ContractReceipt | void> {

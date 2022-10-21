@@ -1,5 +1,11 @@
 import { AddressZero, Zero } from "@ethersproject/constants"
 import {
+  CONNECTIONS,
+  injectedConnection,
+  networkConnection,
+  walletconnectConnection,
+} from "../constants/connection"
+import {
   ChainId,
   ErrorObj,
   RpcErrorMessageStruct,
@@ -7,9 +13,11 @@ import {
   TOKENS_MAP,
   Token,
 } from "../constants"
+import { ConnectionType, Web3Connection } from "../types/web3"
 import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers"
 import { formatUnits, parseUnits } from "@ethersproject/units"
 import { BigNumber } from "@ethersproject/bignumber"
+import { Connector } from "@web3-react/types"
 import { Contract } from "@ethersproject/contracts"
 import { ContractInterface } from "ethers"
 import { getAddress } from "@ethersproject/address"
@@ -26,32 +34,32 @@ export function isAddress(value: string): string | false {
 
 // account is not optional
 export function getSigner(
-  library: Web3Provider,
+  provider: Web3Provider,
   account: string,
 ): JsonRpcSigner {
-  return library.getSigner(account)
+  return provider.getSigner(account)
 }
 
 // account is optional
 export function getProviderOrSigner(
-  library: Web3Provider,
+  provider: Web3Provider,
   account?: string,
 ): Web3Provider | JsonRpcSigner {
-  return account ? getSigner(library, account) : library
+  return account ? getSigner(provider, account) : provider
 }
 
 // account is optional
 export function getContract(
   address: string,
   ABI: ContractInterface,
-  library: Web3Provider,
+  provider: Web3Provider,
   account?: string,
 ): Contract {
   if (!isAddress(address) || address === AddressZero) {
     throw Error(`Invalid 'address' parameter '${address}'.`)
   }
 
-  return new Contract(address, ABI, getProviderOrSigner(library, account))
+  return new Contract(address, ABI, getProviderOrSigner(provider, account))
 }
 
 export function formatBNToShortString(
@@ -264,4 +272,56 @@ export function parseErrorMessage(error?: ErrorObj): RpcErrorMessageStruct {
   } catch {
     return message
   }
+}
+
+/**
+ * Utility function for activating a connection
+ * if applicable, will eagerly connect
+ * @param connector the connector being used
+ * @returns Promise<void>
+ */
+export const activateConnection = async (
+  connector: Connector,
+): Promise<void> => {
+  try {
+    if (connector.connectEagerly) {
+      return await connector.connectEagerly()
+    }
+    await connector.activate()
+  } catch (e) {
+    console.debug("web3-react eager connection error", e)
+  }
+}
+
+/**
+ * Finds a web3 connection obj based on the connector
+ * @param c connector or ConnectionType
+ * @returns Web3Connection
+ * @throws Error if unsupported connector (not found in CONNECTIONS)
+ */
+export const getWeb3Connection = (
+  c: Connector | ConnectionType,
+): Web3Connection => {
+  if (c instanceof Connector) {
+    const connection = CONNECTIONS.find(
+      (connection) => connection.connector === c,
+    )
+    if (!connection) {
+      throw Error("Unsupported connector")
+    }
+    return connection
+  }
+
+  // given connection type, map it to the connection
+  switch (c) {
+    case ConnectionType.INJECTED:
+      return injectedConnection
+    case ConnectionType.WALLET_CONNECT:
+      return walletconnectConnection
+  }
+  return networkConnection
+}
+
+export const getIsMetamaskWallet = (): boolean => {
+  return window.ethereum?.isMetaMask ?? false
 }

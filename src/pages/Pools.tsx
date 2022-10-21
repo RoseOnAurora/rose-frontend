@@ -1,6 +1,7 @@
 import { AppDispatch, AppState } from "../state"
 import {
   BUSD_METAPOOL_NAME,
+  ChainId,
   DashboardItems,
   FARMS_MAP,
   FRAX_METAPOOL_NAME,
@@ -88,9 +89,9 @@ import rewardsGift from "../assets/rewards-gift.svg"
 import roseFraxIcon from "../assets/icons/rose-frax.svg"
 import rosePadIcon from "../assets/icons/rose-pad.svg"
 import stablesPoolIcon from "../assets/icons/dai-usdt-usdc.svg"
-import { useActiveWeb3React } from "../hooks"
 import { useMultiCallEarnedRewards } from "../hooks/useMultiCallEarnedRewards"
 import { useMultiCallFarmDeposits } from "../hooks/useMultiCallFarmDeposits"
+import { useWeb3React } from "@web3-react/core"
 
 function Pools(): ReactElement | null {
   const dispatch = useDispatch<AppDispatch>()
@@ -98,7 +99,7 @@ function Pools(): ReactElement | null {
   const { farmStats } = useSelector((state: AppState) => state.application)
   const farmDeposits = useMultiCallFarmDeposits()
   const allRewards = useMultiCallEarnedRewards()
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [usdPoolV2Data, usdV2UserShareData] = usePoolData(
     STABLECOIN_POOL_V2_NAME,
@@ -545,7 +546,9 @@ function Pools(): ReactElement | null {
                   .filter(({ name, addresses }) => {
                     const target = searchText.toLowerCase()
                     if (isAddress(target) && chainId) {
-                      return addresses[chainId].toLowerCase() === target
+                      return (
+                        addresses[chainId as ChainId].toLowerCase() === target
+                      )
                     }
                     return name.toLowerCase().includes(target)
                   })

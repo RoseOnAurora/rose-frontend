@@ -18,8 +18,8 @@ import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { Garden } from "../../types/ethers-contracts/Garden"
 import { Oracle } from "../../types/ethers-contracts/Oracle"
 import { Vase } from "../../types/ethers-contracts/Vase"
-import { useActiveWeb3React } from "."
 import { useSelector } from "react-redux"
+import { useWeb3React } from "@web3-react/core"
 
 export interface BorrowDataType {
   marketName: BorrowMarketName
@@ -67,7 +67,7 @@ const emptyBorrowData = {
 export default function useBorrowData(
   borrowMarket: BorrowMarketName,
 ): BorrowDataHookReturnType {
-  const { account } = useActiveWeb3React()
+  const { account } = useWeb3React()
   const gardenContract = useGardenContract(borrowMarket) as Garden
   const collateralTokenContract = useCollateralContract(borrowMarket) as Erc20
   const oracleContract = useOracleContract(borrowMarket) as Oracle

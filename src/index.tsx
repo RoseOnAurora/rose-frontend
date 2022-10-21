@@ -8,25 +8,19 @@ import "./i18n"
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react"
 import { Chart, registerables } from "chart.js"
 import React, { Suspense } from "react"
-import { Web3ReactProvider, createWeb3ReactRoot } from "@web3-react/core"
 
 import AppRoutes from "./routes/routes"
 import GasAndTokenPrices from "./components/GasAndTokenPrices"
 import { Global } from "@emotion/react"
 import { GlobalStyles } from "./theme/global"
-import { NetworkContextName } from "./constants"
 import { Provider } from "react-redux"
 import ReactDOM from "react-dom/client"
 import Web3ReactManager from "./components/Web3ReactManager"
 import chakraTheme from "./theme/"
-import getLibrary from "./utils/getLibrary"
-import { getNetworkLibrary } from "./connectors"
 import store from "./state"
 
-const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
-
 if (window && window.ethereum) {
-  window.ethereum.autoRefreshOnNetworkChange = false
+  window.ethereum.autoRefreshOnNetworkChange = false // don't refresh on network changes
 }
 
 Chart.register(...registerables)
@@ -39,19 +33,15 @@ root.render(
     <React.StrictMode>
       <ChakraProvider theme={chakraTheme}>
         <Global styles={GlobalStyles} />
-        <Web3ReactProvider getLibrary={getLibrary}>
-          <Web3ProviderNetwork getLibrary={getNetworkLibrary}>
-            <Provider store={store}>
-              <Suspense fallback={null}>
-                <Web3ReactManager>
-                  <GasAndTokenPrices>
-                    <AppRoutes />
-                  </GasAndTokenPrices>
-                </Web3ReactManager>
-              </Suspense>
-            </Provider>
-          </Web3ProviderNetwork>
-        </Web3ReactProvider>
+        <Provider store={store}>
+          <Suspense fallback={null}>
+            <Web3ReactManager>
+              <GasAndTokenPrices>
+                <AppRoutes />
+              </GasAndTokenPrices>
+            </Web3ReactManager>
+          </Suspense>
+        </Provider>
       </ChakraProvider>
     </React.StrictMode>
   </>,
