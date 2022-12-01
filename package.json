@@ -24,7 +24,7 @@
     "chartjs-adapter-moment": "^1.0.0",
     "classnames": "^2.3.1",
     "copy-to-clipboard": "^3.3.1",
-    "ethcall": "^3.2.0",
+    "ethcall": "^4.8.11",
     "ethers": "^5.7.0",
     "formik": "^2.2.9",
     "framer-motion": "^6.3.3",
