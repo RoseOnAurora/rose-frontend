@@ -22,6 +22,7 @@ import {
 } from "../constants"
 import {
   Box,
+  Center,
   Collapse,
   Drawer,
   DrawerBody,
@@ -31,11 +32,13 @@ import {
   Flex,
   Grid,
   GridItem,
+  Heading,
   IconButton,
   Image,
   Skeleton,
   Stack,
   Text,
+  VStack,
   useDisclosure,
   useTimeout,
 } from "@chakra-ui/react"
@@ -61,7 +64,7 @@ import {
   updatePoolSortPreferences,
   updatePoolVisibleFieldPreferences,
 } from "../state/user"
-import React, { ReactElement, useMemo, useState } from "react"
+import React, { ReactElement, useCallback, useMemo, useState } from "react"
 import {
   calculatePctOfTotalShare,
   formatBNToPercentString,
@@ -85,6 +88,7 @@ import StakeDetails from "../components/stake/StakeDetails"
 import { Zero } from "@ethersproject/constants"
 import chartGraph from "../assets/chart-graph.svg"
 import { commify } from "@ethersproject/units"
+import emptyPools from "../assets/holo-rose-pink-circle.png"
 import rewardsGift from "../assets/rewards-gift.svg"
 import roseFraxIcon from "../assets/icons/rose-frax.svg"
 import rosePadIcon from "../assets/icons/rose-pad.svg"
@@ -129,43 +133,114 @@ function Pools(): ReactElement | null {
 
   useTimeout(() => setTimout(true), 5000)
 
+  const getPoolData = useCallback(
+    (poolName: PoolName) => {
+      switch (poolName) {
+        case FRAX_STABLES_LP_POOL_NAME:
+          return {
+            balance: fraxStablesUserShareData?.lpTokenBalance || Zero,
+            tvl: fraxStablesPoolData?.reserve || Zero,
+            volume: fraxStablesPoolData?.volume || Zero,
+          }
+        case FRAX_METAPOOL_NAME:
+          return {
+            balance: fraxMetaPoolUserShareData?.lpTokenBalance || Zero,
+            tvl: fraxMetaPoolData?.reserve || Zero,
+            volume: fraxMetaPoolData?.volume || Zero,
+          }
+        case UST_METAPOOL_NAME:
+          return {
+            balance: ustMetaPoolUserShareData?.lpTokenBalance || Zero,
+            tvl: ustMetaPoolData?.reserve || Zero,
+            volume: ustMetaPoolData?.volume || Zero,
+          }
+        case BUSD_METAPOOL_NAME:
+          return {
+            balance: busdMetaPoolUserShareData?.lpTokenBalance || Zero,
+            tvl: busdMetaPoolData?.reserve || Zero,
+            volume: busdMetaPoolData?.volume || Zero,
+          }
+        case MAI_METAPOOL_NAME:
+          return {
+            balance: maiMetaPoolUserShareData?.lpTokenBalance || Zero,
+            tvl: maiMetaPoolData?.reserve || Zero,
+            volume: maiMetaPoolData?.volume || Zero,
+          }
+        case RUSD_METAPOOL_NAME:
+          return {
+            balance: rusdMetaPoolUserShareData?.lpTokenBalance || Zero,
+            tvl: rusdMetaPoolData?.reserve || Zero,
+            volume: rusdMetaPoolData?.volume || Zero,
+          }
+        default:
+          return {
+            balance: usdV2UserShareData?.lpTokenBalance || Zero,
+            tvl: usdPoolV2Data?.reserve || Zero,
+            volume: usdPoolV2Data?.volume || Zero,
+          }
+      }
+    },
+    [
+      fraxStablesUserShareData,
+      fraxStablesPoolData,
+      fraxMetaPoolUserShareData,
+      fraxMetaPoolData,
+      ustMetaPoolUserShareData,
+      ustMetaPoolData,
+      busdMetaPoolUserShareData,
+      busdMetaPoolData,
+      maiMetaPoolUserShareData,
+      maiMetaPoolData,
+      rusdMetaPoolUserShareData,
+      rusdMetaPoolData,
+      usdV2UserShareData,
+      usdPoolV2Data,
+    ],
+  )
+
   const SORT_FUNCTIONS: {
     [sortField in PoolSortFields]: (a: Pool, b: Pool) => boolean
-  } = {
-    name: (a: Pool, b: Pool) =>
-      a.name.localeCompare(b.name) > 0 ? true : false,
-    tvl: (a: Pool, b: Pool) =>
-      getPoolData(a.name).tvl.gt(getPoolData(b.name).tvl),
-    farmDeposit: (a: Pool, b: Pool) =>
-      (farmDeposits?.[a.farmName || ""] || Zero).gt(
-        farmDeposits?.[b.farmName || ""] || Zero,
-      ),
-    balance: (a: Pool, b: Pool) =>
-      getPoolData(a.name).balance.gt(getPoolData(b.name).balance),
-    volume: (a: Pool, b: Pool) =>
-      getPoolData(a.name).volume.gt(getPoolData(b.name).volume),
-    farmTvl: (a: Pool, b: Pool) =>
-      +(farmStats?.[a.farmName || ""]?.tvl || 0) >
-      +(farmStats?.[b.farmName || ""]?.tvl || 0),
-    rewards: (a: Pool, b: Pool) =>
-      (allRewards?.[a.farmName || ""] || Zero).gt(
-        allRewards?.[b.farmName || ""] || Zero,
-      ),
-    apr: (a: Pool, b: Pool) =>
-      +(farmStats?.[a.farmName || ""]?.apr.slice(0, -1) || 0) +
-        +(farmStats?.[a.farmName || ""]?.dualReward.apr?.slice(0, -1) || 0) >
-      +(farmStats?.[b.farmName || ""]?.apr.slice(0, -1) || 0) +
-        +(farmStats?.[b.farmName || ""]?.dualReward.apr?.slice(0, -1) || 0),
-  }
+  } = useMemo(
+    () => ({
+      name: (a: Pool, b: Pool) =>
+        a.name.localeCompare(b.name) > 0 ? true : false,
+      tvl: (a: Pool, b: Pool) =>
+        getPoolData(a.name).tvl.gt(getPoolData(b.name).tvl),
+      farmDeposit: (a: Pool, b: Pool) =>
+        (farmDeposits?.[a.farmName || ""] || Zero).gt(
+          farmDeposits?.[b.farmName || ""] || Zero,
+        ),
+      balance: (a: Pool, b: Pool) =>
+        getPoolData(a.name).balance.gt(getPoolData(b.name).balance),
+      volume: (a: Pool, b: Pool) =>
+        getPoolData(a.name).volume.gt(getPoolData(b.name).volume),
+      farmTvl: (a: Pool, b: Pool) =>
+        +(farmStats?.[a.farmName || ""]?.tvl || 0) >
+        +(farmStats?.[b.farmName || ""]?.tvl || 0),
+      rewards: (a: Pool, b: Pool) =>
+        (allRewards?.[a.farmName || ""] || Zero).gt(
+          allRewards?.[b.farmName || ""] || Zero,
+        ),
+      apr: (a: Pool, b: Pool) =>
+        +(farmStats?.[a.farmName || ""]?.apr.slice(0, -1) || 0) +
+          +(farmStats?.[a.farmName || ""]?.dualReward.apr?.slice(0, -1) || 0) >
+        +(farmStats?.[b.farmName || ""]?.apr.slice(0, -1) || 0) +
+          +(farmStats?.[b.farmName || ""]?.dualReward.apr?.slice(0, -1) || 0),
+    }),
+    [farmDeposits, farmStats, allRewards, getPoolData],
+  )
 
   const FILTER_FUNCTIONS: {
     [sortField in PoolFilterFields]: (a: Pool) => boolean
-  } = {
-    farmDeposit: (a: Pool) =>
-      (farmDeposits?.[a.farmName || ""] || Zero).gt(Zero),
-    balance: (a: Pool) => getPoolData(a.name).balance.gt(Zero),
-    noFilter: (a: Pool) => a === a,
-  }
+  } = useMemo(
+    () => ({
+      farmDeposit: (a: Pool) =>
+        (farmDeposits?.[a.farmName || ""] || Zero).gt(Zero),
+      balance: (a: Pool) => getPoolData(a.name).balance.gt(Zero),
+      noFilter: (a: Pool) => a === a,
+    }),
+    [farmDeposits, getPoolData],
+  )
 
   const onIconButtonClick = (isInfo: boolean): void => {
     onOpen()
@@ -252,53 +327,6 @@ function Pools(): ReactElement | null {
       return sum.add(tvl)
     }, Zero)
 
-  function getPoolData(poolName: PoolName) {
-    switch (poolName) {
-      case FRAX_STABLES_LP_POOL_NAME:
-        return {
-          balance: fraxStablesUserShareData?.lpTokenBalance || Zero,
-          tvl: fraxStablesPoolData?.reserve || Zero,
-          volume: fraxStablesPoolData?.volume || Zero,
-        }
-      case FRAX_METAPOOL_NAME:
-        return {
-          balance: fraxMetaPoolUserShareData?.lpTokenBalance || Zero,
-          tvl: fraxMetaPoolData?.reserve || Zero,
-          volume: fraxMetaPoolData?.volume || Zero,
-        }
-      case UST_METAPOOL_NAME:
-        return {
-          balance: ustMetaPoolUserShareData?.lpTokenBalance || Zero,
-          tvl: ustMetaPoolData?.reserve || Zero,
-          volume: ustMetaPoolData?.volume || Zero,
-        }
-      case BUSD_METAPOOL_NAME:
-        return {
-          balance: busdMetaPoolUserShareData?.lpTokenBalance || Zero,
-          tvl: busdMetaPoolData?.reserve || Zero,
-          volume: busdMetaPoolData?.volume || Zero,
-        }
-      case MAI_METAPOOL_NAME:
-        return {
-          balance: maiMetaPoolUserShareData?.lpTokenBalance || Zero,
-          tvl: maiMetaPoolData?.reserve || Zero,
-          volume: maiMetaPoolData?.volume || Zero,
-        }
-      case RUSD_METAPOOL_NAME:
-        return {
-          balance: rusdMetaPoolUserShareData?.lpTokenBalance || Zero,
-          tvl: rusdMetaPoolData?.reserve || Zero,
-          volume: rusdMetaPoolData?.volume || Zero,
-        }
-      default:
-        return {
-          balance: usdV2UserShareData?.lpTokenBalance || Zero,
-          tvl: usdPoolV2Data?.reserve || Zero,
-          volume: usdPoolV2Data?.volume || Zero,
-        }
-    }
-  }
-
   // pool fields
   const fields: PoolSortFields[] = Object.values(PoolSortFields)
     .filter((field) => {
@@ -307,6 +335,39 @@ function Pools(): ReactElement | null {
     .map((field) => {
       return field
     })
+
+  const pools = useMemo(
+    () =>
+      Object.values(POOLS_MAP)
+        // temporarily hide outdated Frax pool while keeping its page enabled
+        .filter(
+          ({ name, addresses }) =>
+            name !== FRAX_STABLES_LP_POOL_NAME &&
+            !!addresses[chainId as ChainId],
+        )
+        .filter((pool) => FILTER_FUNCTIONS[filterByField](pool))
+        .filter(({ name, addresses }) => {
+          const target = searchText.toLowerCase()
+          if (isAddress(target) && chainId) {
+            return addresses[chainId as ChainId].toLowerCase() === target
+          }
+          return name.toLowerCase().includes(target)
+        })
+        .sort((a, b) =>
+          SORT_FUNCTIONS[sortByField](a, b)
+            ? sortDirection * -1
+            : sortDirection,
+        ),
+    [
+      FILTER_FUNCTIONS,
+      SORT_FUNCTIONS,
+      chainId,
+      filterByField,
+      searchText,
+      sortByField,
+      sortDirection,
+    ],
+  )
 
   return (
     <PageWrapper maxW="1650px">
@@ -537,69 +598,80 @@ function Pools(): ReactElement | null {
                 ))}
               </Grid>
             </Stack>
-            <Stack spacing={6} maxH="600px" overflowY="auto">
+            <Stack
+              spacing={6}
+              maxH="600px"
+              overflowY={pools.length ? "auto" : "hidden"}
+              overflowX="hidden"
+            >
               <AnimatePresence initial={false}>
-                {Object.values(POOLS_MAP)
-                  // temporarily hide outdated Frax pool while keeping its page enabled
-                  .filter(({ name }) => name !== FRAX_STABLES_LP_POOL_NAME)
-                  .filter((pool) => FILTER_FUNCTIONS[filterByField](pool))
-                  .filter(({ name, addresses }) => {
-                    const target = searchText.toLowerCase()
-                    if (isAddress(target) && chainId) {
-                      return (
-                        addresses[chainId as ChainId].toLowerCase() === target
-                      )
+                {pools.map((pool) => (
+                  <Skeleton
+                    key={pool.name}
+                    borderRadius="10px"
+                    fadeDuration={1}
+                    isLoaded={
+                      (farmStats &&
+                        allUserShareData.every((item) => item) &&
+                        !!farmDeposits?.[pool.farmName || ""] &&
+                        !!allRewards?.[pool.farmName || ""]) ||
+                      timeout
                     }
-                    return name.toLowerCase().includes(target)
-                  })
-                  .sort((a, b) =>
-                    SORT_FUNCTIONS[sortByField](a, b)
-                      ? sortDirection * -1
-                      : sortDirection,
-                  )
-                  .map((pool) => (
-                    <Skeleton
-                      key={pool.name}
-                      borderRadius="10px"
-                      fadeDuration={1}
-                      isLoaded={
-                        (farmStats &&
-                          allUserShareData.every((item) => item) &&
-                          !!farmDeposits?.[pool.farmName || ""] &&
-                          !!allRewards?.[pool.farmName || ""]) ||
-                        timeout
+                  >
+                    <PoolOverview
+                      poolName={pool.name}
+                      poolRoute={pool.route}
+                      poolIcon={
+                        pool.name === STABLECOIN_POOL_V2_NAME
+                          ? stablesPoolIcon
+                          : pool.lpToken.icon
                       }
+                      farmDeposit={farmDeposits?.[pool.farmName || ""] || Zero}
+                      farmTvl={farmStats?.[pool.farmName || ""]?.tvl}
+                      apr={{
+                        roseApr: farmStats?.[pool.farmName || ""]?.apr,
+                        dualRewardApr:
+                          farmStats?.[pool.farmName || ""]?.dualReward.apr,
+                        dualRewardTokenName:
+                          farmStats?.[pool.farmName || ""]?.dualReward.token,
+                      }}
+                      rewards={{
+                        rose: allRewards?.[pool.farmName || ""] || Zero,
+                        dual:
+                          pool.farmName === UST_METAPOOL_FARM_NAME
+                            ? allRewards?.["dualReward"] || Zero
+                            : Zero,
+                      }}
+                      {...getPoolData(pool.name)}
+                    />
+                  </Skeleton>
+                ))}
+                {!pools.length && (
+                  <VStack spacing="50px" alignItems="center" mt="10px">
+                    <Heading
+                      fontWeight={400}
+                      color="gray.100"
+                      fontSize="25px"
+                      whiteSpace="nowrap"
                     >
-                      <PoolOverview
-                        poolName={pool.name}
-                        poolRoute={pool.route}
-                        poolIcon={
-                          pool.name === STABLECOIN_POOL_V2_NAME
-                            ? stablesPoolIcon
-                            : pool.lpToken.icon
-                        }
-                        farmDeposit={
-                          farmDeposits?.[pool.farmName || ""] || Zero
-                        }
-                        farmTvl={farmStats?.[pool.farmName || ""]?.tvl}
-                        apr={{
-                          roseApr: farmStats?.[pool.farmName || ""]?.apr,
-                          dualRewardApr:
-                            farmStats?.[pool.farmName || ""]?.dualReward.apr,
-                          dualRewardTokenName:
-                            farmStats?.[pool.farmName || ""]?.dualReward.token,
-                        }}
-                        rewards={{
-                          rose: allRewards?.[pool.farmName || ""] || Zero,
-                          dual:
-                            pool.farmName === UST_METAPOOL_FARM_NAME
-                              ? allRewards?.["dualReward"] || Zero
-                              : Zero,
-                        }}
-                        {...getPoolData(pool.name)}
-                      />
-                    </Skeleton>
-                  ))}
+                      Pools coming soon.
+                    </Heading>
+                    <Center h={{ base: "400px", md: "500px" }} pos="relative">
+                      <Box
+                        left={{ base: "-210px", md: "-250px" }}
+                        top="-100px"
+                        w={{ base: "400px", md: "500px" }}
+                        pos="absolute"
+                      >
+                        <Image
+                          src={emptyPools}
+                          objectFit="cover"
+                          opacity={0.6}
+                        />
+                      </Box>
+                    </Center>
+                  </VStack>
+                )}
               </AnimatePresence>
             </Stack>
           </Stack>

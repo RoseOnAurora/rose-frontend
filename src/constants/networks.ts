@@ -1,3 +1,4 @@
+import { ChainId } from "."
 import { SupportedChainId } from "./chains"
 
 const NETWORK_URL =
@@ -8,5 +9,6 @@ export const NETWORK_CHAIN_ID: number = parseInt(
 )
 
 export const RPC_URLS: { [chainId in SupportedChainId]: string } = {
-  [SupportedChainId.AURORA]: NETWORK_URL,
+  [ChainId.AURORA_MAINNET]: NETWORK_URL,
+  [ChainId.POLYGON]: "https://rpc-mainnet.maticvigil.com",
 }

@@ -33,10 +33,9 @@ import useAddTokenToMetamask from "../../hooks/useAddTokenToMetamask"
 import { useSelector } from "react-redux"
 
 export default function RosePriceButton(): ReactElement {
-  const { stakeStats, rosePriceHistory, lastTransactionTimes } = useSelector(
+  const { rosePriceHistory, lastTransactionTimes } = useSelector(
     (state: AppState) => state.application,
   )
-  const { priceOfRose } = { ...stakeStats }
   const addRoseToken = useAddTokenToMetamask(ROSE)
   const addStRoseToken = useAddTokenToMetamask(SROSE)
   const addRusdToken = useAddTokenToMetamask(RUSD)
@@ -68,7 +67,11 @@ export default function RosePriceButton(): ReactElement {
           fontSize={{ base: "13px", md: "16px" }}
           leftIcon={<RoseIconSmall />}
         >
-          {priceOfRose ? `$${Number(priceOfRose).toFixed(3)}` : "-"}
+          {rosePriceHistory?.length
+            ? `$${Number(
+                rosePriceHistory[rosePriceHistory.length - 1].price,
+              ).toFixed(3)}`
+            : "-"}
         </MenuButton>
         <MenuList zIndex={10} boxShadow="md" bg="gray.900">
           <Box p="5px" textAlign="center" height="100%">

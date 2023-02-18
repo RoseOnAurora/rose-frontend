@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion"
-import { Box, Flex, Image, Text } from "@chakra-ui/react"
+import { Box, Flex, Heading, Image, Text } from "@chakra-ui/react"
 import React, { ReactElement, memo, useEffect, useRef } from "react"
 import { commify, formatBNToString } from "../../utils"
 import { TokenOption } from "../../types/token"
@@ -24,6 +24,23 @@ const TokenList = ({ tokens, onSelectToken }: TokenListProps): ReactElement => {
           onSelectToken={onSelectToken}
         />
       ))}
+      {!tokens.length && (
+        <Box
+          pos="absolute"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+        >
+          <Heading
+            fontWeight={400}
+            color="gray.200"
+            fontSize="18px"
+            whiteSpace="nowrap"
+          >
+            Token list coming soon.
+          </Heading>
+        </Box>
+      )}
     </AnimatePresence>
   )
 }

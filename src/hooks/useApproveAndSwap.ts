@@ -14,15 +14,13 @@ import { ContractReceipt, ContractTransaction } from "@ethersproject/contracts"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import { GasPrices } from "../state/user"
 import { SwapComposer } from "../../types/ethers-contracts/SwapComposer"
-import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
-import { parseUnits } from "@ethersproject/units"
 import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
 import { useAllContracts } from "./useContract"
 import { useDispatch } from "react-redux"
+import useGasPrice from "./useGasPrice"
 import { useSelector } from "react-redux"
 import { useWeb3React } from "@web3-react/core"
 
@@ -49,16 +47,10 @@ export function useApproveAndSwap(): (
   const dispatch = useDispatch()
   const tokenContracts = useAllContracts()
   const { account, chainId } = useWeb3React()
-  const { gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
+  const gasPrice = useGasPrice()
+  const { slippageCustom, slippageSelected, infiniteApproval } = useSelector(
+    (state: AppState) => state.user,
   )
-  const {
-    slippageCustom,
-    slippageSelected,
-    gasPriceSelected,
-    gasCustom,
-    infiniteApproval,
-  } = useSelector((state: AppState) => state.user)
   return async function approveAndSwap(
     state: ApproveAndSwapStateArgument,
   ): Promise<ContractReceipt> {
@@ -74,21 +66,7 @@ export function useApproveAndSwap(): (
       if (chainId === undefined) throw new Error("Unknown chain")
       // For each token being deposited, check the allowance and approve it if necessary
       const tokenContract = tokenContracts?.[state.from.symbol] as Erc20
-      // const gasPrice = Zero
-      let gasPrice
-      if (gasPriceSelected === GasPrices.Custom) {
-        gasPrice = gasCustom?.valueSafe
-      } else if (gasPriceSelected === GasPrices.Fast) {
-        gasPrice = gasFast
-      } else if (gasPriceSelected === GasPrices.Instant) {
-        gasPrice = gasInstant
-      } else {
-        gasPrice = gasStandard
-      }
-      gasPrice =
-        chainId === ChainId.AURORA_MAINNET
-          ? parseUnits(gasPrice?.toString() || "45", "gwei")
-          : Zero
+
       if (tokenContract == null) throw new Error("Token contract is not loaded")
       let addressToApprove = ""
       if (

@@ -4,7 +4,9 @@ import { Box } from "@chakra-ui/react"
 import Footer from "../components/nav/Footer"
 import Header from "../components/nav/Header"
 
-const App = ({ children }: React.PropsWithChildren<unknown>): ReactElement => {
+const Layout = ({
+  children,
+}: React.PropsWithChildren<unknown>): ReactElement => {
   const { pathname } = useLocation()
 
   return (
@@ -17,4 +19,4 @@ const App = ({ children }: React.PropsWithChildren<unknown>): ReactElement => {
   )
 }
 
-export default App
+export default Layout

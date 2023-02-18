@@ -24,8 +24,8 @@ import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import { Garden } from "../../types/ethers-contracts/Garden"
 import { Vase } from "../../types/ethers-contracts/Vase"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
-import { formatGasToString } from "../utils/gas"
 import { updateLastTransactionTimes } from "../state/application"
+import useGasPrice from "./useGasPrice"
 import { useWeb3React } from "@web3-react/core"
 
 enum GardenActions {
@@ -81,12 +81,11 @@ export function useCook(
   const borrowTokenContract = useBorrowContract(borrowMarket) as Erc20
 
   const { provider, account, chainId } = useWeb3React()
+  const gasPrice = useGasPrice()
   const dispatch = useDispatch<AppDispatch>()
 
-  const { infiniteApproval, priceFromOracle, gasPriceSelected, gasCustom } =
-    useSelector((state: AppState) => state.user)
-  const { gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
+  const { infiniteApproval, priceFromOracle } = useSelector(
+    (state: AppState) => state.user,
   )
 
   // lets use toast for better messages; TO-DO: remove params and use this hook
@@ -119,15 +118,6 @@ export function useCook(
 
       const amountToDeposit = BigNumber.from(collateralAmount)
       const amountToBorrow = BigNumber.from(borrowAmount)
-
-      const gasPrice = ethers.utils.parseUnits(
-        formatGasToString(
-          { gasStandard, gasFast, gasInstant },
-          gasPriceSelected,
-          gasCustom,
-        ),
-        "gwei",
-      )
 
       // approve
       await checkAndApproveTokenForTrade(

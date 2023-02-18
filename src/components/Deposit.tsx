@@ -3,7 +3,6 @@
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-return: 0 */
 /* eslint @typescript-eslint/no-explicit-any: 0 */
-/* eslint @typescript-eslint/no-unused-vars: 0 */
 import { Box, Button, Flex, Link, Stack, Text } from "@chakra-ui/react"
 import {
   ChainId,
@@ -44,10 +43,9 @@ import { TokenPricesUSD } from "../state/application"
 import { TransactionType } from "../hooks/useChakraToast"
 import { Zero } from "@ethersproject/constants"
 import { calculatePriceImpact } from "../utils/priceImpact"
-import { ethers } from "ethers"
-import { formatGasToString } from "../utils/gas"
 import { parseUnits } from "@ethersproject/units"
 import { useApproveAndDeposit } from "../hooks/useApproveAndDeposit"
+import useGasPrice from "../hooks/useGasPrice"
 import { usePoolContract } from "../hooks/useContract"
 import { usePoolTokenBalances } from "../hooks/useTokenBalances"
 import { useSelector } from "react-redux"
@@ -74,6 +72,7 @@ function Deposit({
   const [poolData, userShareData] = usePoolData(poolName)
   const poolContract = usePoolContract(poolName) as Contract
   const { t } = useTranslation()
+  const gasPrice = useGasPrice()
 
   const POOL = POOLS_MAP[poolName]
 
@@ -97,9 +96,7 @@ function Deposit({
     )
   }, [updateTokenFormState, POOL.poolTokens, POOL.underlyingPoolTokens])
   const tokenBalances = usePoolTokenBalances()
-  const { tokenPricesUSD, gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
-  )
+  const { tokenPricesUSD } = useSelector((state: AppState) => state.application)
 
   // Merge underlying token usd prices and tokenPricesUSD array
   const [underlyingPoolData] = usePoolData(POOL.underlyingPool)
@@ -116,17 +113,6 @@ function Deposit({
     }
   }
 
-  const { gasPriceSelected, gasCustom } = useSelector(
-    (state: AppState) => state.user,
-  )
-  const gasPrice = ethers.utils.parseUnits(
-    formatGasToString(
-      { gasStandard, gasFast, gasInstant },
-      gasPriceSelected,
-      gasCustom,
-    ),
-    "gwei",
-  )
   const [estDepositLPTokenAmount, setEstDepositLPTokenAmount] = useState(Zero)
   const [priceImpact, setPriceImpact] = useState(Zero)
   const isMetaSwap = isMetaPool(POOL.name)
@@ -236,7 +222,7 @@ function Deposit({
     priceImpact,
     estDepositLPTokenAmount,
     gasPrice,
-    newTokenPricesUSD,
+    newTokenPricesUSD || tokenPricesUSD,
   )
 
   const exceedsWallet = allTokens.some(({ symbol }) => {
@@ -336,7 +322,7 @@ function Deposit({
         )}
         <Stack spacing="15px">
           {tokens.map((token, index) => {
-            let tokenUSDValue: number | BigNumber | undefined
+            let tokenUSDValue: number | undefined
             if (poolData.lpTokenPriceUSD != Zero) {
               tokenUSDValue = parseFloat(
                 formatBNToString(poolData.lpTokenPriceUSD, 18, 2),
@@ -477,16 +463,13 @@ function buildTransactionData(
         .mul(BigNumber.from(10).pow(18))
         .div(estDepositLPTokenAmount.add(poolData?.totalLocked))
     : BigNumber.from(10).pow(18)
-  // TO-DO: fix gas price calculation
-  // const gasAmount = calculateGasEstimate("addLiquidity").mul(gasPrice) // units of gas * GWEI/Unit of gas
-  const gasAmount = BigNumber.from(0)
 
   const txnGasCost = {
-    amount: gasAmount,
+    amount: gasPrice,
     valueUSD: tokenPricesUSD?.ETH
       ? parseUnits(tokenPricesUSD.ETH.toFixed(2), 18) // USD / ETH  * 10^18
-          .mul(gasAmount) // GWEI
-          .div(BigNumber.from(10).pow(25)) // USD / ETH * GWEI * ETH / GWEI = USD
+          .mul(gasPrice) // GWEI
+          .div(BigNumber.from(10).pow(18)) // USD / ETH * GWEI * ETH / GWEI = USD
       : null,
   }
 

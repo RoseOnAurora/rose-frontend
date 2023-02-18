@@ -48,6 +48,7 @@ import { Zero } from "@ethersproject/constants"
 import { calculatePriceImpact } from "../utils/priceImpact"
 import { formatSlippageToString } from "../utils/slippage"
 import { useApproveAndWithdraw } from "../hooks/useApproveAndWithdraw"
+import useGasPrice from "../hooks/useGasPrice"
 import { usePoolContract } from "../hooks/useContract"
 import usePoolData from "../hooks/usePoolData"
 import { useSelector } from "react-redux"
@@ -89,10 +90,11 @@ function Withdraw({
   handlePostSubmit,
 }: Props): ReactElement {
   const { t } = useTranslation()
+  const gasPrice = useGasPrice()
   const [poolData, userShareData] = usePoolData(poolName)
   const [withdrawFormState, updateWithdrawFormState] =
     useWithdrawFormState(poolName)
-  const { slippageCustom, slippageSelected, gasPriceSelected } = useSelector(
+  const { slippageCustom, slippageSelected } = useSelector(
     (state: AppState) => state.user,
   )
   const { tokenPricesUSD } = useSelector((state: AppState) => state.application)
@@ -196,15 +198,13 @@ function Withdraw({
       return []
     }
   }, [withdrawFormState, POOL.poolTokens, userShareData?.tokens])
-  // TO-DO: fix gas price calculation
-  const gasAmount = BigNumber.from(0)
 
   const txnGasCost = {
-    amount: gasAmount,
+    amount: gasPrice,
     valueUSD: tokenPricesUSD?.ETH
       ? parseUnits(tokenPricesUSD.ETH.toFixed(2), 18) // USD / ETH  * 10^18
-          .mul(gasAmount) // GWEI
-          .div(BigNumber.from(10).pow(25)) // USD / ETH * GWEI * ETH / GWEI = USD
+          .mul(gasPrice) // GWEI
+          .div(BigNumber.from(10).pow(18)) // USD / ETH * GWEI * ETH / GWEI = USD
       : null,
   }
 
@@ -262,7 +262,6 @@ function Withdraw({
         <ReviewWithdraw
           data={reviewWithdrawData}
           onClose={(): void => setIsModalOpen(false)}
-          gas={gasPriceSelected}
           onConfirm={async () => {
             setIsModalOpen(false)
             handlePreSubmit?.(TransactionType.WITHDRAW)

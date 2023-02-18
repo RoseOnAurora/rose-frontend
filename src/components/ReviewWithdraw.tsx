@@ -9,13 +9,12 @@ import {
 import React, { ReactElement, useState } from "react"
 import { commify, formatBNToString } from "../utils"
 import { AppState } from "../state/index"
-import { GasPrices } from "../state/user"
 import HighPriceImpactConfirmation from "./HighPriceImpactConfirmation"
 import ReviewInfoItem from "./ReviewInfoItem"
 import ReviewItem from "./ReviewItem"
 import { ReviewWithdrawData } from "./Withdraw"
-import { formatGasToString } from "../utils/gas"
 import { formatSlippageToString } from "../utils/slippage"
+import { formatUnits } from "@ethersproject/units"
 import { isHighPriceImpact } from "../utils/priceImpact"
 import { useSelector } from "react-redux"
 import { useTranslation } from "react-i18next"
@@ -24,19 +23,17 @@ interface Props {
   onClose: () => void
   onConfirm: () => void
   data: ReviewWithdrawData
-  gas: GasPrices
 }
 
 function ReviewWithdraw({ onClose, onConfirm, data }: Props): ReactElement {
   const { t } = useTranslation()
-  const { slippageCustom, slippageSelected, gasPriceSelected, gasCustom } =
-    useSelector((state: AppState) => state.user)
-  const { gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
+  const { slippageCustom, slippageSelected } = useSelector(
+    (state: AppState) => state.user,
   )
   const [hasConfirmedHighPriceImpact, setHasConfirmedHighPriceImpact] =
     useState(false)
   const isHighSlippageTxn = isHighPriceImpact(data.priceImpact)
+
   return (
     <Stack p="10px">
       <Stack spacing={3}>
@@ -57,17 +54,17 @@ function ReviewWithdraw({ onClose, onConfirm, data }: Props): ReactElement {
       <Divider />
       <ReviewInfoItem
         label={t("gas")}
-        value={`${formatGasToString(
-          { gasStandard, gasFast, gasInstant },
-          gasPriceSelected,
-          gasCustom,
-        )} GWEI`}
+        value={`${
+          data.txnGasCost?.amount
+            ? formatUnits(data.txnGasCost.amount, "gwei")
+            : 0
+        } GWEI`}
       />
       {data.txnGasCost?.valueUSD && (
         <ReviewInfoItem
           label={t("estimatedTxCost")}
           value={`≈$${commify(
-            formatBNToString(data.txnGasCost.valueUSD, 2, 2),
+            formatBNToString(data.txnGasCost.valueUSD, 18, 8),
           )}`}
         />
       )}
