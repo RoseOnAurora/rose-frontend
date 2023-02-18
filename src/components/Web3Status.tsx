@@ -68,6 +68,7 @@ const Web3Status = (): ReactElement => {
   const { account, chainId, connector } = useWeb3React()
   const [modalOpen, setModalOpen] = useState(false)
   const [modalView, setModalView] = useState(Web3ModalView.ACCOUNT)
+  const [switchChains, setSwitchChains] = useState(false)
   const [retryConnector, setRetryConnetor] = useState<Connector>()
   const chainName = useMemo(
     () => chainIdToName(chainId, account),
@@ -94,6 +95,7 @@ const Web3Status = (): ReactElement => {
     async (c: Connector) => {
       try {
         setModalView(Web3ModalView.CONNECTING)
+        setSwitchChains(false)
         await c.activate()
         setModalView(Web3ModalView.ACCOUNT)
         const { type } = getWeb3Connection(c)
@@ -144,7 +146,7 @@ const Web3Status = (): ReactElement => {
   useEffect(() => {
     if (modalOpen) {
       setModalView(
-        modalView === Web3ModalView.CHAINS || (account && !chainName)
+        switchChains || (account && !chainName)
           ? Web3ModalView.CHAINS
           : account && chainName
           ? Web3ModalView.ACCOUNT
@@ -152,7 +154,7 @@ const Web3Status = (): ReactElement => {
       )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, chainName, modalOpen])
+  }, [account, chainName, modalOpen, switchChains])
 
   return (
     <Flex alignItems="center" justifyContent="space-evenly">
@@ -190,6 +192,7 @@ const Web3Status = (): ReactElement => {
                 aria-label="switch chain"
                 onClick={() => {
                   setModalView(Web3ModalView.CHAINS)
+                  setSwitchChains(true)
                   setModalOpen(true)
                 }}
               />
@@ -207,7 +210,10 @@ const Web3Status = (): ReactElement => {
         fontWeight={700}
         p={padding}
         color={color}
-        onClick={(): void => setModalOpen(true)}
+        onClick={() => {
+          setModalOpen(true)
+          setSwitchChains(false)
+        }}
         rightIcon={
           account && chainName ? (
             <Identicon />
@@ -256,9 +262,13 @@ const Web3Status = (): ReactElement => {
           <ConnectWallet onActivation={handleActivation} />
         ) : modalView === Web3ModalView.ACCOUNT ? (
           <AccountDetails
-            openOptions={() => setModalView(Web3ModalView.WALLETS)}
+            openOptions={() => {
+              setModalView(Web3ModalView.WALLETS)
+              setSwitchChains(false)
+            }}
             deactivate={async (c: Connector) => {
               setModalView(Web3ModalView.DISCONNECTING)
+              setSwitchChains(false)
               await handleDeactivation(c)
               setModalOpen(false)
             }}
@@ -273,10 +283,17 @@ const Web3Status = (): ReactElement => {
           <SupportedChains
             openOptions={() => {
               setModalView(Web3ModalView.WALLETS)
+              setSwitchChains(false)
             }}
             onSwitchChainStart={() => setModalView(Web3ModalView.SWITCH_CHAIN)}
-            onSwitchChainSuccess={() => setModalView(Web3ModalView.ACCOUNT)}
-            onSwitchChainFail={() => setModalView(Web3ModalView.ERROR)}
+            onSwitchChainSuccess={() => {
+              setModalView(Web3ModalView.ACCOUNT)
+              setSwitchChains(false)
+            }}
+            onSwitchChainFail={() => {
+              setModalView(Web3ModalView.ERROR)
+              setSwitchChains(false)
+            }}
           />
         ) : (
           <Stack spacing={5}>
@@ -295,6 +312,7 @@ const Web3Status = (): ReactElement => {
                 variant="ghost"
                 onClick={() => {
                   setModalView(Web3ModalView.WALLETS)
+                  setSwitchChains(false)
                 }}
               >
                 Back to wallet options
