@@ -49,17 +49,13 @@ enum Web3ModalView {
   ERROR,
 }
 
-function chainIdToName(chainId: number | undefined, account?: string) {
+function chainIdToName(chainId?: number | undefined, account?: string) {
   if (typeof chainId == undefined || !account) {
     return ""
   }
   switch (chainId) {
-    case ChainId.AURORA_TESTNET:
-      return "Aurora Testnet"
     case ChainId.AURORA_MAINNET:
       return "Aurora"
-    case ChainId.MUMBAI:
-      return "Mumbai"
     case ChainId.POLYGON:
       return "Polygon"
     default:
