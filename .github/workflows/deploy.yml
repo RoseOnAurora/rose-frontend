@@ -17,12 +17,6 @@ jobs:
         run: npm run build
         env:
           REACT_APP_NETWORK_URL: ${{ secrets.REACT_APP_NETWORK_URL }}
-      - name: "Deploy to Skynet"
-        uses: SkynetLabs/deploy-to-skynet-action@v2
-        with:
-          upload-dir: build
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          registry-seed: ${{ secrets.REGISTRY_SEED || '' }}
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
