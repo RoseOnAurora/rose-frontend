@@ -1,9 +1,9 @@
 {
   "files": {
     "main.css": "./static/css/main.27075409.css",
-    "main.js": "./static/js/main.91bf8f66.js",
+    "main.js": "./static/js/main.50b45027.js",
+    "static/media/holo-rose-pink-circle.png": "./static/media/holo-rose-pink-circle.7e6fbbdf851d1d5b5e67.png",
     "static/media/wbtc.svg": "./static/media/wbtc.7b09463583aae899255b9c8836119248.svg",
-    "static/media/renbtc.svg": "./static/media/renbtc.1e207adc723264d9b29bc06156a9fcae.svg",
     "static/media/dm-sans-all-400-normal.woff": "./static/media/dm-sans-all-400-normal.37e3ab8cb633fce97c87.woff",
     "static/media/dm-sans-all-500-normal.woff": "./static/media/dm-sans-all-500-normal.0a59c6133bb2afd80054.woff",
     "static/media/dm-sans-all-700-normal.woff": "./static/media/dm-sans-all-700-normal.83ca7716c560a37ada07.woff",
@@ -25,25 +25,16 @@
     "static/media/dm-sans-latin-ext-500-normal.woff2": "./static/media/dm-sans-latin-ext-500-normal.d0cd2ef294906e1debec.woff2",
     "static/media/dm-sans-latin-ext-700-normal.woff2": "./static/media/dm-sans-latin-ext-700-normal.260b7f4017e3fb22a924.woff2",
     "static/media/atust.svg": "./static/media/atust.2761905480fca660e280c3c83c80bc80.svg",
-    "static/media/logo_24.svg": "./static/media/logo_24.9ac0ef9cd35249d812259a545bfcf034.svg",
     "static/media/dai-usdt-usdc.svg": "./static/media/dai-usdt-usdc.bed19ed30d569cfa9ca1a01d8dddf89c.svg",
-    "static/media/veth2.svg": "./static/media/veth2.4d368f5e7c61a98234d7137573b0e80f.svg",
     "static/media/weth.svg": "./static/media/weth.32818c6c6221a1860fb12022a988dffc.svg",
-    "static/media/alusd.svg": "./static/media/alusd.d6b57a250c55188114f2caa03885a7a9.svg",
     "static/media/stake-description-graphic.svg": "./static/media/stake-description-graphic.d69e5185df726e99731e42f8b07dbcb6.svg",
-    "static/media/sbtc.svg": "./static/media/sbtc.0b499bd2d604f946540e4404985d6299.svg",
-    "static/media/aleth.svg": "./static/media/aleth.3dd80ea70a10f153a6508fd5105f2dc1.svg",
-    "static/media/lusd.svg": "./static/media/lusd.41ed2289683166b7c731245e281b8ff2.svg",
     "static/media/reward-info.svg": "./static/media/reward-info.065d7cc2eab9caf37e4d4b0e8d362081.svg",
     "static/media/frax.svg": "./static/media/frax.bbaec15920df8ed997d492c82ed04c2a.svg",
     "index.html": "./index.html",
     "static/media/mai.svg": "./static/media/mai.5cdd165eff88a617f9db7af158d510d3.svg",
     "static/media/bonus-gift.svg": "./static/media/bonus-gift.abdde39d31a497ad888d7874dee5003c.svg",
-    "static/media/seth.svg": "./static/media/seth.63f5d603e7841829ec0e8474b9e15527.svg",
     "static/media/borrowed.svg": "./static/media/borrowed.0b2d6daa7375c23ebb40c43c49e25c1b.svg",
-    "static/media/susd.svg": "./static/media/susd.b4cf9ad2458e46d4bf516bc90e9e2330.svg",
     "static/media/unlock.svg": "./static/media/unlock.7ee84470c8da75690fb810016c5a1c33.svg",
-    "static/media/tbtc.svg": "./static/media/tbtc.73bdb39ff030966f482289ae843e878a.svg",
     "static/media/terra-luna-logo.svg": "./static/media/terra-luna-logo.bd9a09bda8520e67777866e0e3c78a26.svg",
     "static/media/busd.svg": "./static/media/busd.744adbcf735b6dce324c67264a86bad7.svg",
     "static/media/lock.svg": "./static/media/lock.798d9d49f961b866ae6a9d4e04db6ce5.svg",
@@ -52,15 +43,14 @@
     "static/media/usdt.svg": "./static/media/usdt.2499bf8784f2ab7c736c5e1b8a350095.svg",
     "static/media/wallet-icon.svg": "./static/media/wallet-icon.0bfb1ab87cc3bb2246d41e30b6e505fb.svg",
     "static/media/chart-graph.svg": "./static/media/chart-graph.f0bbdaca0f128cdfd9756305c717846d.svg",
-    "static/media/fei.svg": "./static/media/fei.056d822ff76edb70d0a103799834c4a4.svg",
     "static/media/near_icon.svg": "./static/media/near_icon.0ff22a8dfcf38be4a4a2643c9084db35.svg",
     "static/media/arrow-up-right.svg": "./static/media/arrow-up-right.a84bc032a7352079b4fbd99106115e6b.svg",
     "static/media/info-icon.svg": "./static/media/info-icon.ac7a1f862989a728970e688f8aa513d8.svg",
     "main.27075409.css.map": "./static/css/main.27075409.css.map",
-    "main.91bf8f66.js.map": "./static/js/main.91bf8f66.js.map"
+    "main.50b45027.js.map": "./static/js/main.50b45027.js.map"
   },
   "entrypoints": [
     "static/css/main.27075409.css",
-    "static/js/main.91bf8f66.js"
+    "static/js/main.50b45027.js"
   ]
 }
