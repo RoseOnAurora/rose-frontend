@@ -23,7 +23,8 @@ export default function useAddNetworkToMetamask(): (
         } catch (e) {
           // This error code indicates that the chain has not been added to MetaMask.
           const { code } = e as { code: number }
-          if (code === 4902) {
+          const { data } = e as { data: { originalError: { code: number } } } // mobile error code
+          if (code === 4902 || data?.originalError?.code === 4902) {
             await connector.provider.request({
               method: "wallet_addEthereumChain",
               params: [
