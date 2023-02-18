@@ -118,7 +118,7 @@ const SwapTokenSelectModal = ({
           h="350px"
           overflowY="auto"
         >
-          <Stack spacing="10px">
+          <Stack spacing="10px" pos="relative" h="full">
             <TokenList
               tokens={filteredTokens}
               onSelectToken={(symbol: string) => {

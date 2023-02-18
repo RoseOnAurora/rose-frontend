@@ -21,16 +21,14 @@ import { useDispatch, useSelector } from "react-redux"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
-import { GasPrices } from "../state/user"
 import { NumberInputState } from "../utils/numberInputState"
 import ROSE_META_POOL_DEPOSIT from "../constants/abis/RoseMetaPoolDeposit.json"
 import { RoseMetaPoolDeposit } from "../../types/ethers-contracts/RoseMetaPoolDeposit"
-import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
 import { getContract } from "../utils"
-import { parseUnits } from "@ethersproject/units"
 import { subtractSlippage } from "../utils/slippage"
 import { updateLastTransactionTimes } from "../state/application"
+import useGasPrice from "./useGasPrice"
 import { useMemo } from "react"
 import { useWeb3React } from "@web3-react/core"
 
@@ -49,16 +47,11 @@ export function useApproveAndDeposit(
   const lpTokenContract = useLPTokenContract(poolName)
   const tokenContracts = useAllContracts()
   const { account, chainId, provider } = useWeb3React()
-  const {
-    slippageCustom,
-    slippageSelected,
-    infiniteApproval,
-    gasPriceSelected,
-    gasCustom,
-  } = useSelector((state: AppState) => state.user)
-  const { gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
+  const gasPrice = useGasPrice()
+  const { slippageCustom, slippageSelected, infiniteApproval } = useSelector(
+    (state: AppState) => state.user,
   )
+
   const POOL = POOLS_MAP[poolName]
   const metaSwapContract = useMemo(() => {
     if (POOL.metaSwapAddresses && chainId && provider) {
@@ -92,20 +85,6 @@ export function useApproveAndDeposit(
         ? (metaSwapContract as RoseMetaPoolDeposit)
         : poolContract
 
-      let gasPrice: any
-      if (gasPriceSelected === GasPrices.Custom) {
-        gasPrice = gasCustom?.valueSafe
-      } else if (gasPriceSelected === GasPrices.Fast) {
-        gasPrice = gasFast
-      } else if (gasPriceSelected === GasPrices.Instant) {
-        gasPrice = gasInstant
-      } else {
-        gasPrice = gasStandard
-      }
-      gasPrice =
-        chainId === ChainId.AURORA_MAINNET
-          ? parseUnits(gasPrice?.toString() || "45", "gwei")
-          : Zero
       const approveSingleToken = async (token: Token): Promise<void> => {
         const spendingValue = BigNumber.from(state[token.symbol].valueSafe)
         if (spendingValue.isZero()) return

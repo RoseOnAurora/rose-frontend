@@ -1,4 +1,4 @@
-import { SWAP_TYPES, TOKENS_MAP } from "../constants"
+import { ChainId, SWAP_TYPES, TOKENS_MAP } from "../constants"
 import { SwapData, SwapTokenOption } from "../types/swap"
 import { AppState } from "../state"
 import { Zero } from "@ethersproject/constants"
@@ -7,17 +7,20 @@ import { sortTokenOptions } from "../utils/swapUtils"
 import { useMemo } from "react"
 import { usePoolTokenBalances } from "./useTokenBalances"
 import { useSelector } from "react-redux"
+import { useWeb3React } from "@web3-react/core"
 
 const useSwapTokenOptions = (
   currentSwapPairs: SwapData[],
 ): { from: SwapTokenOption[]; to: SwapTokenOption[] } => {
   const tokenBalances = usePoolTokenBalances()
   const { tokenPricesUSD } = useSelector((state: AppState) => state.application)
+  const { chainId } = useWeb3React()
 
   // build a representation of pool tokens for the UI
   const tokenOptions = useMemo(() => {
     const allTokens = Object.values(TOKENS_MAP)
       .filter(({ isLPToken }) => !isLPToken)
+      .filter(({ addresses }) => !!addresses[chainId as ChainId])
       .map(({ symbol, name, icon, decimals }) => {
         const amount = tokenBalances?.[symbol] || Zero
         return {
@@ -60,7 +63,7 @@ const useSwapTokenOptions = (
       from: allTokens,
       to: toTokens,
     }
-  }, [tokenPricesUSD, tokenBalances, currentSwapPairs])
+  }, [tokenPricesUSD, tokenBalances, currentSwapPairs, chainId])
   return tokenOptions
 }
 

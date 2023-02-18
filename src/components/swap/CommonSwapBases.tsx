@@ -46,6 +46,16 @@ const CommonSwapBases = ({
               </Flex>
             </Box>
           ))}
+          {!commonBases.length && (
+            <Text
+              fontWeight={400}
+              color="gray.300"
+              fontSize="14px"
+              lineHeight="18px"
+            >
+              No tokens to display.
+            </Text>
+          )}
         </Flex>
       </Box>
     </Stack>

@@ -16,16 +16,24 @@ import {
 import React, { ReactElement } from "react"
 import ChangeAccountButton from "./button/ChangeAccountButton"
 import { FaWallet } from "react-icons/fa"
-import { SUPPORTED_CHAINS } from "../constants"
+import { SUPPORTED_CHAINS } from "../constants/chains"
 import { map } from "lodash"
 import useAddNetworkToMetamask from "../hooks/useAddNetworkToMetamask"
 import { useTranslation } from "react-i18next"
 
 interface Props {
   openOptions: () => void
+  onSwitchChainStart?: () => void
+  onSwitchChainSuccess?: () => void
+  onSwitchChainFail?: () => void
 }
 
-export default function SupportedChains({ openOptions }: Props): ReactElement {
+export default function SupportedChains({
+  openOptions,
+  onSwitchChainStart,
+  onSwitchChainSuccess,
+  onSwitchChainFail,
+}: Props): ReactElement {
   const { t } = useTranslation()
   const addNetwork = useAddNetworkToMetamask()
   return (
@@ -39,7 +47,11 @@ export default function SupportedChains({ openOptions }: Props): ReactElement {
             {Icon && (
               <Popover>
                 <PopoverTrigger>
-                  <Button w="full" leftIcon={<Icon />}>
+                  <Button
+                    w="full"
+                    justifyContent="flex-start"
+                    leftIcon={<Icon />}
+                  >
                     {name}
                   </Button>
                 </PopoverTrigger>
@@ -122,7 +134,15 @@ export default function SupportedChains({ openOptions }: Props): ReactElement {
               w="full"
               pr="6px"
               rightIcon={<FaWallet size="20px" />}
-              onClick={() => addNetwork(+key)}
+              onClick={async () => {
+                onSwitchChainStart?.()
+                try {
+                  await addNetwork(+key)
+                  onSwitchChainSuccess?.()
+                } catch {
+                  onSwitchChainFail?.()
+                }
+              }}
             >
               {t("addToWallet")}
             </Button>

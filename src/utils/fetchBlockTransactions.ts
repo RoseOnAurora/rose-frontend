@@ -40,8 +40,8 @@ const blockTxnsUri = (
   network: string,
 ) => {
   return network === "testnet"
-    ? `https://api-testnet.aurorascan.dev/api?module=account&action=txlist&address=${accountAddress}&starttimestamp=${startTimestamp}`
-    : `https://api.aurorascan.dev/api?module=account&action=txlist&address=${accountAddress}&starttimestamp=${startTimestamp}`
+    ? `https://explorer.testnet.aurora.dev/api?module=account&action=txlist&address=${accountAddress}&starttimestamp=${startTimestamp}`
+    : `https://explorer.mainnet.aurora.dev/api?module=account&action=txlist&address=${accountAddress}&starttimestamp=${startTimestamp}`
 }
 
 const tokenTransferTxnsUri = (
@@ -51,8 +51,8 @@ const tokenTransferTxnsUri = (
   network: string,
 ) => {
   return network === "testnet"
-    ? `https://api-testnet.aurorascan.dev/api?module=account&action=tokentx&address=${accountAddress}&contractaddress=${contractAddress}&startblock=${startBlock}`
-    : `https://api.aurorascan.dev/api?module=account&action=tokentx&address=${accountAddress}&contractaddress=${contractAddress}&startblock=${startBlock}`
+    ? `https://explorer.testnet.aurora.dev/api?module=account&action=tokentx&address=${accountAddress}&contractaddress=${contractAddress}&startblock=${startBlock}`
+    : `https://explorer.mainnet.aurora.dev/api?module=account&action=tokentx&address=${accountAddress}&contractaddress=${contractAddress}&startblock=${startBlock}`
 }
 
 const fetchBlockTxns = async (

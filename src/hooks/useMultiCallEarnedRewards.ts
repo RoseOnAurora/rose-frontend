@@ -29,19 +29,29 @@ export const useMultiCallEarnedRewards = (): {
       if (!provider || !chainId || !account) return
 
       await ethcallProvider.init(provider)
-      // override the contract address when using aurora
-      if (chainId == ChainId.AURORA_TESTNET) {
-        ethcallProvider.multicallAddress =
-          "0x508B1508AAd923fB24F6d13cD74Ac640fD8B66E8"
-      } else if (chainId == ChainId.AURORA_MAINNET) {
-        ethcallProvider.multicallAddress =
-          "0x49eb1F160e167aa7bA96BdD88B6C1f2ffda5212A"
+
+      switch (chainId) {
+        case ChainId.AURORA_TESTNET:
+          ethcallProvider.multicallAddress =
+            "0x508B1508AAd923fB24F6d13cD74Ac640fD8B66E8"
+          break
+        case ChainId.AURORA_MAINNET:
+          ethcallProvider.multicallAddress =
+            "0x49eb1F160e167aa7bA96BdD88B6C1f2ffda5212A"
+          break
+        case ChainId.MUMBAI:
+          ethcallProvider.multicallAddress =
+            "0x08411ADd0b5AA8ee47563b146743C13b3556c9Cc"
       }
 
-      const balanceCalls = Object.values(FARMS_MAP)
-        .map((farm) => {
+      const farms = Object.entries(FARMS_MAP).filter(
+        ([, f]) => !!f.addresses[chainId as ChainId],
+      )
+
+      const balanceCalls = farms
+        .map(([, f]) => {
           return new Contract(
-            farm.addresses[chainId as ChainId],
+            f.addresses[chainId as ChainId],
             ROSE_STABLES_FARM_ABI.abi,
           ) as MulticallContract<RoseStablesFarm>
         })
@@ -52,10 +62,10 @@ export const useMultiCallEarnedRewards = (): {
       )
       const rewards = await ethcallProvider.all(balanceCalls, "latest")
       setRewards(
-        Object.keys(FARMS_MAP).reduce(
-          (acc, farmName, i) => ({
+        farms.reduce(
+          (acc, [name], i) => ({
             ...acc,
-            [farmName]: rewards[i],
+            [name]: rewards[i],
           }),
           { dualReward: dualReward || Zero },
         ),

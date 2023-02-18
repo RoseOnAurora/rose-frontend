@@ -1,19 +1,18 @@
-/* eslint @typescript-eslint/no-unsafe-member-access: 0 */
-/* eslint @typescript-eslint/no-explicit-any: 0 */
-import { SUPPORTED_CHAINS, SupportedChains } from "../constants"
+import { SUPPORTED_CHAINS, SupportedChainId } from "../constants/chains"
 import { toHex } from "../utils"
 import { useCallback } from "react"
+import { useWeb3React } from "@web3-react/core"
 
 export default function useAddNetworkToMetamask(): (
-  chainId: SupportedChains,
-) => void {
-  const { ethereum } = window
+  chainId: SupportedChainId,
+) => Promise<void> {
+  const { connector } = useWeb3React()
 
   const addNetwork = useCallback(
-    async (chainId: SupportedChains) => {
-      if (ethereum) {
+    async (chainId: SupportedChainId) => {
+      if (connector.provider) {
         try {
-          await ethereum.request({
+          await connector.provider.request({
             method: "wallet_switchEthereumChain",
             params: [
               {
@@ -21,16 +20,18 @@ export default function useAddNetworkToMetamask(): (
               },
             ],
           })
-        } catch (error: any) {
+        } catch (e) {
           // This error code indicates that the chain has not been added to MetaMask.
-          if (error.code === 4902) {
-            await ethereum.request({
+          const { code } = e as { code: number }
+          if (code === 4902) {
+            await connector.provider.request({
               method: "wallet_addEthereumChain",
               params: [
                 {
                   chainId: toHex(chainId),
                   chainName: SUPPORTED_CHAINS[chainId].name,
-                  rpcUrls: [SUPPORTED_CHAINS[chainId].rpc],
+                  rpcUrls: SUPPORTED_CHAINS[chainId].rpc,
+                  nativeCurrency: SUPPORTED_CHAINS[chainId].currency,
                 },
               ],
             })
@@ -38,7 +39,7 @@ export default function useAddNetworkToMetamask(): (
         }
       }
     },
-    [ethereum],
+    [connector.provider],
   )
 
   return addNetwork

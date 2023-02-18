@@ -3,19 +3,18 @@
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-return: 0 */
-import { ChainId, POOLS_MAP, PoolName, TRANSACTION_TYPES } from "../constants"
 import { Contract, ContractReceipt } from "@ethersproject/contracts"
+import { POOLS_MAP, PoolName, TRANSACTION_TYPES } from "../constants"
 import { addSlippage, subtractSlippage } from "../utils/slippage"
-import { formatUnits, parseUnits } from "@ethersproject/units"
 import { useLPTokenContract, usePoolContract } from "./useContract"
 import { AppState } from "../state"
 import { BigNumber } from "@ethersproject/bignumber"
-import { GasPrices } from "../state/user"
 import { NumberInputState } from "../utils/numberInputState"
-import { Zero } from "@ethersproject/constants"
 import checkAndApproveTokenForTrade from "../utils/checkAndApproveTokenForTrade"
+import { formatUnits } from "@ethersproject/units"
 import { updateLastTransactionTimes } from "../state/application"
 import { useDispatch } from "react-redux"
+import useGasPrice from "./useGasPrice"
 import { useSelector } from "react-redux"
 import { useWeb3React } from "@web3-react/core"
 
@@ -30,17 +29,12 @@ export function useApproveAndWithdraw(
 ): (state: ApproveAndWithdrawStateArgument) => Promise<ContractReceipt | void> {
   const dispatch = useDispatch()
   const poolContract = usePoolContract(poolName) as Contract
-  const { account, chainId } = useWeb3React()
-  const { gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
+  const { account, provider } = useWeb3React()
+  const gasPrice = useGasPrice()
+
+  const { slippageCustom, slippageSelected, infiniteApproval } = useSelector(
+    (state: AppState) => state.user,
   )
-  const {
-    slippageCustom,
-    slippageSelected,
-    gasPriceSelected,
-    gasCustom,
-    infiniteApproval,
-  } = useSelector((state: AppState) => state.user)
   const lpTokenContract = useLPTokenContract(poolName)
   const POOL = POOLS_MAP[poolName]
 
@@ -49,24 +43,11 @@ export function useApproveAndWithdraw(
   ): Promise<ContractReceipt | void> {
     try {
       if (!account) throw new Error("Wallet must be connected")
+      if (!provider) throw new Error("Not connected to web3.")
       if (!poolContract) throw new Error("Swap contract is not loaded")
       if (state.lpTokenAmountToSpend.isZero()) return
       if (lpTokenContract == null) return
-      // const gasPrice = Zero
-      let gasPrice
-      if (gasPriceSelected === GasPrices.Custom && gasCustom?.valueSafe) {
-        gasPrice = gasCustom.valueSafe
-      } else if (gasPriceSelected === GasPrices.Standard) {
-        gasPrice = gasStandard
-      } else if (gasPriceSelected === GasPrices.Instant) {
-        gasPrice = gasInstant
-      } else {
-        gasPrice = gasFast
-      }
-      gasPrice =
-        chainId === ChainId.AURORA_MAINNET
-          ? parseUnits(gasPrice?.toString() || "45", "gwei")
-          : Zero
+
       const allowanceAmount =
         state.withdrawType === "IMBALANCE"
           ? addSlippage(

@@ -14,8 +14,8 @@ import { DepositTransaction } from "../types/transactions"
 import HighPriceImpactConfirmation from "./HighPriceImpactConfirmation"
 import ReviewInfoItem from "./ReviewInfoItem"
 import ReviewItem from "./ReviewItem"
-import { formatGasToString } from "../utils/gas"
 import { formatSlippageToString } from "../utils/slippage"
+import { formatUnits } from "@ethersproject/units"
 import { isHighPriceImpact } from "../utils/priceImpact"
 import { useSelector } from "react-redux"
 import { useTranslation } from "react-i18next"
@@ -32,10 +32,8 @@ function ReviewDeposit({
   transactionData,
 }: Props): ReactElement {
   const { t } = useTranslation()
-  const { slippageCustom, slippageSelected, gasPriceSelected, gasCustom } =
-    useSelector((state: AppState) => state.user)
-  const { gasStandard, gasFast, gasInstant } = useSelector(
-    (state: AppState) => state.application,
+  const { slippageCustom, slippageSelected } = useSelector(
+    (state: AppState) => state.user,
   )
   const [hasConfirmedHighPriceImpact, setHasConfirmedHighPriceImpact] =
     useState(false)
@@ -86,17 +84,17 @@ function ReviewDeposit({
         />
         <ReviewInfoItem
           label={t("gas")}
-          value={`${formatGasToString(
-            { gasStandard, gasFast, gasInstant },
-            gasPriceSelected,
-            gasCustom,
-          )} GWEI`}
+          value={`${
+            transactionData.txnGasCost?.amount
+              ? formatUnits(transactionData.txnGasCost.amount, "gwei")
+              : 0
+          } GWEI`}
         />
         {transactionData.txnGasCost?.valueUSD && (
           <ReviewInfoItem
             label={t("estimatedTxCost")}
             value={`≈$${commify(
-              formatBNToString(transactionData.txnGasCost.valueUSD, 2, 2),
+              formatBNToString(transactionData.txnGasCost.valueUSD, 18, 8),
             )}`}
           />
         )}

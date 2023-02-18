@@ -9,7 +9,7 @@ import { ChakraProvider, ColorModeScript } from "@chakra-ui/react"
 import { Chart, registerables } from "chart.js"
 import React, { Suspense } from "react"
 
-import AppRoutes from "./routes/routes"
+import App from "./App"
 import GasAndTokenPrices from "./components/GasAndTokenPrices"
 import { Global } from "@emotion/react"
 import { GlobalStyles } from "./theme/global"
@@ -28,23 +28,21 @@ Chart.register(...registerables)
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
 
 root.render(
-  <>
+  <React.StrictMode>
     <ColorModeScript initialColorMode={chakraTheme.config.initialColorMode} />
-    <React.StrictMode>
-      <ChakraProvider theme={chakraTheme}>
-        <Global styles={GlobalStyles} />
-        <Provider store={store}>
-          <Suspense fallback={null}>
-            <Web3ReactManager>
-              <GasAndTokenPrices>
-                <AppRoutes />
-              </GasAndTokenPrices>
-            </Web3ReactManager>
-          </Suspense>
-        </Provider>
-      </ChakraProvider>
-    </React.StrictMode>
-  </>,
+    <ChakraProvider theme={chakraTheme}>
+      <Global styles={GlobalStyles} />
+      <Provider store={store}>
+        <Suspense fallback={null}>
+          <Web3ReactManager>
+            <GasAndTokenPrices>
+              <App />
+            </GasAndTokenPrices>
+          </Web3ReactManager>
+        </Suspense>
+      </Provider>
+    </ChakraProvider>
+  </React.StrictMode>,
 )
 
 // If you want to start measuring performance in your app, pass a function

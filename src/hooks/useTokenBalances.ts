@@ -1,7 +1,6 @@
 import {
   BLOCK_TIME,
   ChainId,
-  LP_TOKEN_MAP,
   ROSE_TOKENS_MAP,
   TOKENS_MAP,
   TokensMap,
@@ -29,16 +28,23 @@ const useTokenBalancesHelper = (
       if (!provider || !chainId || !account) return
 
       await ethcallProvider.init(provider)
-      // override the contract address when using aurora
-      if (chainId == ChainId.AURORA_TESTNET) {
-        ethcallProvider.multicallAddress =
-          "0x508B1508AAd923fB24F6d13cD74Ac640fD8B66E8"
-      } else if (chainId == ChainId.AURORA_MAINNET) {
-        ethcallProvider.multicallAddress =
-          "0x49eb1F160e167aa7bA96BdD88B6C1f2ffda5212A"
+      switch (chainId) {
+        case ChainId.AURORA_TESTNET:
+          ethcallProvider.multicallAddress =
+            "0x508B1508AAd923fB24F6d13cD74Ac640fD8B66E8"
+          break
+        case ChainId.AURORA_MAINNET:
+          ethcallProvider.multicallAddress =
+            "0x49eb1F160e167aa7bA96BdD88B6C1f2ffda5212A"
+          break
+        case ChainId.MUMBAI:
+          ethcallProvider.multicallAddress =
+            "0x08411ADd0b5AA8ee47563b146743C13b3556c9Cc"
       }
 
-      const tokens = Object.values(tokenMap)
+      const tokens = Object.values(tokenMap).filter(
+        (t) => !!t.addresses[chainId as ChainId],
+      )
       const balanceCalls = tokens
         .map((t) => {
           return new Contract(
@@ -77,12 +83,4 @@ export function usePoolTokenBalances(): { [token: string]: BigNumber } | null {
 
 export function useRoseTokenBalances(): { [token: string]: BigNumber } | null {
   return useTokenBalancesHelper(ROSE_TOKENS_MAP)
-}
-
-export function useFarmLPTokenBalances(): {
-  [token: string]: BigNumber
-} | null {
-  const balances = useTokenBalancesHelper(LP_TOKEN_MAP)
-  delete balances?.ETH
-  return balances
 }

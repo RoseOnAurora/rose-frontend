@@ -1,6 +1,7 @@
 /* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 /* eslint @typescript-eslint/no-unsafe-call: 0 */
 import {
+  ChainId,
   POOLS_MAP,
   Pool,
   PoolsMap,
@@ -13,6 +14,7 @@ import { SwapData, SwapSide, TokenToSwapDataMap } from "../types/swap"
 import { useMemo, useState } from "react"
 import { intersection } from "../utils/index"
 import usePoolTVLs from "./usePoolsTVL"
+import { useWeb3React } from "@web3-react/core"
 
 // swaptypes in order of least to most preferred (aka expensive)
 const SWAP_TYPES_ORDERED_ASC = [
@@ -27,6 +29,7 @@ type TokenToPoolsMap = {
 }
 
 export function useCalculateSwapPairs(): (token?: Token) => SwapData[] {
+  const { chainId } = useWeb3React()
   const [pairCache, setPairCache] = useState<TokenToSwapDataMap>({})
   const poolTVLs = usePoolTVLs()
   const [tokenToPoolsMapSorted] = useMemo(() => {
@@ -50,7 +53,7 @@ export function useCalculateSwapPairs(): (token?: Token) => SwapData[] {
   }, [poolTVLs])
 
   return function calculateSwapPairs(token?: Token): SwapData[] {
-    if (!token) return []
+    if (!token || !chainId) return []
     const cacheHit = pairCache[token.symbol]
     if (cacheHit) return cacheHit
     const swapPairs = getTradingPairsForToken(
@@ -58,6 +61,7 @@ export function useCalculateSwapPairs(): (token?: Token) => SwapData[] {
       POOLS_MAP,
       tokenToPoolsMapSorted,
       token,
+      chainId,
     )
     setPairCache((prevState) => ({ ...prevState, [token.symbol]: swapPairs }))
     return swapPairs
@@ -84,9 +88,10 @@ function getTradingPairsForToken(
   poolsMap: PoolsMap,
   tokenToPoolsMap: TokenToPoolsMap,
   originToken: Token,
+  chainId: number,
 ): SwapData[] {
   const allTokens = Object.values(tokensMap).filter(
-    ({ isLPToken }) => !isLPToken,
+    ({ isLPToken, addresses }) => !isLPToken && !!addresses[chainId as ChainId],
   )
   const originTokenPoolsSet = new Set(
     tokenToPoolsMap[originToken.symbol].map((poolName) => poolsMap[poolName]),
