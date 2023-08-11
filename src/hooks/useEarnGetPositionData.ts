@@ -88,17 +88,17 @@ export default function useEarnGetPositionData(
 
   useInterval(
     () => {
-      getPositionData()
-      getOpenTimestamp()
-      getStEthBal()
+      void getPositionData()
+      void getOpenTimestamp()
+      void getStEthBal()
     },
     positionContract && posAddress ? 30000 : null,
   )
 
   useEffect(() => {
-    getPositionData(true, false)
-    getOpenTimestamp(true, false)
-    getStEthBal(true, false)
+    void getPositionData(true, false)
+    void getOpenTimestamp(true, false)
+    void getStEthBal(true, false)
   }, [getPositionData, getOpenTimestamp, getStEthBal])
 
   return {
