@@ -27,12 +27,12 @@ const BlockExplorerLink = ({
     <Trans i18nKey="txComplete" t={t}>
       {{ tx: txnType }}
       <a
-        href={getEtherscanLink(txnHash, "tx", network)}
+        href={getEtherscanLink(txnHash, "tx", network, chainId)}
         target="_blank"
         rel="noreferrer"
         style={{ textDecoration: "underline", margin: 0 }}
       >
-        aurorascan.
+        {chainId === ChainId.MAINNET ? "etherscan" : "aurorascan"}.
       </a>
       {{ status: status }}
     </Trans>

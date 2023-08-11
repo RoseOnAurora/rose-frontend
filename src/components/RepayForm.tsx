@@ -376,7 +376,7 @@ const RepayForm = (props: Props): ReactElement => {
                 width="100%"
                 type="submit"
                 fontSize={{ base: "12px", sm: "16px" }}
-                disabled={
+                isDisabled={
                   props.errors.borrow !== undefined ||
                   props.errors.collateral !== undefined ||
                   (+props.values.borrow === 0 && +props.values.collateral === 0)

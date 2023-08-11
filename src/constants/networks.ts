@@ -11,4 +11,5 @@ export const NETWORK_CHAIN_ID: number = parseInt(
 export const RPC_URLS: { [chainId in SupportedChainId]: string } = {
   [ChainId.AURORA_MAINNET]: NETWORK_URL,
   [ChainId.POLYGON]: "https://rpc-mainnet.maticvigil.com",
+  [ChainId.MAINNET]: "https://eth.drpc.org",
 }

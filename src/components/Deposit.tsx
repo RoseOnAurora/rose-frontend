@@ -75,6 +75,7 @@ function Deposit({
   const gasPrice = useGasPrice()
 
   const POOL = POOLS_MAP[poolName]
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const allTokens = useMemo(() => {
     return Array.from(
@@ -256,6 +257,7 @@ function Deposit({
           onConfirm={async () => {
             setIsOpen(false)
             handlePreSubmit?.(TransactionType.DEPOSIT)
+            setIsSubmitting(true)
             try {
               const receipt =
                 (await onConfirmTransaction?.()) as ContractReceipt
@@ -266,6 +268,8 @@ function Deposit({
                 code: error.code,
                 message: error.message,
               })
+            } finally {
+              setIsSubmitting(false)
             }
           }}
         />
@@ -350,6 +354,7 @@ function Deposit({
                   token={token}
                   inputValue={token.inputValue}
                   isInvalid={false} // TODO: fix this
+                  inputProps={{ isDisabled: isSubmitting }}
                   onChangeInput={(e): void => {
                     updateTokenFormValue(token.symbol, e.target.value)
                   }}
@@ -397,7 +402,8 @@ function Deposit({
           onClick={(): void => {
             setIsOpen(true)
           }}
-          disabled={!validDepositAmount || poolData?.isPaused}
+          isDisabled={!validDepositAmount || poolData?.isPaused || isSubmitting}
+          isLoading={isSubmitting}
         >
           {t("deposit")}
         </Button>

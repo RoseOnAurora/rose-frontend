@@ -147,7 +147,7 @@ function ReviewDeposit({
           <ButtonGroup isAttached>
             <Button
               onClick={onConfirm}
-              disabled={isHighPriceImpactTxn && !hasConfirmedHighPriceImpact}
+              isDisabled={isHighPriceImpactTxn && !hasConfirmedHighPriceImpact}
             >
               {t("confirmDeposit")}
             </Button>

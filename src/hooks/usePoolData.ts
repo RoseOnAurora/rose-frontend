@@ -41,7 +41,6 @@ interface TokenShareType {
   value: BigNumber
 }
 
-export type Partners = "keep" | "sharedStake" | "alchemix"
 export interface PoolDataType {
   adminFee: BigNumber
   aParameter: BigNumber
@@ -55,30 +54,20 @@ export interface PoolDataType {
   virtualPrice: BigNumber
   volume: BigNumber | null
   isPaused: boolean
-  aprs: Partial<
-    Record<
-      Partners,
-      {
-        apr: BigNumber
-        symbol: string
-      }
-    >
-  >
   lpTokenPriceUSD: BigNumber
   lpToken: string
 }
 
 export interface UserShareType {
   lpTokenBalance: BigNumber
-  name: PoolName // TODO: does this need to be on user share?
   share: BigNumber
   tokens: TokenShareType[]
   usdBalance: BigNumber
   underlyingTokensAmount: BigNumber
-  amountsStaked: Partial<Record<Partners, BigNumber>>
+  name?: PoolName
 }
 
-export type PoolDataHookReturnType = [PoolDataType, UserShareType | null]
+export type PoolDataHookReturnType = [PoolDataType, UserShareType]
 
 const emptyPoolData = {
   adminFee: Zero,
@@ -98,6 +87,14 @@ const emptyPoolData = {
   isPaused: false,
 } as PoolDataType
 
+const emptyUserShareData = {
+  lpTokenBalance: Zero,
+  share: Zero,
+  tokens: [],
+  usdBalance: Zero,
+  underlyingTokensAmount: Zero,
+} as UserShareType
+
 export default function usePoolData(
   poolName?: PoolName,
 ): PoolDataHookReturnType {
@@ -116,7 +113,7 @@ export default function usePoolData(
       ...emptyPoolData,
       name: poolName || "",
     },
-    null,
+    { ...emptyUserShareData, name: poolName },
   ])
 
   useEffect(() => {
@@ -287,7 +284,6 @@ export default function usePoolData(
 
       // set final structs stored in state
       const poolData = {
-        ...emptyPoolData,
         name: poolName,
         tokens: poolTokens,
         reserve: tokenBalancesUSDSum,
@@ -299,19 +295,19 @@ export default function usePoolData(
         lpToken: POOL.lpToken.symbol,
         volume: dailyVolume,
       }
-      const userShareData = account
-        ? {
-            name: poolName,
-            share: userShare,
-            underlyingTokensAmount: userPoolTokenBalancesSum,
-            usdBalance: userPoolTokenBalancesUSDSum,
-            tokens: userPoolTokens,
-            lpTokenBalance: userLpTokenBalance,
-            amountsStaked: {},
-          }
-        : null
 
-      setPoolData([poolData, userShareData])
+      const userShareData = {
+        share: userShare,
+        underlyingTokensAmount: userPoolTokenBalancesSum,
+        usdBalance: userPoolTokenBalancesUSDSum,
+        tokens: userPoolTokens,
+        lpTokenBalance: userLpTokenBalance,
+      }
+
+      setPoolData((prev) => [
+        { ...prev[0], ...poolData },
+        { ...prev[1], ...userShareData },
+      ])
     }
     void getPoolData()
   }, [

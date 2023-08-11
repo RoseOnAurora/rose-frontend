@@ -1,4 +1,14 @@
 import {
+  Badge,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuGroup,
+  MenuItem,
+  MenuList,
+} from "@chakra-ui/react"
+import {
   BsArrowLeftRight,
   BsMedium,
   BsRainbow,
@@ -9,28 +19,24 @@ import {
   FaBook,
   FaChartPie,
   FaDiscord,
+  FaDollarSign,
   FaGithub,
   FaHandHoldingUsd,
   FaRegCircle,
   FaTelegram,
   FaTwitter,
 } from "react-icons/fa"
-import {
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuDivider,
-  MenuGroup,
-  MenuItem,
-  MenuList,
-} from "@chakra-ui/react"
-import React, { ReactElement } from "react"
+import React, { Fragment, ReactElement } from "react"
+import { ChainId } from "../../constants"
 import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { useWeb3React } from "@web3-react/core"
 
 const MobileNavMenu = (): ReactElement => {
   // hooks
   const { t } = useTranslation()
+
+  const { chainId } = useWeb3React()
 
   return (
     <Menu>
@@ -49,18 +55,30 @@ const MobileNavMenu = (): ReactElement => {
           </MenuButton>
           <MenuList zIndex={10} boxShadow="md" bg="gray.900">
             <MenuGroup title="Pages">
-              <MenuItem icon={<BsArrowLeftRight />} as={Link} to="/">
-                {t("swap")}
-              </MenuItem>
-              <MenuItem icon={<FaChartPie />} as={Link} to="/pools">
-                {t("pools")}
-              </MenuItem>
-              <MenuItem icon={<BsReceipt />} as={Link} to="/stake">
-                {t("stake")}
-              </MenuItem>
-              <MenuItem icon={<FaHandHoldingUsd />} as={Link} to="/borrow">
-                {t("borrow")}
-              </MenuItem>
+              {chainId !== ChainId.MAINNET && (
+                <Fragment>
+                  <MenuItem icon={<BsArrowLeftRight />} as={Link} to="/">
+                    {t("swap")}
+                  </MenuItem>
+                  <MenuItem icon={<FaChartPie />} as={Link} to="/pools">
+                    {t("pools")}
+                  </MenuItem>
+                  <MenuItem icon={<BsReceipt />} as={Link} to="/stake">
+                    {t("stake")}
+                  </MenuItem>
+                  <MenuItem icon={<FaHandHoldingUsd />} as={Link} to="/borrow">
+                    {t("borrow")}
+                  </MenuItem>
+                </Fragment>
+              )}
+              {chainId === ChainId.MAINNET && (
+                <MenuItem icon={<FaDollarSign />} as={Link} to="/earn">
+                  {t("Earn")}
+                  <Badge ml={3} colorScheme="green">
+                    new
+                  </Badge>
+                </MenuItem>
+              )}
             </MenuGroup>
             <MenuDivider />
             <MenuGroup title="Bridges">

@@ -98,12 +98,14 @@ import { useMultiCallFarmDeposits } from "../hooks/useMultiCallFarmDeposits"
 import { useWeb3React } from "@web3-react/core"
 
 function Pools(): ReactElement | null {
+  // hooks
   const dispatch = useDispatch<AppDispatch>()
   const { poolPreferences } = useSelector((state: AppState) => state.user)
   const { farmStats } = useSelector((state: AppState) => state.application)
   const farmDeposits = useMultiCallFarmDeposits()
   const allRewards = useMultiCallEarnedRewards()
   const { chainId } = useWeb3React()
+  const [loading, setLoading] = useState(true)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [usdPoolV2Data, usdV2UserShareData] = usePoolData(
     STABLECOIN_POOL_V2_NAME,
@@ -122,17 +124,9 @@ function Pools(): ReactElement | null {
   const [rusdMetaPoolData, rusdMetaPoolUserShareData] =
     usePoolData(RUSD_METAPOOL_NAME)
 
-  const [sortDirection, setSortDirection] = useState(1)
-  const [sortByField, setSortByField] = useState(poolPreferences.sortField)
-  const [filterByField, setfilterByField] = useState(
-    poolPreferences.filterField,
-  )
-  const [timeout, setTimout] = useState(false)
-  const [isInfo, setIsInfo] = useState(false)
-  const [searchText, setSearchText] = useState<string>("")
+  useTimeout(() => setLoading(false), 1000)
 
-  useTimeout(() => setTimout(true), 5000)
-
+  // handlers
   const getPoolData = useCallback(
     (poolName: PoolName) => {
       switch (poolName) {
@@ -198,6 +192,161 @@ function Pools(): ReactElement | null {
     ],
   )
 
+  const onIconButtonClick = useCallback(
+    (isInfo: boolean): void => {
+      onOpen()
+      setIsInfo(isInfo)
+    },
+    [onOpen],
+  )
+
+  const resetDashboardView = useCallback(() => {
+    onClose()
+    setIsInfo(false)
+  }, [onClose])
+
+  // state
+  const [sortDirection, setSortDirection] = useState(1)
+  const [sortByField, setSortByField] = useState(poolPreferences.sortField)
+  const [filterByField, setfilterByField] = useState(
+    poolPreferences.filterField,
+  )
+  const [isInfo, setIsInfo] = useState(false)
+  const [searchText, setSearchText] = useState<string>("")
+
+  const allPoolData: PoolDataType[] = useMemo(
+    () =>
+      [
+        usdPoolV2Data,
+        fraxStablesPoolData,
+        fraxMetaPoolData,
+        ustMetaPoolData,
+        busdMetaPoolData,
+        rusdMetaPoolData,
+      ].filter((data) => !!POOLS_MAP[data.name].addresses[chainId as ChainId]),
+    [
+      usdPoolV2Data,
+      fraxStablesPoolData,
+      fraxMetaPoolData,
+      ustMetaPoolData,
+      busdMetaPoolData,
+      rusdMetaPoolData,
+      chainId,
+    ],
+  )
+
+  const allUserShareData: (UserShareType | null)[] = useMemo(
+    () =>
+      [
+        usdV2UserShareData,
+        fraxStablesUserShareData,
+        fraxMetaPoolUserShareData,
+        ustMetaPoolUserShareData,
+        busdMetaPoolUserShareData,
+        rusdMetaPoolUserShareData,
+      ].filter(
+        (userShare) =>
+          !!POOLS_MAP[userShare.name!].addresses[chainId as ChainId], // eslint-disable-line @typescript-eslint/no-non-null-assertion
+      ),
+    [
+      usdV2UserShareData,
+      fraxStablesUserShareData,
+      fraxMetaPoolUserShareData,
+      ustMetaPoolUserShareData,
+      busdMetaPoolUserShareData,
+      rusdMetaPoolUserShareData,
+      chainId,
+    ],
+  )
+
+  const formattedLpTokenBalances = useMemo(
+    () =>
+      allUserShareData
+        .filter((data) => {
+          return data?.lpTokenBalance.gt(Zero)
+        })
+        .map((data) => {
+          return {
+            tokenName: POOLS_MAP[data?.name || ""]?.lpToken.symbol,
+            icon: POOLS_MAP[data?.name || ""]?.lpToken.icon,
+            amount: commify(
+              formatBNToString(data?.lpTokenBalance || Zero, 18, 5),
+            ),
+          }
+        }),
+    [allUserShareData],
+  )
+
+  const farmDepositsFormatted = useMemo(() => {
+    return Object.entries(farmDeposits || {})
+      ?.filter((balance) => {
+        return balance[1].gt(Zero)
+      })
+      .map(([symbol, value]) => {
+        return {
+          tokenName: symbol,
+          icon: FARMS_MAP[symbol as FarmName].lpToken.icon,
+          amount: commify(formatBNToString(value, 18, 5)),
+        }
+      })
+  }, [farmDeposits])
+
+  const totalShare = useMemo(
+    () =>
+      calculatePctOfTotalShare(
+        allUserShareData.reduce((sum, data) => {
+          return sum.add(data?.lpTokenBalance || Zero)
+        }, Zero),
+        allPoolData.reduce((sum, data) => {
+          return sum.add(data.totalLocked)
+        }, Zero),
+      ),
+    [allPoolData, allUserShareData],
+  )
+
+  const allRewardsFormatted = useMemo(() => {
+    return +formatBNToString(
+      Object.values(allRewards || {})?.reduce((sum, balance) => {
+        return sum.add(balance)
+      }, Zero),
+      18,
+      5,
+    )
+  }, [allRewards])
+
+  const total24HrVolume = useMemo(
+    () =>
+      allPoolData.reduce((sum, data) => {
+        return sum.add(data?.volume || Zero)
+      }, Zero),
+    [allPoolData],
+  )
+
+  const totalTvl = useMemo(
+    () =>
+      allPoolData
+        ?.map((data) => {
+          return BigNumber.from(data.reserve || Zero)
+        })
+        .reduce((sum, tvl) => {
+          return sum.add(tvl)
+        }, Zero),
+    [allPoolData],
+  )
+
+  // pool fields
+  const fields: PoolSortFields[] = useMemo(
+    () =>
+      Object.values(PoolSortFields)
+        .filter((field) => {
+          return poolPreferences.visibleFields[field] > 0
+        })
+        .map((field) => {
+          return field
+        }),
+    [poolPreferences],
+  )
+
   const SORT_FUNCTIONS: {
     [sortField in PoolSortFields]: (a: Pool, b: Pool) => boolean
   } = useMemo(
@@ -242,100 +391,6 @@ function Pools(): ReactElement | null {
     [farmDeposits, getPoolData],
   )
 
-  const onIconButtonClick = (isInfo: boolean): void => {
-    onOpen()
-    setIsInfo(isInfo)
-  }
-
-  const resetDashboardView = () => {
-    onClose()
-    setIsInfo(false)
-  }
-
-  const allPoolData: PoolDataType[] = [
-    usdPoolV2Data,
-    fraxStablesPoolData,
-    fraxMetaPoolData,
-    ustMetaPoolData,
-    busdMetaPoolData,
-    rusdMetaPoolData,
-  ]
-
-  const allUserShareData: (UserShareType | null)[] = [
-    usdV2UserShareData,
-    fraxStablesUserShareData,
-    fraxMetaPoolUserShareData,
-    ustMetaPoolUserShareData,
-    busdMetaPoolUserShareData,
-    rusdMetaPoolUserShareData,
-  ]
-
-  const formattedLpTokenBalances = allUserShareData
-    .filter((data) => {
-      return data?.lpTokenBalance.gt(Zero)
-    })
-    .map((data) => {
-      return {
-        tokenName: POOLS_MAP[data?.name || ""]?.lpToken.symbol,
-        icon: POOLS_MAP[data?.name || ""]?.lpToken.icon,
-        amount: commify(formatBNToString(data?.lpTokenBalance || Zero, 18, 5)),
-      }
-    })
-
-  const farmDepositsFormatted = useMemo(() => {
-    return Object.entries(farmDeposits || {})
-      ?.filter((balance) => {
-        return balance[1].gt(Zero)
-      })
-      .map(([symbol, value]) => {
-        return {
-          tokenName: symbol,
-          icon: FARMS_MAP[symbol as FarmName].lpToken.icon,
-          amount: commify(formatBNToString(value, 18, 5)),
-        }
-      })
-  }, [farmDeposits])
-
-  const totalShare = calculatePctOfTotalShare(
-    allUserShareData.reduce((sum, data) => {
-      return sum.add(data?.lpTokenBalance || Zero)
-    }, Zero),
-    allPoolData.reduce((sum, data) => {
-      return sum.add(data.totalLocked)
-    }, Zero),
-  )
-
-  const allRewardsFormatted = useMemo(() => {
-    return +formatBNToString(
-      Object.values(allRewards || {})?.reduce((sum, balance) => {
-        return sum.add(balance)
-      }, Zero),
-      18,
-      5,
-    )
-  }, [allRewards])
-
-  const total24HrVolume = allPoolData.reduce((sum, data) => {
-    return sum.add(data?.volume || Zero)
-  }, Zero)
-
-  const totalTvl = allPoolData
-    ?.map((data) => {
-      return BigNumber.from(data.reserve || Zero)
-    })
-    .reduce((sum, tvl) => {
-      return sum.add(tvl)
-    }, Zero)
-
-  // pool fields
-  const fields: PoolSortFields[] = Object.values(PoolSortFields)
-    .filter((field) => {
-      return poolPreferences.visibleFields[field] > 0
-    })
-    .map((field) => {
-      return field
-    })
-
   const pools = useMemo(
     () =>
       Object.values(POOLS_MAP)
@@ -343,7 +398,7 @@ function Pools(): ReactElement | null {
         .filter(
           ({ name, addresses }) =>
             name !== FRAX_STABLES_LP_POOL_NAME &&
-            !!addresses[chainId as ChainId],
+            !!addresses[chainId as ChainId], // only show pools with addresses defined
         )
         .filter((pool) => FILTER_FUNCTIONS[filterByField](pool))
         .filter(({ name, addresses }) => {
@@ -467,9 +522,7 @@ function Pools(): ReactElement | null {
                 formattedDeposits={farmDepositsFormatted}
                 totalTvl={totalTvl}
                 total24hVolume={total24HrVolume}
-                loading={
-                  allUserShareData.some((item) => item === null) && !timeout
-                }
+                loading={loading}
                 allRewards={allRewardsFormatted}
                 farmStats={farmStats}
               />
@@ -486,7 +539,7 @@ function Pools(): ReactElement | null {
             formattedDeposits={farmDepositsFormatted}
             totalTvl={totalTvl}
             total24hVolume={total24HrVolume}
-            loading={allUserShareData.some((item) => item === null) && !timeout}
+            loading={loading}
             allRewards={allRewardsFormatted}
             farmStats={farmStats}
           />
@@ -610,13 +663,7 @@ function Pools(): ReactElement | null {
                     key={pool.name}
                     borderRadius="10px"
                     fadeDuration={1}
-                    isLoaded={
-                      (farmStats &&
-                        allUserShareData.every((item) => item) &&
-                        !!farmDeposits?.[pool.farmName || ""] &&
-                        !!allRewards?.[pool.farmName || ""]) ||
-                      timeout
-                    }
+                    isLoaded={!loading}
                   >
                     <PoolOverview
                       poolName={pool.name}
@@ -654,7 +701,7 @@ function Pools(): ReactElement | null {
                       fontSize="25px"
                       whiteSpace="nowrap"
                     >
-                      Pools coming soon.
+                      Switch chains to view pools.
                     </Heading>
                     <Center h={{ base: "400px", md: "500px" }} pos="relative">
                       <Box

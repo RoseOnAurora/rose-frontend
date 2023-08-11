@@ -105,7 +105,7 @@ const OverviewInputFieldsWrapper = ({
               variant="solid"
               borderRadius="12px"
               // TO-DO: union the enums and use this as general type
-              disabled={filterByField === "noFilter" && !searchText}
+              isDisabled={filterByField === "noFilter" && !searchText}
               title={
                 filterByField === "noFilter" && !searchText
                   ? "Filter"
@@ -200,7 +200,7 @@ const OverviewInputFieldsWrapper = ({
             variant="solid"
             borderRadius="12px"
             // TO-DO: union the enums and use this as general type
-            disabled={filterByField === "noFilter" && !searchText}
+            isDisabled={filterByField === "noFilter" && !searchText}
             title={
               filterByField === "noFilter" && !searchText
                 ? "Filter"

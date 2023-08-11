@@ -20,5 +20,7 @@ export const basicTokenInputValidator = (
     return i18next.t("Invalid number.")
   }
 
+  if (value.lte(Zero)) return i18next.t("Must be greater than zero.")
+
   if (value.gt(max)) return i18next.t("insufficientBalance")
 }

@@ -469,7 +469,7 @@ const BorrowForm = (props: Props): ReactElement => {
                 fontSize={{ base: "12px", sm: "16px" }}
                 width="100%"
                 type="submit"
-                disabled={
+                isDisabled={
                   props.errors.borrow !== undefined ||
                   props.errors.collateral !== undefined ||
                   (+props.values.borrow === 0 && +props.values.collateral === 0)
