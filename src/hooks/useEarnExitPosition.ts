@@ -54,7 +54,7 @@ export default function useEarnExitPosition(
         setIsLoading(false)
       }
     },
-    [onError, onSuccess],
+    [account, provider, onError, onSuccess],
   )
 
   return { isError, isLoading, exitPosition }
