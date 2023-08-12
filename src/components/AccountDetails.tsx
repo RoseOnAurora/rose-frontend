@@ -37,7 +37,7 @@ export default function AccountDetail({
 }: AccountDetailProps): ReactElement {
   // hooks
   const { t } = useTranslation()
-  const { account, connector } = useWeb3React()
+  const { account, connector, chainId } = useWeb3React()
   const tokenBalances = useRoseTokenBalances()
 
   const { hasCopied, onCopy } = useClipboard(account || "")
@@ -113,7 +113,11 @@ export default function AccountDetail({
                   color="red.500"
                   _hover={{ color: "red.400" }}
                   transition="ease-in-out 0.1s"
-                  href={account ? getEtherscanLink(account, "address") : "#"}
+                  href={
+                    account
+                      ? getEtherscanLink(account, "address", undefined, chainId)
+                      : "#"
+                  }
                   target="_blank"
                   rel="noreferrer"
                 />

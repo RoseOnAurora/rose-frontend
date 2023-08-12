@@ -149,7 +149,11 @@ const Web3Status = (): ReactElement => {
   }, [account, chainName, modalOpen])
 
   useEffect(() => {
-    if (chainId === ChainId.MAINNET && pathname !== "/earn") {
+    if (
+      chainId === ChainId.MAINNET &&
+      pathname !== "/earn" &&
+      pathname !== "/"
+    ) {
       navigate("/earn")
     } else if (chainId !== ChainId.MAINNET && pathname === "/earn") {
       navigate("/swap")

@@ -19,6 +19,7 @@ interface RosePriceResponse {
 const otherTokens = {
   ETH: "ethereum",
   WETH: "ethereum",
+  STETH: "staked-ether",
   BTC: "bitcoin",
   ROSE: "rose",
 }
