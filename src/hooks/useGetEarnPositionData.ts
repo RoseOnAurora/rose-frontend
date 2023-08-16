@@ -5,18 +5,22 @@ import EARN_POSITION_ABI from "../constants/abis/earnPosition.json"
 import { EarnPosition } from "../../types/ethers-contracts/EarnPosition"
 import moment from "moment"
 import { useEarnFactoryContract } from "./useContract"
+import { useInterval } from "@chakra-ui/react"
 import { useWeb3React } from "@web3-react/core"
 
 type ReturnType = {
   data: PositionData[]
   seed: number
   isLoading: boolean
+  isFetching: boolean
+  isError: boolean
   refetch: () => Promise<void>
 }
 
 type PositionData = {
   address?: string
   openTimestamp?: BigNumber
+  openTimestampStr?: string
   stEthDeposit?: BigNumber
   ethDeposit?: number
   interestEarned?: number
@@ -63,109 +67,142 @@ const getClosestPriceToTarget = (
 export default function useGetEarnPositionData(): ReturnType {
   const [posData, setPosData] = useState<PositionData[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isFetching, setIsFetching] = useState(false)
+  const [isError, setIsError] = useState(false)
 
   const earnContract = useEarnFactoryContract()
   const { account, provider } = useWeb3React()
 
-  const getPositionData = useCallback(async (): Promise<PositionData[]> => {
-    let i = 1
-    const localPosData: PositionData[] = []
-    setIsLoading(true)
-    if (earnContract && account && provider) {
-      // eslint-disable-next-line
-      while (true) {
-        // check if position is valid
-        let thisPosData = {} as PositionData
-        const address = await earnContract.getClone(account, i)
-        const positionContract = getContract(
-          address,
-          JSON.stringify(EARN_POSITION_ABI.abi),
-          provider,
-          account,
-        ) as EarnPosition
+  const getPositionData = useCallback(
+    async (loading = false, fetching = false): Promise<PositionData[]> => {
+      let i = 1
+      const localPosData: PositionData[] = []
+      setIsLoading(loading)
+      setIsFetching(fetching)
+      setIsError(false)
 
-        // check if we are at a position that doesnt exist
-        // and break if so
-        try {
-          await positionContract.getBorrowBalance()
-        } catch {
-          break
-        }
+      try {
+        if (earnContract && account && provider) {
+          // eslint-disable-next-line
+          while (true) {
+            // check if position is valid
+            let thisPosData = {} as PositionData
+            const address = await earnContract.getClone(account, i)
+            const positionContract = getContract(
+              address,
+              JSON.stringify(EARN_POSITION_ABI.abi),
+              provider,
+              account,
+            ) as EarnPosition
 
-        // now do computation
-        try {
-          const borrowed = await positionContract.getBorrowBalance()
-          const openT = await positionContract.openTimestamp()
-          const stEth = await positionContract.openSteth()
+            // check if we are at a position that doesnt exist
+            // and break if so
+            try {
+              await positionContract.openTimestamp()
+            } catch {
+              break
+            }
 
-          thisPosData = {
-            ...thisPosData,
-            address,
-            stEthDeposit: stEth,
-            openTimestamp: openT,
-            isClosed: borrowed.isZero(),
+            // now do computation
+            try {
+              const borrowed = await positionContract.getBorrowBalance()
+              const openT = await positionContract.openTimestamp()
+              const stEth = await positionContract.openSteth()
+
+              thisPosData = {
+                ...thisPosData,
+                address,
+                stEthDeposit: stEth,
+                openTimestamp: openT,
+                openTimestampStr: moment
+                  .unix(Number(formatBNToString(openT, 0)))
+                  .format(),
+                isClosed: borrowed.isZero(),
+              }
+
+              const openTMoment = moment.unix(
+                Number(formatBNToString(openT, 0)),
+              )
+              const daysSinceOpen = moment().diff(openTMoment, "day", true)
+
+              const fromRangeUnix =
+                openTMoment.subtract(1, "day").valueOf() / 1000
+              const toRangeUnix = openTMoment.add(1, "day").valueOf() / 1000
+
+              const stEthPriceHistory = await fetchCoinGeckoPriceHistory(
+                "staked-ether",
+                fromRangeUnix,
+                toRangeUnix,
+              )
+              const ethPriceHistory = await fetchCoinGeckoPriceHistory(
+                "ethereum",
+                fromRangeUnix,
+                toRangeUnix,
+              )
+
+              const ethPriceAtOpen = getClosestPriceToTarget(
+                ethPriceHistory,
+                openTMoment,
+              )
+              const stEthPriceAtOpen = getClosestPriceToTarget(
+                stEthPriceHistory,
+                openTMoment,
+              )
+
+              const exchangeRate =
+                (stEthPriceAtOpen || 1) / (ethPriceAtOpen || 1)
+
+              const ethDeposit =
+                Number(formatBNToString(stEth, 18, 5)) * exchangeRate
+
+              const expectedReturn = ethDeposit * APY
+
+              const interestEarnedSoFar = expectedReturn * (daysSinceOpen / 365)
+
+              thisPosData = {
+                ...thisPosData,
+                ethDeposit,
+                interestEarned: interestEarnedSoFar,
+              }
+            } finally {
+              localPosData.push(thisPosData)
+            }
+
+            i += 1
           }
-
-          const openTMoment = moment.unix(Number(formatBNToString(openT, 0)))
-          const daysSinceOpen = moment().diff(openTMoment, "day", true)
-
-          const fromRangeUnix = openTMoment.subtract(1, "day").valueOf() / 1000
-          const toRangeUnix = openTMoment.add(1, "day").valueOf() / 1000
-
-          const stEthPriceHistory = await fetchCoinGeckoPriceHistory(
-            "staked-ether",
-            fromRangeUnix,
-            toRangeUnix,
-          )
-          const ethPriceHistory = await fetchCoinGeckoPriceHistory(
-            "ethereum",
-            fromRangeUnix,
-            toRangeUnix,
-          )
-
-          const ethPriceAtOpen = getClosestPriceToTarget(
-            ethPriceHistory,
-            openTMoment,
-          )
-          const stEthPriceAtOpen = getClosestPriceToTarget(
-            stEthPriceHistory,
-            openTMoment,
-          )
-
-          const exchangeRate = (stEthPriceAtOpen || 1) / (ethPriceAtOpen || 1)
-
-          const ethDeposit =
-            Number(formatBNToString(stEth, 18, 5)) * exchangeRate
-
-          const expectedReturn = ethDeposit * APY
-
-          const interestEarnedSoFar = expectedReturn * (daysSinceOpen / 365)
-
-          thisPosData = {
-            ...thisPosData,
-            ethDeposit,
-            interestEarned: interestEarnedSoFar,
-          }
-        } finally {
-          localPosData.push(thisPosData)
         }
-
-        i += 1
+      } catch (e) {
+        console.error(e)
+        setIsError(true)
+      } finally {
+        setIsLoading(false)
+        setIsFetching(false)
       }
-      setIsLoading(false)
-    }
 
-    return localPosData
-  }, [earnContract, account, provider])
+      return localPosData
+    },
+    [earnContract, account, provider],
+  )
 
   const refetch = useCallback(async () => {
-    const data = await getPositionData()
+    const data = await getPositionData(false, true)
     setPosData(data)
   }, [getPositionData])
 
+  // fetch once on mount (loading & fetching)
   useEffect(() => {
-    void getPositionData().then((res) => setPosData(res))
+    void getPositionData(true, true).then((res) => setPosData(res))
   }, [getPositionData])
 
-  return { data: posData, seed: posData.length + 1, isLoading, refetch }
+  // refetch on interval
+  useInterval(() => void refetch(), 60000)
+
+  return {
+    data: posData,
+    seed: posData.length + 1,
+    isLoading,
+    isError,
+    isFetching,
+    refetch,
+  }
 }

@@ -21,7 +21,7 @@ const Landing = (): ReactElement => {
   }) as StackDirection
 
   return (
-    <Container maxW="5xl" mt="20px">
+    <Container maxW="5xl" mt="20px" px={3} overflowX="hidden">
       <Stack align="center" justify="space-between" direction={dir}>
         <Box p={8} pos="relative" mt="150px">
           <Box w="100px" pos="absolute" left={0} top={3}>
@@ -29,7 +29,7 @@ const Landing = (): ReactElement => {
           </Box>
           <Stack pos="relative" spacing={-2}>
             <Heading pt="25px" fontSize="9xl">
-              Rose.fi
+              Rose
             </Heading>
             <Text fontSize="xl">
               The <b>liquidity</b> layer for <b>crypto</b>

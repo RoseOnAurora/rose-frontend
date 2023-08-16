@@ -57,7 +57,7 @@ const MobileNavMenu = (): ReactElement => {
             <MenuGroup title="Pages">
               {chainId !== ChainId.MAINNET && (
                 <Fragment>
-                  <MenuItem icon={<BsArrowLeftRight />} as={Link} to="/">
+                  <MenuItem icon={<BsArrowLeftRight />} as={Link} to="/swap">
                     {t("swap")}
                   </MenuItem>
                   <MenuItem icon={<FaChartPie />} as={Link} to="/pools">

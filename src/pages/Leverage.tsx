@@ -9,12 +9,14 @@ import {
   Badge,
   Box,
   Button,
+  Center,
   Divider,
   Flex,
   FormControl,
   FormErrorMessage,
   FormHelperText,
   Heading,
+  IconButton,
   Skeleton,
   Stack,
   Tag,
@@ -25,18 +27,20 @@ import React, { ReactElement, useMemo, useState } from "react"
 import { commify, formatBNToString } from "../utils"
 import useChakraToast, { TransactionType } from "../hooks/useChakraToast"
 import { AppState } from "../state"
-import BlockExplorerLink from "../components/BlockExplorerLink"
 import { ETH } from "../constants"
 import PageWrapper from "../components/wrappers/PageWrapper"
+import { RepeatIcon } from "@chakra-ui/icons"
 import SingleTokenInput from "../components/input/SingleTokenInput"
 import { Zero } from "@ethersproject/constants"
 import { basicTokenInputValidator } from "../utils/validators"
+import classNames from "classnames"
 import moment from "moment"
 import parseStringToBigNumber from "../utils/parseStringToBigNumber"
 import { shortenAddress } from "../utils/shortenAddress"
 import useCreateCloneAndEnterPos from "../hooks/useCreateCloneAndEnterPosition"
 import useEarnExitPosition from "../hooks/useEarnExitPosition"
 import useGetEarnPositionData from "../hooks/useGetEarnPositionData"
+import useHandlePostSubmit from "../hooks/useHandlePostSubmit"
 import { useRoseTokenBalances } from "../hooks/useTokenBalances"
 import { useSelector } from "react-redux"
 import { useTranslation } from "react-i18next"
@@ -45,56 +49,33 @@ const Leverage = (): ReactElement => {
   const [deposit, setDeposit] = useState("")
   const { tokenPricesUSD } = useSelector((state: AppState) => state.application)
 
-  const { t } = useTranslation()
   const toast = useChakraToast()
+  const tokenBalances = useRoseTokenBalances()
+  const { t } = useTranslation()
+  const handlePostSubmit = useHandlePostSubmit()
 
-  const {
-    isLoading: posDataIsLoading,
-    data,
-    seed,
-    refetch,
-  } = useGetEarnPositionData()
+  const { isLoading, isFetching, isError, data, seed, refetch } =
+    useGetEarnPositionData()
 
-  const { isLoading, createCloneAndEnterPos } = useCreateCloneAndEnterPos({
-    onSuccess: (receipt) => {
-      const description = receipt?.transactionHash ? (
-        <BlockExplorerLink
-          txnType={TransactionType.DEPOSIT}
-          txnHash={receipt.transactionHash}
-          status={receipt?.status ? "Succeeded" : "Failed"}
-        />
-      ) : null
-      toast.transactionSuccess({
-        txnType: TransactionType.DEPOSIT,
-        description,
-      })
-      setDeposit("")
-      refetch()
-    },
-    onError: (error) =>
-      toast.transactionFailed({ txnType: TransactionType.DEPOSIT, error }),
-  })
+  const { isLoading: createPosIsLoading, createCloneAndEnterPos } =
+    useCreateCloneAndEnterPos({
+      onSuccess: (receipt) => {
+        handlePostSubmit(receipt, TransactionType.DEPOSIT)
+        setDeposit("")
+        refetch()
+      },
+      onError: (error) =>
+        toast.transactionFailed({ txnType: TransactionType.DEPOSIT, error }),
+    })
 
   const { exitPosition, isLoading: exitPosIsLoading } = useEarnExitPosition({
     onSuccess: (receipt) => {
-      const description = receipt?.transactionHash ? (
-        <BlockExplorerLink
-          txnType={TransactionType.WITHDRAW}
-          txnHash={receipt.transactionHash}
-          status={receipt?.status ? "Succeeded" : "Failed"}
-        />
-      ) : null
-      toast.transactionSuccess({
-        txnType: TransactionType.WITHDRAW,
-        description,
-      })
+      handlePostSubmit(receipt, TransactionType.DEPOSIT)
       refetch()
     },
     onError: (error) =>
       toast.transactionFailed({ txnType: TransactionType.WITHDRAW, error }),
   })
-
-  const tokenBalances = useRoseTokenBalances()
 
   const ethBalance = useMemo(
     () => tokenBalances?.ETH || Zero,
@@ -121,7 +102,7 @@ const Leverage = (): ReactElement => {
       <Box
         maxW="525px"
         w="full"
-        p="30px"
+        p={{ base: "20px", sm: "30px" }}
         bg="gray.900"
         borderRadius="20px"
         isolation="isolate"
@@ -133,7 +114,7 @@ const Leverage = (): ReactElement => {
               <Heading
                 textTransform="capitalize"
                 fontWeight={700}
-                fontSize="30px"
+                fontSize={{ base: "25px", sm: "30px" }}
                 lineHeight="35px"
               >
                 {t("earn")}
@@ -155,12 +136,11 @@ const Leverage = (): ReactElement => {
               </Tag>
             </Tooltip>
           </Flex>
-          <Text color="gray.300">
+          <Text color="gray.300" fontSize={{ base: "sm", sm: "md" }}>
             Earn a fixed 10% APY on your ETH deposit. Withdraw and exit any of
             your positions at any time. Be aware that each new deposit will
             create a new position.
           </Text>
-          <Divider />
           <Stack spacing={1}>
             <Flex justifyContent="space-between" alignItems="center" w="full">
               <Text
@@ -199,6 +179,7 @@ const Leverage = (): ReactElement => {
               <SingleTokenInput
                 token={ETH}
                 inputValue={deposit}
+                inputProps={{ isDisabled: createPosIsLoading }}
                 onChangeInput={(e) => setDeposit(e.target.value)}
               />
               <FormErrorMessage>{error}</FormErrorMessage>
@@ -209,7 +190,7 @@ const Leverage = (): ReactElement => {
               )}
             </FormControl>
           </Stack>
-          <Skeleton isLoaded={!posDataIsLoading} fadeDuration={1}>
+          <Skeleton isLoaded={!isLoading} fadeDuration={1}>
             <Box
               bgColor="bgDark"
               w="full"
@@ -218,143 +199,256 @@ const Leverage = (): ReactElement => {
               maxH="400px"
             >
               <Stack>
-                <Text color="gray.200">{data.length} Total Positions</Text>
-                <Accordion maxH="350px" overflowY="auto" allowToggle>
-                  {_.sortBy(data, ({ isClosed }) => isClosed).map(
-                    ({
-                      address,
-                      openTimestamp,
-                      interestEarned,
-                      isClosed,
-                      ethDeposit,
-                      stEthDeposit,
-                    }) => (
-                      <AccordionItem key={address}>
-                        <h2>
-                          <AccordionButton>
-                            <Box as="span" flex="1" textAlign="left">
-                              <Badge colorScheme="purple">
-                                {address && shortenAddress(address)}
-                              </Badge>
-                            </Box>
-                            <AccordionIcon />
-                          </AccordionButton>
-                        </h2>
-                        <AccordionPanel pb={4}>
-                          <Stack spacing={4}>
-                            <Stack>
-                              <Flex align="start" justify="space-between">
-                                <Text>Position Information</Text>
-                                {isClosed && (
-                                  <Badge colorScheme="red">
-                                    position closed
-                                  </Badge>
-                                )}
-                              </Flex>
-                              <Divider />
-                              <Stack spacing={2} opacity={isClosed ? 0.4 : 1}>
-                                <Flex align="center" justify="space-between">
-                                  <Text color="gray.200">Opened At</Text>
-                                  <Flex align="center" gap={1}>
-                                    <Text color="gray.100" fontSize="sm">
-                                      {openTimestamp
-                                        ? moment
-                                            .unix(
-                                              Number(
-                                                formatBNToString(
-                                                  openTimestamp,
-                                                  0,
+                <Flex align="baseline" justify="space-between">
+                  <Text color="gray.200">
+                    {data.filter(({ isClosed }) => !isClosed).length} Active
+                    Position ({data.length} total)
+                  </Text>
+                  <Tooltip
+                    closeOnClick={false}
+                    label={
+                      isFetching
+                        ? "Re-fetching position data..."
+                        : "Re-fetch position data"
+                    }
+                  >
+                    <IconButton
+                      size="sm"
+                      borderRadius="lg"
+                      variant="ghost"
+                      aria-label="refetch"
+                      icon={
+                        <RepeatIcon
+                          className={classNames({
+                            "animate-spin": isFetching,
+                          })}
+                        />
+                      }
+                      onClick={refetch}
+                    />
+                  </Tooltip>
+                </Flex>
+                {isError ? (
+                  <Center>
+                    <Text textAlign="center" color="red.500">
+                      Unable to load position data at this time. You can still
+                      open new positions.
+                    </Text>
+                  </Center>
+                ) : (
+                  <Accordion
+                    maxH="350px"
+                    overflowY="auto"
+                    defaultIndex={0}
+                    allowToggle
+                  >
+                    {_.orderBy(
+                      data,
+                      ["isClosed", "openTimestampStr"],
+                      ["asc", "desc"],
+                    ).map(
+                      ({
+                        address,
+                        openTimestamp,
+                        interestEarned,
+                        isClosed,
+                        ethDeposit,
+                        stEthDeposit,
+                      }) => (
+                        <AccordionItem key={address}>
+                          <h2>
+                            <AccordionButton opacity={isClosed ? 0.3 : 1}>
+                              <Box as="span" flex="1" textAlign="left">
+                                <Badge colorScheme="purple">
+                                  {address && shortenAddress(address)}
+                                </Badge>
+                              </Box>
+                              <AccordionIcon />
+                            </AccordionButton>
+                          </h2>
+                          <AccordionPanel pb={4}>
+                            <Stack spacing={4}>
+                              <Stack>
+                                <Flex align="start" justify="space-between">
+                                  <Text fontSize={{ base: "sm", sm: "md" }}>
+                                    Position Information
+                                  </Text>
+                                </Flex>
+                                <Divider />
+                                <Stack spacing={2} pos="relative">
+                                  {isClosed && (
+                                    <Tooltip label="This position has been closed. Data may not reflect what was accurate at time of close.">
+                                      <Badge
+                                        pos="absolute"
+                                        top="50%"
+                                        left="50%"
+                                        transform="translate(-50%, -50%) rotate(-10deg)"
+                                        opacity={1}
+                                        fontSize="md"
+                                        colorScheme="red"
+                                        cursor="help"
+                                      >
+                                        position closed
+                                      </Badge>
+                                    </Tooltip>
+                                  )}
+                                  <Flex
+                                    align={{ base: "start", sm: "center" }}
+                                    justify="space-between"
+                                    opacity={isClosed ? 0.3 : 1}
+                                  >
+                                    <Text
+                                      color="gray.200"
+                                      fontSize={{ base: "sm", sm: "md" }}
+                                    >
+                                      Opened At
+                                    </Text>
+                                    <Flex
+                                      align={{ base: "end", sm: "center" }}
+                                      gap={1}
+                                      flexDir={{ base: "column", sm: "row" }}
+                                    >
+                                      <Text
+                                        color="gray.100"
+                                        fontSize={{ base: "xs", sm: "sm" }}
+                                      >
+                                        {openTimestamp
+                                          ? moment
+                                              .unix(
+                                                Number(
+                                                  formatBNToString(
+                                                    openTimestamp,
+                                                    0,
+                                                  ),
                                                 ),
-                                              ),
-                                            )
-                                            .format("YYYY-MM-DD hh:mm A")
+                                              )
+                                              .format("YYYY-MM-DD hh:mm A")
+                                          : "--"}
+                                      </Text>
+                                      <Badge
+                                        colorScheme="blue"
+                                        fontSize={{
+                                          base: "xx-small",
+                                          sm: "sm",
+                                        }}
+                                      >
+                                        {openTimestamp
+                                          ? moment
+                                              .unix(
+                                                Number(
+                                                  formatBNToString(
+                                                    openTimestamp,
+                                                    0,
+                                                  ),
+                                                ),
+                                              )
+                                              .fromNow()
+                                          : "--"}
+                                      </Badge>
+                                    </Flex>
+                                  </Flex>
+                                  <Flex
+                                    align="center"
+                                    justify="space-between"
+                                    opacity={isClosed ? 0.3 : 1}
+                                  >
+                                    <Text
+                                      color="gray.200"
+                                      fontSize={{ base: "sm", sm: "md" }}
+                                    >
+                                      Total Deposit (ETH)
+                                    </Text>
+                                    <Text
+                                      color="gray.100"
+                                      fontSize={{ base: "xs", sm: "sm" }}
+                                    >
+                                      {ethDeposit
+                                        ? `${ethDeposit.toFixed(5)} ($${(
+                                            (tokenPricesUSD?.ETH || 0) *
+                                            ethDeposit
+                                          ).toFixed(2)})`
                                         : "--"}
                                     </Text>
-                                    <Badge colorScheme="blue" fontSize="sm">
-                                      {openTimestamp
-                                        ? moment
-                                            .unix(
-                                              Number(
-                                                formatBNToString(
-                                                  openTimestamp,
-                                                  0,
-                                                ),
-                                              ),
-                                            )
-                                            .fromNow()
-                                        : "--"}
-                                    </Badge>
                                   </Flex>
-                                </Flex>
-                                <Flex align="center" justify="space-between">
-                                  <Text color="gray.200">
-                                    Total Deposit (ETH)
-                                  </Text>
-                                  <Text color="gray.100" fontSize="sm">
-                                    {ethDeposit
-                                      ? `${ethDeposit.toFixed(5)} ($${(
-                                          (tokenPricesUSD?.ETH || 0) *
-                                          ethDeposit
-                                        ).toFixed(2)})`
-                                      : "--"}
-                                  </Text>
-                                </Flex>
-                                <Flex align="center" justify="space-between">
-                                  <Text color="gray.200">
-                                    Total Deposit (stETH)
-                                  </Text>
-                                  <Text color="gray.100" fontSize="sm">
-                                    {stEthDeposit
-                                      ? `${formatBNToString(
-                                          stEthDeposit,
-                                          18,
-                                          5,
-                                        )} ($${(
-                                          (tokenPricesUSD?.STETH || 0) *
-                                          +formatBNToString(stEthDeposit, 18)
-                                        ).toFixed(2)})`
-                                      : "--"}
-                                  </Text>
-                                </Flex>
-                                <Flex align="center" justify="space-between">
-                                  <Text color="gray.200">
-                                    Interest Earned (ETH)
-                                  </Text>
-                                  <Text color="green.300" fontSize="sm">
-                                    {interestEarned
-                                      ? `${interestEarned.toFixed(5)} ($${(
-                                          (tokenPricesUSD?.ETH || 0) *
-                                          interestEarned
-                                        ).toFixed(2)})`
-                                      : "--"}
-                                  </Text>
-                                </Flex>
+                                  <Flex
+                                    align="center"
+                                    justify="space-between"
+                                    opacity={isClosed ? 0.3 : 1}
+                                  >
+                                    <Text
+                                      color="gray.200"
+                                      fontSize={{ base: "sm", sm: "md" }}
+                                    >
+                                      Total Deposit (stETH)
+                                    </Text>
+                                    <Text
+                                      color="gray.100"
+                                      fontSize={{ base: "xs", sm: "sm" }}
+                                    >
+                                      {stEthDeposit
+                                        ? `${formatBNToString(
+                                            stEthDeposit,
+                                            18,
+                                            5,
+                                          )} ($${(
+                                            (tokenPricesUSD?.STETH || 0) *
+                                            +formatBNToString(stEthDeposit, 18)
+                                          ).toFixed(2)})`
+                                        : "--"}
+                                    </Text>
+                                  </Flex>
+                                  <Flex
+                                    align="center"
+                                    justify="space-between"
+                                    opacity={isClosed ? 0.3 : 1}
+                                  >
+                                    <Text
+                                      color="gray.200"
+                                      fontSize={{ base: "sm", sm: "md" }}
+                                    >
+                                      Interest Earned (ETH)
+                                    </Text>
+                                    <Text
+                                      color="green.300"
+                                      fontSize={{ base: "xs", sm: "sm" }}
+                                    >
+                                      {isClosed
+                                        ? "--"
+                                        : interestEarned
+                                        ? `${interestEarned.toFixed(5)} ($${(
+                                            (tokenPricesUSD?.ETH || 0) *
+                                            interestEarned
+                                          ).toFixed(2)})`
+                                        : "--"}
+                                    </Text>
+                                  </Flex>
+                                </Stack>
                               </Stack>
+                              {!isClosed && (
+                                <Tooltip label="Withdraw your initial ETH deposit and accrued interest as WSTETH">
+                                  <Button
+                                    isLoading={exitPosIsLoading}
+                                    isDisabled={exitPosIsLoading || !address}
+                                    variant="outline"
+                                    onClick={() => exitPosition(address || "")}
+                                  >
+                                    {t("Exit Position")}
+                                  </Button>
+                                </Tooltip>
+                              )}
                             </Stack>
-                            {!isClosed && (
-                              <Tooltip label="Withdraw your initial ETH deposit and accrued interest">
-                                <Button
-                                  isLoading={exitPosIsLoading}
-                                  isDisabled={exitPosIsLoading || !address}
-                                  variant="outline"
-                                  onClick={() => exitPosition(address || "")}
-                                >
-                                  {t("Exit Position")}
-                                </Button>
-                              </Tooltip>
-                            )}
-                          </Stack>
-                        </AccordionPanel>
-                      </AccordionItem>
-                    ),
-                  )}
-                </Accordion>
+                          </AccordionPanel>
+                        </AccordionItem>
+                      ),
+                    )}
+                  </Accordion>
+                )}
               </Stack>
             </Box>
           </Skeleton>
           <Button
-            isLoading={isLoading}
-            isDisabled={!!error || !deposit || isLoading}
+            isLoading={createPosIsLoading}
+            isDisabled={!!error || !deposit || createPosIsLoading}
             onClick={() => {
               const { value, isFallback } = parseStringToBigNumber(deposit, 18)
               if (!isFallback) {
