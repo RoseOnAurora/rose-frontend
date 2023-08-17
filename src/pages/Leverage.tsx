@@ -17,6 +17,7 @@ import {
   FormHelperText,
   Heading,
   IconButton,
+  Link,
   Skeleton,
   Stack,
   Tag,
@@ -139,7 +140,15 @@ const Leverage = (): ReactElement => {
           <Text color="gray.300" fontSize={{ base: "sm", sm: "md" }}>
             Earn a fixed 10% APY on your ETH deposit. Withdraw and exit any of
             your positions at any time. Be aware that each new deposit will
-            create a new position.
+            create a new position. Read more about the product{" "}
+            <Link
+              href="https://medium.com/@RoseOnAurora/introducing-rose-earn-elevating-your-eth-earnings-with-simplicity-and-security-363b99e15a24"
+              isExternal
+              fontWeight="bold"
+            >
+              on Medium.
+              <sup style={{ fontSize: "8px", fontWeight: "bold" }}>↗</sup>
+            </Link>
           </Text>
           <Stack spacing={1}>
             <Flex justifyContent="space-between" alignItems="center" w="full">

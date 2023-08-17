@@ -36,7 +36,7 @@ const MobileNavMenu = (): ReactElement => {
   // hooks
   const { t } = useTranslation()
 
-  const { chainId } = useWeb3React()
+  const { chainId, account } = useWeb3React()
 
   return (
     <Menu>
@@ -71,7 +71,7 @@ const MobileNavMenu = (): ReactElement => {
                   </MenuItem>
                 </Fragment>
               )}
-              {chainId === ChainId.MAINNET && (
+              {(chainId === ChainId.MAINNET || !account) && (
                 <MenuItem icon={<FaDollarSign />} as={Link} to="/earn">
                   {t("Earn")}
                   <Badge ml={3} colorScheme="green">
@@ -89,7 +89,8 @@ const MobileNavMenu = (): ReactElement => {
                 target="_blank"
                 rel="noreferrer"
               >
-                Rainbow Bridge↗
+                Rainbow Bridge
+                <sup style={{ fontSize: "8px", fontWeight: "bold" }}>↗</sup>
               </MenuItem>
               <MenuItem
                 icon={<FaRegCircle />}
@@ -98,7 +99,8 @@ const MobileNavMenu = (): ReactElement => {
                 target="_blank"
                 rel="noreferrer"
               >
-                Allbridge↗
+                Allbridge
+                <sup style={{ fontSize: "8px", fontWeight: "bold" }}>↗</sup>
               </MenuItem>
             </MenuGroup>
             <MenuDivider />
@@ -110,7 +112,8 @@ const MobileNavMenu = (): ReactElement => {
                 target="_blank"
                 rel="noreferrer"
               >
-                Twitter↗
+                Twitter
+                <sup style={{ fontSize: "9px", fontWeight: "bold" }}>↗</sup>
               </MenuItem>
               <MenuItem
                 icon={<BsMedium />}
@@ -119,7 +122,8 @@ const MobileNavMenu = (): ReactElement => {
                 target="_blank"
                 rel="noreferrer"
               >
-                Medium↗
+                Medium
+                <sup style={{ fontSize: "8px", fontWeight: "bold" }}>↗</sup>
               </MenuItem>
               <MenuItem
                 icon={<FaTelegram />}
@@ -128,7 +132,8 @@ const MobileNavMenu = (): ReactElement => {
                 target="_blank"
                 rel="noreferrer"
               >
-                Telegram↗
+                Telegram
+                <sup style={{ fontSize: "8px", fontWeight: "bold" }}>↗</sup>
               </MenuItem>
               <MenuItem
                 icon={<FaDiscord />}
@@ -137,7 +142,8 @@ const MobileNavMenu = (): ReactElement => {
                 target="_blank"
                 rel="noreferrer"
               >
-                Discord↗
+                Discord
+                <sup style={{ fontSize: "8px", fontWeight: "bold" }}>↗</sup>
               </MenuItem>
             </MenuGroup>
             <MenuDivider />
@@ -149,7 +155,8 @@ const MobileNavMenu = (): ReactElement => {
                 target="_blank"
                 rel="noreferrer"
               >
-                Github↗
+                Github
+                <sup style={{ fontSize: "8px", fontWeight: "bold" }}>↗</sup>
               </MenuItem>
               <MenuItem
                 icon={<FaBook />}
@@ -158,7 +165,8 @@ const MobileNavMenu = (): ReactElement => {
                 target="_blank"
                 rel="noreferrer"
               >
-                Gitbook Docs↗
+                Gitbook Docs
+                <sup style={{ fontSize: "8px", fontWeight: "bold" }}>↗</sup>
               </MenuItem>
             </MenuGroup>
           </MenuList>

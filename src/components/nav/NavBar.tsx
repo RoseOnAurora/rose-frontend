@@ -23,12 +23,12 @@ const NavBar = ({ activeNavItem }: NavBarProps): ReactElement => {
   // hooks
   const { t } = useTranslation()
 
-  const { chainId } = useWeb3React()
+  const { chainId, account } = useWeb3React()
 
   return (
     <Flex alignItems="center" gridGap={{ base: "5px", xl: "25px" }}>
       {NAV_ITEMS.filter(({ onlyEth = false }) =>
-        chainId === ChainId.MAINNET ? onlyEth : !onlyEth,
+        chainId === ChainId.MAINNET ? onlyEth : !onlyEth || !account,
       ).map(({ route, name, isActive }) => {
         const active = isActive(activeNavItem)
         return (

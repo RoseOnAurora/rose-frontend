@@ -149,16 +149,19 @@ const Web3Status = (): ReactElement => {
   }, [account, chainName, modalOpen])
 
   useEffect(() => {
-    if (
-      chainId === ChainId.MAINNET &&
-      pathname !== "/earn" &&
-      pathname !== "/"
-    ) {
-      navigate("/earn")
-    } else if (chainId !== ChainId.MAINNET && pathname === "/earn") {
-      navigate("/swap")
+    // only redirect on wallet connected
+    if (account) {
+      if (
+        chainId === ChainId.MAINNET &&
+        pathname !== "/earn" &&
+        pathname !== "/"
+      ) {
+        navigate("/earn")
+      } else if (chainId !== ChainId.MAINNET && pathname === "/earn") {
+        navigate("/swap")
+      }
     }
-  }, [chainId, pathname, navigate])
+  }, [chainId, account, pathname, navigate])
 
   return (
     <Flex alignItems="center" justifyContent="space-evenly">

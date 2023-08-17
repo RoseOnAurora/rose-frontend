@@ -1,4 +1,4 @@
-import { AuroraIcon, EthIcon, PolygonIcon } from "./icons"
+import { AuroraIcon, EthIcon } from "./icons"
 import { ComponentWithAs, IconProps } from "@chakra-ui/react"
 import { ChainId } from "."
 
@@ -13,10 +13,7 @@ export interface ChainInfo {
   Icon?: ComponentWithAs<"svg", IconProps>
 }
 
-export type SupportedChainId =
-  | ChainId.AURORA_MAINNET
-  | ChainId.POLYGON
-  | ChainId.MAINNET
+export type SupportedChainId = ChainId.AURORA_MAINNET | ChainId.MAINNET
 export const SUPPORTED_CHAINS: {
   [chainId in SupportedChainId]: ChainInfo
 } = {
@@ -29,16 +26,6 @@ export const SUPPORTED_CHAINS: {
       decimals: 18,
     },
     Icon: AuroraIcon,
-  },
-  [ChainId.POLYGON]: {
-    name: "Polygon",
-    rpc: ["https://rpc-mainnet.maticvigil.com"],
-    currency: {
-      name: "Matic",
-      symbol: "MATIC",
-      decimals: 18,
-    },
-    Icon: PolygonIcon,
   },
   [ChainId.MAINNET]: {
     name: "Ethereum",

@@ -7,6 +7,7 @@ import {
   Button,
   Center,
   Flex,
+  Link,
   Spinner,
 } from "@chakra-ui/react"
 import { Outlet, useLocation } from "react-router-dom"
@@ -58,7 +59,14 @@ const Layout = ({
               <EthIcon fontSize="21px" mr={1} />
               <AlertTitle>Ethereum Mainnet is now supported!</AlertTitle>
               <AlertDescription>
-                Switch to Mainnet and try out our new Earn Product.
+                Switch to Mainnet and try out our new{" "}
+                <Link
+                  href="https://medium.com/@RoseOnAurora/introducing-rose-earn-elevating-your-eth-earnings-with-simplicity-and-security-363b99e15a24"
+                  isExternal
+                >
+                  Earn Product.
+                  <sup style={{ fontSize: "8px", fontWeight: "bold" }}>↗</sup>
+                </Link>
               </AlertDescription>
             </Flex>
             <Button

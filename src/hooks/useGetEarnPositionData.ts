@@ -195,7 +195,7 @@ export default function useGetEarnPositionData(): ReturnType {
   }, [getPositionData])
 
   // refetch on interval
-  useInterval(() => void refetch(), 60000)
+  useInterval(() => void refetch(), 90000)
 
   return {
     data: posData,
