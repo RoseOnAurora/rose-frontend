@@ -179,7 +179,7 @@ function StakeForm(props: Props): ReactElement {
                 size="lg"
                 width="100%"
                 type="submit"
-                disabled={
+                isDisabled={
                   !props.isValid ||
                   +props.values?.[fieldName] === 0 ||
                   props.isSubmitting

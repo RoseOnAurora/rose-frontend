@@ -1,4 +1,9 @@
-import { Input, InputGroup, InputLeftElement } from "@chakra-ui/react"
+import {
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputProps,
+} from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import { FieldInputProps } from "formik"
 import MultiTokenInputLeftElement from "./MultiTokenInputLeftElement"
@@ -6,11 +11,12 @@ import { Token } from "../../constants"
 import { commify } from "../../utils"
 
 interface MultiTokenInputProps {
-  selectedToken: Token
   inputValue: string
-  fieldProps: FieldInputProps<string>
-  isInvalid: boolean
+  selectedToken?: Token
+  fieldProps?: FieldInputProps<string>
+  isInvalid?: boolean
   readOnly?: boolean
+  inputProps?: InputProps
   onToggleTokenSelect: () => void
   onChangeInput: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
@@ -18,8 +24,9 @@ const MultiTokenInput = ({
   selectedToken,
   inputValue,
   fieldProps,
-  isInvalid,
-  readOnly,
+  inputProps,
+  isInvalid = false,
+  readOnly = false,
   onToggleTokenSelect,
   onChangeInput,
 }: MultiTokenInputProps): ReactElement => {
@@ -33,6 +40,7 @@ const MultiTokenInput = ({
       </InputLeftElement>
       <Input
         {...fieldProps}
+        {...inputProps}
         pl="180px"
         type="text"
         autoComplete="off"

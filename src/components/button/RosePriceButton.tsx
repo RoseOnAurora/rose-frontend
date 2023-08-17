@@ -9,6 +9,7 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
+  PlacementWithLogical,
   Radio,
   RadioGroup,
   Spinner,
@@ -18,6 +19,7 @@ import {
   StatGroup,
   StatNumber,
   Text,
+  useBreakpointValue,
 } from "@chakra-ui/react"
 import { ROSE, RUSD, SROSE, TRANSACTION_TYPES } from "../../constants"
 import React, { ReactElement, useState } from "react"
@@ -33,6 +35,7 @@ import useAddTokenToMetamask from "../../hooks/useAddTokenToMetamask"
 import { useSelector } from "react-redux"
 
 export default function RosePriceButton(): ReactElement {
+  const placement = useBreakpointValue({ base: "top", lg: "bottom" })
   const { rosePriceHistory, lastTransactionTimes } = useSelector(
     (state: AppState) => state.application,
   )
@@ -58,7 +61,7 @@ export default function RosePriceButton(): ReactElement {
 
   return (
     <Box mr="10px">
-      <Menu isLazy>
+      <Menu isLazy placement={placement as PlacementWithLogical}>
         <MenuButton
           variant="outline"
           lineHeight="unset"

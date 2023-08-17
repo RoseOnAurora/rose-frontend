@@ -162,7 +162,7 @@ const Farm = ({ farmName, farmDescription }: FarmProps): ReactElement => {
           {farmDeposited.gt(Zero) || lpTokenBalance?.gt(Zero) ? (
             <ButtonGroup size="md" isAttached>
               <Button
-                disabled={lpTokenBalance?.lte(Zero)}
+                isDisabled={lpTokenBalance?.lte(Zero)}
                 w="full"
                 color="gray.50"
                 borderRadius="8px"
@@ -177,7 +177,7 @@ const Farm = ({ farmName, farmDescription }: FarmProps): ReactElement => {
               <Button
                 w="full"
                 textAlign="right"
-                disabled={farmDeposited.lte(Zero)}
+                isDisabled={farmDeposited.lte(Zero)}
                 color="gray.50"
                 borderRadius="8px"
                 variant="solid"

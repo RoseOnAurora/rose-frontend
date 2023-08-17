@@ -7,8 +7,10 @@ import {
   Spinner,
   Stack,
   Text,
+  Tooltip,
   VStack,
   useBreakpointValue,
+  usePrevious,
 } from "@chakra-ui/react"
 import { FaExclamationTriangle, FaWallet } from "react-icons/fa"
 import React, {
@@ -24,8 +26,10 @@ import {
   removeConnectedWallet,
   updateSelectedWallet,
 } from "../state/user"
+import { useLocation, useNavigate } from "react-router-dom"
 import AccountDetails from "./AccountDetails"
 import { ChainId } from "../constants"
+import { ChangeAccountIcon } from "../constants/icons"
 import ConnectWallet from "./ConnectWallet"
 import { Connector } from "@web3-react/types"
 import { HiSwitchHorizontal } from "react-icons/hi"
@@ -36,6 +40,7 @@ import SupportedChains from "./SupportedChains"
 import { getWeb3Connection } from "../utils"
 import { useDispatch } from "react-redux"
 import { useSelector } from "react-redux"
+import useSwitchAccounts from "../hooks/useSwitchAccount"
 import { useTranslation } from "react-i18next"
 import { useWeb3React } from "@web3-react/core"
 
@@ -49,29 +54,14 @@ enum Web3ModalView {
   ERROR,
 }
 
-function chainIdToName(chainId?: number | undefined, account?: string) {
-  if (typeof chainId == undefined || !account) {
-    return ""
-  }
-  switch (chainId) {
-    case ChainId.AURORA_MAINNET:
-      return "Aurora"
-    case ChainId.POLYGON:
-      return "Polygon"
-    default:
-      return ""
-  }
-}
-
 const Web3Status = (): ReactElement => {
   // state
-  const { account, chainId, connector } = useWeb3React()
+  const { account, chainId = 0, connector } = useWeb3React()
   const [modalOpen, setModalOpen] = useState(false)
   const [modalView, setModalView] = useState(Web3ModalView.ACCOUNT)
-  const [switchChains, setSwitchChains] = useState(false)
   const [retryConnector, setRetryConnetor] = useState<Connector>()
   const chainName = useMemo(
-    () => chainIdToName(chainId, account),
+    () => (account ? SUPPORTED_CHAINS[chainId as SupportedChainId]?.name : ""),
     [chainId, account],
   )
   const { connectedWallets, selectedWallet } = useSelector(
@@ -89,13 +79,16 @@ const Web3Status = (): ReactElement => {
   const padding = useBreakpointValue({ base: "20px", lg: "16px" })
   const color = useBreakpointValue({ base: "white", lg: "inherit" })
   const dispatch = useDispatch<AppDispatch>()
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const prevModalView = usePrevious(modalView)
+  const switchAccount = useSwitchAccounts()
 
   // activation
   const handleActivation = useCallback(
     async (c: Connector) => {
       try {
         setModalView(Web3ModalView.CONNECTING)
-        setSwitchChains(false)
         await c.activate()
         setModalView(Web3ModalView.ACCOUNT)
         const { type } = getWeb3Connection(c)
@@ -144,17 +137,31 @@ const Web3Status = (): ReactElement => {
 
   // always reset to account view
   useEffect(() => {
-    if (modalOpen) {
+    if (!modalOpen) {
       setModalView(
-        switchChains || (account && !chainName)
+        account && !chainName
           ? Web3ModalView.CHAINS
           : account && chainName
           ? Web3ModalView.ACCOUNT
           : Web3ModalView.WALLETS,
       )
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, chainName, modalOpen, switchChains])
+  }, [account, chainName, modalOpen])
+
+  useEffect(() => {
+    // only redirect on wallet connected
+    if (account) {
+      if (
+        chainId === ChainId.MAINNET &&
+        pathname !== "/earn" &&
+        pathname !== "/"
+      ) {
+        navigate("/earn")
+      } else if (chainId !== ChainId.MAINNET && pathname === "/earn") {
+        navigate("/swap")
+      }
+    }
+  }, [chainId, account, pathname, navigate])
 
   return (
     <Flex alignItems="center" justifyContent="space-evenly">
@@ -164,9 +171,10 @@ const Web3Status = (): ReactElement => {
             "aria-label": "Connected Network",
             variant: "outline",
             size: "lg",
-            title: chainIdToName(chainId, account),
+            title: chainName,
             marginRight: "10px",
             w: "55px",
+            fontSize: "22px",
             borderRadius: "20px",
             icon: Icon && <Icon />,
           }}
@@ -178,7 +186,7 @@ const Web3Status = (): ReactElement => {
                 </Text>
                 <Flex alignItems="center" marginTop="5px" gap="8px">
                   <Text fontSize="19px" fontWeight={700}>
-                    {chainIdToName(chainId, account)} Network
+                    {chainName} Network
                   </Text>
                   {Icon && <Icon />}
                 </Flex>
@@ -192,7 +200,6 @@ const Web3Status = (): ReactElement => {
                 aria-label="switch chain"
                 onClick={() => {
                   setModalView(Web3ModalView.CHAINS)
-                  setSwitchChains(true)
                   setModalOpen(true)
                 }}
               />
@@ -210,10 +217,7 @@ const Web3Status = (): ReactElement => {
         fontWeight={700}
         p={padding}
         color={color}
-        onClick={() => {
-          setModalOpen(true)
-          setSwitchChains(false)
-        }}
+        onClick={() => setModalOpen(true)}
         rightIcon={
           account && chainName ? (
             <Identicon />
@@ -239,36 +243,51 @@ const Web3Status = (): ReactElement => {
         isOpen={modalOpen}
         onClose={(): void => setModalOpen(false)}
         modalHeader={
-          modalView === Web3ModalView.SWITCH_CHAIN
-            ? t("switchChains")
-            : modalView === Web3ModalView.DISCONNECTING
-            ? t("disconnect")
-            : modalView === Web3ModalView.CONNECTING
-            ? "Connecting..."
-            : modalView === Web3ModalView.ERROR
-            ? "Error"
-            : modalView === Web3ModalView.WALLETS
-            ? t("connectWallet")
-            : modalView === Web3ModalView.CHAINS || (account && !chainName)
-            ? t("supportedChains")
-            : account && chainName
-            ? t("account")
-            : "Unknown"
+          modalView === Web3ModalView.SWITCH_CHAIN ? (
+            t("switchChains")
+          ) : modalView === Web3ModalView.DISCONNECTING ? (
+            t("disconnect")
+          ) : modalView === Web3ModalView.CONNECTING ? (
+            "Connecting..."
+          ) : modalView === Web3ModalView.ERROR ? (
+            "Error"
+          ) : modalView === Web3ModalView.WALLETS ? (
+            t("connectWallet")
+          ) : modalView === Web3ModalView.CHAINS || (account && !chainName) ? (
+            t("supportedChains")
+          ) : account && chainName ? (
+            <Flex align="center" gap={1}>
+              {t("account")}
+              <Tooltip label="Switch accounts">
+                <IconButton
+                  size="sm"
+                  variant="ghost"
+                  fontSize="20px"
+                  borderRadius="md"
+                  aria-label="change"
+                  icon={<ChangeAccountIcon fill="gray.200" />}
+                  onClick={switchAccount}
+                />
+              </Tooltip>
+            </Flex>
+          ) : (
+            "Unknown"
+          )
         }
         isCentered
         preserveScrollBarGap
       >
         {modalView === Web3ModalView.WALLETS ? (
-          <ConnectWallet onActivation={handleActivation} />
-        ) : modalView === Web3ModalView.ACCOUNT ? (
+          <ConnectWallet
+            onGoBack={account ? () => setModalView(prevModalView) : undefined}
+            onActivation={handleActivation}
+          />
+        ) : modalView === Web3ModalView.ACCOUNT && account && chainName ? (
           <AccountDetails
-            openOptions={() => {
-              setModalView(Web3ModalView.WALLETS)
-              setSwitchChains(false)
-            }}
+            onChangeWallet={() => setModalView(Web3ModalView.WALLETS)}
+            onSwitchChains={() => setModalView(Web3ModalView.CHAINS)}
             deactivate={async (c: Connector) => {
               setModalView(Web3ModalView.DISCONNECTING)
-              setSwitchChains(false)
               await handleDeactivation(c)
               setModalOpen(false)
             }}
@@ -281,19 +300,10 @@ const Web3Status = (): ReactElement => {
           </Center>
         ) : modalView === Web3ModalView.CHAINS || (account && !chainName) ? (
           <SupportedChains
-            openOptions={() => {
-              setModalView(Web3ModalView.WALLETS)
-              setSwitchChains(false)
-            }}
+            onGoBack={chainName ? () => setModalView(prevModalView) : undefined}
             onSwitchChainStart={() => setModalView(Web3ModalView.SWITCH_CHAIN)}
-            onSwitchChainSuccess={() => {
-              setModalView(Web3ModalView.ACCOUNT)
-              setSwitchChains(false)
-            }}
-            onSwitchChainFail={() => {
-              setModalView(Web3ModalView.ERROR)
-              setSwitchChains(false)
-            }}
+            onSwitchChainSuccess={() => setModalView(Web3ModalView.ACCOUNT)}
+            onSwitchChainFail={() => setModalView(Web3ModalView.ERROR)}
           />
         ) : (
           <Stack spacing={5}>
@@ -310,10 +320,7 @@ const Web3Status = (): ReactElement => {
               <Button
                 fontSize={{ base: "13px", lg: "15px" }}
                 variant="ghost"
-                onClick={() => {
-                  setModalView(Web3ModalView.WALLETS)
-                  setSwitchChains(false)
-                }}
+                onClick={() => setModalView(Web3ModalView.WALLETS)}
               >
                 Back to wallet options
               </Button>

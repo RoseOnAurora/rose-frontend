@@ -3,6 +3,7 @@ import {
   InputGroup,
   InputGroupProps,
   InputLeftElement,
+  InputProps,
 } from "@chakra-ui/react"
 import React, { ReactElement } from "react"
 import { FieldInputProps } from "formik"
@@ -12,9 +13,10 @@ import { TokenProps } from "../../types/token"
 interface SingleTokenInputProps extends InputGroupProps {
   token: TokenProps
   inputValue: string
-  isInvalid: boolean
+  isInvalid?: boolean
   readOnly?: boolean
   fieldProps?: FieldInputProps<string>
+  inputProps?: InputProps
   onChangeInput?: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
@@ -22,8 +24,9 @@ const SingleTokenInput = ({
   token,
   fieldProps,
   inputValue,
-  isInvalid,
-  readOnly,
+  inputProps,
+  isInvalid = false,
+  readOnly = false,
   onChangeInput,
   ...rest
 }: SingleTokenInputProps): ReactElement => {
@@ -34,6 +37,7 @@ const SingleTokenInput = ({
       </InputLeftElement>
       <Input
         {...fieldProps}
+        {...inputProps}
         textAlign="right"
         type="text"
         pl="150px"

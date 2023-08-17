@@ -10,6 +10,7 @@ import { RoseStablesPool } from "../../types/ethers-contracts/RoseStablesPool"
 import atustLogo from "../assets/icons/atust.svg"
 import busdLogo from "../assets/icons/busd.svg"
 import daiLogo from "../assets/icons/dai.svg"
+import ethLogo from "../assets/icons/eth.svg"
 import fraxLogo from "../assets/icons/frax.svg"
 import maiLogo from "../assets/icons/mai.svg"
 import nearLogo from "../assets/icons/near_icon.svg"
@@ -86,6 +87,7 @@ export type BorrowMarketName =
   | typeof wBTC_MARKET_NAME
 
 export enum ChainId {
+  MAINNET = 1,
   HARDHAT = 31337,
   AURORA_TESTNET = 1313161555,
   AURORA_MAINNET = 1313161554,
@@ -131,14 +133,16 @@ export class Token {
 }
 
 export const STABLECOIN_SWAP_V2_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "0xbf9fBFf01664500A33080Da5d437028b07DFcC55",
   [ChainId.AURORA_TESTNET]: "0x2Ec594949EC5CaEb1430B61FE20aEEe6655756ed",
   [ChainId.AURORA_MAINNET]: "0xc90dB0d8713414d78523436dC347419164544A3f",
-  [ChainId.MUMBAI]: "0x6089adcDf1EA0D683223984Fc09Da27caF438FbC",
+  [ChainId.MUMBAI]: "0xB3810A2cCa2E3D660bFeE13C5FbE1e3c2B1a3391",
   [ChainId.POLYGON]: "",
 }
 
 export const FRAX_STABLES_LP_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x2E7d99fF3a89937339dDC651EdbA6e564B751bE7",
   [ChainId.AURORA_MAINNET]: "0xd812cc1fc1e0a56560796C746B1247e2bd4F31f2",
@@ -147,6 +151,7 @@ export const FRAX_STABLES_LP_ADDRESSES: { [chainId in ChainId]: string } = {
 }
 
 export const FRAX_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xfbC22278A96299D91d41C453234d97b4F5Eb9B2d",
   [ChainId.AURORA_MAINNET]: "0xa34315F1ef49392387Dd143f4578083A9Bd33E94",
@@ -155,6 +160,7 @@ export const FRAX_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
 }
 
 export const UST_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x1B8f7ac4acCa4ede18848203a54E57DF104C6f30",
   [ChainId.AURORA_MAINNET]: "0x8fe44f5cce02D5BE44e3446bBc2e8132958d22B8",
@@ -163,6 +169,7 @@ export const UST_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
 }
 
 export const BUSD_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xD6cb7Bb7D63f636d1cA72A1D3ed6f7F67678068a",
   [ChainId.AURORA_MAINNET]: "0xD6cb7Bb7D63f636d1cA72A1D3ed6f7F67678068a",
@@ -171,6 +178,7 @@ export const BUSD_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
 }
 
 export const MAI_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x65a761136815B45A9d78d9781d22d47247B49D23", // TO-DO: need to add testnet
   [ChainId.AURORA_MAINNET]: "0x65a761136815B45A9d78d9781d22d47247B49D23",
@@ -179,6 +187,7 @@ export const MAI_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
 }
 
 export const RUSD_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x9ADE30cdd031B35ABBC607496b99480805B579D4",
   [ChainId.AURORA_MAINNET]: "0x79B0a67a4045A7a8DC04b17456F4fe15339cBA34",
@@ -187,6 +196,7 @@ export const RUSD_METAPOOL_ADDRESSES: { [chainId in ChainId]: string } = {
 }
 
 export const STAKED_ROSE_POOL_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x7e27881A7eABb81D0e32e03C498f97517Cb75470",
   [ChainId.AURORA_MAINNET]: "0x36685AfD221622942Df61979d72a0064a17EF291",
@@ -197,16 +207,18 @@ export const STAKED_ROSE_POOL_ADDRESSES: { [chainId in ChainId]: string } = {
 export const STABLECOIN_SWAP_V2_TOKEN_CONTRACT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "0xC863F1F636fddce400E7515eCBDAbbEc4d1E0390",
   [ChainId.AURORA_TESTNET]: "0xFDE5214eF60617fb63A688C9C51cF5262254B4b7",
   [ChainId.AURORA_MAINNET]: "0xfF79D5bff48e1C01b722560D6ffDfCe9FC883587",
-  [ChainId.MUMBAI]: "0x22123280e5cC4E3a49842c8d2B3444a04Ea153Ad",
+  [ChainId.MUMBAI]: "0x28E2E7b559162919ca7fAA9B404aE3fDb5A46bE6",
   [ChainId.POLYGON]: "",
 }
 
 export const FRAX_STABLES_LP_TOKEN_CONTRACT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xC604298cAf81dEeFd245343e7c891b4C8860CB0E",
   [ChainId.AURORA_MAINNET]: "0xbB5279353d88A25F099A334Ba49CDCb1CF4b5A7c",
@@ -217,6 +229,7 @@ export const FRAX_STABLES_LP_TOKEN_CONTRACT_ADDRESSES: {
 export const FRAX_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x4EE6eCAD1c2Dae9f525404De8555724e3c35d07B",
   [ChainId.AURORA_MAINNET]: "0x4463A118A2fB34640ff8eF7Fe1B3abAcd4aC9fB7",
@@ -227,6 +240,7 @@ export const FRAX_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES: {
 export const UST_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x1BCD872ECEf68C77465a8dADa1d915D7Af206bF5",
   [ChainId.AURORA_MAINNET]: "0x94A7644E4D9CA0e685226254f88eAdc957D3c263",
@@ -237,6 +251,7 @@ export const UST_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES: {
 export const ROSE_PAD_NLP_TOKEN_CONTRACT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xC6C3cc84EabD4643C382C988fA2830657fc70a6B", // TO-DO: UPDATE
   [ChainId.AURORA_MAINNET]: "0xC6C3cc84EabD4643C382C988fA2830657fc70a6B",
@@ -247,6 +262,7 @@ export const ROSE_PAD_NLP_TOKEN_CONTRACT_ADDRESSES: {
 export const ROSE_FRAX_NLP_TOKEN_CONTRACT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xeD4C231b98b474f7cAeCAdD2736e5ebC642ad707", // TO-DO: UPDATE
   [ChainId.AURORA_MAINNET]: "0xeD4C231b98b474f7cAeCAdD2736e5ebC642ad707",
@@ -257,6 +273,7 @@ export const ROSE_FRAX_NLP_TOKEN_CONTRACT_ADDRESSES: {
 export const SROSE_LP_TOKEN_CONTRACT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xcb2B566B1e643d068DE7DE76C5420A1c63ceD299",
   [ChainId.AURORA_MAINNET]: "0x7Ba8C17010a48283D38a4bd5f87EfEB5594c92f8",
@@ -267,6 +284,7 @@ export const SROSE_LP_TOKEN_CONTRACT_ADDRESSES: {
 export const BUSD_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x158f57CF9A4DBFCD1Bc521161d86AeCcFC5aF3Bc", // note: missing testnet deployment
   [ChainId.AURORA_MAINNET]: "0x158f57CF9A4DBFCD1Bc521161d86AeCcFC5aF3Bc",
@@ -277,6 +295,7 @@ export const BUSD_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES: {
 export const MAI_METAPOOL_LP_TOKEN_CONTRACT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xA7ae42224Bf48eCeFc5f838C230EE339E5fd8e62", // note: missing testnet deployment
   [ChainId.AURORA_MAINNET]: "0xA7ae42224Bf48eCeFc5f838C230EE339E5fd8e62",
@@ -384,6 +403,7 @@ export const MAI_METAPOOL_LP_TOKEN = new Token(
 )
 
 export const RUSD_LP_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x6703fbE3DE7Bc184C138015116C4Cc44FdC059F3",
   [ChainId.AURORA_MAINNET]: "0x56f87a0cB4713eB513BAf57D5E81750433F5fcB9",
@@ -403,10 +423,11 @@ export const RUSD_LP_TOKEN = new Token(
 )
 
 const DAI_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
   [ChainId.AURORA_TESTNET]: "0x22EE86789837529E2F58Fd6D1dD6B0B26fc1e092",
   [ChainId.AURORA_MAINNET]: "0xe3520349F477A5F6EB06107066048508498A291b",
-  [ChainId.MUMBAI]: "0x32dbDB1A71A33f2880C0156Ce4378d01289a8aB9",
+  [ChainId.MUMBAI]: "0x4313749481Dde7F15d5420AB16Dd2496cE589C3C",
   [ChainId.POLYGON]: "",
 }
 export const DAI = new Token(
@@ -419,10 +440,11 @@ export const DAI = new Token(
 )
 
 const USDC_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "0x9A676e781A523b5d0C0e43731313A708CB607508",
   [ChainId.AURORA_TESTNET]: "0x84606Cf2905f7004D6164a7aC2884A36BC8a0A90",
   [ChainId.AURORA_MAINNET]: "0xB12BFcA5A55806AaF64E99521918A4bf0fC40802",
-  [ChainId.MUMBAI]: "0xEe86Fe5EbbB958719b09769962a90ca69CC7C66F",
+  [ChainId.MUMBAI]: "0x533Ab6DdABB1f1e57ADaD64D1f2BFe80F298d530",
   [ChainId.POLYGON]: "",
 }
 export const USDC = new Token(
@@ -435,10 +457,11 @@ export const USDC = new Token(
 )
 
 const USDT_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
   [ChainId.AURORA_TESTNET]: "0x8547A073cbc7D4aF48aD061b9D005C06D55337F5",
   [ChainId.AURORA_MAINNET]: "0x4988a896b1227218e4A686fdE5EabdcAbd91571f",
-  [ChainId.MUMBAI]: "0x16Fbf31F969C91506f1a17Fb2799b04D379f441f",
+  [ChainId.MUMBAI]: "0x390c962724675c5C0067F1b5c236fb8267C0D392",
   [ChainId.POLYGON]: "",
 }
 export const USDT = new Token(
@@ -451,6 +474,7 @@ export const USDT = new Token(
 )
 
 const FRAX_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "0x851356ae760d987E095750cCeb3bC6014560891C",
   [ChainId.AURORA_TESTNET]: "0xBEc49fA140aCaA83533fB00A2BB19bDdd0290f25",
   [ChainId.AURORA_MAINNET]: "0xda2585430fef327ad8ee44af8f1f989a2a91a3d2",
@@ -467,6 +491,7 @@ export const FRAX = new Token(
 )
 
 const UST_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xFE643843B9F4CfF9bbd57Ac2150d95858a0dCDd6",
   [ChainId.AURORA_MAINNET]: "0x5ce9F0B6AFb36135b5ddBF11705cEB65E634A9dC",
@@ -484,6 +509,7 @@ export const UST = new Token(
 )
 
 export const ROSE_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xfbBfA407fb908e4D58145762788062521C816332",
   [ChainId.AURORA_MAINNET]: "0xdcD6D4e2B3e1D1E1E6Fa8C21C8A323DcbecfF970",
@@ -501,6 +527,7 @@ export const ROSE = new Token(
 )
 
 export const SROSE_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x777764757A453327fBfb8f3a979C7F2E58c0F9aD",
   [ChainId.AURORA_MAINNET]: "0xe23d2289FBca7De725DC21a13fC096787A85e16F",
@@ -518,6 +545,7 @@ export const SROSE = new Token(
 )
 
 export const BUSD_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x5C92A4A7f59A9484AFD79DbE251AD2380E589783", // note: no testnet deployment
   [ChainId.AURORA_MAINNET]: "0x5C92A4A7f59A9484AFD79DbE251AD2380E589783",
@@ -535,6 +563,7 @@ export const BUSD = new Token(
 )
 
 export const MAI_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xdFA46478F9e5EA86d57387849598dbFB2e964b02", // note: no testnet deployment
   [ChainId.AURORA_MAINNET]: "0xdFA46478F9e5EA86d57387849598dbFB2e964b02",
@@ -552,6 +581,7 @@ export const MAI = new Token(
 )
 
 export const RUSD_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x444C98b60Fa3F8A74335EC8893b2f9CE5c83b1df",
   [ChainId.AURORA_MAINNET]: "0x19cc40283B057D6608C22F1D20F17e16C245642E",
@@ -569,6 +599,7 @@ export const RUSD = new Token(
 )
 
 export const NEAR_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x7A7486B50440F560fc45983b313E4078EB41080c",
   [ChainId.AURORA_MAINNET]: "0xC42C30aC6Cc15faC9bD938618BcaA1a1FaE8501d",
@@ -586,6 +617,7 @@ export const NEAR = new Token(
 )
 
 const WETH_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
   [ChainId.AURORA_TESTNET]: "", // TO-DO: update testnet
   [ChainId.AURORA_MAINNET]: "0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB",
@@ -601,7 +633,25 @@ export const WETH = new Token(
   wethLogo,
 )
 
+const ETH_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
+  [ChainId.HARDHAT]: "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
+  [ChainId.AURORA_TESTNET]: "", // TO-DO: update testnet
+  [ChainId.AURORA_MAINNET]: "0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB",
+  [ChainId.MUMBAI]: "",
+  [ChainId.POLYGON]: "",
+}
+export const ETH = new Token(
+  ETH_CONTRACT_ADDRESSES,
+  18,
+  "ETH",
+  "ethereum",
+  "Ethereum",
+  ethLogo,
+)
+
 const WBTC_CONTRACT_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
   [ChainId.AURORA_TESTNET]: "", // TO-DO: missing testnet
   [ChainId.AURORA_MAINNET]: "0xf4eb217ba2454613b15dbdea6e5f22276410e89e",
@@ -618,6 +668,7 @@ export const WBTC = new Token(
 )
 
 export const ROSE_FARM_STABLES_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xd7aA8Cf4811b8faFb423085BD2f77C3883eA9Ea3",
   [ChainId.AURORA_MAINNET]: "0x52CACa9a2D52b27b28767d3649565774A3B991f3",
@@ -628,6 +679,7 @@ export const ROSE_FARM_STABLES_ADDRESSES: { [chainId in ChainId]: string } = {
 export const FRAX_METAPOOL_FARM_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xD42912755319665397FF090fBB63B1a31aE87Cee",
   [ChainId.AURORA_MAINNET]: "0xB9D873cDc15e462f5414CCdFe618a679a47831b4",
@@ -638,6 +690,7 @@ export const FRAX_METAPOOL_FARM_ADDRESSES: {
 export const UST_METAPOOL_FARM_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xfcDB4564c18A9134002b9771816092C9693622e3",
   [ChainId.AURORA_MAINNET]: "0x56DE5E2c25828040330CEF45258F3FFBc090777C",
@@ -648,6 +701,7 @@ export const UST_METAPOOL_FARM_ADDRESSES: {
 export const ROSE_PAD_NLP_FARM_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xfF79D5bff48e1C01b722560D6ffDfCe9FC883587",
   [ChainId.AURORA_MAINNET]: "0x9b2aE7d53099Ec64e2f6df3B4151FFCf7205f788",
@@ -658,6 +712,7 @@ export const ROSE_PAD_NLP_FARM_ADDRESSES: {
 export const ROSE_FRAX_NLP_FARM_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xd7Fd3210a40495ef13adeC5c4c591Fe7794b8b8a",
   [ChainId.AURORA_MAINNET]: "0x1B10bFCd6192edC573ced7Db7c7e403c7FAb8068",
@@ -668,6 +723,7 @@ export const ROSE_FRAX_NLP_FARM_ADDRESSES: {
 export const SROSE_FARM_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xA5BA452C32664b86c44556872F1a8011Bf35C6E8",
   [ChainId.AURORA_MAINNET]: "0x247c9DA96BfC4720580ee84E01566D79a8c901ca",
@@ -678,6 +734,7 @@ export const SROSE_FARM_ADDRESSES: {
 export const BUSD_FARM_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x18A6115150A060F22Bacf62628169ee9b231368f", // note: missing testnet deployment
   [ChainId.AURORA_MAINNET]: "0x18A6115150A060F22Bacf62628169ee9b231368f",
@@ -688,6 +745,7 @@ export const BUSD_FARM_ADDRESSES: {
 export const MAI_FARM_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x226991aADeEfDe03bF557eF067da95fc613aBfFc", // note: missing testnet deployment
   [ChainId.AURORA_MAINNET]: "0x226991aADeEfDe03bF557eF067da95fc613aBfFc",
@@ -698,6 +756,7 @@ export const MAI_FARM_ADDRESSES: {
 export const RUSD_FARM_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x9286d58C1c8d434Be809221923Cf4575f7A4d058", // note: missing testnet deployment
   [ChainId.AURORA_MAINNET]: "0x9286d58C1c8d434Be809221923Cf4575f7A4d058",
@@ -708,6 +767,7 @@ export const RUSD_FARM_ADDRESSES: {
 export const FRAX_METAPOOL_DEPOSIT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xC9a43158891282A2B1475592D5719c001986Aaec",
   [ChainId.AURORA_MAINNET]: "0x8a36Fd6F3502c60107E6711E4d98d933e4Da8EC3",
@@ -718,6 +778,7 @@ export const FRAX_METAPOOL_DEPOSIT_ADDRESSES: {
 export const UST_METAPOOL_DEPOSIT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x4F44443271751576305F2f98CbB96B8992a170c0",
   [ChainId.AURORA_MAINNET]: "0x6df16C4C708089aB6c436e1be7f7062C0bA5C317",
@@ -728,6 +789,7 @@ export const UST_METAPOOL_DEPOSIT_ADDRESSES: {
 export const BUSD_METAPOOL_DEPOSIT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x1685506373B560906d9ef0053F0Bc6C38370B6F1", // TO-DO: missing testnet deployment
   [ChainId.AURORA_MAINNET]: "0x1685506373B560906d9ef0053F0Bc6C38370B6F1",
@@ -738,6 +800,7 @@ export const BUSD_METAPOOL_DEPOSIT_ADDRESSES: {
 export const MAI_METAPOOL_DEPOSIT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x81B2DF6Da4E944B0CE5B3f62473D8637b65c631C", // TO-DO: missing testnet deployment
   [ChainId.AURORA_MAINNET]: "0x81B2DF6Da4E944B0CE5B3f62473D8637b65c631C",
@@ -748,6 +811,7 @@ export const MAI_METAPOOL_DEPOSIT_ADDRESSES: {
 export const RUSD_METAPOOL_DEPOSIT_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xA593Eabb3972A482b6Eee12D36c525963d8dDDe3",
   [ChainId.AURORA_MAINNET]: "0x2F9272Fd0972fefB81EBe5364F127D46B0ddba96",
@@ -756,6 +820,7 @@ export const RUSD_METAPOOL_DEPOSIT_ADDRESSES: {
 }
 
 export const STROSE_GARDEN_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x68Ebc71035D25BC70ed7AeE27C4D3cE2657F31e6",
   [ChainId.AURORA_MAINNET]: "0xFfD696703f28753CE1F24bB35B9f7Ae4d966F9f0", // update mainnet
@@ -764,6 +829,7 @@ export const STROSE_GARDEN_ADDRESSES: { [chainId in ChainId]: string } = {
 }
 
 export const STROSE_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x0B9A63E27f61Af06D5DbE9bAaF3F9fF2467fBbf4",
   [ChainId.AURORA_MAINNET]: "0x0B9A63E27f61Af06D5DbE9bAaF3F9fF2467fBbf4", // update mainnet
@@ -772,6 +838,7 @@ export const STROSE_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
 }
 
 export const UST_GARDEN_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xc0A8b9Dc636faF4d103d7Ff639362dC4198A0F5a",
   [ChainId.AURORA_MAINNET]: "0xe8F7F08D50e12145Cb722cfF861e6A9b43EADBA1",
@@ -780,6 +847,7 @@ export const UST_GARDEN_ADDRESSES: { [chainId in ChainId]: string } = {
 }
 
 export const UST_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x2DDDDb9C47A6Bd5697CD047278a69606cCA61E6E",
   [ChainId.AURORA_MAINNET]: "0xAF5B0A58703A21995C918E7631731700442226FC",
@@ -790,6 +858,7 @@ export const UST_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
 export const NEAR_WL_PROXIMITY_GARDEN_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x3f14a8A649206DD826f0cCAC310dbaf94C0d6bb3",
   [ChainId.AURORA_MAINNET]: "0xA94B88eceF32c6601b62c2C285fB65A8250B1409", // update mainnet
@@ -800,6 +869,7 @@ export const NEAR_WL_PROXIMITY_GARDEN_ADDRESSES: {
 export const NEAR_GARDEN_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0xa2A36C2E2bE75C33E32C0A6fDE402652700351fA",
   [ChainId.AURORA_MAINNET]: "0x64C922E3824ab40cbbEdd6C8092d148C283d3D3D",
@@ -808,6 +878,7 @@ export const NEAR_GARDEN_ADDRESSES: {
 }
 
 export const NEAR_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x0B680dbDCC07166CE5201E75FC5A20a650F5a3F2",
   [ChainId.AURORA_MAINNET]: "0x79c57C246794606c83AB32dc56e5cD2030FB552b",
@@ -818,6 +889,7 @@ export const NEAR_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
 export const USDC_GARDEN_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "", // TO-DO: update testnet
   [ChainId.AURORA_MAINNET]: "0xfbAF3eBF228eB712b1267285787e51aDd70086bB",
@@ -827,6 +899,7 @@ export const USDC_GARDEN_ADDRESSES: {
 
 /** note: using this oracle for UST for the time being */
 export const USDC_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "", // TO-DO: update testnet
   [ChainId.AURORA_MAINNET]: "0xdD170e697d7ADed472a9284f07576c3449284502",
@@ -837,6 +910,7 @@ export const USDC_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
 export const USDT_GARDEN_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "", // TO-DO: update testnet
   [ChainId.AURORA_MAINNET]: "0x0F44fCD177098Cb2B063B50f6C62e4F1E1f9d596",
@@ -845,6 +919,7 @@ export const USDT_GARDEN_ADDRESSES: {
 }
 
 export const USDT_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "", // TO-DO: update testnet
   [ChainId.AURORA_MAINNET]: "0x55b9eD56737B161677dC5146873E643647Ba5a43",
@@ -855,6 +930,7 @@ export const USDT_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
 export const wBTC_GARDEN_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "", // TO-DO: update testnet
   [ChainId.AURORA_MAINNET]: "0x6bA5B45149996597d96e6dB19E4E1eFA81a6df97",
@@ -863,6 +939,7 @@ export const wBTC_GARDEN_ADDRESSES: {
 }
 
 export const wBTC_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "", // TO-DO: update testnet
   [ChainId.AURORA_MAINNET]: "0xBE46e430d336fC827d096Db044cBaEECE72e17bC",
@@ -873,6 +950,7 @@ export const wBTC_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
 export const wETH_GARDEN_ADDRESSES: {
   [chainId in ChainId]: string
 } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "", // TO-DO: update testnet
   [ChainId.AURORA_MAINNET]: "0x084355FDd5fcfd55d60C5B8626756a6906576f13",
@@ -881,6 +959,7 @@ export const wETH_GARDEN_ADDRESSES: {
 }
 
 export const wETH_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "", // TO-DO: update testnet
   [ChainId.AURORA_MAINNET]: "0x842AF8074Fa41583E3720821cF1435049cf93565",
@@ -889,6 +968,7 @@ export const wETH_ORACLE_ADDRESSES: { [chainId in ChainId]: string } = {
 }
 
 export const VASE_ADDRESSES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: "",
   [ChainId.HARDHAT]: "",
   [ChainId.AURORA_TESTNET]: "0x6DFA09af86Ec9EB4185898ee9841A51682b5d384",
   [ChainId.AURORA_MAINNET]: "0xee793001Ce9Fa988712B15a59CCf5dC7d54b22FF",
@@ -1342,14 +1422,15 @@ export type RosePool = RoseStablesPool | RoseMetaPool
 type NavItemDetails = {
   route: string
   name: string
+  onlyEth?: boolean
   isActive: (path: string) => boolean
 }
 
 export const NAV_ITEMS: NavItemDetails[] = [
   {
-    route: "/",
+    route: "/swap",
     name: "swap",
-    isActive: (path) => path === "/",
+    isActive: (path) => path === "/swap",
   },
   {
     route: "/pools",
@@ -1365,6 +1446,12 @@ export const NAV_ITEMS: NavItemDetails[] = [
     route: "/borrow",
     name: "borrow",
     isActive: (path) => /borrow*/.test(path),
+  },
+  {
+    route: "/earn",
+    name: "earn",
+    onlyEth: true,
+    isActive: (path) => path === "/earn",
   },
 ]
 

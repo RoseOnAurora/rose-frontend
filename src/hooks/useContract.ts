@@ -25,7 +25,11 @@ import {
   isMetaPool,
 } from "../constants"
 import { Contract, ContractInterface } from "@ethersproject/contracts"
+import EARN_FACTORY_ABI from "../constants/abis/earnFactory.json"
+import EARN_POSITION_ABI from "../constants/abis/earnPosition.json"
 import ERC20_ABI from "../constants/abis/erc20.json"
+import { EarnFactory } from "../../types/ethers-contracts/EarnFactory"
+import { EarnPosition } from "../../types/ethers-contracts/EarnPosition"
 import { Erc20 } from "../../types/ethers-contracts/Erc20"
 import GARDEN_ABI from "../constants/abis/Garden.json"
 import { Garden } from "../../types/ethers-contracts/Garden"
@@ -70,6 +74,20 @@ function useContract(
       return null
     }
   }, [address, ABI, provider, withSignerIfPossible, account])
+}
+
+export function useEarnFactoryContract(): EarnFactory | null {
+  return useContract(
+    "0x68F968D838e51D7CE5C52909E77AF78272FE7BCE",
+    JSON.stringify(EARN_FACTORY_ABI.abi),
+  ) as EarnFactory
+}
+
+export function useEarnPositionContract(address?: string): EarnPosition | null {
+  return useContract(
+    address ?? "", // dynamically created once position is opened
+    JSON.stringify(EARN_POSITION_ABI.abi),
+  ) as EarnPosition
 }
 
 export function useFarmContract(farmName: FarmName): RoseStablesFarm | null {

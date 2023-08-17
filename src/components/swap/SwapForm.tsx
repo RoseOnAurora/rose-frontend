@@ -209,6 +209,7 @@ const InnerSwapForm = (
               inputValue={meta.value}
               fieldProps={field}
               isInvalid={!!meta.error}
+              inputProps={{ isDisabled: isSubmitting }}
               onToggleTokenSelect={() => onModalOpen("from")}
               onChangeInput={(e) => {
                 props.handleChange(e)
@@ -251,7 +252,7 @@ const InnerSwapForm = (
           onSwitchDirection(values.from)
           setIsLoading(true)
         }}
-        disabled={
+        isDisabled={
           !fromToken ||
           !toToken ||
           isSubmitting ||
@@ -339,7 +340,7 @@ const InnerSwapForm = (
           width="100%"
           type="submit"
           isLoading={isSubmitting}
-          disabled={
+          isDisabled={
             !isValid || isSubmitting || !+props.values.from || !+props.values.to
           }
         >

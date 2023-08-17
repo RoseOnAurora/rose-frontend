@@ -13,23 +13,22 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react"
+import { FaArrowLeft, FaWallet } from "react-icons/fa"
 import React, { ReactElement } from "react"
-import ChangeAccountButton from "./button/ChangeAccountButton"
-import { FaWallet } from "react-icons/fa"
 import { SUPPORTED_CHAINS } from "../constants/chains"
 import { map } from "lodash"
 import useAddNetworkToMetamask from "../hooks/useAddNetworkToMetamask"
 import { useTranslation } from "react-i18next"
 
 interface Props {
-  openOptions: () => void
+  onGoBack?: () => void
   onSwitchChainStart?: () => void
   onSwitchChainSuccess?: () => void
   onSwitchChainFail?: () => void
 }
 
 export default function SupportedChains({
-  openOptions,
+  onGoBack,
   onSwitchChainStart,
   onSwitchChainSuccess,
   onSwitchChainFail,
@@ -144,19 +143,23 @@ export default function SupportedChains({
                 }
               }}
             >
-              {t("addToWallet")}
+              {t("changeInWallet")}
             </Button>
           </ButtonGroup>
         ))}
       </Stack>
-      <ChangeAccountButton
-        color="red.500"
-        fontWeight={700}
-        fontSize="15px"
-        p="10px"
-        transition="ease-in-out 0.1s"
-        onClick={openOptions}
-      />
+      {onGoBack && (
+        <Button
+          size="sm"
+          variant="ghost"
+          aria-label="go back"
+          transition="ease-in-out 0.1s"
+          leftIcon={<FaArrowLeft color="inherit" />}
+          onClick={onGoBack}
+        >
+          Go Back
+        </Button>
+      )}
     </Stack>
   )
 }

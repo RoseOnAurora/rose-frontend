@@ -2,7 +2,7 @@ import { MetaMask } from "@web3-react/metamask"
 import { useCallback } from "react"
 import { useWeb3React } from "@web3-react/core"
 
-const useSwitchAccounts = (): (() => void) => {
+const useSwitchAccounts = (): (() => Promise<void>) => {
   const { connector } = useWeb3React()
 
   const switchAccounts = useCallback(async () => {

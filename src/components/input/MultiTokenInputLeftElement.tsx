@@ -5,7 +5,7 @@ import { Token } from "../../constants"
 import { useTranslation } from "react-i18next"
 
 interface MultiTokenInputLeftElementProps {
-  selectedToken: Token
+  selectedToken?: Token
   onToggleTokenSelect: () => void
 }
 

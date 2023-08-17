@@ -7,10 +7,10 @@ import {
   ModalOverlay,
   ModalProps,
 } from "@chakra-ui/react"
-import React, { ReactElement } from "react"
+import React, { ReactElement, ReactNode, useRef } from "react"
 
 interface ModalWraperProps extends ModalProps {
-  modalHeader: string
+  modalHeader: ReactNode
   maxW?: string
   blur?: boolean
 }
@@ -21,9 +21,11 @@ const ModalWrapper = ({
   blur,
   maxW,
   ...rest
-}: React.PropsWithChildren<unknown> & ModalWraperProps): ReactElement => {
+}: React.PropsWithChildren<ModalWraperProps>): ReactElement => {
+  const ref = useRef(null)
+
   return (
-    <Modal {...rest}>
+    <Modal {...rest} initialFocusRef={ref}>
       <ModalOverlay
         bg="blackAlpha.900"
         backdropFilter={blur ? "blur(5px)" : ""}
@@ -32,7 +34,7 @@ const ModalWrapper = ({
         <ModalHeader fontWeight={700} fontSize="30px" lineHeight="39px" p="0">
           {modalHeader}
         </ModalHeader>
-        <ModalCloseButton top={7} />
+        <ModalCloseButton ref={ref} top={7} />
         <ModalBody p="0" mt="30px">
           {children}
         </ModalBody>

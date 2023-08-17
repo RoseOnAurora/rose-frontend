@@ -111,14 +111,8 @@ const SwapTokenSelectModal = ({
             onClose()
           }}
         />
-        <Box
-          bgColor="bgDark"
-          borderRadius="14px"
-          p="8px"
-          h="350px"
-          overflowY="auto"
-        >
-          <Stack spacing="10px" pos="relative" h="full">
+        <Box bgColor="bgDark" borderRadius="14px" p="8px">
+          <Stack spacing="10px" pos="relative" maxH="200px" overflowY="auto">
             <TokenList
               tokens={filteredTokens}
               onSelectToken={(symbol: string) => {

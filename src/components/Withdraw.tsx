@@ -106,6 +106,7 @@ function Withdraw({
   const [isOpen, setIsOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [estWithdrawBonus, setEstWithdrawBonus] = useState(Zero)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const POOL = POOLS_MAP[poolName]
 
@@ -263,6 +264,7 @@ function Withdraw({
           data={reviewWithdrawData}
           onClose={(): void => setIsModalOpen(false)}
           onConfirm={async () => {
+            setIsSubmitting(true)
             setIsModalOpen(false)
             handlePreSubmit?.(TransactionType.WITHDRAW)
             try {
@@ -275,6 +277,8 @@ function Withdraw({
                 code: error.code,
                 message: error.message,
               })
+            } finally {
+              setIsSubmitting(false)
             }
           }}
         />
@@ -396,6 +400,7 @@ function Withdraw({
                             inputValue={token.inputValue}
                             isInvalid={false}
                             readOnly={true}
+                            inputProps={{ isDisabled: isSubmitting }}
                             onChangeInput={(e): void => {
                               updateWithdrawFormState({
                                 fieldName: "tokenInputs",
@@ -484,6 +489,7 @@ function Withdraw({
                         token={token}
                         inputValue={token.inputValue}
                         isInvalid={false} // TODO: fix this
+                        inputProps={{ isDisabled: isSubmitting }}
                         onChangeInput={(e): void => {
                           updateWithdrawFormState({
                             fieldName: "tokenInputs",
@@ -550,11 +556,13 @@ function Withdraw({
           variant="primary"
           size="lg"
           width="100%"
-          disabled={
+          isDisabled={
             noShare ||
             !!withdrawFormState.error ||
-            withdrawFormState.lpTokenAmountToSpend.isZero()
+            withdrawFormState.lpTokenAmountToSpend.isZero() ||
+            isSubmitting
           }
+          isLoading={isSubmitting}
           onClick={(): void => {
             setIsModalOpen(true)
           }}

@@ -181,6 +181,7 @@ export default function useChakraToast(): ToastFunctions {
     const parsed = parseErrorMessage(error)
 
     switch (error?.code) {
+      case "ACTION_REJECTED":
       case TransactionErrorCode.CANCELLED_TRANSACTION:
         toastData.title = `${txnType} Transaction Aborted!`
         toastData.description = `${error.code}: ${error.message}`

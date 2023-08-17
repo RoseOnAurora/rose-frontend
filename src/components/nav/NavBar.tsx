@@ -1,10 +1,11 @@
+import { ChainId, NAV_ITEMS } from "../../constants"
 import { Flex, Text, chakra } from "@chakra-ui/react"
 import React, { ReactElement, useMemo } from "react"
 import { isValidMotionProp, motion } from "framer-motion"
 import BridgeMenu from "../menu/BridgeMenu"
 import { Link } from "react-router-dom"
-import { NAV_ITEMS } from "../../constants"
 import { useTranslation } from "react-i18next"
+import { useWeb3React } from "@web3-react/core"
 
 interface NavBarProps {
   activeNavItem: string
@@ -22,9 +23,13 @@ const NavBar = ({ activeNavItem }: NavBarProps): ReactElement => {
   // hooks
   const { t } = useTranslation()
 
+  const { chainId, account } = useWeb3React()
+
   return (
     <Flex alignItems="center" gridGap={{ base: "5px", xl: "25px" }}>
-      {NAV_ITEMS.map(({ route, name, isActive }) => {
+      {NAV_ITEMS.filter(({ onlyEth = false }) =>
+        chainId === ChainId.MAINNET ? onlyEth : !onlyEth || !account,
+      ).map(({ route, name, isActive }) => {
         const active = isActive(activeNavItem)
         return (
           <Link to={route} key={name}>
@@ -40,6 +45,7 @@ const NavBar = ({ activeNavItem }: NavBarProps): ReactElement => {
                 fontWeight={700}
                 fontSize={{ base: "14px", xl: "20px" }}
                 lineHeight="18px"
+                textTransform="capitalize"
                 textAlign="center"
                 _hover={{ color: "gray.200" }}
               >

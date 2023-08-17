@@ -103,7 +103,7 @@ function ReviewWithdraw({ onClose, onConfirm, data }: Props): ReactElement {
           <ButtonGroup isAttached>
             <Button
               onClick={onConfirm}
-              disabled={isHighSlippageTxn && !hasConfirmedHighPriceImpact}
+              isDisabled={isHighSlippageTxn && !hasConfirmedHighPriceImpact}
             >
               {t("confirmWithdraw")}
             </Button>

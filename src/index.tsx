@@ -7,13 +7,14 @@ import "./i18n"
 
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react"
 import { Chart, registerables } from "chart.js"
-import React, { Suspense } from "react"
 
 import App from "./App"
 import GasAndTokenPrices from "./components/GasAndTokenPrices"
 import { Global } from "@emotion/react"
 import { GlobalStyles } from "./theme/global"
+import { HashRouter } from "react-router-dom"
 import { Provider } from "react-redux"
+import React from "react"
 import ReactDOM from "react-dom/client"
 import Web3ReactManager from "./components/Web3ReactManager"
 import chakraTheme from "./theme/"
@@ -33,13 +34,13 @@ root.render(
     <ChakraProvider theme={chakraTheme}>
       <Global styles={GlobalStyles} />
       <Provider store={store}>
-        <Suspense fallback={null}>
-          <Web3ReactManager>
-            <GasAndTokenPrices>
+        <Web3ReactManager>
+          <GasAndTokenPrices>
+            <HashRouter>
               <App />
-            </GasAndTokenPrices>
-          </Web3ReactManager>
-        </Suspense>
+            </HashRouter>
+          </GasAndTokenPrices>
+        </Web3ReactManager>
       </Provider>
     </ChakraProvider>
   </React.StrictMode>,
